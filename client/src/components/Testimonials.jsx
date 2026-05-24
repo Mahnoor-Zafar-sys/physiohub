@@ -17,7 +17,7 @@ export default function Testimonials() {
   };
 
   useEffect(() => {
-    const timer = setInterval(next, 6000); // 6 seconds auto-rotation
+    const timer = setInterval(next, 4000); // 4 seconds auto-rotation
     return () => clearInterval(timer);
   }, []);
 
@@ -48,10 +48,7 @@ export default function Testimonials() {
           transition={{ duration: 0.65, ease: "easeOut" }}
           className="text-center mb-20"
         >
-          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-50 border border-amber-200 text-amber-700 text-xs font-bold uppercase tracking-widest mb-4 shadow-sm">
-            <FiStar className="fill-current text-amber-500 animate-spin-slow" />
-            Patient Stories
-          </span>
+          
           <h2 className="text-4xl sm:text-5xl font-extrabold text-slate-900 mt-2 tracking-tight font-serif">
             Trusted by{" "}
             <span style={{ 

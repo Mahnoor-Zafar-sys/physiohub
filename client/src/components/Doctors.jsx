@@ -3,52 +3,91 @@ import { FiStar, FiCalendar, FiMessageCircle } from "react-icons/fi";
 import { doctors } from "../data/mockData";
 
 export default function Doctors() {
+  // PDF Scope ke mutabik filter karne ke liyeallowed specialties array
+  const allowedSpecialties = [
+    "dentist", 
+    "dermatologist", 
+    "hair transplant specialist", 
+    "orthopedic surgeon", 
+    "ent specialist", 
+    "gynecologist"
+  ];
+
+  const filteredDoctors = doctors.filter((doc) =>
+    allowedSpecialties.includes(doc.specialty.toLowerCase())
+  );
+
+  // Strictly sirf pehle 4 doctors ko home page grid me dikhane ke liye slice kiya hai
+  const homePageDoctors = filteredDoctors.slice(0, 4);
+
   return (
     <section id="doctors" className="py-24 bg-gradient-to-b from-slate-50/60 to-white overflow-hidden">
+      
+      {/* Royal Blue Glittering & Shiny Effect CSS Injection */}
+      <style dangerouslySetInnerHTML={{__html: `
+        @keyframes royalShimmer {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+        .royal-glitter {
+          background: linear-gradient(
+            to right, 
+            #1e3a8a 0%, 
+            #2563eb 25%, 
+            #3b82f6 50%, 
+            #2563eb 75%, 
+            #1e3a8a 100%
+          );
+          background-size: 200% auto;
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          animation: royalShimmer 4s linear infinite;
+          display: inline-block;
+        }
+      `}} />
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         
-        {/* Typography Heading Area (Centered) */}
+        {/* Typography Heading Area (Centered & Fixed Layout) */}
         <div className="flex flex-col items-center justify-center text-center mb-16 max-w-2xl mx-auto relative z-10">
           
-          {/* --- HEADING & BADGE: Left to Right (Repeats on every scroll) --- */}
-          <motion.div
-            initial={{ opacity: 0, x: -60 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: false, amount: 0.2 }} // once: false ensures repeat on scroll
-            transition={{ duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
-            className="w-full flex flex-col items-center"
-          >
-            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-med-green/10 border border-med-green/20 text-med-green text-xs font-semibold font-body uppercase tracking-widest mb-4">
-              <span className="w-1.5 h-1.5 bg-med-green rounded-full" />
-              Our Specialists
-            </span>
-            
-            <h2 className="font-display text-4xl sm:text-5xl font-bold text-slate-900 leading-tight mt-1">
-              Meet Our <span className="text-gradient">Expert Doctors</span>
-            </h2>
-          </motion.div>
+          {/* --- HEADING: Unified Smooth Scroll Scale & Y-Axis Reveal --- */}
+          <div className="w-full overflow-hidden py-1">
+            <motion.h2 
+              initial={{ opacity: 0, y: 30, scale: 0.98 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
+              viewport={{ once: false, amount: 0.3 }}
+              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+              className="font-display text-4xl sm:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight w-full"
+            >
+              Meet Our <span className="royal-glitter">Expert Doctors</span>
+            </motion.h2>
+          </div>
 
-          {/* --- SUBTEXT PARAGRAPH: Right to Left (Repeats on every scroll) --- */}
-          <motion.p
-            initial={{ opacity: 0, x: 60 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: false, amount: 0.2 }} // once: false ensures repeat on scroll
-            transition={{ duration: 1.1, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
-            className="mt-4 text-slate-500 font-body font-light text-lg max-w-xl"
-          >
-            Board-certified specialists with international training and decades of experience.
-          </motion.p>
+          {/* --- SUBTEXT PARAGRAPH: Smooth Reveal --- */}
+          <div className="w-full overflow-hidden">
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: false, amount: 0.3 }}
+              transition={{ duration: 0.6, delay: 0.15, ease: "easeOut" }}
+              className="mt-4 text-slate-500 font-body font-normal text-base sm:text-lg max-w-xl leading-relaxed"
+            >
+              Board-certified specialists with international training and decades of experience.
+            </motion.p>
+          </div>
         </div>
 
-        {/* Doctor Cards Grid Context */}
+        {/* Doctor Cards Grid Context (Slicing keeps exactly 4 items here) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-          {doctors.map((doc, i) => (
+          {homePageDoctors.map((doc, i) => (
             <motion.div
               key={doc.id}
-              initial={{ opacity: 0, y: 50 }}
+              initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: false, amount: 0.1 }} // Repeats when cards roll into viewport
-              transition={{ delay: i * 0.1, duration: 0.65 }}
+              viewport={{ once: false, amount: 0.1 }}
+              transition={{ delay: i * 0.08, duration: 0.55, ease: "easeOut" }}
               whileHover={{ y: -12 }}
               className="group bg-white rounded-3xl overflow-hidden border border-slate-100 cursor-pointer"
               style={{ boxShadow: "0 4px 20px rgba(0,0,0,0.06)" }}
@@ -114,10 +153,10 @@ export default function Doctors() {
                   <motion.div
                     initial={{ width: 0 }}
                     whileInView={{ width: `${(doc.rating / 5) * 100}%` }}
-                    viewport={{ once: false }} // Animates the line fill on every scroll pass
-                    transition={{ duration: 1.2, delay: i * 0.1, ease: "easeOut" }}
+                    viewport={{ once: false }}
+                    transition={{ duration: 1.2, delay: i * 0.08, ease: "easeOut" }}
                     className="h-full rounded-full"
-                    style={{ background: "linear-gradient(90deg, #0ea5e9, #22c55e)" }}
+                    style={{ background: "linear-gradient(90deg, #1e3a8a, #3b82f6)" }}
                   />
                 </div>
               </div>
@@ -125,18 +164,18 @@ export default function Doctors() {
           ))}
         </div>
 
-        {/* --- CHANGED: View All Button placed cleanly at the bottom center --- */}
+        {/* --- View All Button (Updated with Premium Blue Hover & Smooth Shadow Transition) --- */}
         <div className="flex justify-center w-full relative z-10">
           <motion.div
-            initial={{ opacity: 0, y: 25 }}
+            initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: false, amount: 0.5 }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.5 }}
           >
             <motion.button
-              whileHover={{ scale: 1.05, y: -2 }}
-              whileTap={{ scale: 0.96 }}
-              className="px-8 py-3.5 rounded-xl border-2 border-med-blue/30 text-med-blue font-bold font-body text-sm bg-white hover:bg-med-blue/5 shadow-sm hover:shadow-md transition-all duration-300"
+              whileHover={{ y: -2 }}
+              whileTap={{ scale: 0.97 }}
+              className="px-8 py-3.5 rounded-xl text-white font-bold font-body text-sm tracking-tight transition-all duration-300 bg-slate-900 hover:bg-blue-600 shadow-md shadow-slate-950/10 hover:shadow-lg hover:shadow-blue-500/20"
             >
               View All Doctors →
             </motion.button>

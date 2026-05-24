@@ -2,43 +2,63 @@ export const doctors = [
   {
     id: 1,
     name: "Dr. Sarah Mitchell",
-    specialty: "Cardiology",
-    experience: "15 Years",
+    specialty: "Dentist", // Dental Care
+    experience: "12 Years",
     rating: 4.9,
     reviews: 312,
-    image: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=400&h=400&fit=crop&crop=face",
+    image: "https://images.unsplash.com/photo-1594824476967-48c8b964273f?w=400&h=400&fit=crop&crop=face",
     available: true,
   },
   {
     id: 2,
-    name: "Dr. James Thornton",
-    specialty: "Neurology",
-    experience: "12 Years",
-    rating: 4.8,
-    reviews: 289,
+    name: "Dr. Aisha Rahman",
+    specialty: "Dermatologist", // Skin Care
+    experience: "9 Years",
+    rating: 4.9,
+    reviews: 421,
     image: "https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=400&h=400&fit=crop&crop=face",
     available: true,
   },
   {
     id: 3,
-    name: "Dr. Aisha Rahman",
-    specialty: "Dermatology",
-    experience: "9 Years",
-    rating: 4.9,
-    reviews: 421,
-    image: "https://images.unsplash.com/photo-1594824476967-48c8b964273f?w=400&h=400&fit=crop&crop=face",
+    name: "Dr. James Thornton",
+    specialty: "Hair Transplant Specialist", // Hair Transplant
+    experience: "15 Years",
+    rating: 4.8,
+    reviews: 289,
+    image: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=400&h=400&fit=crop&crop=face",
     available: false,
   },
   {
     id: 4,
     name: "Dr. Carlos Mendez",
-    specialty: "Orthopedics",
+    specialty: "Orthopedic Surgeon", // Orthopedic
     experience: "18 Years",
     rating: 4.7,
     reviews: 198,
     image: "https://images.unsplash.com/photo-1537368910025-700350fe46c7?w=400&h=400&fit=crop&crop=face",
     available: true,
   },
+  {
+    id: 5,
+    name: "Dr. Zainab Al-Mansoor",
+    specialty: "Gynecologist", // Gynecology
+    experience: "14 Years",
+    rating: 4.9,
+    reviews: 345,
+    image: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400&h=400&fit=crop&crop=face",
+    available: true,
+  },
+  {
+    id: 6,
+    name: "Dr. Robert Vance",
+    specialty: "ENT Specialist", // ENT
+    experience: "11 Years",
+    rating: 4.6,
+    reviews: 167,
+    image: "https://images.unsplash.com/photo-1537368910025-700350fe46c7?w=400&h=400&fit=crop&crop=face",
+    available: true,
+  }
 ];
 
 export const testimonials = [
@@ -88,7 +108,6 @@ export const galleryImages = [
   },
   {
     id: 2,
-    // Fix: Purana broken URL change karke new professional medical consultation room ka verified live image URL set kar diya hai
     url: "https://images.unsplash.com/photo-1581594693702-fbdc51b2763b?w=600&h=400&fit=crop",
     label: "Patient Consultation Room",
   },

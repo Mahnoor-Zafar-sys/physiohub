@@ -898,6 +898,27 @@ export default function Services() {
         .card-back { transform: rotateY(180deg); }
         .img-zoom { transition: transform 6s ease; }
         .card-3d:hover .img-zoom { transform: scale(1.05); }
+
+        /* Continuous Premium Glitter Moving Effect - Matches Image Blue Shimmer Exactly */
+        @keyframes glitteryLinear {
+          0% { background-position: 0% 50%; }
+          100% { background-position: -200% 50%; }
+        }
+        .services-glitter-blue {
+          background: linear-gradient(
+            to right, 
+            #1e40af 0%, 
+            #2563eb 25%, 
+            #60a5fa 50%,
+            #2563eb 75%,
+            #1e40af 100%
+          );
+          background-size: 200% auto;
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          animation: glitteryLinear 4s linear infinite;
+          display: inline-block;
+        }
       `}</style>
 
       {/* Subtle background pattern */}
@@ -909,41 +930,39 @@ export default function Services() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
 
-        {/* Section Header Wrapper */}
+        {/* Section Header Wrapper with dynamic continuous scroll trigger */}
         <div className="text-center mb-16 overflow-hidden">
-          {/* Main heading left se appear hone k liye */}
           <motion.h2 
-            initial={{ opacity: 0, x: -70 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.65, ease: "easeOut" }}
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: false, amount: 0.3 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
             className="text-4xl sm:text-5xl font-extrabold text-slate-900 tracking-tight" 
             style={{ fontFamily: "Georgia, serif" }}
           >
-            Our Medical Services
+            Our <span className="services-glitter-blue">Medical Services</span>
           </motion.h2>
 
-          {/* Subtitle text heading k baad left se slide hoga (using delay) */}
           <motion.p 
-            initial={{ opacity: 0, x: -70 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.65, delay: 0.15, ease: "easeOut" }}
+            initial={{ opacity: 0, y: 25 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: false, amount: 0.3 }}
+            transition={{ duration: 0.8, delay: 0.15, ease: "easeOut" }}
             className="mt-4 text-slate-500 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed"
           >
             Specialised clinical departments staffed by certified consultants, equipped with modern diagnostic technology and guided by evidence-based treatment protocols.
           </motion.p>
         </div>
 
-        {/* 3 Featured Flip Cards (Neeche se ooper dynamically delay k sath aane k liye) */}
+        {/* 3 Featured Flip Cards appearing smoothly and slightly on every scroll entry */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7 mb-14">
           {featured.map(({ id, title, emoji, bgImage, accentColor, lightBg, borderColor, tagColor, tagBg, overview, symptoms, benefits, tags }, i) => (
             <motion.div
               key={id}
-              initial={{ opacity: 0, y: 60 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ duration: 0.6, delay: i * 0.15, ease: [0.215, 0.610, 0.355, 1.000] }}
+              initial={{ opacity: 0, y: 50, scale: 0.97 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
+              viewport={{ once: false, amount: 0.15 }}
+              transition={{ duration: 0.7, delay: i * 0.1, ease: [0.215, 0.610, 0.355, 1] }}
               className="card-3d cursor-pointer"
               style={{ height: 420 }}
             >
@@ -1045,7 +1064,7 @@ export default function Services() {
                         fontSize: 10, fontWeight: 700, textTransform: "uppercase",
                         letterSpacing: "0.06em", padding: "3px 9px", borderRadius: 5,
                         background: tagBg, color: tagColor, border: `1px solid ${borderColor}`
-                      }} smokescreen="">{tag}</span>
+                      }}>{tag}</span>
                     ))}
                   </div>
                 </div>
@@ -1055,12 +1074,12 @@ export default function Services() {
           ))}
         </div>
 
-        {/* Bottom Call to Action Button */}
+        {/* Bottom Call to Action Button with Scroll Trigger */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.2 }}
+          viewport={{ once: false, amount: 0.5 }}
+          transition={{ duration: 0.6 }}
           className="flex justify-center mt-12"
         >
           <a
@@ -1075,7 +1094,7 @@ export default function Services() {
               boxShadow: "0 4px 14px rgba(15,23,42,0.15)"
             }}
             onMouseEnter={e => {
-              e.currentTarget.style.background = "#1e3a5f";
+              e.currentTarget.style.background = "#2563eb";
               e.currentTarget.style.transform = "translateY(-1px)";
             }}
             onMouseLeave={e => {
