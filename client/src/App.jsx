@@ -1,9 +1,70 @@
 
 
+<<<<<<< HEAD
 // src/App.jsx
 import { useState } from "react";
 import Home from "./pages/Home";
 import ServicesPage from "./pages/Services";
+=======
+
+
+
+
+
+
+// import { useState } from "react";
+// import Home from "./pages/Home";
+// // import About from "./pages/About";
+// import SplashScreen from "./SplashScreen";
+
+// export default function App() {
+//   const [splashDone, setSplashDone] = useState(false);
+//   const [currentPage, setCurrentPage] = useState("home");
+
+//   if (!splashDone) {
+//     return <SplashScreen onComplete={() => setSplashDone(true)} />;
+//   }
+
+//   return currentPage === "about"
+//     ? <About onNavigate={setCurrentPage} />
+//     : <Home onNavigate={setCurrentPage} />;
+// }
+
+
+// import { useState } from "react";
+// import Home from "./pages/Home";
+// // import About from "./pages/About";
+// import OnlineConsultation from "./components/OnlineConsultation"; // ◄ Path yahan change kiya hai
+// import SplashScreen from "./SplashScreen";
+
+// export default function App() {
+//   const [splashDone, setSplashDone] = useState(false);
+//   const [currentPage, setCurrentPage] = useState("home");
+
+//   if (!splashDone) {
+//     return <SplashScreen onComplete={() => setSplashDone(true)} />;
+//   }
+
+//   // State-based Conditional Rendering Switch
+//   switch (currentPage) {
+//     case "online-consultation":
+//       return <OnlineConsultation onNavigate={setCurrentPage} />;
+//     case "about":
+//       // return <About onNavigate={setCurrentPage} />;
+//       return <Home onNavigate={setCurrentPage} />; 
+//     case "home":
+//     default:
+//       return <Home onNavigate={setCurrentPage} />;
+//   }
+// }
+
+
+
+import { useState } from "react";
+import Home from "./pages/Home";
+import AboutPremium from "./pages/About"; 
+import OnlineConsultation from "./components/OnlineConsultation"; 
+>>>>>>> 52ea7fcee912ae30c6118c5c642eabe18e9bf485
 import SplashScreen from "./SplashScreen";
 import ContactUs from "./pages/Contactus";
 import DoctorsPage from "./pages/Doctors";
@@ -13,6 +74,7 @@ export default function App() {
   const [splashDone, setSplashDone] = useState(false);
   const [currentPage, setCurrentPage] = useState("home");
 
+<<<<<<< HEAD
   // Appointment modal state — preselectedDoctor allows booking a specific doctor
   const [appointmentOpen, setAppointmentOpen] = useState(false);
   const [preselectedDoctor, setPreselectedDoctor] = useState(null);
@@ -30,10 +92,13 @@ export default function App() {
     setAppointmentOpen(true);
   }
 
+=======
+>>>>>>> 52ea7fcee912ae30c6118c5c642eabe18e9bf485
   if (!splashDone) {
     return <SplashScreen onComplete={() => setSplashDone(true)} />;
   }
 
+<<<<<<< HEAD
   return (
     <>
       {/* Global Booking Modal — renders on top of every page */}
@@ -73,3 +138,48 @@ export default function App() {
     </>
   );
 }
+=======
+  // Pure Conditional Rendering - No overlapping possible
+  if (currentPage === "about") {
+    return <AboutPremium onNavigate={setCurrentPage} />;
+  }
+
+  if (currentPage === "online-consultation") {
+    return <OnlineConsultation onNavigate={setCurrentPage} />;
+  }
+
+  return <Home onNavigate={setCurrentPage} />;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// import { useState } from "react";
+// import Home from "./pages/Home";
+// import About from "./pages/About";
+// import SplashScreen from "./SplashScreen";
+
+// export default function App() {
+//   const [splashDone, setSplashDone] = useState(false);
+
+//   return splashDone
+//     ? <Home />
+//     : <SplashScreen onComplete={() => setSplashDone(true)} />;
+// }
+>>>>>>> 52ea7fcee912ae30c6118c5c642eabe18e9bf485
