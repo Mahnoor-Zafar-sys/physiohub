@@ -125,6 +125,20 @@ export default function App() {
         />
       )}
 
+      {currentPage === "about" && (
+        <AboutPremium
+          onNavigate={setCurrentPage}
+          onBookAppointment={handleBookAppointment}
+        />
+      )}
+
+      {currentPage === "online-consultation" && (
+        <OnlineConsultation
+          onNavigate={setCurrentPage}
+          onBookAppointment={handleBookAppointment}
+        />
+      )}
+
       {currentPage === "home" && (
         <Home
           onNavigate={setCurrentPage}
@@ -133,18 +147,6 @@ export default function App() {
       )}
     </>
   );
-}
-
-  // Pure Conditional Rendering - No overlapping possible
-  if (currentPage === "about") {
-    return <AboutPremium onNavigate={setCurrentPage} />;
-  }
-
-  if (currentPage === "online-consultation") {
-    return <OnlineConsultation onNavigate={setCurrentPage} />;
-  }
-
-  return <Home onNavigate={setCurrentPage} />;
 }
 
 

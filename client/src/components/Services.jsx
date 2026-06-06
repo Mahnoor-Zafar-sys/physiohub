@@ -823,7 +823,6 @@ import {
   FiMapPin, FiPhone, FiAward, FiShield, FiStar
 } from "react-icons/fi";
 import { FaAmbulance } from "react-icons/fa";
-import Navbar from "../components/Navbar";
 
 // ─── IMAGE BANK ───────────────────────────────────────────────────────────────
 const IMAGES = {
@@ -1176,11 +1175,6 @@ export default function About({ onNavigate }) {
           user-select: none;
         }
       `}</style>
-
-      {/* NAVBAR */}
-      <div className="fixed top-0 left-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-slate-100">
-        <Navbar onNavigate={onNavigate} />
-      </div>
 
       {/* ══ HERO ══════════════════════════════════════════════════════════════ */}
       <section className="pt-40 pb-24 px-6 lg:px-16 max-w-7xl mx-auto relative overflow-hidden">

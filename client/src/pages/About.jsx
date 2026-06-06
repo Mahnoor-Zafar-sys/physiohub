@@ -190,7 +190,7 @@ const Eye = ({ children }) => (
 );
 
 // ─── MAIN ─────────────────────────────────────────────────────────────────────
-export default function About({ onNavigate }) {
+export default function About({ onNavigate, onBookAppointment }) {
   const statsRef   = useRef(null);
   const statsInView = useMotionInView(statsRef, { once: true, amount: 0.3 });
 
@@ -315,10 +315,10 @@ export default function About({ onNavigate }) {
               that genuinely heals.
             </p>
             <div className="flex gap-3 flex-wrap">
-              <button className="px-6 py-3 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 active:scale-[0.97] transition-all flex items-center gap-2 shadow-lg shadow-blue-200">
+              <button onClick={() => onBookAppointment && onBookAppointment()} className="px-6 py-3 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 active:scale-[0.97] transition-all flex items-center gap-2 shadow-lg shadow-blue-200">
                 Book Appointment <FiArrowRight size={14} />
               </button>
-              <button className="px-6 py-3 bg-white border border-slate-200 text-slate-700 text-sm font-semibold rounded-xl hover:border-blue-300 hover:text-blue-600 transition-all">
+              <button onClick={() => onNavigate && onNavigate("doctors")} className="px-6 py-3 bg-white border border-slate-200 text-slate-700 text-sm font-semibold rounded-xl hover:border-blue-300 hover:text-blue-600 transition-all">
                 Meet Our Doctors
               </button>
             </div>
@@ -629,13 +629,13 @@ export default function About({ onNavigate }) {
             viewport={{ once: true }}
             className="flex flex-col sm:flex-row gap-3 justify-center"
           >
-            <button className="px-7 py-3.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 active:scale-[0.97] transition-all flex items-center gap-2 justify-center shadow-xl shadow-blue-200">
+            <button onClick={() => onBookAppointment && onBookAppointment()} className="px-7 py-3.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 active:scale-[0.97] transition-all flex items-center gap-2 justify-center shadow-xl shadow-blue-200">
               Book Appointment <FiArrowRight size={15} />
             </button>
-            <button className="px-7 py-3.5 bg-white text-slate-800 text-sm font-semibold rounded-xl border border-slate-200 hover:border-blue-300 hover:text-blue-600 transition-all flex items-center gap-2 justify-center">
+            <button onClick={() => onNavigate && onNavigate("online-consultation")} className="px-7 py-3.5 bg-white text-slate-800 text-sm font-semibold rounded-xl border border-slate-200 hover:border-blue-300 hover:text-blue-600 transition-all flex items-center gap-2 justify-center">
               Online Consultation <FiChevronRight size={15} />
             </button>
-            <button className="px-7 py-3.5 bg-slate-50 text-slate-700 text-sm font-semibold rounded-xl border border-slate-100 hover:border-slate-300 transition-all flex items-center gap-2 justify-center">
+            <button onClick={() => onNavigate && onNavigate("doctors")} className="px-7 py-3.5 bg-slate-50 text-slate-700 text-sm font-semibold rounded-xl border border-slate-100 hover:border-slate-300 transition-all flex items-center gap-2 justify-center">
               Meet Our Doctors <FiChevronRight size={15} />
             </button>
           </motion.div>
