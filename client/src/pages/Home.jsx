@@ -11,7 +11,7 @@ import Testimonials from "../components/Testimonials";
 import Gallery from "../components/Gallery";
 import Footer from "../components/Footer";
 
-export default function Home({ onNavigate, onBookAppointment }) {
+export default function Home() {
   const whatsappNumber = "+923001234567";
   const welcomeMessage = encodeURIComponent(
     "Hello Premium Clinic, I want to inquire about your healthcare services."
@@ -40,19 +40,19 @@ export default function Home({ onNavigate, onBookAppointment }) {
             transition={{ duration: 0.3 }}
             className="fixed top-0 left-0 w-full z-50"
           >
-            <Navbar onNavigate={onNavigate} onBookAppointment={onBookAppointment} />
+            <Navbar />
           </motion.div>
         )}
       </AnimatePresence>
 
-      <Hero onNavigate={onNavigate} onBookAppointment={onBookAppointment} />
+      <Hero />
       <QuickInfoBar />
-      <Services onNavigate={onNavigate} />
+      <Services />
       <WhyUs />
-      <Doctors onNavigate={onNavigate} onBookAppointment={onBookAppointment} />
+      <Doctors />
       <Testimonials />
       <Gallery />
-      <Footer onNavigate={onNavigate} />
+      <Footer />
 
       <div className="fixed bottom-6 right-6 z-50 flex items-center justify-center">
         <div className="absolute w-16 h-16 bg-green-500 rounded-full animate-ping opacity-40 pointer-events-none" />

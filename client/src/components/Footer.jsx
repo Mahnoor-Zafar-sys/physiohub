@@ -1,11 +1,33 @@
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 import { FiPhone, FiMail, FiMapPin, FiInstagram, FiTwitter, FiFacebook, FiLinkedin } from "react-icons/fi";
 import { MdLocalHospital } from "react-icons/md";
 
 const links = {
-  Services: ["Cardiology", "Neurology", "Dermatology", "Orthopedics", "Dental Care", "Emergency"],
-  Patients: ["Book Appointment", "Online Consultation", "Patient Portal", "Medical Records", "Insurance", "Health Blog"],
-  Company: ["About Us", "Our Doctors", "Careers", "News & Press", "Research", "CSR Initiatives"],
+  Services: [
+    { name: "Cardiology", path: "/services" },
+    { name: "Neurology", path: "/services" },
+    { name: "Dermatology", path: "/services" },
+    { name: "Orthopedics", path: "/services" },
+    { name: "Dental Care", path: "/services" },
+    { name: "Emergency", path: "/contact" }
+  ],
+  Patients: [
+    { name: "Book Appointment", path: "/book-appointment" },
+    { name: "Online Consultation", path: "/online-consultation" },
+    { name: "Patient Portal", path: "#" },
+    { name: "Medical Records", path: "#" },
+    { name: "Insurance", path: "/insurance" },
+    { name: "Health Blog", path: "/blog" }
+  ],
+  Company: [
+    { name: "About Us", path: "/about" },
+    { name: "Our Doctors", path: "/doctors" },
+    { name: "Careers", path: "/careers" },
+    { name: "News & Press", path: "#" },
+    { name: "Research", path: "#" },
+    { name: "CSR Initiatives", path: "#" }
+  ],
 };
 
 // Social Icons configuration as it is from your original code setup
@@ -36,10 +58,10 @@ export default function Footer() {
   return (
     <footer className="bg-gradient-to-b from-slate-50 to-slate-100 border-t border-slate-200/80">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-16 pb-12">
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-10 mb-14">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-10 mb-14">
           
           {/* Brand & Left Details */}
-          <div className="lg:col-span-2">
+          <div className="col-span-2 md:col-span-3 lg:col-span-2">
             <div className="flex items-center gap-3 mb-5">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#1e3a8a] to-[#0ea5e9] flex items-center justify-center shadow-md shadow-blue-500/10">
                 <MdLocalHospital className="text-white text-xl" />
@@ -91,10 +113,16 @@ export default function Footer() {
               <h4 className="text-slate-900 font-display font-extrabold text-xs uppercase tracking-wider mb-5">{category}</h4>
               <ul className="flex flex-col gap-3">
                 {items.map((item) => (
-                  <li key={item}>
-                    <a href="#" className="text-slate-500 text-sm font-body hover:text-blue-600 transition-colors duration-200">
-                      {item}
-                    </a>
+                  <li key={item.name}>
+                    {item.path.startsWith("/") ? (
+                      <Link to={item.path} className="text-slate-500 text-sm font-body hover:text-blue-600 transition-colors duration-200">
+                        {item.name}
+                      </Link>
+                    ) : (
+                      <a href={item.path} className="text-slate-500 text-sm font-body hover:text-blue-600 transition-colors duration-200">
+                        {item.name}
+                      </a>
+                    )}
                   </li>
                 ))}
               </ul>

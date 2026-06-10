@@ -1,5 +1,6 @@
 
 import { useState, useRef, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FiVideo, FiPhone, FiMessageCircle, FiSearch, FiX,
@@ -132,7 +133,7 @@ function BookingModal({ doctor, onClose }) {
             <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
               <h3 className="text-lg font-bold text-gray-900 mb-1">Choose Consultation Type</h3>
               <p className="text-sm text-gray-500 mb-5">How would you like to consult with {doctor.name}?</p>
-              <div className="grid grid-cols-2 gap-3 mb-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
                 {CONSULT_TYPES.map(ct => {
                   const Icon = ct.icon; const sel = consultType === ct.id;
                   return (
@@ -517,12 +518,12 @@ export default function OnlineConsultation() {
 
         {/* Back to Home */}
         <div className="relative max-w-6xl mx-auto px-4 pt-6">
-          <a href="/" className="inline-flex items-center gap-2 text-white/70 hover:text-white text-sm font-semibold transition-colors group">
+          <Link to="/" className="inline-flex items-center gap-2 text-white/70 hover:text-white text-sm font-semibold transition-colors group">
             <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors">
               <FiArrowLeft size={14} />
             </div>
             Back to Home
-          </a>
+          </Link>
         </div>
 
         {/* Hero Content: Left text + Right illustration */}

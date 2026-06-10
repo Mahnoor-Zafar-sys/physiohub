@@ -1725,6 +1725,8 @@
 // }
 
 import { useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import Navbar from "../components/Navbar";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import {
   FaWhatsapp, FaPhone, FaEnvelope, FaMapMarkerAlt,
@@ -1813,7 +1815,8 @@ function FAQItem({ q, a, index }) {
 }
 
 // ── Contact Banner (Services page Banner style — with floating contact icons) ──
-function ContactBanner({ onNavigate }) {
+function ContactBanner() {
+  const navigate = useNavigate();
   const ref = useRef(null);
   const inView = useInView(ref, { once: true });
 
@@ -1830,22 +1833,8 @@ function ContactBanner({ onNavigate }) {
   ];
 
   return (
-    <section ref={ref} className="relative overflow-hidden pt-14 pb-16"
+    <section ref={ref} className="relative overflow-hidden pt-32 pb-16"
       style={{ background: "linear-gradient(135deg,#f0f9ff 0%,#ffffff 45%,#fdf2f8 100%)" }}>
-
-      {/* Back to Home — absolute top-left corner */}
-      <motion.button
-        initial={{ opacity: 0, x: -10 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.4, delay: 0.1 }}
-        whileHover={{ x: -3 }}
-        whileTap={{ scale: 0.95 }}
-        onClick={() => onNavigate("home")}
-        className="absolute top-5 left-5 z-20 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/90 border border-slate-200 text-slate-600 text-sm font-bold hover:border-sky-300 hover:text-sky-600 transition-all shadow-sm backdrop-blur-sm"
-      >
-        <FiArrowLeft size={15} />
-        Back to Home
-      </motion.button>
 
       {/* Ambient orbs + grid — exact match with Services */}
       <div className="absolute inset-0 pointer-events-none">
@@ -1937,7 +1926,8 @@ function ContactBanner({ onNavigate }) {
 }
 
 // ── Main ContactUs Page ───────────────────────────────────────────────────────
-export default function ContactUs({ onNavigate }) {
+export default function ContactUs() {
+  const navigate = useNavigate();
   const whatsappNumber = "+923001234567";
   const welcomeMessage = encodeURIComponent("Hello Premium Clinic, I want to inquire about your healthcare services.");
 
@@ -1956,6 +1946,7 @@ export default function ContactUs({ onNavigate }) {
   return (
     <div className="min-h-screen font-body relative"
       style={{ background: "linear-gradient(135deg, #f0f9ff 0%, #ffffff 50%, #fdf2f8 100%)" }}>
+      <Navbar />
 
       {/* ── Ambient BG Orbs (fixed, same as rest of site) ── */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
@@ -1968,7 +1959,7 @@ export default function ContactUs({ onNavigate }) {
       {/* ═══════════════════════════════════════════
           BANNER — Services-style with floating icons
       ═══════════════════════════════════════════ */}
-      <ContactBanner onNavigate={onNavigate} />
+      <ContactBanner />
 
       {/* ═══════════════════════════════════════════
           QUICK INFO CARDS
@@ -1989,7 +1980,10 @@ export default function ContactUs({ onNavigate }) {
                 amber: { bg: "bg-amber-50", border: "border-amber-200", icon: "text-amber-500", gIcon: "bg-amber-100", hover: "hover:border-amber-300 hover:shadow-amber-100" },
                 red:   { bg: "bg-red-50",   border: "border-red-200",   icon: "text-red-500",   gIcon: "bg-red-100",   hover: "hover:border-red-300 hover:shadow-red-100" },
               };
-              const c = colorMap[card.color];
+              const c = card.color === "sky" ? colorMap.sky
+                      : card.color === "pink" ? colorMap.pink
+                      : card.color === "amber" ? colorMap.amber
+                      : colorMap.red;
               return (
                 <motion.div key={card.title} variants={fadeUp} custom={i}
                   whileHover={{ y: -4, scale: 1.02 }}
@@ -2054,7 +2048,14 @@ export default function ContactUs({ onNavigate }) {
                               <label className="text-slate-500 text-xs font-bold uppercase tracking-widest">
                                 {field.label} {field.required && <span className="text-sky-500">*</span>}
                               </label>
-                              <input type={field.type} name={field.name} value={formData[field.name]}
+                              <input type={field.type} name={field.name}
+                                value={
+                                  field.name === "name" ? formData.name :
+                                  field.name === "phone" ? formData.phone :
+                                  field.name === "email" ? formData.email :
+                                  field.name === "subject" ? formData.subject :
+                                  ""
+                                }
                                 onChange={handleChange} placeholder={field.placeholder} required={field.required}
                                 className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-700 placeholder-slate-300 text-sm focus:outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100 transition-all duration-200" />
                             </div>

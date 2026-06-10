@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FiCalendar, FiMonitor, FiPhoneCall } from "react-icons/fi";
 import { FaWhatsapp } from "react-icons/fa";
@@ -26,7 +27,8 @@ const fadeUpVariant = {
   show: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.215, 0.610, 0.355, 1.000] } },
 };
 
-export default function Hero({ onNavigate, onBookAppointment }) {
+export default function Hero() {
+  const navigate = useNavigate();
   const wrapRef  = useRef(null);
   const imageRef = useRef(null);
 
@@ -154,7 +156,7 @@ export default function Hero({ onNavigate, onBookAppointment }) {
               <motion.button
                 variants={fadeUpVariant}
                 className="hbtn hbtn-primary"
-                onClick={() => onBookAppointment && onBookAppointment()}
+                onClick={() => navigate("/book-appointment")}
               >
                 <FiCalendar /> Book Appointment
               </motion.button>
@@ -163,7 +165,7 @@ export default function Hero({ onNavigate, onBookAppointment }) {
               <motion.button 
                 variants={fadeUpVariant} 
                 className="hbtn hbtn-glass"
-                onClick={() => onNavigate && onNavigate("online-consultation")}
+                onClick={() => navigate("/online-consultation")}
               >
                 <FiMonitor style={{ color: "#10b981" }} /> Online Consultation
               </motion.button>

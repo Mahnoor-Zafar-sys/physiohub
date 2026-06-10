@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiMaximize2, FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
@@ -45,8 +46,22 @@ const galleryImages = [
 export default function Gallery() {
   const [startIndex, setStartIndex] = useState(0);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [visibleCards, setVisibleCards] = useState(3);
 
-  const visibleCards = 3;
+  useEffect(() => {
+    const updateVisibleCards = () => {
+      if (window.innerWidth < 640) {
+        setVisibleCards(1);
+      } else if (window.innerWidth < 1024) {
+        setVisibleCards(2);
+      } else {
+        setVisibleCards(3);
+      }
+    };
+    updateVisibleCards();
+    window.addEventListener("resize", updateVisibleCards);
+    return () => window.removeEventListener("resize", updateVisibleCards);
+  }, []);
 
   // Auto Slide loop matching the working approach
   useEffect(() => {
@@ -55,7 +70,7 @@ export default function Gallery() {
     }, 4500);
 
     return () => clearInterval(timer);
-  }, [startIndex]);
+  }, [startIndex, visibleCards]);
 
   const handleNext = () => {
     setStartIndex(
@@ -211,8 +226,8 @@ export default function Gallery() {
           </div>
 
           {/* Explore Complete Gallery Button with Blue Hover Style & Smooth Shadow Shifts */}
-          <a
-            href="#full-gallery-page"
+          <Link
+            to="/gallery"
             className="group inline-flex items-center gap-3 px-8 py-4 rounded-2xl bg-slate-950 text-white font-bold uppercase tracking-wider text-xs hover:bg-blue-600 transition-all duration-300 shadow-xl hover:shadow-lg hover:shadow-blue-500/20 order-1 sm:order-2"
             style={{ textDecoration: "none" }}
           >
@@ -220,7 +235,7 @@ export default function Gallery() {
             <span className="group-hover:translate-x-1 transition-transform duration-300">
               →
             </span>
-          </a>
+          </Link>
         </div>
 
       </div>

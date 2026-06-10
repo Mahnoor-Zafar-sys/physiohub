@@ -329,6 +329,7 @@
 
 
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 
 const servicesData = [
@@ -433,7 +434,8 @@ const servicesData = [
 const featured = servicesData.slice(0, 3);
 
 // Yahan humne onNavigate prop add kar diya hai controller integration ke liye
-export default function Services({ onNavigate }) {
+export default function Services() {
+  const navigate = useNavigate();
   return (
     <section id="services" className="py-24 relative overflow-hidden w-full select-none bg-white">
       <style>{`
@@ -619,13 +621,7 @@ export default function Services({ onNavigate }) {
           className="flex justify-center items-center py-4"
         >
           <button
-            onClick={() => {
-              if (typeof onNavigate === "function") {
-                onNavigate("services-page"); // Aapke pages/app switcher ka key handle
-              } else {
-                window.location.hash = "services-page"; // Safe local fallback guard
-              }
-            }}
+            onClick={() => navigate("/services")}
             style={{
               display: "inline-flex",
               alignItems: "center",

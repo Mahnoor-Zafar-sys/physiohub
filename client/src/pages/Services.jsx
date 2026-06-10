@@ -857,6 +857,8 @@
 // }
 
 import { useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import Navbar from "../components/Navbar";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import {
   FiSearch, FiArrowRight, FiArrowLeft, FiPhone, FiCalendar, FiX,
@@ -1137,6 +1139,7 @@ const TYPES = [
 // MODAL
 // ─────────────────────────────────────────────────────────────────────────────
 function ServiceModal({ service, onClose }) {
+  const navigate = useNavigate();
   const [openFaq, setOpenFaq] = useState(null);
   const Icon = service.icon;
   return (
@@ -1286,10 +1289,10 @@ function ServiceModal({ service, onClose }) {
 
           {/* Sticky footer */}
           <div className={`sticky bottom-0 px-6 sm:px-8 py-4 bg-white/95 backdrop-blur-sm border-t ${service.border} flex flex-col sm:flex-row gap-3 rounded-b-3xl`}>
-            <a href="#booking" onClick={onClose}
+            <button onClick={() => { onClose(); navigate("/book-appointment"); }}
               className={`flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl bg-gradient-to-r ${service.gradient} text-white font-bold text-sm shadow-lg hover:opacity-90 transition-opacity`}>
               <FiCalendar size={14} /> Book Appointment
-            </a>
+            </button>
             <a href="tel:+923001234567"
               className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl border-2 border-slate-200 text-slate-700 font-bold text-sm hover:bg-slate-50 transition-all">
               <FiPhone size={14} /> Call Us
@@ -1539,7 +1542,8 @@ function TopFilterBar({ activeTag, setActiveTag, activeType, setActiveType, sear
 // ─────────────────────────────────────────────────────────────────────────────
 // BANNER
 // ─────────────────────────────────────────────────────────────────────────────
-function Banner({ onNavigate }) {
+function Banner() {
+  const navigate = useNavigate();
   const ref = useRef(null);
   const inView = useInView(ref, { once: true });
   const floatIcons = [
@@ -1551,22 +1555,8 @@ function Banner({ onNavigate }) {
     { Icon: TbEar,        style:{ top:"12%",right:"19%" },  size:19, delay:1.1 },
   ];
   return (
-    <section ref={ref} className="relative overflow-hidden pt-14 pb-16"
+    <section ref={ref} className="relative overflow-hidden pt-32 pb-16"
       style={{ background:"linear-gradient(135deg,#f0f9ff 0%,#ffffff 45%,#fdf2f8 100%)" }}>
-
-      {/* Back to Home — absolute top-left corner */}
-      <motion.button
-        initial={{ opacity: 0, x: -10 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.4, delay: 0.1 }}
-        whileHover={{ x: -3 }}
-        whileTap={{ scale: 0.95 }}
-        onClick={() => onNavigate("home")}
-        className="absolute top-5 left-5 z-20 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/90 border border-slate-200 text-slate-600 text-sm font-bold hover:border-sky-300 hover:text-sky-600 transition-all shadow-sm backdrop-blur-sm"
-      >
-        <FiArrowLeft size={15} />
-        Back to Home
-      </motion.button>
 
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute -top-32 -left-32 w-[550px] h-[550px] bg-sky-200/25 rounded-full blur-[130px] animate-pulse" style={{ animationDuration:"9s" }} />
@@ -1613,10 +1603,10 @@ function Banner({ onNavigate }) {
         </motion.div>
         <motion.div initial={{ opacity:0,y:20 }} animate={inView ? { opacity:1,y:0 } : {}} transition={{ duration:0.8,delay:0.55 }}
           className="flex flex-wrap justify-center gap-4">
-          <a href="#booking" className="px-8 py-3.5 rounded-xl font-bold text-sm text-white shadow-xl hover:opacity-90 transition-opacity flex items-center gap-2"
+          <button onClick={() => navigate("/book-appointment")} className="px-8 py-3.5 rounded-xl font-bold text-sm text-white shadow-xl hover:opacity-90 transition-opacity flex items-center gap-2"
             style={{ background:"linear-gradient(135deg,#0ea5e9,#db2777)" }}>
             <FiCalendar size={15} /> Book Appointment
-          </a>
+          </button>
           <a href="tel:+923001234567" className="px-8 py-3.5 rounded-xl font-bold text-sm text-slate-700 bg-white border border-slate-200 hover:border-slate-300 hover:shadow-md transition-all flex items-center gap-2">
             <FiPhone size={15} /> Call Us Now
           </a>
@@ -1629,7 +1619,8 @@ function Banner({ onNavigate }) {
 // ─────────────────────────────────────────────────────────────────────────────
 // MAIN PAGE
 // ─────────────────────────────────────────────────────────────────────────────
-export default function ServicesPage({ onNavigate }) {
+export default function ServicesPage() {
+  const navigate = useNavigate();
   const [activeTag,  setActiveTag]  = useState("all");
   const [activeType, setActiveType] = useState("all");
   const [search,     setSearch]     = useState("");
@@ -1649,9 +1640,10 @@ export default function ServicesPage({ onNavigate }) {
 
   return (
     <div className="min-h-screen bg-slate-50 font-body">
+      <Navbar />
       {selected && <ServiceModal service={selected} onClose={() => setSelected(null)} />}
 
-      <Banner onNavigate={onNavigate} />
+      <Banner />
 
       <TopFilterBar
         activeTag={activeTag}   setActiveTag={setActiveTag}
@@ -1713,9 +1705,9 @@ export default function ServicesPage({ onNavigate }) {
             Our team will guide you to the right specialist. Book a free consultation or chat with us on WhatsApp.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
-            <a href="#booking" className="px-8 py-3.5 rounded-xl font-bold text-sky-600 bg-white shadow-xl hover:bg-white/90 transition-all flex items-center gap-2 text-sm">
+            <button onClick={() => navigate("/book-appointment")} className="px-8 py-3.5 rounded-xl font-bold text-sky-600 bg-white shadow-xl hover:bg-white/90 transition-all flex items-center gap-2 text-sm">
               <FiCalendar size={14} /> Book Free Consultation
-            </a>
+            </button>
             <a href="https://wa.me/+923001234567" target="_blank" rel="noopener noreferrer"
               className="px-8 py-3.5 rounded-xl font-bold text-white border-2 border-white/40 hover:bg-white/10 transition-all flex items-center gap-2 text-sm">
               <FiMessageCircle size={14} /> Chat on WhatsApp

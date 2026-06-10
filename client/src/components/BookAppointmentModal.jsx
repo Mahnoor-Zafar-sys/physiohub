@@ -499,7 +499,7 @@ function Step2({ doctor, days, selectedDay, setSelectedDay, selectedTime, setSel
       {/* Consultation type */}
       <div className="mb-5">
         <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Consultation Type</p>
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
           {CONSULTATION_TYPES.map(ct => {
             const Icon = ct.icon;
             const active = consultType === ct.value;
@@ -559,7 +559,7 @@ function Step2({ doctor, days, selectedDay, setSelectedDay, selectedTime, setSel
       {/* Time slots */}
       <div>
         <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Available Time Slots</p>
-        <div className="grid grid-cols-4 sm:grid-cols-5 gap-2">
+        <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
           {TIME_SLOTS.map(slot => {
             const busy = unavailable.includes(slot);
             const active = selectedTime === slot;

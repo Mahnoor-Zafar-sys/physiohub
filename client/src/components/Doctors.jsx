@@ -1,8 +1,10 @@
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import { FiStar, FiCalendar, FiMessageCircle } from "react-icons/fi";
 import { doctors } from "../data/mockData";
 
 export default function Doctors() {
+  const navigate = useNavigate();
   // PDF Scope ke mutabik filter karne ke liyeallowed specialties array
   const allowedSpecialties = [
     "dentist", 
@@ -115,7 +117,7 @@ export default function Doctors() {
                   <button className="w-10 h-10 bg-white/20 backdrop-blur-sm border border-white/30 rounded-xl text-white flex items-center justify-center hover:bg-white/30 transition-colors">
                     <FiMessageCircle size={16} />
                   </button>
-                  <button className="px-5 py-2 bg-med-blue rounded-xl text-white text-sm font-semibold font-body flex items-center gap-2 hover:bg-med-blue-dark transition-colors" style={{ boxShadow: "0 0 15px rgba(14,165,233,0.5)" }}>
+                  <button onClick={() => navigate("/book-appointment", { state: { doctor: doc } })} className="px-5 py-2 bg-med-blue rounded-xl text-white text-sm font-semibold font-body flex items-center gap-2 hover:bg-med-blue-dark transition-colors cursor-pointer" style={{ boxShadow: "0 0 15px rgba(14,165,233,0.5)" }}>
                     <FiCalendar size={14} />
                     Book Now
                   </button>
@@ -175,7 +177,8 @@ export default function Doctors() {
             <motion.button
               whileHover={{ y: -2 }}
               whileTap={{ scale: 0.97 }}
-              className="px-8 py-3.5 rounded-xl text-white font-bold font-body text-sm tracking-tight transition-all duration-300 bg-slate-900 hover:bg-blue-600 shadow-md shadow-slate-950/10 hover:shadow-lg hover:shadow-blue-500/20"
+              onClick={() => navigate("/doctors")}
+              className="px-8 py-3.5 rounded-xl text-white font-bold font-body text-sm tracking-tight transition-all duration-300 bg-slate-900 hover:bg-blue-600 shadow-md shadow-slate-950/10 hover:shadow-lg hover:shadow-blue-500/20 cursor-pointer"
             >
               View All Doctors →
             </motion.button>

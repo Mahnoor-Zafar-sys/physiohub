@@ -1,5 +1,7 @@
 import { motion, AnimatePresence, useInView as useMotionInView, useScroll, useTransform } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import Navbar from "../components/Navbar";
 import {
   FiArrowRight, FiCheckCircle, FiChevronRight,
   FiMapPin, FiPhone, FiAward, FiShield, FiStar
@@ -188,7 +190,8 @@ const ParallaxImage = ({ src, alt, className = "" }) => {
 };
 
 // ─── MAIN COMPONENT ───────────────────────────────────────────────────────────
-export default function About({ onNavigate }) {
+export default function About() {
+  const navigate = useNavigate();
   const statsRef = useRef(null);
   const statsInView = useMotionInView(statsRef, { once: true, amount: 0.3 });
 
@@ -265,6 +268,7 @@ export default function About({ onNavigate }) {
 
   return (
     <div className="min-h-screen bg-[#f8f9fb] text-slate-800 antialiased font-sans selection:bg-blue-600 selection:text-white">
+      <Navbar />
       <style>{`
         @keyframes marquee {
           0%   { transform: translateX(0); }
@@ -300,30 +304,6 @@ export default function About({ onNavigate }) {
       `}</style>
 {/* ══ HERO SECTION WITH BACK TO HOME BUTTON & PURE SMOOTH MOTION PANELS ══════════════════════════════════════════ */}
 <section className="pt-40 pb-24 px-6 lg:px-16 max-w-7xl mx-auto relative overflow-hidden select-none">
-  
-  {/* Elegant & Premium Back to Home Trigger */}
-  <motion.div 
-    initial={{ opacity: 0, x: -20 }}
-    animate={{ opacity: 1, x: 0 }}
-    transition={{ duration: 0.5, delay: 0.2 }}
-    className="absolute top-24 left-6 lg:left-16 z-30"
-  >
-    <button 
-      onClick={() => {
-        if (typeof onNavigate === "function") {
-          onNavigate("home");
-        } else {
-          window.location.href = "/";
-        }
-      }}
-      className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-slate-100/80 hover:bg-blue-50 border border-slate-200/60 hover:border-blue-200 text-slate-600 hover:text-blue-600 text-xs font-bold tracking-wide uppercase transition-all duration-300 group shadow-sm backdrop-blur-sm"
-    >
-      <span className="transform group-hover:-translate-x-1 transition-transform duration-300 font-extrabold text-sm">
-        ←
-      </span>
-      <span>Back to Home</span>
-    </button>
-  </motion.div>
 
   <div className="grid lg:grid-cols-12 gap-12 items-center">
     
@@ -343,10 +323,10 @@ export default function About({ onNavigate }) {
         For over 13 years, we have built a legacy of professional medical care in Karachi — through world-class specialists, modern infrastructure, and a genuinely patient-first culture.
       </p>
       <div className="flex gap-3 flex-wrap pt-2">
-        <button className="px-5 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 transition-colors flex items-center gap-2 shadow-md shadow-blue-200">
+        <button onClick={() => navigate("/book-appointment")} className="px-5 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 transition-colors flex items-center gap-2 shadow-md shadow-blue-200">
           Book Appointment <FiArrowRight size={14} />
         </button>
-        <button className="px-5 py-2.5 bg-white border border-slate-200 text-slate-700 text-sm font-semibold rounded-xl hover:border-blue-300 hover:text-blue-600 transition-all">
+        <button onClick={() => navigate("/doctors")} className="px-5 py-2.5 bg-white border border-slate-200 text-slate-700 text-sm font-semibold rounded-xl hover:border-blue-300 hover:text-blue-600 transition-all">
           Meet Our Doctors
         </button>
       </div>
@@ -779,13 +759,13 @@ export default function About({ onNavigate }) {
             viewport={{ once: true, amount: 0.3 }}
             className="flex flex-col sm:flex-row gap-4 justify-center pt-2"
           >
-            <button className="px-7 py-3.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 transition-colors flex items-center gap-2 justify-center shadow-lg shadow-blue-200">
+            <button onClick={() => navigate("/book-appointment")} className="px-7 py-3.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 transition-colors flex items-center gap-2 justify-center shadow-lg shadow-blue-200">
               Book Appointment <FiArrowRight size={15} />
             </button>
-            <button className="px-7 py-3.5 bg-white text-slate-800 text-sm font-semibold rounded-xl border border-slate-200 hover:border-blue-300 hover:text-blue-600 transition-all flex items-center gap-2 justify-center">
+            <button onClick={() => navigate("/online-consultation")} className="px-7 py-3.5 bg-white text-slate-800 text-sm font-semibold rounded-xl border border-slate-200 hover:border-blue-300 hover:text-blue-600 transition-all flex items-center gap-2 justify-center">
               Online Consultation <FiChevronRight size={15} />
             </button>
-            <button className="px-7 py-3.5 bg-slate-50 text-slate-700 text-sm font-semibold rounded-xl border border-slate-100 hover:border-slate-300 transition-all flex items-center gap-2 justify-center">
+            <button onClick={() => navigate("/doctors")} className="px-7 py-3.5 bg-slate-50 text-slate-700 text-sm font-semibold rounded-xl border border-slate-100 hover:border-slate-300 transition-all flex items-center gap-2 justify-center">
               Meet Our Doctors <FiChevronRight size={15} />
             </button>
           </motion.div>

@@ -1848,6 +1848,8 @@
 // }
 
 import { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import Navbar from "../components/Navbar";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import {
   FiStar, FiCalendar, FiMessageCircle, FiVideo,
@@ -2941,7 +2943,8 @@ const floatIcons = [
 ];
 
 // ─── BANNER ───────────────────────────────────────────────────────────────────
-function Banner({ onNavigate }) {
+function Banner() {
+  const navigate = useNavigate();
   const ref = useRef(null);
   const inView = useInView(ref, { once: true });
 
@@ -2951,22 +2954,8 @@ function Banner({ onNavigate }) {
   const { displayed: tw2 } = useTypewriter(done1 ? line2 : "", 65, 200);
 
   return (
-    <section ref={ref} className="relative overflow-hidden pt-14 pb-16"
+    <section ref={ref} className="relative overflow-hidden pt-32 pb-16"
       style={{ background:"linear-gradient(135deg,#f0f9ff 0%,#ffffff 45%,#fdf2f8 100%)" }}>
-
-      {/* Back to Home — absolute top-left corner */}
-      <motion.button
-        initial={{ opacity: 0, x: -10 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.4, delay: 0.1 }}
-        whileHover={{ x: -3 }}
-        whileTap={{ scale: 0.95 }}
-        onClick={() => onNavigate("home")}
-        className="absolute top-5 left-5 z-20 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/90 border border-slate-200 text-slate-600 text-sm font-bold hover:border-sky-300 hover:text-sky-600 transition-all shadow-sm backdrop-blur-sm"
-      >
-        <FiArrowLeft size={15} />
-        Back to Home
-      </motion.button>
 
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute -top-32 -left-32 w-[550px] h-[550px] bg-sky-200/25 rounded-full blur-[130px] animate-pulse" style={{ animationDuration:"9s" }} />
@@ -3043,11 +3032,11 @@ function Banner({ onNavigate }) {
         <motion.div initial={{ opacity:0, y:20 }} animate={inView ? { opacity:1, y:0 } : {}}
           transition={{ duration:0.8, delay:0.55 }}
           className="flex flex-wrap justify-center gap-4">
-          <a href="#booking"
+          <button onClick={() => navigate("/book-appointment")}
             className="px-8 py-3.5 rounded-xl font-bold text-sm text-white shadow-xl hover:opacity-90 transition-opacity flex items-center gap-2"
             style={{ background:"linear-gradient(135deg,#0ea5e9,#db2777)" }}>
             <FiCalendar size={15} /> Book Appointment
-          </a>
+          </button>
           <a href="tel:+923001234567"
             className="px-8 py-3.5 rounded-xl font-bold text-sm text-slate-700 bg-white border border-slate-200 hover:border-slate-300 hover:shadow-md transition-all flex items-center gap-2">
             <FiPhone size={15} /> Call Us Now
@@ -3066,10 +3055,19 @@ function CategorySlider({ activeTag, setActiveTag }) {
   const rafRef = useRef(null);
   const SPEED = 0.6;
 
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 1024);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
   // Duplicate tags for seamless loop
   const doubled = [...TAGS, ...TAGS];
 
   useEffect(() => {
+    if (isMobile) return;
     const track = trackRef.current;
     if (!track) return;
     const halfW = track.scrollWidth / 2;
@@ -3084,7 +3082,39 @@ function CategorySlider({ activeTag, setActiveTag }) {
     };
     rafRef.current = requestAnimationFrame(step);
     return () => cancelAnimationFrame(rafRef.current);
-  }, [isPaused]);
+  }, [isPaused, isMobile]);
+
+  if (isMobile) {
+    return (
+      <div className="w-full overflow-x-auto py-3 px-4 bg-white/60 backdrop-blur-sm border-b border-slate-100 scrollbar-none">
+        <div className="flex gap-3" style={{ whiteSpace: "nowrap" }}>
+          {TAGS.map(({ value, label, color, icon: TagIcon }) => {
+            const active = activeTag === value;
+            return (
+              <motion.button
+                key={value}
+                onClick={() => setActiveTag(value)}
+                whileTap={{ scale: 0.95 }}
+                className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold flex-shrink-0 transition-all duration-200 border ${
+                  active
+                    ? "text-white border-transparent shadow-md"
+                    : "text-slate-600 bg-white border-slate-200 hover:border-slate-300"
+                }`}
+                style={active ? {
+                  background: value === "all"
+                    ? "linear-gradient(135deg,#0ea5e9,#db2777)"
+                    : `linear-gradient(135deg,${color}ee,${color}99)`,
+                  boxShadow: `0 4px 10px -2px ${color ?? "#0ea5e9"}44`
+                } : {}}>
+                <TagIcon size={12} style={{ color: active ? "white" : color }} />
+                {label}
+              </motion.button>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full overflow-hidden py-3 bg-white/60 backdrop-blur-sm border-b border-slate-100">
@@ -3175,6 +3205,7 @@ function FilterBar({ activeTag, setActiveTag, gender, setGender, branch, setBran
 
 // ─── DOCTOR MODAL ─────────────────────────────────────────────────────────────
 function DoctorModal({ doctor: d, onClose }) {
+  const navigate = useNavigate();
   const whatsappMsg = encodeURIComponent(`Hello, I'd like to book an appointment with ${d.name}.`);
   return (
     <AnimatePresence>
@@ -3275,23 +3306,23 @@ function DoctorModal({ doctor: d, onClose }) {
 
             {/* CTA Row */}
             <div className="flex flex-wrap gap-3 mt-6">
-              <motion.a whileHover={{ scale:1.04 }} whileTap={{ scale:0.97 }}
-                href="#booking"
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-white text-sm shadow-lg"
+              <motion.button whileHover={{ scale:1.04 }} whileTap={{ scale:0.97 }}
+                onClick={() => { onClose(); navigate("/book-appointment", { state: { doctor: d } }); }}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-white text-sm shadow-lg cursor-pointer"
                 style={{ background:`linear-gradient(135deg,${d.solidColor},#db2777)` }}>
                 <FiCalendar size={14} /> Book Appointment
-              </motion.a>
+              </motion.button>
               <motion.a whileHover={{ scale:1.04 }} whileTap={{ scale:0.97 }}
                 href={`https://wa.me/923001234567?text=${whatsappMsg}`} target="_blank" rel="noopener noreferrer"
                 className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-white text-sm bg-[#25D366] shadow-lg">
                 <FaWhatsapp size={14} /> WhatsApp
               </motion.a>
-              <motion.a whileHover={{ scale:1.04 }} whileTap={{ scale:0.97 }}
-                href="#consultation"
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm border-2 text-slate-700 bg-white hover:bg-slate-50 transition-all"
+              <motion.button whileHover={{ scale:1.04 }} whileTap={{ scale:0.97 }}
+                onClick={() => { onClose(); navigate("/online-consultation"); }}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm border-2 text-slate-700 bg-white hover:bg-slate-50 transition-all cursor-pointer"
                 style={{ borderColor:`${d.solidColor}40` }}>
                 <FiVideo size={14} style={{ color:d.solidColor }} /> Video Consult
-              </motion.a>
+              </motion.button>
             </div>
           </div>
 
@@ -3444,6 +3475,7 @@ function DoctorModal({ doctor: d, onClose }) {
 
 // ─── DOCTOR CARD ──────────────────────────────────────────────────────────────
 function DoctorCard({ doctor: d, onOpen, index }) {
+  const navigate = useNavigate();
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin:"-40px" });
   const whatsappMsg = encodeURIComponent(`Hello, I'd like to book an appointment with ${d.name}.`);
@@ -3555,8 +3587,8 @@ function DoctorCard({ doctor: d, onOpen, index }) {
         <div className="mt-auto flex gap-2">
           <motion.button
             whileHover={{ scale:1.04 }} whileTap={{ scale:0.96 }}
-            onClick={e => { e.stopPropagation(); }}
-            className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl font-bold text-white text-xs shadow-md"
+            onClick={e => { e.stopPropagation(); navigate("/book-appointment", { state: { doctor: d } }); }}
+            className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl font-bold text-white text-xs shadow-md cursor-pointer"
             style={{ background:`linear-gradient(135deg,${d.solidColor},#db2777)` }}>
             <FiCalendar size={12} /> Book Now
           </motion.button>
@@ -3582,7 +3614,8 @@ function DoctorCard({ doctor: d, onOpen, index }) {
 }
 
 // ─── MAIN PAGE ────────────────────────────────────────────────────────────────
-export default function DoctorsPage({ onNavigate }) {
+export default function DoctorsPage() {
+  const navigate = useNavigate();
   const [activeTag,  setActiveTag]  = useState("all");
   const [gender,     setGender]     = useState("all");
   const [branch,     setBranch]     = useState("all");
@@ -3609,9 +3642,10 @@ export default function DoctorsPage({ onNavigate }) {
 
   return (
     <div className="min-h-screen bg-slate-50 font-body">
+      <Navbar />
       {selected && <DoctorModal doctor={selected} onClose={() => setSelected(null)} />}
 
-      <Banner onNavigate={onNavigate} />
+      <Banner />
 
       <FilterBar
         activeTag={activeTag}   setActiveTag={setActiveTag}
@@ -3675,10 +3709,10 @@ export default function DoctorsPage({ onNavigate }) {
             Our team will guide you to the right doctor. Book a free consultation or chat on WhatsApp.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
-            <a href="#booking"
+            <button onClick={() => navigate("/book-appointment")}
               className="px-8 py-3.5 rounded-xl font-bold text-sky-600 bg-white shadow-xl hover:bg-white/90 transition-all flex items-center gap-2 text-sm">
               <FiCalendar size={14} /> Book Free Consultation
-            </a>
+            </button>
             <a href={`https://wa.me/${whatsappNumber}?text=${welcomeMessage}`}
               target="_blank" rel="noopener noreferrer"
               className="px-8 py-3.5 rounded-xl font-bold text-white border-2 border-white/40 hover:bg-white/10 transition-all flex items-center gap-2 text-sm">

@@ -67,13 +67,12 @@ export default function QuickInfoBar() {
       `}</style>
 
       <section
+        className="my-5 md:my-10 px-4 md:px-6 mx-auto"
         style={{
           position: "relative",
           zIndex: 30,
           width: "100%",
           maxWidth: "1400px",
-          margin: "40px auto", // Hero section se chipkne se rokne ke liye upar aur neeche premium margin
-          padding: "0 24px",
           boxSizing: "border-box"
         }}
       >
@@ -99,15 +98,13 @@ export default function QuickInfoBar() {
             }}
           >
             <motion.div
-              className="marquee-content"
+              className="marquee-content flex items-center gap-10 md:gap-24 pr-10 md:pr-24"
               variants={marqueeVariants}
               animate="animate"
               whileHover={{ animationPlayState: "paused" }}
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: "5.5rem", // Elements ke darmiyan clean consistent distance
-                paddingRight: "5.5rem",
               }}
             >
               {duplicatedInfos.map(({ icon: Icon, label, value, iconBg, iconColor, valueColor, live }, i) => (

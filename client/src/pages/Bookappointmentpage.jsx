@@ -1,5 +1,6 @@
 // src/pages/BookAppointmentPage.jsx
 import { useState, useEffect, useRef } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FiCalendar, FiClock, FiUser, FiPhone, FiMail,
@@ -382,7 +383,7 @@ function Step2({ doctor, days, selectedDay, setSelectedDay, selectedTime, setSel
       {/* Consultation type */}
       <div className="mb-6">
         <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Consultation Type</p>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {CONSULTATION_TYPES.map(ct => {
             const Icon = ct.icon;
             const active = consultType === ct.value;
@@ -435,13 +436,13 @@ function Step2({ doctor, days, selectedDay, setSelectedDay, selectedTime, setSel
       {/* Date picker */}
       <div className="mb-6">
         <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Select Date</p>
-        <div className="grid grid-cols-7 gap-2">
+        <div className="flex sm:grid sm:grid-cols-7 gap-2 overflow-x-auto sm:overflow-visible pb-2 sm:pb-0 scrollbar-none snap-x">
           {days.map((d, i) => (
             <motion.button
               key={i}
               whileTap={{ scale: 0.93 }}
               onClick={() => { setSelectedDay(i); setSelectedTime(null); }}
-              className={`flex flex-col items-center gap-1 py-3 rounded-2xl border-2 transition-all ${
+              className={`flex-shrink-0 w-[72px] sm:w-auto snap-start flex flex-col items-center gap-1 py-3 rounded-2xl border-2 transition-all ${
                 selectedDay === i
                   ? "border-transparent text-white shadow-md"
                   : "border-slate-100 bg-white text-slate-600 hover:border-slate-200"
@@ -459,7 +460,7 @@ function Step2({ doctor, days, selectedDay, setSelectedDay, selectedTime, setSel
       {/* Time slots */}
       <div>
         <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Available Time Slots</p>
-        <div className="grid grid-cols-4 sm:grid-cols-5 lg:grid-cols-6 gap-2">
+        <div className="grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-6 gap-2">
           {TIME_SLOTS.map(slot => {
             const busy = UNAVAILABLE_SLOTS.includes(slot);
             const active = selectedTime === slot;
@@ -732,7 +733,8 @@ function Step4({ doctor, day, time, consultType, branch, form }) {
 }
 
 // ─── SUCCESS VIEW ─────────────────────────────────────────────────────────────
-function SuccessView({ doctor, day, time, consultType, form, onNavigate }) {
+function SuccessView({ doctor, day, time, consultType, form }) {
+  const navigate = useNavigate();
   const bookingRef = `PC-${Date.now().toString().slice(-6)}`;
   return (
     <motion.div
@@ -817,7 +819,7 @@ function SuccessView({ doctor, day, time, consultType, form, onNavigate }) {
           </motion.a>
           <motion.button
             whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
-            onClick={() => onNavigate("home")}
+            onClick={() => navigate("/")}
             className="flex-1 py-3.5 rounded-2xl text-white text-sm font-extrabold shadow-md"
             style={{ background: "linear-gradient(135deg,#0ea5e9,#db2777)" }}
           >
@@ -830,7 +832,10 @@ function SuccessView({ doctor, day, time, consultType, form, onNavigate }) {
 }
 
 // ─── MAIN PAGE ────────────────────────────────────────────────────────────────
-export default function BookAppointmentPage({ onNavigate, preselectedDoctor = null }) {
+export default function BookAppointmentPage() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const preselectedDoctor = location.state?.doctor || null;
   const [step, setStep] = useState(preselectedDoctor ? 2 : 1);
   const [searchQ, setSearchQ] = useState("");
   const [specFilter, setSpecFilter] = useState("all");
@@ -875,7 +880,7 @@ export default function BookAppointmentPage({ onNavigate, preselectedDoctor = nu
 
   function handleBack() {
     if (step > 1) setStep(s => s - 1);
-    else onNavigate?.("home");
+    else navigate("/");
   }
 
   const canNext =
@@ -903,7 +908,7 @@ export default function BookAppointmentPage({ onNavigate, preselectedDoctor = nu
           <div className="flex items-center gap-4">
             <motion.button
               whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
-              onClick={() => onNavigate?.("home")}
+              onClick={() => navigate("/")}
               className="flex items-center gap-2 text-slate-500 hover:text-slate-700 text-sm font-bold transition-colors"
             >
               <FiArrowLeft size={16} /> Back
@@ -971,7 +976,6 @@ export default function BookAppointmentPage({ onNavigate, preselectedDoctor = nu
             time={selectedTime}
             consultType={consultType}
             form={form}
-            onNavigate={onNavigate}
           />
         ) : (
           <div className="flex gap-8 items-start">
