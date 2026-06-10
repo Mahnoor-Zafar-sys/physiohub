@@ -5,6 +5,7 @@ import {
 } from "react-icons/fi";
 import { FaWhatsapp } from "react-icons/fa";
 import { HiSparkles } from "react-icons/hi";
+import { LuBuilding, LuHeart, LuShield, LuStar, LuHospital, LuCircle, LuContact, LuCircleCheck, LuStethoscope, LuFileText } from "react-icons/lu";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
@@ -16,14 +17,14 @@ const THEME = {
 };
 
 const INSURANCE_PARTNERS = [
-  { name: "State Life", logo: "🏛️", type: "Government", color: "#0ea5e9", coverage: "OPD + IPD" },
-  { name: "Jubilee Health", logo: "💙", type: "Private", color: "#e91e8c", coverage: "Full Coverage" },
-  { name: "EFU Life", logo: "🛡️", type: "Private", color: "#a78bfa", coverage: "OPD + IPD" },
-  { name: "Adamjee Insurance", logo: "⭐", type: "Private", color: "#34d399", coverage: "IPD Only" },
-  { name: "TPL Health", logo: "🏥", type: "Private", color: "#ff7f50", coverage: "Full Coverage" },
-  { name: "ChubbLife", logo: "🔵", type: "International", color: "#f59e0b", coverage: "Full Coverage" },
-  { name: "SLIC", logo: "🌟", type: "Government", color: "#0ea5e9", coverage: "OPD + IPD" },
-  { name: "Allianz EFU", logo: "🟣", type: "International", color: "#a78bfa", coverage: "Full Coverage" },
+  { name: "State Life", logo: LuBuilding, type: "Government", color: "#0ea5e9", coverage: "OPD + IPD" },
+  { name: "Jubilee Health", logo: LuHeart, type: "Private", color: "#e91e8c", coverage: "Full Coverage" },
+  { name: "EFU Life", logo: LuShield, type: "Private", color: "#a78bfa", coverage: "OPD + IPD" },
+  { name: "Adamjee Insurance", logo: LuStar, type: "Private", color: "#34d399", coverage: "IPD Only" },
+  { name: "TPL Health", logo: LuHospital, type: "Private", color: "#ff7f50", coverage: "Full Coverage" },
+  { name: "ChubbLife", logo: LuCircle, type: "International", color: "#f59e0b", coverage: "Full Coverage" },
+  { name: "SLIC", logo: LuStar, type: "Government", color: "#0ea5e9", coverage: "OPD + IPD" },
+  { name: "Allianz EFU", logo: LuCircle, type: "International", color: "#a78bfa", coverage: "Full Coverage" },
 ];
 
 const INSURANCE_FAQS = [
@@ -105,26 +106,31 @@ export default function Insurance({ onBookAppointment }) {
           <p className="text-xs font-black uppercase tracking-widest text-slate-400 mb-6">How Insurance Claims Work</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {[
-              { step: "01", icon: "🪪", title: "Bring Your Card", desc: "Bring your insurance card and CNIC to our reception desk." },
-              { step: "02", icon: "✅", title: "Instant Verification", desc: "Our insurance desk verifies your eligibility in real-time." },
-              { step: "03", icon: "🩺", title: "Receive Treatment", desc: "Get treated — our doctors focus on your care, not the paperwork." },
-              { step: "04", icon: "📋", title: "We Handle Claims", desc: "Premium Clinic submits all claims directly to your insurer." },
-            ].map((step, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: i * 0.1 }}
-                className="relative bg-white rounded-3xl p-6 shadow-sm border border-slate-100 overflow-hidden group hover:shadow-lg transition-shadow duration-400"
-              >
-                <div className="absolute top-4 right-4 text-5xl font-black opacity-5 select-none">{step.step}</div>
-                <div className="text-3xl mb-3">{step.icon}</div>
-                <h4 className="font-black text-slate-800 text-sm mb-1.5">{step.title}</h4>
-                <p className="text-slate-500 text-xs leading-relaxed">{step.desc}</p>
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 scale-x-0 group-hover:scale-x-100 transition-transform duration-400 origin-left" style={{ background: THEME.gradBtn }} />
-              </motion.div>
-            ))}
+              { step: "01", icon: LuContact, title: "Bring Your Card", desc: "Bring your insurance card and CNIC to our reception desk.", color: "text-blue-500" },
+              { step: "02", icon: LuCircleCheck, title: "Instant Verification", desc: "Our insurance desk verifies your eligibility in real-time.", color: "text-green-500" },
+              { step: "03", icon: LuStethoscope, title: "Receive Treatment", desc: "Get treated — our doctors focus on your care, not the paperwork.", color: "text-rose-500" },
+              { step: "04", icon: LuFileText, title: "We Handle Claims", desc: "Premium Clinic submits all claims directly to your insurer.", color: "text-amber-500" },
+            ].map((step, i) => {
+              const Icon = step.icon;
+              return (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: i * 0.1 }}
+                  className="relative bg-white rounded-3xl p-6 shadow-sm border border-slate-100 overflow-hidden group hover:shadow-lg transition-shadow duration-400"
+                >
+                  <div className="absolute top-4 right-4 text-5xl font-black opacity-5 select-none">{step.step}</div>
+                  <div className="mb-3">
+                    <Icon size={28} className={step.color} />
+                  </div>
+                  <h4 className="font-black text-slate-800 text-sm mb-1.5">{step.title}</h4>
+                  <p className="text-slate-500 text-xs leading-relaxed">{step.desc}</p>
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 scale-x-0 group-hover:scale-x-100 transition-transform duration-400 origin-left" style={{ background: THEME.gradBtn }} />
+                </motion.div>
+              );
+            })}
           </div>
         </div>
 
@@ -132,22 +138,27 @@ export default function Insurance({ onBookAppointment }) {
         <div className="mb-12 text-left">
           <p className="text-xs font-black uppercase tracking-widest text-slate-400 mb-6 font-sans">Our Accepted Panel Partners</p>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            {INSURANCE_PARTNERS.map((ins, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: i * 0.07 }}
-                whileHover={{ y: -4, boxShadow: `0 12px 40px ${ins.color}20` }}
-                className="bg-white rounded-2xl p-5 text-center shadow-sm border border-slate-100 cursor-default transition-all duration-300"
-              >
-                <div className="text-3xl mb-2">{ins.logo}</div>
-                <p className="font-black text-slate-800 text-sm">{ins.name}</p>
+            {INSURANCE_PARTNERS.map((ins, i) => {
+              const LogoComp = ins.logo;
+              return (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.4, delay: i * 0.07 }}
+                  whileHover={{ y: -4, boxShadow: `0 12px 40px ${ins.color}20` }}
+                  className="bg-white rounded-2xl p-5 text-center shadow-sm border border-slate-100 cursor-default transition-all duration-300"
+                >
+                  <div className="flex justify-center mb-2">
+                    <LogoComp size={24} style={{ color: ins.color }} />
+                  </div>
+                  <p className="font-black text-slate-800 text-sm">{ins.name}</p>
                 <span className="text-xs px-2 py-0.5 rounded-full font-semibold mt-1.5 inline-block" style={{ background: ins.color + "15", color: ins.color }}>{ins.type}</span>
                 <p className="text-xs text-slate-400 mt-1.5 font-medium">{ins.coverage}</p>
               </motion.div>
-            ))}
+            );
+          })}
           </div>
         </div>
 
@@ -206,7 +217,7 @@ export default function Insurance({ onBookAppointment }) {
           className="rounded-3xl p-7 flex flex-col sm:flex-row items-center gap-6"
           style={{ background: "rgba(255,255,255,0.85)", backdropFilter: "blur(12px)", border: "1.5px solid rgba(14,165,233,0.15)" }}
         >
-          <div className="text-4xl flex-shrink-0">🛡️</div>
+          <LuShield size={36} className="text-sky-500 flex-shrink-0 animate-pulse" />
           <div className="text-left">
             <h3 className="font-black text-slate-800 text-lg mb-1">Need Insurance Assistance?</h3>
             <p className="text-slate-500 text-sm">Our dedicated insurance coordination desk is available 9 AM – 6 PM, Monday through Saturday.</p>

@@ -39,7 +39,7 @@ const galleryImages = [
     id: 6,
     label: "Certified Specialist Doctors Consultation Session",
     category: "Team Photos",
-    url: "https://images.unsplash.com/photo-1612277795421-9bc7706a4a41?auto=format&fit=crop&w=1600&q=100",
+    url: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=1600&q=100",
   },
 ];
 

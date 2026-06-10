@@ -4,6 +4,7 @@ import {
   FiClock, FiBookOpen, FiSearch,
 } from "react-icons/fi";
 import { HiSparkles } from "react-icons/hi";
+import { LuMailOpen } from "react-icons/lu";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
@@ -49,7 +50,7 @@ const BLOG_POSTS = [
     id: 3,
     title: "FUE vs DHI Hair Transplant: Which Is Right for You?",
     excerpt: "Two of the most advanced hair restoration techniques compared side-by-side. Cost, recovery time, density outcomes, and the ideal candidate profile for each.",
-    image: "https://images.unsplash.com/photo-1560486982-f1e771a6a8d1?auto=format&fit=crop&w=700&q=80",
+    image: "/hairtransplant.webp",
     category: "Hair Restoration",
     categoryColor: "#a78bfa",
     categoryBg: "#ede9fe",
@@ -262,7 +263,7 @@ export default function Blog({ onBookAppointment }) {
             <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl" />
           </div>
           <div className="relative z-10 flex flex-col sm:flex-row items-center gap-6">
-            <div className="text-4xl">📬</div>
+            <LuMailOpen size={36} className="text-white animate-pulse" />
             <div className="text-left">
               <h3 className="text-xl font-black text-white mb-1">Get Health Tips in Your Inbox</h3>
               <p className="text-white/75 text-sm">Subscribe for weekly health articles, clinic news, and exclusive offers.</p>

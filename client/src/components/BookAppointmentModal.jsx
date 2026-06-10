@@ -7,82 +7,10 @@ import {
   FiVideo, FiSearch, FiStar, FiAlertCircle,
 } from "react-icons/fi";
 import { FaWhatsapp } from "react-icons/fa";
+import { LuCalendar, LuClock, LuCreditCard, LuMapPin } from "react-icons/lu";
 
 // ─── DOCTORS DATA (synced from Doctors.jsx) ────────────────────────────────────
-const DOCTORS = [
-  {
-    id: 1, name: "Dr. Sarah Ahmed", title: "MBBS, FCPS (Dermatology)",
-    specialty: "Skin & Dermatology", tag: "skin",
-    image: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=400&q=80",
-    experience: "14 Years", fee: "PKR 3,000", rating: 4.9, available: true,
-    nextSlot: "Today, 4:00 PM", gender: "Female", branch: ["Gulberg", "DHA"],
-    solidColor: "#ec4899",
-    schedule: ["Mon 10AM–2PM", "Wed 3PM–7PM", "Fri 10AM–1PM", "Sat 4PM–8PM"],
-  },
-  {
-    id: 2, name: "Dr. Omar Farooq", title: "BDS, FCPS (Oral Surgery)",
-    specialty: "Dental Care", tag: "dental",
-    image: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=400&q=80",
-    experience: "11 Years", fee: "PKR 2,500", rating: 4.8, available: true,
-    nextSlot: "Today, 5:30 PM", gender: "Male", branch: ["Gulberg"],
-    solidColor: "#0ea5e9",
-    schedule: ["Mon 9AM–1PM", "Tue 2PM–6PM", "Thu 9AM–1PM", "Sat 10AM–3PM"],
-  },
-  {
-    id: 3, name: "Dr. Fatima Malik", title: "MBBS, MRCOG (Gynecology)",
-    specialty: "Gynecology & Obstetrics", tag: "gynecology",
-    image: "https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&w=400&q=80",
-    experience: "16 Years", fee: "PKR 4,000", rating: 5.0, available: false,
-    nextSlot: "Tomorrow, 10:00 AM", gender: "Female", branch: ["Gulberg", "DHA"],
-    solidColor: "#a855f7",
-    schedule: ["Tue 10AM–2PM", "Thu 3PM–7PM", "Sat 9AM–1PM"],
-  },
-  {
-    id: 4, name: "Dr. Hassan Raza", title: "MBBS, FCPS (Orthopedics)",
-    specialty: "Orthopedic Surgery", tag: "orthopedic",
-    image: "https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=400&q=80",
-    experience: "18 Years", fee: "PKR 3,500", rating: 4.9, available: true,
-    nextSlot: "Today, 7:00 PM", gender: "Male", branch: ["Gulberg"],
-    solidColor: "#f59e0b",
-    schedule: ["Mon 9AM–12PM", "Wed 4PM–8PM", "Fri 9AM–12PM", "Sun 11AM–3PM"],
-  },
-  {
-    id: 5, name: "Dr. Zara Khan", title: "MBBS, FCPS (ENT)",
-    specialty: "ENT Specialist", tag: "ent",
-    image: "https://images.unsplash.com/photo-1651008376811-b90baee60c1f?auto=format&fit=crop&w=400&q=80",
-    experience: "9 Years", fee: "PKR 2,800", rating: 4.7, available: true,
-    nextSlot: "Today, 3:30 PM", gender: "Female", branch: ["DHA"],
-    solidColor: "#14b8a6",
-    schedule: ["Tue 10AM–2PM", "Thu 3:30PM–7PM", "Sat 10AM–2PM"],
-  },
-  {
-    id: 6, name: "Dr. Bilal Siddiqui", title: "MBBS, FCPS (Neurology)",
-    specialty: "Neurology", tag: "neurology",
-    image: "https://images.unsplash.com/photo-1582750433449-648ed127bb54?auto=format&fit=crop&w=400&q=80",
-    experience: "20 Years", fee: "PKR 5,000", rating: 4.9, available: false,
-    nextSlot: "Tomorrow, 2:00 PM", gender: "Male", branch: ["Gulberg", "DHA"],
-    solidColor: "#6366f1",
-    schedule: ["Mon 2PM–6PM", "Wed 2PM–6PM", "Fri 2PM–5PM"],
-  },
-  {
-    id: 7, name: "Dr. Nadia Hussain", title: "MBBS, Fellowship Hair Restoration",
-    specialty: "Hair Transplant", tag: "hair",
-    image: "https://images.unsplash.com/photo-1643297654416-05795d62e39c?auto=format&fit=crop&w=400&q=80",
-    experience: "10 Years", fee: "Consultation Free", rating: 4.8, available: true,
-    nextSlot: "Today, 6:00 PM", gender: "Female", branch: ["Gulberg"],
-    solidColor: "#8b5cf6",
-    schedule: ["Mon 11AM–3PM", "Thu 4PM–8PM", "Sat 10AM–2PM"],
-  },
-  {
-    id: 8, name: "Dr. Kamran Ali", title: "MBBS, FCPS (General Medicine)",
-    specialty: "General Medicine", tag: "general",
-    image: "https://images.unsplash.com/photo-1537368910025-700350fe46c7?auto=format&fit=crop&w=400&q=80",
-    experience: "22 Years", fee: "PKR 2,000", rating: 4.9, available: true,
-    nextSlot: "Today, 2:00 PM", gender: "Male", branch: ["Gulberg", "DHA"],
-    solidColor: "#10b981",
-    schedule: ["Mon 9AM–1PM", "Tue 2PM–6PM", "Thu 9AM–1PM", "Fri 2PM–6PM", "Sat 10AM–2PM"],
-  },
-];
+import { doctors as DOCTORS } from "../data/mockData";
 
 const TIME_SLOTS = [
   "09:00 AM", "09:30 AM", "10:00 AM", "10:30 AM",
@@ -814,14 +742,17 @@ function SuccessView({ doctor, day, time, consultType, branch, form, onClose }) 
           </div>
           <div className="grid grid-cols-2 gap-2">
             {[
-              ["📅 Date", `${day.label}, ${day.date}`],
-              ["🕐 Time", time],
-              ["💊 Fee", doctor.fee],
-              ["📍 Mode", CONSULTATION_TYPES.find(c => c.value === consultType)?.label],
-            ].map(([k, v]) => (
-              <div key={k} className="bg-white/70 rounded-xl px-3 py-2">
-                <p className="text-[9px] text-slate-400 font-bold uppercase">{k}</p>
-                <p className="text-xs font-bold text-slate-700">{v}</p>
+              { icon: LuCalendar, label: "Date", value: `${day.label}, ${day.date}` },
+              { icon: LuClock, label: "Time", value: time },
+              { icon: LuCreditCard, label: "Fee", value: doctor.fee },
+              { icon: LuMapPin, label: "Mode", value: CONSULTATION_TYPES.find(c => c.value === consultType)?.label },
+            ].map(({ icon: Icon, label, value }) => (
+              <div key={label} className="bg-white/70 rounded-xl px-3 py-2">
+                <div className="flex items-center gap-1.5 text-slate-400 mb-0.5">
+                  <Icon size={12} className="text-sky-500" />
+                  <p className="text-[9px] font-bold uppercase">{label}</p>
+                </div>
+                <p className="text-xs font-bold text-slate-700">{value}</p>
               </div>
             ))}
           </div>

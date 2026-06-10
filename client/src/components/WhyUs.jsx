@@ -187,6 +187,7 @@
 
 
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiUserCheck, FiActivity, FiShield, FiDollarSign, FiVideo } from "react-icons/fi";
 
@@ -244,6 +245,7 @@ const featuresData = [
 ];
 
 export default function WhyUs() {
+  const navigate = useNavigate();
   const [activeIndex, setActiveIndex] = useState(0);
 
   // 2.5 seconds switch interval for live feed preview
@@ -475,13 +477,12 @@ export default function WhyUs() {
 
         {/* Global Styled Explore Button Block */}
         <div className="flex justify-center mt-16">
-          <a
-            href="#why-us-details"
-            className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl text-white font-bold text-sm tracking-tight transition-all duration-200 bg-slate-900 hover:bg-slate-800 shadow-md shadow-slate-950/10 hover:-translate-y-0.5"
-            style={{ textDecoration: "none" }}
+          <button
+            onClick={() => navigate("/why-us")}
+            className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl text-white font-bold text-sm tracking-tight transition-all duration-200 bg-slate-900 hover:bg-slate-800 shadow-md shadow-slate-950/10 hover:-translate-y-0.5 cursor-pointer border-none"
           >
             Explore Full Details →
-          </a>
+          </button>
         </div>
 
       </div>

@@ -331,12 +331,13 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { LuActivity, LuSparkles, LuScissors, LuBone, LuEar, LuBaby } from "react-icons/lu";
 
 const servicesData = [
   {
     id: 1,
     title: "Dental Care",
-    emoji: "🦷",
+    icon: LuActivity,
     bgImage: "https://images.unsplash.com/photo-1606811971618-4486d14f3f99?auto=format&fit=crop&w=800&q=80",
     accentColor: "#0369a1",
     lightBg: "#f0f9ff",
@@ -352,7 +353,7 @@ const servicesData = [
   {
     id: 2,
     title: "Skin Care",
-    emoji: "✨",
+    icon: LuSparkles,
     bgImage: "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=800&q=80",
     accentColor: "#7c3aed",
     lightBg: "#faf5ff",
@@ -368,7 +369,7 @@ const servicesData = [
   {
     id: 3,
     title: "Hair Transplant",
-    emoji: "💆",
+    icon: LuScissors,
     bgImage: "/hairtransplant.webp", 
     accentColor: "#0d9488",
     lightBg: "#f0fdfa",
@@ -384,7 +385,7 @@ const servicesData = [
   {
     id: 4,
     title: "Orthopedic",
-    emoji: "🦴",
+    icon: LuBone,
     bgImage: "https://images.unsplash.com/photo-1530026405186-ed1f139313f8?auto=format&fit=crop&w=800&q=80",
     accentColor: "#b45309",
     lightBg: "#fffbeb",
@@ -400,7 +401,7 @@ const servicesData = [
   {
     id: 5,
     title: "ENT",
-    emoji: "👂",
+    icon: LuEar,
     bgImage: "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?auto=format&fit=crop&w=800&q=80",
     accentColor: "#be123c",
     lightBg: "#fff1f2",
@@ -416,7 +417,7 @@ const servicesData = [
   {
     id: 6,
     title: "Gynecology",
-    emoji: "🌸",
+    icon: LuBaby,
     bgImage: "https://images.unsplash.com/photo-1551190822-a9333d879b1f?auto=format&fit=crop&w=800&q=80",
     accentColor: "#9d174d",
     lightBg: "#fdf2f8",
@@ -494,7 +495,7 @@ export default function Services() {
 
         {/* 3 Featured Flip Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7 mb-14">
-          {featured.map(({ id, title, emoji, bgImage, accentColor, lightBg, borderColor, tagColor, tagBg, overview, symptoms, benefits, procedure, tags }, i) => (
+          {featured.map(({ id, title, icon: Icon, bgImage, accentColor, lightBg, borderColor, tagColor, tagBg, overview, symptoms, benefits, procedure, tags }, i) => (
             <motion.div
               key={id}
               initial={{ opacity: 0, y: 30 }}
@@ -524,7 +525,7 @@ export default function Services() {
                     fontSize: 11, fontWeight: 700, color: "#fff", letterSpacing: "0.06em",
                     display: "flex", alignItems: "center", gap: 5
                   }}>
-                    <span>✨</span> Hover to explore
+                    <LuSparkles size={11} className="text-pink-300 animate-pulse" /> Hover to explore
                   </div>
 
                   <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "24px 24px 20px" }}>
@@ -532,10 +533,9 @@ export default function Services() {
                       width: 44, height: 44, borderRadius: 12, marginBottom: 12,
                       background: "rgba(255,255,255,0.15)", backdropFilter: "blur(10px)",
                       border: "1px solid rgba(255,255,255,0.25)",
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                      fontSize: 22
+                      display: "flex", alignItems: "center", justifyContent: "center"
                     }}>
-                      {emoji}
+                      <Icon size={22} className="text-white" />
                     </div>
                     <h3 style={{ color: "#fff", fontSize: 22, fontWeight: 800, margin: "0 0 6px", letterSpacing: "-0.3px" }}>
                       {title}
@@ -562,9 +562,9 @@ export default function Services() {
                   <div style={{ display: "flex", alignItems: "center", gap: 10, paddingBottom: 12, borderBottom: `1px solid ${borderColor}` }}>
                     <div style={{
                       width: 40, height: 40, borderRadius: 10, background: `${accentColor}18`,
-                      display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20
+                      display: "flex", alignItems: "center", justifyContent: "center"
                     }}>
-                      {emoji}
+                      <Icon size={18} style={{ color: accentColor }} />
                     </div>
                     <div>
                       <h3 style={{ margin: 0, fontSize: 17, fontWeight: 800, color: "#0f172a" }}>{title}</h3>

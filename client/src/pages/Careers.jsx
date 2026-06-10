@@ -5,6 +5,7 @@ import {
 } from "react-icons/fi";
 import { FaWhatsapp } from "react-icons/fa";
 import { HiSparkles } from "react-icons/hi";
+import { LuCoins, LuBookOpen, LuHospital, LuClock, LuRocket, LuHandshake, LuBriefcase, LuPartyPopper } from "react-icons/lu";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
@@ -109,12 +110,12 @@ const JOB_OPENINGS = [
 ];
 
 const CAREER_PERKS = [
-  { icon: "💰", title: "Competitive Pay", desc: "Above-market salaries reviewed annually with performance bonuses" },
-  { icon: "📚", title: "CPD & Training", desc: "Fully funded Continuing Professional Development programs & workshops" },
-  { icon: "🏥", title: "Health Coverage", desc: "Free medical care for you and immediate family at all Premium branches" },
-  { icon: "⏰", title: "Flexible Hours", desc: "Multiple shift options and part-time arrangements for certain roles" },
-  { icon: "🚀", title: "Career Growth", desc: "Clear promotion pathways, mentoring, and leadership development programs" },
-  { icon: "🤝", title: "Great Culture", desc: "Collaborative, respectful environment focused on excellence and compassion" },
+  { icon: LuCoins, title: "Competitive Pay", desc: "Above-market salaries reviewed annually with performance bonuses" },
+  { icon: LuBookOpen, title: "CPD & Training", desc: "Fully funded Continuing Professional Development programs & workshops" },
+  { icon: LuHospital, title: "Health Coverage", desc: "Free medical care for you and immediate family at all Premium branches" },
+  { icon: LuClock, title: "Flexible Hours", desc: "Multiple shift options and part-time arrangements for certain roles" },
+  { icon: LuRocket, title: "Career Growth", desc: "Clear promotion pathways, mentoring, and leadership development programs" },
+  { icon: LuHandshake, title: "Great Culture", desc: "Collaborative, respectful environment focused on excellence and compassion" },
 ];
 
 function JobCard({ job, index, onApply }) {
@@ -137,8 +138,8 @@ function JobCard({ job, index, onApply }) {
       )}
 
       <div className="flex items-start gap-4 mb-4">
-        <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-xl flex-shrink-0" style={{ background: job.bg }}>
-          🏥
+        <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: job.bg }}>
+          <LuBriefcase size={22} className="text-white" />
         </div>
         <div className="flex-1 min-w-0">
           <h3 className="font-black text-slate-800 text-base leading-tight">{job.title}</h3>
@@ -242,7 +243,7 @@ export default function Careers({ onBookAppointment }) {
               <button onClick={() => setAppliedJob(null)} className="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200 transition-colors cursor-pointer">
                 <FiX size={14} />
               </button>
-              <div className="text-4xl mb-3">🎉</div>
+              <LuPartyPopper size={36} className="text-pink-500 mb-3" />
               <h3 className="text-xl font-black text-slate-800 mb-1">Apply for {appliedJob.title}</h3>
               <p className="text-slate-500 text-sm mb-6">Send your CV and cover letter to our HR team. We review applications within 3–5 working days.</p>
               <div className="space-y-3">
@@ -313,12 +314,12 @@ export default function Careers({ onBookAppointment }) {
               <h2 className="text-2xl font-black text-slate-800">Job Benefits</h2>
             </div>
             <div className="grid grid-cols-1 gap-4">
-              {CAREER_PERKS.map((perk, i) => (
+              {CAREER_PERKS.map(({ icon: Icon, title, desc }, i) => (
                 <div key={i} className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-start gap-4">
-                  <span className="text-2xl bg-slate-50 w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0">{perk.icon}</span>
+                  <span className="bg-slate-50 w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"><Icon size={20} className="text-sky-500" /></span>
                   <div>
-                    <h4 className="font-extrabold text-slate-800 text-sm">{perk.title}</h4>
-                    <p className="text-xs text-slate-500 mt-1 leading-relaxed">{perk.desc}</p>
+                    <h4 className="font-extrabold text-slate-800 text-sm">{title}</h4>
+                    <p className="text-xs text-slate-500 mt-1 leading-relaxed">{desc}</p>
                   </div>
                 </div>
               ))}

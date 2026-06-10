@@ -7,6 +7,7 @@ import {
 import { HiSparkles } from "react-icons/hi";
 import { TbStethoscope } from "react-icons/tb";
 import { MdOutlineHealthAndSafety } from "react-icons/md";
+import { LuHospital, LuGlobe } from "react-icons/lu";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
@@ -200,10 +201,14 @@ export default function GalleryPage({ onBookAppointment }) {
             <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/5 rounded-full blur-3xl" />
           </div>
           <div className="relative z-10">
-            <div className="text-4xl mb-3">🏥</div>
+            <div className="flex justify-center mb-3">
+              <LuHospital size={36} className="text-white animate-pulse" />
+            </div>
             <h3 className="text-2xl font-black text-white mb-2">Take a Virtual Tour</h3>
             <p className="text-white/80 text-sm mb-6 max-w-md mx-auto">Experience our state-of-the-art facility from the comfort of your home with our 360° interactive tour.</p>
-            <motion.button whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }} className="px-7 py-3 rounded-xl font-bold text-sm shadow-xl bg-white hover:bg-white/90 transition-colors" style={{ color: THEME.pink }}>🌐 Start 360° Tour</motion.button>
+            <motion.button whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }} className="inline-flex items-center gap-2 px-7 py-3 rounded-xl font-bold text-sm shadow-xl bg-white hover:bg-white/90 transition-colors mx-auto" style={{ color: THEME.pink }}>
+              <LuGlobe size={16} /> Start 360° Tour
+            </motion.button>
           </div>
         </motion.div>
       </section>

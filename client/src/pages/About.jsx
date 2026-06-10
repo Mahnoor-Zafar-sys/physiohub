@@ -7,6 +7,7 @@ import {
   FiMapPin, FiPhone, FiAward, FiShield, FiStar
 } from "react-icons/fi";
 import { FaAmbulance } from "react-icons/fa";
+import { LuHospital, LuStethoscope, LuZap, LuHandshake } from "react-icons/lu";
 
 // ─── IMAGE BANK ───────────────────────────────────────────────────────────────
 const IMAGES = {
@@ -480,7 +481,7 @@ export default function About() {
 
               {/* Float badge */}
               <div className="absolute -bottom-6 -right-4 bg-white border border-slate-100 shadow-xl rounded-2xl px-6 py-4 items-center gap-4 z-20 hidden sm:flex">
-                <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-xl">🏥</div>
+                <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center"><LuHospital size={24} className="text-blue-600" /></div>
                 <div>
                   <div className="text-xl font-black text-slate-900 leading-none">13+ Years</div>
                   <div className="text-[11px] text-slate-400 font-bold uppercase tracking-wider mt-1">Of Unmatched Excellence</div>
@@ -629,10 +630,10 @@ export default function About() {
             </p>
             <div className="grid sm:grid-cols-3 gap-5 pt-6">
               {[
-                { icon: "🩺", label: "Patient First", sub: "Every decision centers the patient's wellbeing, dignity, and comfort." },
-                { icon: "⚡", label: "Precision Tech", sub: "Advanced tools amplify what our specialists can achieve — not replace them." },
-                { icon: "🤝", label: "Human Touch", sub: "Warmth and genuine connection are as vital as clinical accuracy." },
-              ].map(({ icon, label, sub }) => (
+                { icon: LuStethoscope, label: "Patient First", sub: "Every decision centers the patient's wellbeing, dignity, and comfort.", color: "text-blue-600" },
+                { icon: LuZap, label: "Precision Tech", sub: "Advanced tools amplify what our specialists can achieve — not replace them.", color: "text-amber-500" },
+                { icon: LuHandshake, label: "Human Touch", sub: "Warmth and genuine connection are as vital as clinical accuracy.", color: "text-rose-500" },
+              ].map(({ icon: Icon, label, sub, color }) => (
                 <motion.div
                   key={label}
                   variants={fadeUp} initial="hidden" whileInView="visible"
@@ -640,8 +641,8 @@ export default function About() {
                   className="rounded-2xl border border-slate-300/70 p-6 text-left hover:border-blue-600 hover:shadow-xl transition-all duration-300"
                   style={{ background: "#ffffff", boxShadow: "0 4px 20px rgba(15, 23, 42, 0.05)" }}
                 >
-                  <div className="text-3xl mb-4 bg-slate-100 w-12 h-12 rounded-xl flex items-center justify-center border border-slate-200 shadow-sm">
-                    {icon}
+                  <div className="mb-4 bg-slate-100 w-12 h-12 rounded-xl flex items-center justify-center border border-slate-200 shadow-sm">
+                    <Icon size={24} className={color} />
                   </div>
                   <p className="text-slate-900 text-base font-extrabold tracking-tight mb-2">{label}</p>
                   <p className="text-slate-600 text-xs sm:text-[13px] leading-relaxed font-medium">{sub}</p>

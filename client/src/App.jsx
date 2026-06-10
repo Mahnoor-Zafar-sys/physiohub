@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { HashRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import AboutPremium from "./pages/About";
 import OnlineConsultation from "./components/OnlineConsultation";
@@ -14,6 +14,8 @@ import Blog from "./pages/Blog";
 import FAQ from "./pages/FAQ";
 import Insurance from "./pages/Insurance";
 import Careers from "./pages/Careers";
+import WhyUsPage from "./pages/WhyUsPage";
+import ScrollToTop from "./components/ScrollToTop";
 
 export default function App() {
   const [splashDone, setSplashDone] = useState(false);
@@ -24,6 +26,7 @@ export default function App() {
 
   return (
     <Router>
+      <ScrollToTop />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<AboutPremium />} />
@@ -38,6 +41,7 @@ export default function App() {
         <Route path="/faq" element={<FAQ />} />
         <Route path="/insurance" element={<Insurance />} />
         <Route path="/careers" element={<Careers />} />
+        <Route path="/why-us" element={<WhyUsPage />} />
       </Routes>
     </Router>
   );

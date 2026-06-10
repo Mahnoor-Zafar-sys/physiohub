@@ -6,6 +6,7 @@ import {
 import { FaWhatsapp } from "react-icons/fa";
 import { TbStethoscope } from "react-icons/tb";
 import { HiSparkles } from "react-icons/hi";
+import { LuCircleHelp } from "react-icons/lu";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
@@ -188,7 +189,9 @@ export default function FAQ({ onBookAppointment }) {
           className="mt-12 rounded-3xl p-7 text-center"
           style={{ background: "rgba(255,255,255,0.85)", backdropFilter: "blur(12px)", border: "1.5px solid rgba(233,30,140,0.1)" }}
         >
-          <div className="text-4xl mb-3">💬</div>
+          <div className="flex justify-center mb-3">
+            <LuCircleHelp size={36} className="text-pink-500 animate-bounce" />
+          </div>
           <h3 className="text-xl font-black text-slate-800 mb-2">Still Have a Question?</h3>
           <p className="text-slate-500 text-sm mb-6 max-w-md mx-auto">Our reception team is available 7 days a week. Connect instantly on WhatsApp or phone.</p>
           <div className="flex flex-wrap justify-center gap-3">
