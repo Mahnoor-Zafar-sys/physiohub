@@ -128,9 +128,106 @@ function GalleryItem({ item, index, onOpen }) {
   );
 }
 
+function BeforeAfterSlider({ beforeImg, afterImg, title, desc, tag }) {
+  const [sliderPos, setSliderPos] = useState(50);
+  const containerRef = useRef(null);
+  const [width, setWidth] = useState(0);
+
+  useEffect(() => {
+    if (containerRef.current) {
+      setWidth(containerRef.current.getBoundingClientRect().width);
+    }
+    const handleResize = () => {
+      if (containerRef.current) {
+        setWidth(containerRef.current.getBoundingClientRect().width);
+      }
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const handleMove = (clientX) => {
+    if (!containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    const x = clientX - rect.left;
+    const percentage = Math.max(0, Math.min(100, (x / rect.width) * 100));
+    setSliderPos(percentage);
+  };
+
+  const handleMouseMove = (e) => {
+    // Only update position if mouse is hovering/moving inside the container
+    handleMove(e.clientX);
+  };
+
+  const handleTouchMove = (e) => {
+    if (e.touches && e.touches[0]) {
+      handleMove(e.touches[0].clientX);
+    }
+  };
+
+  return (
+    <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between">
+      <div className="text-left">
+        <span className="text-[10px] font-black tracking-wider uppercase text-pink-500 bg-pink-50 px-2.5 py-1 rounded-full">{tag}</span>
+        <h3 className="font-extrabold text-slate-800 text-base mt-2.5 mb-1.5">{title}</h3>
+      </div>
+      
+      {/* Slider Container */}
+      <div 
+        ref={containerRef}
+        onMouseMove={handleMouseMove}
+        onTouchMove={handleTouchMove}
+        className="relative w-full h-[240px] sm:h-[280px] rounded-2xl overflow-hidden select-none cursor-ew-resize border border-slate-100"
+      >
+        {/* After Image (Full Background) */}
+        <img 
+          src={afterImg} 
+          alt="After Treatment" 
+          className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+        />
+        <div className="absolute right-3 bottom-3 bg-slate-900/80 px-2 py-0.5 rounded text-[9px] font-bold text-white uppercase tracking-widest pointer-events-none z-10">After</div>
+
+        {/* Before Image (Clipped Overlay) */}
+        <div 
+          className="absolute inset-0 overflow-hidden pointer-events-none"
+          style={{ width: `${sliderPos}%` }}
+        >
+          <img 
+            src={beforeImg} 
+            alt="Before Treatment" 
+            className="absolute inset-0 object-cover max-w-none"
+            style={{ width: width || '100%', height: '100%' }}
+          />
+          <div className="absolute left-3 bottom-3 bg-red-600/80 px-2 py-0.5 rounded text-[9px] font-bold text-white uppercase tracking-widest pointer-events-none z-10">Before</div>
+        </div>
+
+        {/* Vertical Divider handle line */}
+        <div 
+          className="absolute top-0 bottom-0 w-0.5 bg-white cursor-ew-resize flex items-center justify-center pointer-events-none"
+          style={{ left: `${sliderPos}%` }}
+        >
+          <div className="w-6 h-6 rounded-full bg-white shadow-md border border-slate-200 flex items-center justify-center text-slate-500 font-bold text-[10px] pointer-events-auto">
+            ↔
+          </div>
+        </div>
+      </div>
+      <p className="text-slate-500 text-xs mt-3.5 text-left leading-relaxed">{desc}</p>
+    </div>
+  );
+}
+
+const TOUR_SCENES = [
+  { id: 1, name: "Clinic Main Reception & Waiting Area", url: "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=1200&q=100", desc: "A spacious, premium glassmorphic reception lobby with healing botanical aesthetics and ambient light lines." },
+  { id: 2, name: "Consultation & Examination Cabin", url: "https://images.unsplash.com/photo-1584820927498-cfe5211fd8bf?auto=format&fit=crop&w=1200&q=100", desc: "Private clinical examination area equipped with secure diagnostics terminals and patient comfort modules." },
+  { id: 3, name: "Sterile Modular Operating Theater", url: "https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&w=1200&q=100", desc: "Advanced sterile surgery ward outfitted with modern surgical tools and robotic system integration hooks." },
+  { id: 4, name: "Modern High-End Pathology & Diagnostic Lab", url: "https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?auto=format&fit=crop&w=1200&q=100", desc: "High-throughput laboratory facilitating automated molecular, hematology, and genetic sequencing panels." }
+];
+
 export default function GalleryPage({ onBookAppointment }) {
   const [galleryCat, setGalleryCat] = useState("all");
   const [lightboxIndex, setLightboxIndex] = useState(null);
+  const [tourOpen, setTourOpen] = useState(false);
+  const [tourIndex, setTourIndex] = useState(0);
 
   const filteredGallery = GALLERY_ITEMS.filter((g) => galleryCat === "all" || g.category === galleryCat);
 
@@ -191,9 +288,35 @@ export default function GalleryPage({ onBookAppointment }) {
           ))}
         </div>
 
-        <div className="grid gap-4" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gridAutoRows: "minmax(200px, auto)" }}>
-          {filteredGallery.map((item, i) => <GalleryItem key={item.id} item={item} index={i} onOpen={setLightboxIndex} />)}
-        </div>
+        {galleryCat === "results" ? (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <BeforeAfterSlider 
+              tag="Dermatology"
+              title="Acne & Skin Resurfacing"
+              desc="Clinical results after 3 sessions of fractional CO2 laser treatment. Acne scarring and hyperpigmentation reduced by 85% with skin tone and elasticity fully restored."
+              beforeImg="https://images.unsplash.com/photo-1608248597481-496100c8c836?auto=format&fit=crop&w=600&q=80"
+              afterImg="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=600&q=80"
+            />
+            <BeforeAfterSlider 
+              tag="Dentistry"
+              title="Smile Makeover (Veneers)"
+              desc="Full mouth porcelain veneers smile design completed in 2 visits. Corrected bite alignment, severe tooth discoloration, and minor crowding for a natural-looking smile."
+              beforeImg="https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?auto=format&fit=crop&w=600&q=80"
+              afterImg="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80"
+            />
+            <BeforeAfterSlider 
+              tag="Hair Restoration"
+              title="FUE Hair Transplant"
+              desc="Results at 9 months post FUE hair transplant (3,200 grafts). Restored dense natural front hairline and crown coverage with maximum thickness and minimal donor scarring."
+              beforeImg="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=600&q=80"
+              afterImg="https://images.unsplash.com/photo-1605497746444-052d59fc1f6b?auto=format&fit=crop&w=600&q=80"
+            />
+          </div>
+        ) : (
+          <div className="grid gap-4" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gridAutoRows: "minmax(200px, auto)" }}>
+            {filteredGallery.map((item, i) => <GalleryItem key={item.id} item={item} index={i} onOpen={setLightboxIndex} />)}
+          </div>
+        )}
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="mt-12 rounded-3xl p-8 text-center overflow-hidden relative" style={{ background: "linear-gradient(135deg, #0ea5e9 0%, #e91e8c 100%)" }}>
           <div className="absolute inset-0 pointer-events-none">
@@ -206,12 +329,96 @@ export default function GalleryPage({ onBookAppointment }) {
             </div>
             <h3 className="text-2xl font-black text-white mb-2">Take a Virtual Tour</h3>
             <p className="text-white/80 text-sm mb-6 max-w-md mx-auto">Experience our state-of-the-art facility from the comfort of your home with our 360° interactive tour.</p>
-            <motion.button whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }} className="inline-flex items-center gap-2 px-7 py-3 rounded-xl font-bold text-sm shadow-xl bg-white hover:bg-white/90 transition-colors mx-auto" style={{ color: THEME.pink }}>
+            <motion.button 
+              whileHover={{ scale: 1.04 }} 
+              whileTap={{ scale: 0.96 }} 
+              onClick={() => setTourOpen(true)}
+              className="inline-flex items-center gap-2 px-7 py-3 rounded-xl font-bold text-sm shadow-xl bg-white hover:bg-white/90 transition-colors mx-auto cursor-pointer border-none" 
+              style={{ color: THEME.pink }}
+            >
               <LuGlobe size={16} /> Start 360° Tour
             </motion.button>
           </div>
         </motion.div>
       </section>
+
+      {/* 360 VIRTUAL TOUR MODAL */}
+      <AnimatePresence>
+        {tourOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md" onClick={() => setTourOpen(false)}>
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-slate-950 rounded-3xl p-6 max-w-4xl w-full text-slate-100 shadow-2xl relative border border-slate-800 text-left overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button 
+                onClick={() => setTourOpen(false)} 
+                className="absolute top-5 right-5 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors border-none cursor-pointer z-50"
+              >
+                <FiX size={15} />
+              </button>
+
+              <div className="relative h-[400px] w-full bg-slate-900 rounded-2xl overflow-hidden mb-4">
+                <AnimatePresence mode="wait">
+                  <motion.img 
+                    key={tourIndex}
+                    src={TOUR_SCENES[tourIndex].url}
+                    alt={TOUR_SCENES[tourIndex].name}
+                    initial={{ opacity: 0, scale: 1.05 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.4 }}
+                    className="w-full h-full object-cover select-none"
+                  />
+                </AnimatePresence>
+
+                {/* Simulated Panoramic Scan Animation Layer */}
+                <div className="absolute inset-0 bg-gradient-to-r from-black/20 via-transparent to-black/20 pointer-events-none" />
+                <div className="absolute top-4 left-4 bg-slate-950/70 border border-slate-800 px-3 py-1.5 rounded-xl text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-red-500 animate-ping inline-block" />
+                  Simulated 360° Panoramic Feed
+                </div>
+
+                {/* Navigation Controls */}
+                <button 
+                  onClick={() => setTourIndex(i => (i - 1 + TOUR_SCENES.length) % TOUR_SCENES.length)}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-slate-950/60 border border-slate-800 hover:bg-slate-800 flex items-center justify-center text-white transition-colors cursor-pointer border-none"
+                >
+                  <FiChevronLeft size={20} />
+                </button>
+                <button 
+                  onClick={() => setTourIndex(i => (i + 1) % TOUR_SCENES.length)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-slate-950/60 border border-slate-800 hover:bg-slate-800 flex items-center justify-center text-white transition-colors cursor-pointer border-none"
+                >
+                  <FiChevronRight size={20} />
+                </button>
+              </div>
+
+              <div>
+                <h4 className="font-extrabold text-lg text-white mb-1">{TOUR_SCENES[tourIndex].name}</h4>
+                <p className="text-slate-400 text-xs sm:text-sm leading-relaxed">{TOUR_SCENES[tourIndex].desc}</p>
+              </div>
+
+              {/* Thumbnails Navigation Row */}
+              <div className="flex gap-2.5 mt-5 border-t border-slate-900 pt-4 overflow-x-auto pb-1.5">
+                {TOUR_SCENES.map((scene, sIdx) => (
+                  <button 
+                    key={scene.id}
+                    onClick={() => setTourIndex(sIdx)}
+                    className="flex-shrink-0 w-20 h-14 rounded-lg overflow-hidden border-2 relative cursor-pointer"
+                    style={{ borderColor: tourIndex === sIdx ? THEME.pink : "transparent" }}
+                  >
+                    <img src={scene.url} className="w-full h-full object-cover" />
+                    <div className="absolute inset-0 bg-black/40 hover:bg-transparent transition-colors" />
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       <Footer />
     </div>

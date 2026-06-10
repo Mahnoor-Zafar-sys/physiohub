@@ -16,6 +16,11 @@ import Insurance from "./pages/Insurance";
 import Careers from "./pages/Careers";
 import WhyUsPage from "./pages/WhyUsPage";
 import ScrollToTop from "./components/ScrollToTop";
+import Emergency from "./pages/Emergency";
+import Privacy from "./pages/Privacy";
+import Terms from "./pages/Terms";
+import VideoConsultationRoom from "./pages/VideoConsultationRoom";
+import BlogPostPage from "./pages/BlogPostPage";
 
 export default function App() {
   const [splashDone, setSplashDone] = useState(false);
@@ -38,10 +43,15 @@ export default function App() {
         <Route path="/reviews" element={<Reviews />} />
         <Route path="/gallery" element={<GalleryPage />} />
         <Route path="/blog" element={<Blog />} />
+        <Route path="/blog/:id" element={<BlogPostPage />} />
         <Route path="/faq" element={<FAQ />} />
         <Route path="/insurance" element={<Insurance />} />
         <Route path="/careers" element={<Careers />} />
         <Route path="/why-us" element={<WhyUsPage />} />
+        <Route path="/emergency" element={<Emergency />} />
+        <Route path="/privacy" element={<Privacy />} />
+        <Route path="/terms" element={<Terms />} />
+        <Route path="/consultation-room" element={<VideoConsultationRoom />} />
       </Routes>
     </Router>
   );

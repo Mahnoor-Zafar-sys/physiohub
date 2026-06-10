@@ -10,7 +10,7 @@ const links = {
     { name: "Dermatology", path: "/services" },
     { name: "Orthopedics", path: "/services" },
     { name: "Dental Care", path: "/services" },
-    { name: "Emergency", path: "/contact" }
+    { name: "Emergency", path: "/emergency" }
   ],
   Patients: [
     { name: "Book Appointment", path: "/book-appointment" },
@@ -138,15 +138,24 @@ export default function Footer() {
             © {new Date().getFullYear()} Premium Clinic. All rights reserved.
           </p>
           <div className="flex gap-6">
-            {["Privacy Policy", "Terms of Service", "Cookie Policy"].map((item) => (
-              <a 
-                key={item} 
-                href="#" 
-                className="text-blue-200/90 text-xs font-body font-semibold tracking-wide hover:text-white transition-colors duration-200"
-              >
-                {item}
-              </a>
-            ))}
+            <Link 
+              to="/privacy" 
+              className="text-blue-200/90 text-xs font-body font-semibold tracking-wide hover:text-white transition-colors duration-200"
+            >
+              Privacy Policy
+            </Link>
+            <Link 
+              to="/terms" 
+              className="text-blue-200/90 text-xs font-body font-semibold tracking-wide hover:text-white transition-colors duration-200"
+            >
+              Terms of Service
+            </Link>
+            <a 
+              href="#" 
+              className="text-blue-200/90 text-xs font-body font-semibold tracking-wide hover:text-white transition-colors duration-200"
+            >
+              Cookie Policy
+            </a>
           </div>
         </div>
       </div>

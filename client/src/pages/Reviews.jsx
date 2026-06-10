@@ -282,10 +282,13 @@ function StatBubble({ value, label, color, delay }) {
 }
 
 export default function Reviews({ onBookAppointment }) {
+  const [allReviews, setAllReviews] = useState(REVIEWS);
   const [reviewTag, setReviewTag] = useState("all");
   const [search, setSearch] = useState("");
+  const [writeModalOpen, setWriteModalOpen] = useState(false);
+  const [newReviewForm, setNewReviewForm] = useState({ name: "", text: "", rating: 5, service: "Skin & Dermatology", doctor: "Dr. Sarah Ahmed" });
 
-  const filteredReviews = REVIEWS.filter((r) => {
+  const filteredReviews = allReviews.filter((r) => {
     const matchTag = reviewTag === "all" || r.tag === reviewTag;
     const q = search.toLowerCase();
     const matchSearch = !q || r.text.toLowerCase().includes(q) || r.name.toLowerCase().includes(q) || r.doctor.toLowerCase().includes(q);
@@ -376,7 +379,13 @@ export default function Reviews({ onBookAppointment }) {
               <span className="font-bold text-slate-700">Verified on Google</span>
               <HiOutlineBadgeCheck size={18} className="text-green-500" />
             </div>
-            <a href="#" className="px-5 py-2.5 rounded-xl text-sm font-bold text-white shadow-lg hover:shadow-xl transition-shadow" style={{ background: THEME.gradBtn }}>Write a Review</a>
+            <button 
+              onClick={() => setWriteModalOpen(true)}
+              className="px-5 py-2.5 rounded-xl text-sm font-bold text-white shadow-lg hover:shadow-xl transition-shadow border-none cursor-pointer" 
+              style={{ background: THEME.gradBtn }}
+            >
+              Write a Review
+            </button>
           </div>
         </motion.div>
 
@@ -398,29 +407,141 @@ export default function Reviews({ onBookAppointment }) {
         {filteredReviews.length === 0 && <div className="text-center py-16"><p className="text-slate-400 text-sm">No reviews found. Try a different filter.</p></div>}
       </section>
 
-      {/* VIDEO TESTIMONIALS SECTION */}
-      <section className="px-4 pb-20 max-w-7xl mx-auto">
-        <div className="flex items-center gap-3 mb-8">
-          <div className="w-1 h-8 rounded-full" style={{ background: THEME.gradBtn }} />
-          <h2 className="text-2xl font-black text-slate-800">Video Stories</h2>
-          <span className="px-3 py-1 rounded-full text-xs font-bold" style={{ background: "#e0f2fe", color: THEME.sky }}>Real Patient Stories</span>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {VIDEO_TESTIMONIALS.map((v, i) => <VideoCard key={v.id} video={v} index={i} />)}
-        </div>
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="mt-12 rounded-3xl p-8 flex flex-col sm:flex-row items-center gap-6" style={{ background: "rgba(255,255,255,0.8)", backdropFilter: "blur(12px)", border: "1.5px solid rgba(233,30,140,0.1)" }}>
-          <div className="w-16 h-16 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #fce4ec, #e0f2fe)" }}>
-            <FiVideo size={26} style={{ color: THEME.pink }} />
+      {/* WRITE A REVIEW MODAL */}
+      <AnimatePresence>
+        {writeModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setWriteModalOpen(false)}>
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 30 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full text-slate-800 shadow-2xl relative border border-pink-100 text-left"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button 
+                onClick={() => setWriteModalOpen(false)} 
+                className="absolute top-5 right-5 w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:text-slate-700 hover:bg-slate-200 transition-colors border-none cursor-pointer"
+              >
+                <FiX size={15} />
+              </button>
+
+              <h3 className="text-xl font-black mb-1 flex items-center gap-2">
+                <FiMessageSquare className="text-pink-500" /> Share Your Experience
+              </h3>
+              <p className="text-slate-500 text-xs sm:text-sm mb-6">
+                Your feedback helps us continuously improve our healthcare services.
+              </p>
+
+              <form 
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const newRev = {
+                    id: allReviews.length + 1,
+                    name: newReviewForm.name || "Anonymous Patient",
+                    avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(newReviewForm.name || "Anonymous Patient")}&background=e91e8c&color=fff`,
+                    rating: newReviewForm.rating,
+                    service: newReviewForm.service,
+                    doctor: newReviewForm.doctor,
+                    date: "Just now",
+                    text: newReviewForm.text,
+                    helpful: 0,
+                    verified: true,
+                    tag: newReviewForm.service.toLowerCase().includes("skin") ? "dermatology" : 
+                         newReviewForm.service.toLowerCase().includes("dent") ? "dental" :
+                         newReviewForm.service.toLowerCase().includes("gyn") ? "gynecology" :
+                         newReviewForm.service.toLowerCase().includes("orth") ? "orthopedic" :
+                         newReviewForm.service.toLowerCase().includes("card") ? "cardiology" : "general",
+                    source: "google"
+                  };
+                  setAllReviews([newRev, ...allReviews]);
+                  setWriteModalOpen(false);
+                  setNewReviewForm({ name: "", text: "", rating: 5, service: "Skin & Dermatology", doctor: "Dr. Sarah Ahmed" });
+                  alert("Thank you! Your verified review has been submitted successfully and added to the list.");
+                }}
+                className="space-y-4"
+              >
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Full Name</label>
+                    <input 
+                      type="text" 
+                      required 
+                      value={newReviewForm.name}
+                      onChange={e => setNewReviewForm({...newReviewForm, name: e.target.value})}
+                      placeholder="e.g. Ayesha Khan" 
+                      className="w-full border border-slate-200 rounded-xl p-3 text-xs outline-none focus:border-pink-400 transition-colors"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Consultant Doctor</label>
+                    <input 
+                      type="text" 
+                      required 
+                      value={newReviewForm.doctor}
+                      onChange={e => setNewReviewForm({...newReviewForm, doctor: e.target.value})}
+                      placeholder="e.g. Dr. Sarah Ahmed" 
+                      className="w-full border border-slate-200 rounded-xl p-3 text-xs outline-none focus:border-pink-400 transition-colors"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Service Received</label>
+                    <select 
+                      value={newReviewForm.service}
+                      onChange={e => setNewReviewForm({...newReviewForm, service: e.target.value})}
+                      className="w-full border border-slate-200 bg-white rounded-xl p-3 text-xs outline-none focus:border-pink-400 transition-colors"
+                    >
+                      <option value="Skin & Dermatology">Skin & Dermatology</option>
+                      <option value="Dental Care">Dental Care</option>
+                      <option value="Gynecology">Gynecology</option>
+                      <option value="Orthopedic Surgery">Orthopedic Surgery</option>
+                      <option value="Hair Transplant">Hair Transplant</option>
+                      <option value="Cardiology">Cardiology</option>
+                      <option value="General Medicine">General Medicine</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Select Rating</label>
+                    <div className="flex items-center gap-1 mt-2">
+                      {[1, 2, 3, 4, 5].map((s) => (
+                        <button
+                          key={s}
+                          type="button"
+                          onClick={() => setNewReviewForm({...newReviewForm, rating: s})}
+                          className="text-amber-400 hover:scale-110 transition-transform bg-transparent border-none cursor-pointer p-0.5"
+                        >
+                          {newReviewForm.rating >= s ? <FaStar size={20} /> : <FaRegStar size={20} />}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Review Description</label>
+                  <textarea 
+                    required 
+                    rows={4}
+                    value={newReviewForm.text}
+                    onChange={e => setNewReviewForm({...newReviewForm, text: e.target.value})}
+                    placeholder="Describe your treatment experience, staff, and results..." 
+                    className="w-full border border-slate-200 rounded-xl p-3 text-xs outline-none focus:border-pink-400 transition-colors resize-none"
+                  />
+                </div>
+
+                <button 
+                  type="submit" 
+                  className="w-full py-3.5 bg-slate-900 hover:bg-pink-600 text-white font-bold text-xs rounded-xl shadow-md transition-colors border-none cursor-pointer"
+                >
+                  Submit Verified Review
+                </button>
+              </form>
+            </motion.div>
           </div>
-          <div>
-            <h3 className="font-black text-slate-800 text-lg mb-1">Share Your Story</h3>
-            <p className="text-slate-500 text-sm">Had a great experience at Premium Clinic? We'd love to feature your testimonial and inspire others on their health journey.</p>
-          </div>
-          <motion.a href={`https://wa.me/${whatsappNumber}?text=${encodeURIComponent("I want to share my experience at Premium Clinic")}`} target="_blank" whileHover={{ scale: 1.04 }} className="ml-auto flex-shrink-0 flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm text-white shadow-lg" style={{ background: "#25D366", textDecoration: "none" }}>
-            <FaWhatsapp size={16} /> Share on WhatsApp
-          </motion.a>
-        </motion.div>
-      </section>
+        )}
+      </AnimatePresence>
 
       <Footer />
     </div>

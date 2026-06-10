@@ -601,6 +601,34 @@ function DoctorModal({ doctor: d, onClose }) {
                   })}
                 </div>
               </div>
+              
+              {/* Doctor Reviews Feed list */}
+              <div className="mt-6 border-t border-slate-100 pt-5 space-y-4 text-left">
+                <h5 className="font-extrabold text-[10px] uppercase tracking-widest text-slate-400 mb-3">Patient Feedbacks</h5>
+                <div className="space-y-3">
+                  {[
+                    { name: "Ayesha Tariq", rating: 5, date: "3 days ago", comment: `Excellent consultation! Dr. ${d.name.split(" ").slice(-1)[0]} was extremely detailed, patient, and recommended a very effective treatment plan. Highly recommended.` },
+                    { name: "Bilal Hussain", rating: 5, date: "1 week ago", comment: "Outstanding professionalism and bedside manner. The doctor explained everything clearly and made me feel completely comfortable. Very satisfied with the outcome." },
+                    { name: "Sana Mirza", rating: 4, date: "2 weeks ago", comment: "Very clinical and thorough in investigation. The clinic hygiene standard was also outstanding." }
+                  ].map((rev, idx) => (
+                    <div key={idx} className="bg-slate-50/70 border border-slate-100 rounded-xl p-3.5 space-y-1.5">
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <p className="text-xs font-bold text-slate-800">{rev.name}</p>
+                          <div className="flex items-center gap-1.5 mt-0.5">
+                            <StarRating rating={rev.rating} color={d.solidColor} />
+                            <span className="text-[9px] text-slate-400 font-semibold">{rev.date}</span>
+                          </div>
+                        </div>
+                        <span className="text-[9px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full inline-block" /> Verified Patient
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-600 leading-relaxed font-medium">{rev.comment}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </motion.div>

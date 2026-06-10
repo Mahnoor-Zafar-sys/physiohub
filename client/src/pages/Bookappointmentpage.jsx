@@ -664,6 +664,88 @@ function Step4({ doctor, day, time, consultType, branch, form }) {
 function SuccessView({ doctor, day, time, consultType, form }) {
   const navigate = useNavigate();
   const bookingRef = `PC-${Date.now().toString().slice(-6)}`;
+  const [showAlert, setShowAlert] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowAlert(true);
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Parse date & time to compute appointment ISO timestamps
+  let startFormat = "";
+  let endFormat = "";
+  let googleCalendarUrl = "";
+
+  try {
+    const year = new Date().getFullYear();
+    const datePart = day.date; // e.g. "10 Jun"
+    const timePart = time; // e.g. "10:30 AM" or "02:00 PM"
+    
+    // Parse time
+    const [hourStr, minStrPart] = timePart.split(":");
+    const [minStr, ampm] = minStrPart.split(" ");
+    let hour = parseInt(hourStr);
+    if (ampm === "PM" && hour < 12) hour += 12;
+    if (ampm === "AM" && hour === 12) hour = 0;
+    const minutes = parseInt(minStr);
+
+    // Parse date
+    const [dayNum, monthName] = datePart.split(" ");
+    const months = { Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5, Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11 };
+    const monthNum = months[monthName] || 0;
+    const dayInt = parseInt(dayNum) || 1;
+
+    const apptDate = new Date(year, monthNum, dayInt, hour, minutes);
+    const pad = (n) => String(n).padStart(2, '0');
+    
+    startFormat = `${apptDate.getFullYear()}${pad(apptDate.getMonth() + 1)}${pad(apptDate.getDate())}T${pad(apptDate.getHours())}${pad(apptDate.getMinutes())}00`;
+    
+    const endDate = new Date(apptDate.getTime() + 30 * 60 * 1000); // 30 mins duration
+    endFormat = `${endDate.getFullYear()}${pad(endDate.getMonth() + 1)}${pad(endDate.getDate())}T${pad(endDate.getHours())}${pad(endDate.getMinutes())}00`;
+
+    googleCalendarUrl = `https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(
+      `Appointment with ${doctor.name}`
+    )}&dates=${startFormat}/${endFormat}&details=${encodeURIComponent(
+      `Consultation with ${doctor.name}\nPatient: ${form.name}\nRef: ${bookingRef}\nMode: ${consultType}`
+    )}&location=${encodeURIComponent(
+      consultType === "in-person" ? "Premium Clinic, Plaza 56, Block L, Blue Area, Islamabad" : "Online HD Video Consult"
+    )}`;
+  } catch (err) {
+    console.error("Error generating calendar links:", err);
+  }
+
+  const handleDownloadICS = () => {
+    try {
+      const calendarData = [
+        "BEGIN:VCALENDAR",
+        "VERSION:2.0",
+        "PRODID:-//Premium Clinic//NONSGML Appointment System//EN",
+        "BEGIN:VEVENT",
+        `UID:${bookingRef}-${Date.now()}@premiumclinic.com`,
+        `SUMMARY:Doctor Appointment: ${doctor.name}`,
+        `DESCRIPTION:Your appointment is scheduled with ${doctor.name} (${doctor.specialty}). Patient: ${form.name}. Reference: ${bookingRef}.`,
+        `LOCATION:${consultType === "in-person" ? "Premium Clinic, Plaza 56, Block L, Blue Area, Islamabad" : "Online Video Consult"}`,
+        `DTSTART:${startFormat}`,
+        `DTEND:${endFormat}`,
+        "END:VEVENT",
+        "END:VCALENDAR"
+      ].join("\n");
+
+      const blob = new Blob([calendarData], { type: "text/calendar;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `appointment-${bookingRef}.ics`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (err) {
+      alert("Failed to download calendar invite file.");
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.9 }}
@@ -671,6 +753,32 @@ function SuccessView({ doctor, day, time, consultType, form }) {
       transition={{ type: "spring", stiffness: 250, damping: 22 }}
       className="flex flex-col items-center text-center py-8"
     >
+      {/* Simulated Notification popup */}
+      <AnimatePresence>
+        {showAlert && (
+          <motion.div
+            initial={{ opacity: 0, y: -50, x: 20 }}
+            animate={{ opacity: 1, y: 0, x: 0 }}
+            exit={{ opacity: 0, y: -20, x: 20 }}
+            className="fixed top-24 right-4 z-[200] max-w-sm w-full bg-slate-900 text-white rounded-2xl p-4 shadow-2xl border border-slate-800 flex gap-3 text-left items-start"
+          >
+            <div className="w-9 h-9 rounded-xl bg-emerald-500 flex items-center justify-center text-white shrink-0 mt-0.5 shadow-md shadow-emerald-500/20">
+              <FaWhatsapp size={18} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex justify-between items-center mb-1">
+                <span className="text-[9px] font-black uppercase tracking-wider text-emerald-400">WhatsApp Notification</span>
+                <button onClick={() => setShowAlert(false)} className="text-slate-400 hover:text-white text-xs bg-transparent border-none cursor-pointer p-0.5">✕</button>
+              </div>
+              <p className="text-[11px] font-bold text-slate-100">Booking Confirmed — Premium Clinic</p>
+              <p className="text-[10px] text-slate-400 mt-1 leading-relaxed">
+                Dear <strong>{form.name}</strong>, your slot with <strong>{doctor.name}</strong> is confirmed on <strong>{day.date}</strong> at <strong>{time}</strong>. Ref: <strong>{bookingRef}</strong>.
+              </p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Icon */}
       <div className="relative mb-8">
         <motion.div
@@ -697,7 +805,7 @@ function SuccessView({ doctor, day, time, consultType, form }) {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
-        className="w-full max-w-md"
+        className="w-full max-w-md animate-none"
       >
         <h2 className="text-2xl font-extrabold text-slate-800 mb-1">Appointment Confirmed!</h2>
         <p className="text-sm text-slate-400 mb-1">
@@ -707,7 +815,7 @@ function SuccessView({ doctor, day, time, consultType, form }) {
 
         {/* Summary card */}
         <div
-          className="w-full p-5 rounded-2xl text-left mb-6"
+          className="w-full p-5 rounded-2xl text-left mb-5"
           style={{ background: "linear-gradient(135deg,#e0f2fe 0%,#fce7f3 100%)" }}
         >
           <div className="flex items-center gap-4 mb-4">
@@ -736,6 +844,30 @@ function SuccessView({ doctor, day, time, consultType, form }) {
           </div>
         </div>
 
+        {/* Save to Calendar sync */}
+        <div className="bg-white rounded-2xl border border-slate-100 p-4 flex flex-col gap-2.5 mb-6 text-left shadow-sm">
+          <p className="text-[9px] font-black uppercase text-slate-400 tracking-wider flex items-center gap-1.5">
+            <LuCalendar size={11} className="text-pink-500 animate-pulse" /> Add to Calendar Schedule
+          </p>
+          <div className="flex gap-2.5">
+            <a 
+              href={googleCalendarUrl}
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="flex-1 py-2 px-3 bg-slate-50 hover:bg-sky-50 text-slate-700 hover:text-sky-600 rounded-xl text-xs font-bold border border-slate-100 flex items-center justify-center gap-1.5 transition-colors"
+              style={{ textDecoration: "none" }}
+            >
+              Add to Google
+            </a>
+            <button 
+              onClick={handleDownloadICS}
+              className="flex-1 py-2 px-3 bg-slate-50 hover:bg-pink-50 text-slate-700 hover:text-pink-600 rounded-xl text-xs font-bold border border-slate-100 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+            >
+              Download iCal/ICS
+            </button>
+          </div>
+        </div>
+
         {/* Actions */}
         <div className="flex gap-3 w-full">
           <motion.a
@@ -745,13 +877,14 @@ function SuccessView({ doctor, day, time, consultType, form }) {
             )}`}
             target="_blank" rel="noopener noreferrer"
             className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-2xl bg-[#25D366] text-white text-sm font-extrabold shadow-md"
+            style={{ textDecoration: "none" }}
           >
             <FaWhatsapp size={17} /> WhatsApp Confirm
           </motion.a>
           <motion.button
             whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
             onClick={() => navigate("/")}
-            className="flex-1 py-3.5 rounded-2xl text-white text-sm font-extrabold shadow-md"
+            className="flex-1 py-3.5 rounded-2xl text-white text-sm font-extrabold shadow-md border-none cursor-pointer"
             style={{ background: "linear-gradient(135deg,#0ea5e9,#db2777)" }}
           >
             Back to Home

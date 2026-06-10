@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import {
   FiClock, FiBookOpen, FiSearch,
@@ -118,6 +119,7 @@ const BLOG_TAGS = [
 ];
 
 function BlogCard({ post, index, featured = false }) {
+  const navigate = useNavigate();
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-40px" });
 
@@ -129,6 +131,7 @@ function BlogCard({ post, index, featured = false }) {
         animate={inView ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 0.55, delay: index * 0.1 }}
         className="group relative bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 border border-slate-100 cursor-pointer"
+        onClick={() => navigate(`/blog/${post.id}`)}
         style={{ transform: "translateY(0)" }}
         whileHover={{ y: -5 }}
       >
@@ -163,6 +166,7 @@ function BlogCard({ post, index, featured = false }) {
       animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.5, delay: index * 0.08 }}
       className="group flex gap-4 bg-white rounded-2xl p-4 shadow-sm hover:shadow-lg transition-all duration-400 border border-slate-100 cursor-pointer text-left"
+      onClick={() => navigate(`/blog/${post.id}`)}
     >
       <img src={post.image} alt={post.title} className="w-20 h-20 rounded-xl object-cover flex-shrink-0 group-hover:scale-105 transition-transform duration-400" />
       <div className="flex-1 min-w-0">
@@ -181,9 +185,21 @@ function BlogCard({ post, index, featured = false }) {
 
 export default function Blog({ onBookAppointment }) {
   const [blogTag, setBlogTag] = useState("all");
+  const [search, setSearch] = useState("");
 
-  const filteredBlogFeatured = BLOG_POSTS.filter((p) => p.featured && (blogTag === "all" || p.tag === blogTag));
-  const filteredBlogRest = BLOG_POSTS.filter((p) => !p.featured && (blogTag === "all" || p.tag === blogTag));
+  const filteredBlogFeatured = BLOG_POSTS.filter((p) => {
+    const matchTag = blogTag === "all" || p.tag === blogTag;
+    const q = search.toLowerCase();
+    const matchSearch = !q || p.title.toLowerCase().includes(q) || p.excerpt.toLowerCase().includes(q) || p.author.toLowerCase().includes(q) || p.category.toLowerCase().includes(q);
+    return p.featured && matchTag && matchSearch;
+  });
+
+  const filteredBlogRest = BLOG_POSTS.filter((p) => {
+    const matchTag = blogTag === "all" || p.tag === blogTag;
+    const q = search.toLowerCase();
+    const matchSearch = !q || p.title.toLowerCase().includes(q) || p.excerpt.toLowerCase().includes(q) || p.author.toLowerCase().includes(q) || p.category.toLowerCase().includes(q);
+    return !p.featured && matchTag && matchSearch;
+  });
 
   return (
     <div className="min-h-screen font-sans" style={{ background: THEME.grad }}>
@@ -217,13 +233,19 @@ export default function Blog({ onBookAppointment }) {
         </div>
         <p className="text-slate-400 text-sm mb-8 ml-4 text-left">Evidence-based clinical health guidance — straight to you.</p>
 
-        {/* Tag filter */}
-        <div className="flex flex-wrap gap-2 mb-8">
-          {BLOG_TAGS.map((tag) => (
-            <button key={tag.value} onClick={() => setBlogTag(tag.value)} className="px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 whitespace-nowrap" style={blogTag === tag.value ? { background: THEME.gradBtn, color: "white", boxShadow: "0 2px 12px rgba(233,30,140,0.25)" } : { background: "rgba(255,255,255,0.8)", color: "#64748b", border: "1px solid #e2e8f0" }}>
-              {tag.label}
-            </button>
-          ))}
+        {/* Search & Tag filter */}
+        <div className="flex flex-col sm:flex-row gap-3 mb-8">
+          <div className="flex items-center gap-2 px-4 py-2.5 rounded-2xl flex-1 max-w-sm" style={{ background: "rgba(255,255,255,0.8)", border: "1px solid #fce4ec" }}>
+            <FiSearch size={15} className="text-pink-400" />
+            <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search articles by title, author, specialty..." className="bg-transparent text-sm text-slate-700 outline-none flex-1 placeholder-slate-300 animate-none" />
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {BLOG_TAGS.map((tag) => (
+              <button key={tag.value} onClick={() => setBlogTag(tag.value)} className="px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 whitespace-nowrap" style={blogTag === tag.value ? { background: THEME.gradBtn, color: "white", boxShadow: "0 2px 12px rgba(233,30,140,0.25)" } : { background: "rgba(255,255,255,0.8)", color: "#64748b", border: "1px solid #e2e8f0" }}>
+                {tag.label}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Featured grid */}
