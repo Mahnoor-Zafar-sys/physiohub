@@ -401,6 +401,108 @@ export default function About() {
 
   </div>
 </section>
+
+      {/* ── CEO PROFILE SECTION ── */}
+      <section className="py-24 bg-white border-y border-slate-100 px-6 lg:px-16 relative select-none">
+        {/* Background decorative radial gradient */}
+        <div className="absolute top-0 right-1/4 w-[400px] h-[400px] rounded-full pointer-events-none opacity-20 filter blur-[80px]"
+          style={{ background: "radial-gradient(circle, #3b82f6 0%, transparent 70%)" }} />
+        
+        <div className="max-w-6xl mx-auto grid lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+          {/* CEO Image Container */}
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95, x: -30 }}
+            whileInView={{ opacity: 1, scale: 1, x: 0 }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="lg:col-span-5 relative"
+          >
+            {/* 3D Glassmorphic Photo Frame */}
+            <div className="relative rounded-3xl overflow-hidden border border-slate-200 shadow-2xl aspect-[4/5] bg-slate-100 group">
+              <img 
+                src="https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=800&q=80" 
+                alt="Prof. Dr. Faisal Mahmood" 
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent pointer-events-none" />
+              
+              {/* Overlay Badge */}
+              <div className="absolute bottom-6 left-6 right-6 flex justify-between items-end">
+                <div>
+                  <h4 className="text-white text-base font-extrabold tracking-tight">Prof. Dr. Faisal Mahmood</h4>
+                  <p className="text-blue-300 text-xs font-semibold tracking-wider uppercase mt-1">Founder & CEO</p>
+                </div>
+                <div className="px-3 py-1.5 bg-blue-600/90 backdrop-blur-sm text-white text-[9px] font-black tracking-widest rounded-xl uppercase border border-blue-500/30">
+                  Leadership
+                </div>
+              </div>
+            </div>
+            
+            {/* Background floating card effect */}
+            <div className="absolute -bottom-4 -left-4 -z-10 w-full h-full border-2 border-slate-100 rounded-3xl bg-slate-50/50 hidden sm:block" />
+          </motion.div>
+
+          {/* CEO Message / Bio */}
+          <motion.div 
+            initial={{ opacity: 0, x: 30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="lg:col-span-7 text-left space-y-6"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-6 h-px bg-blue-500" />
+              <span className="text-[10px] font-bold text-blue-600 tracking-[0.3em] uppercase">Executive Message</span>
+            </div>
+            
+            <h2 className="text-3xl lg:text-4xl font-black text-slate-900 tracking-tight leading-tight">
+              "Redefining healthcare through <span className="text-blue-600">precision</span>, empathy, and verified trust."
+            </h2>
+
+            <div className="w-12 h-px bg-slate-300" />
+
+            <div className="space-y-4 text-slate-600 text-[14px] leading-relaxed font-medium">
+              <p>
+                At Premium Clinic, we built our foundation on a simple promise: delivering world-class, transparent healthcare that prioritizes patient wellness above all else. We understand that seeking medical care is a vulnerable moment. That is why our clinical framework is designed to merge medical precision with deep empathy.
+              </p>
+              <p>
+                By combining advanced clinical technologies—like automated diagnostic reporting and real-time portal monitoring—with Karachi's leading specialists, we ensure that you are never left with unanswered questions. We do not just treat illnesses; we care for human lives.
+              </p>
+            </div>
+
+            {/* CEO Highlights Grid */}
+            <div className="grid sm:grid-cols-3 gap-4 pt-3">
+              {[
+                { icon: <FiAward size={16} className="text-blue-600" />, title: "15+ Years", desc: "Medical Leadership" },
+                { icon: <FiShield size={16} className="text-blue-600" />, title: "FRCP (London)", desc: "Royal Fellow" },
+                { icon: <FiCheckCircle size={16} className="text-blue-600" />, title: "PMDC Certified", desc: "Clinical Pioneer" }
+              ].map((item, idx) => (
+                <div key={idx} className="p-4 bg-slate-50 border border-slate-100 rounded-2xl flex flex-col gap-2">
+                  <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
+                    {item.icon}
+                  </div>
+                  <div>
+                    <h5 className="font-extrabold text-slate-800 text-xs">{item.title}</h5>
+                    <p className="text-[10px] text-slate-400 font-semibold mt-0.5">{item.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Signature & Closing */}
+            <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
+              <div>
+                <p className="font-extrabold text-slate-900 text-sm">Prof. Dr. Faisal Mahmood</p>
+                <p className="text-xs text-slate-400 mt-0.5">MBBS, FRCP (London), MBA (Health Management)</p>
+              </div>
+              <div className="font-serif italic text-2xl text-slate-400 tracking-wider font-semibold opacity-80 rotate-[-4deg] select-none pointer-events-none pr-4">
+                F. Mahmood
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
       {/* ══ MARQUEE STRIP ═════════════════════════════════════════════════════ */}
       <div className="py-5 border-y border-slate-100 bg-white overflow-hidden">
         <Marquee items={marqueeItems} speed={40} />
