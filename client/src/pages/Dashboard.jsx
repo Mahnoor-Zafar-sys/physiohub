@@ -292,7 +292,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans flex flex-col justify-between">
+    <div className="min-h-screen font-sans flex flex-col justify-between" style={{ background: "linear-gradient(135deg, #fce4ec 0%, #e0f2fe 60%, #fdf4ff 100%)" }}>
       <Navbar />
 
       {/* --- PRINT AREA STYLING FOR Rx PRESCRIPTION --- */}
@@ -405,7 +405,7 @@ export default function Dashboard() {
         
         {userRole === null ? (
           /* --- LOGIN AUTH SIMULATOR SCREEN --- */
-          <div className="max-w-md mx-auto bg-white rounded-3xl border border-slate-100 shadow-2xl overflow-hidden text-left mt-6">
+          <div className="max-w-md mx-auto bg-white/70 backdrop-blur-md rounded-3xl border border-white/50 shadow-2xl overflow-hidden text-left mt-6">
             <div className="h-1.5 w-full bg-gradient-to-r from-sky-400 to-pink-500" />
             <div className="p-6 sm:p-8 space-y-6">
               <div className="text-center">
@@ -474,7 +474,7 @@ export default function Dashboard() {
           <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch mt-4 min-h-[580px]">
             
             {/* SIDEBAR NAVIGATION PANEL */}
-            <div className="lg:col-span-3 bg-white rounded-3xl border border-slate-100 shadow-sm p-6 flex flex-col justify-between">
+            <div className="lg:col-span-3 bg-white/70 backdrop-blur-md rounded-3xl border border-white/50 shadow-md p-6 flex flex-col justify-between">
               <div>
                 
                 {/* User Card */}
@@ -590,7 +590,7 @@ export default function Dashboard() {
             </div>
 
             {/* MAIN PORTAL VIEWS */}
-            <div className="lg:col-span-9 bg-white rounded-3xl border border-slate-100 shadow-sm p-6 sm:p-8 flex flex-col justify-between relative">
+            <div className="lg:col-span-9 bg-white/80 backdrop-blur-md rounded-3xl border border-white/50 shadow-md p-6 sm:p-8 flex flex-col justify-between relative">
               
               {/* --- PATIENT: EMR MEDICAL RECORDS --- */}
               {activeTab === "records" && (
@@ -603,14 +603,14 @@ export default function Dashboard() {
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="border border-slate-100 rounded-2xl p-4 bg-slate-50 text-xs space-y-1.5 font-semibold">
+                    <div className="border border-white/50 rounded-2xl p-4 bg-white/40 text-xs space-y-1.5 font-semibold">
                       <p className="text-[9px] text-slate-400 uppercase tracking-wider">Patient Information</p>
                       <p><span className="text-slate-400">Name:</span> Jane Doe</p>
                       <p><span className="text-slate-400">Age / Gender:</span> 28 / Female</p>
                       <p><span className="text-slate-400">Blood Group:</span> O positive</p>
                       <p><span className="text-slate-400">Allergies:</span> Penicillin, Peanuts</p>
                     </div>
-                    <div className="border border-slate-100 rounded-2xl p-4 bg-slate-50 text-xs space-y-1.5 font-semibold">
+                    <div className="border border-white/50 rounded-2xl p-4 bg-white/40 text-xs space-y-1.5 font-semibold">
                       <p className="text-[9px] text-slate-400 uppercase tracking-wider">Clinical Vitals (Latest)</p>
                       <p><span className="text-slate-400">Blood Pressure:</span> 120/80 mmHg</p>
                       <p><span className="text-slate-400">Heart Rate:</span> 72 bpm</p>
@@ -622,7 +622,7 @@ export default function Dashboard() {
                   <div className="space-y-4">
                     <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 border-b pb-1">Past Consultations & Diagnoses</p>
                     {emrRecords.map(rec => (
-                      <div key={rec.id} className="border border-slate-100 rounded-2xl p-5 space-y-3 shadow-sm hover:border-slate-200 transition-colors">
+                      <div key={rec.id} className="border border-white/40 bg-white/30 rounded-2xl p-5 space-y-3 shadow-sm hover:shadow-md transition-all">
                         <div className="flex justify-between items-center flex-wrap gap-2">
                           <div>
                             <span className="text-[10px] font-bold text-slate-400 uppercase">{rec.date}</span>
@@ -631,7 +631,7 @@ export default function Dashboard() {
                           <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-sky-50 text-sky-700">{rec.doctor}</span>
                         </div>
                         <p className="text-xs text-slate-500 leading-relaxed">{rec.assessment}</p>
-                        <div className="text-[10px] text-slate-400 font-bold bg-slate-50 p-2 rounded-lg">
+                        <div className="text-[10px] text-slate-400 font-bold bg-white/50 p-2 rounded-lg">
                           Vitals Taken: {rec.vitals}
                         </div>
                       </div>
@@ -652,7 +652,7 @@ export default function Dashboard() {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {prescriptions.map(rx => (
-                      <div key={rx.id} className="border border-slate-100 rounded-2xl p-5 flex flex-col justify-between hover:shadow-md transition-shadow">
+                      <div key={rx.id} className="border border-white/40 bg-white/40 rounded-2xl p-5 flex flex-col justify-between hover:shadow-md transition-shadow">
                         <div>
                           <div className="flex justify-between items-center mb-3">
                             <span className="text-[9px] font-black uppercase text-pink-500 bg-pink-50 px-2 py-0.5 rounded">{rx.id}</span>
