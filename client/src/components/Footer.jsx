@@ -24,9 +24,9 @@ const links = {
     { name: "About Us", path: "/about" },
     { name: "Our Doctors", path: "/doctors" },
     { name: "Careers", path: "/careers" },
-    { name: "News & Press", path: "#" },
-    { name: "Research", path: "#" },
-    { name: "CSR Initiatives", path: "#" }
+    { name: "News & Press", path: "/news" },
+    { name: "Research", path: "/research" },
+    { name: "CSR Initiatives", path: "/csr" }
   ],
 };
 
@@ -150,12 +150,12 @@ export default function Footer() {
             >
               Terms of Service
             </Link>
-            <a 
-              href="#" 
+            <Link 
+              to="/cookie-policy" 
               className="text-blue-200/90 text-xs font-body font-semibold tracking-wide hover:text-white transition-colors duration-200"
             >
               Cookie Policy
-            </a>
+            </Link>
           </div>
         </div>
       </div>

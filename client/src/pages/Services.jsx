@@ -859,6 +859,7 @@
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import {
   FiSearch, FiArrowRight, FiArrowLeft, FiPhone, FiCalendar, FiX,
@@ -1715,6 +1716,7 @@ export default function ServicesPage() {
           </div>
         </div>
       </section>
+      <Footer />
     </div>
   );
 }

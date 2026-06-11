@@ -1727,6 +1727,7 @@
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import {
   FaWhatsapp, FaPhone, FaEnvelope, FaMapMarkerAlt,
@@ -2384,7 +2385,7 @@ export default function ContactUs() {
           </span>
         </motion.a>
       </div>
-
+      <Footer />
     </div>
   );
 }

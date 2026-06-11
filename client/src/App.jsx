@@ -23,6 +23,10 @@ import VideoConsultationRoom from "./pages/VideoConsultationRoom";
 import BlogPostPage from "./pages/BlogPostPage";
 import Dashboard from "./pages/Dashboard";
 import AIChatbot from "./components/AIChatbot";
+import NewsPress from "./pages/NewsPress";
+import ResearchPage from "./pages/Research";
+import CSRPage from "./pages/CSR";
+import CookiePolicy from "./pages/CookiePolicy";
 
 export default function App() {
   const [splashDone, setSplashDone] = useState(false);
@@ -56,6 +60,10 @@ export default function App() {
         <Route path="/terms" element={<Terms />} />
         <Route path="/consultation-room" element={<VideoConsultationRoom />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/news" element={<NewsPress />} />
+        <Route path="/research" element={<ResearchPage />} />
+        <Route path="/csr" element={<CSRPage />} />
+        <Route path="/cookie-policy" element={<CookiePolicy />} />
       </Routes>
       <AIChatbot />
     </Router>

@@ -10,9 +10,9 @@ import {
 import { FaWhatsapp } from "react-icons/fa";
 import { LuCalendar, LuClock, LuCreditCard, LuMapPin } from "react-icons/lu";
 
-// ─── DATA ─────────────────────────────────────────────────────────────────────
 import { doctors as MOCK_DOCTORS } from "../data/mockData";
 import { api } from "../services/api";
+import Footer from "../components/Footer";
 
 const TIME_SLOTS = [
   "09:00 AM", "09:30 AM", "10:00 AM", "10:30 AM",
@@ -1521,6 +1521,7 @@ export default function BookAppointmentPage() {
           </div>
         )}
       </AnimatePresence>
+      <Footer />
     </div>
   );
 }

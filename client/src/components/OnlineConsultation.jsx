@@ -2,6 +2,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import Footer from "./Footer";
 import {
   FiVideo, FiPhone, FiMessageCircle, FiSearch, FiX,
   FiCalendar, FiCheck, FiUpload, FiSend,
@@ -654,6 +655,7 @@ export default function OnlineConsultation() {
         style={{ background: "#25d366" }}>
         <FaWhatsapp size={26} color="white" />
       </a>
+      <Footer />
     </div>
   );
 }

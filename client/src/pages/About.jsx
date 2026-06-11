@@ -2,6 +2,7 @@ import { motion, AnimatePresence, useInView as useMotionInView, useScroll, useTr
 import { useRef, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 import {
   FiArrowRight, FiCheckCircle, FiChevronRight,
   FiMapPin, FiPhone, FiAward, FiShield, FiStar
@@ -1013,6 +1014,7 @@ export default function About() {
           </div>
         </div>
       </section>
+      <Footer />
     </div>
   );
 }

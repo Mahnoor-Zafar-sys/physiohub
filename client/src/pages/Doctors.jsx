@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import {
   FiStar, FiCalendar, FiMessageCircle, FiVideo,
@@ -901,6 +902,7 @@ export default function DoctorsPage() {
           </span>
         </motion.a>
       </div>
+      <Footer />
     </div>
   );
 }
