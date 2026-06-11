@@ -11,6 +11,7 @@ import { FaUserMd, FaHospitalUser, FaUserCog, FaCreditCard, FaPrint, FaBriefcase
 import { MdOutlineHealthAndSafety, MdVerifiedUser } from "react-icons/md";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import { api } from "../services/api";
 
 // Theme constants
 const THEME = {
@@ -80,79 +81,61 @@ export default function Dashboard() {
   // Printable Prescription details modal
   const [selectedPrescriptionPrint, setSelectedPrescriptionPrint] = useState(null);
 
-  // Initialize and load localStorage data
+  const loadDashboardData = async (role) => {
+    const appts = await api.getAppointments();
+    setAppointments(appts);
+
+    const docs = await api.getDoctors();
+    setDoctorsList(docs);
+
+    const patientName = localStorage.getItem("pc_user_name") || "Jane Doe";
+
+    const emrs = await api.getEMR(patientName);
+    setEmrRecords(emrs);
+
+    const rxs = await api.getPrescriptions(patientName);
+    setPrescriptions(rxs);
+
+    const invs = await api.getInvoices(patientName);
+    setInvoices(invs);
+  };
+
+  // Initialize and load localStorage/database data asynchronously
   useEffect(() => {
-    const localEMR = localStorage.getItem("pc_emr");
-    const localRx = localStorage.getItem("pc_rx");
-    const localAppt = localStorage.getItem("pc_appts");
-    const localInvs = localStorage.getItem("pc_invs");
-    const localDocs = localStorage.getItem("pc_doctors");
-
-    if (localEMR) setEmrRecords(JSON.parse(localEMR));
-    else {
-      setEmrRecords(INITIAL_EMR);
-      localStorage.setItem("pc_emr", JSON.stringify(INITIAL_EMR));
-    }
-
-    if (localRx) setPrescriptions(JSON.parse(localRx));
-    else {
-      setPrescriptions(INITIAL_PRESCRIPTIONS);
-      localStorage.setItem("pc_rx", JSON.stringify(INITIAL_PRESCRIPTIONS));
-    }
-
-    if (localAppt) setAppointments(JSON.parse(localAppt));
-    else {
-      setAppointments(INITIAL_APPOINTMENTS);
-      localStorage.setItem("pc_appts", JSON.stringify(INITIAL_APPOINTMENTS));
-    }
-
-    if (localInvs) setInvoices(JSON.parse(localInvs));
-    else {
-      setInvoices(INITIAL_INVOICES);
-      localStorage.setItem("pc_invs", JSON.stringify(INITIAL_INVOICES));
-    }
-
-    if (localDocs) setDoctorsList(JSON.parse(localDocs));
-    else {
-      setDoctorsList(INITIAL_DOCTORS);
-      localStorage.setItem("pc_doctors", JSON.stringify(INITIAL_DOCTORS));
-    }
-
-    // Set default active tab based on saved user role
     const savedRole = localStorage.getItem("pc_user_role");
     if (savedRole) {
       if (savedRole === "patient") setActiveTab("records");
       else if (savedRole === "doctor") setActiveTab("queue");
       else if (savedRole === "admin") setActiveTab("analytics");
       else if (savedRole === "receptionist") setActiveTab("reception-queue");
+
+      loadDashboardData(savedRole);
     }
   }, []);
 
-  // Update localStorage when state updates
-  const updateStorage = (key, data) => {
-    localStorage.setItem(key, JSON.stringify(data));
-  };
-
   // Login handler
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    // In a fully built mock app, any credentials authenticate to speed up validation.
-    setUserRole(authForm.role);
-    localStorage.setItem("pc_user_role", authForm.role);
-    // Set default active tab based on role
-    if (authForm.role === "patient") setActiveTab("records");
-    else if (authForm.role === "doctor") setActiveTab("queue");
-    else if (authForm.role === "admin") setActiveTab("analytics");
-    else if (authForm.role === "receptionist") setActiveTab("reception-queue");
-    
-    // Add event log
-    addSystemLog(`User logged in as ${authForm.role.toUpperCase()}`);
+    const res = await api.login(authForm.email, authForm.password, authForm.role);
+    if (res && res.success) {
+      setUserRole(res.user.role);
+      // Set default active tab based on role
+      if (res.user.role === "patient") setActiveTab("records");
+      else if (res.user.role === "doctor") setActiveTab("queue");
+      else if (res.user.role === "admin") setActiveTab("analytics");
+      else if (res.user.role === "receptionist") setActiveTab("reception-queue");
+      
+      // Add event log
+      addSystemLog(`User logged in as ${res.user.role.toUpperCase()}`);
+      await loadDashboardData(res.user.role);
+    }
   };
 
   // Logout handler
   const handleLogout = () => {
     setUserRole(null);
     localStorage.removeItem("pc_user_role");
+    localStorage.removeItem("pc_user_name");
     setActiveTab("");
   };
 
@@ -162,144 +145,152 @@ export default function Dashboard() {
   };
 
   // Cancellation appointment handler
-  const handleCancelAppt = (id) => {
-    const updated = appointments.map(appt => appt.id === id ? { ...appt, status: "Cancelled" } : appt);
-    setAppointments(updated);
-    updateStorage("pc_appts", updated);
-    addSystemLog(`Appointment ${id} has been cancelled by patient.`);
-    alert(`Appointment ${id} cancelled successfully.`);
+  const handleCancelAppt = async (id) => {
+    const success = await api.updateAppointmentStatus(id, "Cancelled");
+    if (success) {
+      const appts = await api.getAppointments();
+      setAppointments(appts);
+      addSystemLog(`Appointment ${id} has been cancelled by patient.`);
+      alert(`Appointment ${id} cancelled successfully.`);
+    }
   };
 
   // Reschedule appointment handler
-  const handleRescheduleSubmit = (e) => {
+  const handleRescheduleSubmit = async (e) => {
     e.preventDefault();
     if (rescheduleAppt) {
-      const updated = appointments.map(appt => 
-        appt.id === rescheduleAppt.id 
-          ? { ...appt, date: rescheduleData.date, time: rescheduleData.time, status: "Rescheduled" } 
-          : appt
-      );
-      setAppointments(updated);
-      updateStorage("pc_appts", updated);
-      addSystemLog(`Appointment ${rescheduleAppt.id} rescheduled to ${rescheduleData.date} at ${rescheduleData.time}.`);
-      setRescheduleAppt(null);
-      alert("Appointment rescheduled successfully!");
+      const success = await api.updateAppointmentStatus(rescheduleAppt.id, "Rescheduled", rescheduleData.date, rescheduleData.time);
+      if (success) {
+        const appts = await api.getAppointments();
+        setAppointments(appts);
+        addSystemLog(`Appointment ${rescheduleAppt.id} rescheduled to ${rescheduleData.date} at ${rescheduleData.time}.`);
+        setRescheduleAppt(null);
+        alert("Appointment rescheduled successfully!");
+      }
     }
   };
 
   // Patient Payment checkout handler
-  const handleCheckoutSubmit = (e) => {
+  const handleCheckoutSubmit = async (e) => {
     e.preventDefault();
     if (checkoutInvoice) {
-      const updated = invoices.map(inv => inv.id === checkoutInvoice.id ? { ...inv, status: "Paid" } : inv);
-      setInvoices(updated);
-      updateStorage("pc_invs", updated);
-      addSystemLog(`Invoice ${checkoutInvoice.id} (${checkoutInvoice.description}) paid via digital portal.`);
-      setCheckoutInvoice(null);
-      setCheckoutCard({ number: "", expiry: "", cvc: "" });
-      alert("Payment successful! Invoice marked as paid and log updated.");
+      const success = await api.payInvoice(checkoutInvoice.id);
+      if (success) {
+        const patientName = localStorage.getItem("pc_user_name") || "Jane Doe";
+        const invs = await api.getInvoices(patientName);
+        setInvoices(invs);
+        addSystemLog(`Invoice ${checkoutInvoice.id} (${checkoutInvoice.description}) paid via digital portal.`);
+        setCheckoutInvoice(null);
+        setCheckoutCard({ number: "", expiry: "", cvc: "" });
+        alert("Payment successful! Invoice marked as paid and log updated.");
+      }
     }
   };
 
   // Doctor EMR append handler
-  const handleEMRSubmit = (e) => {
+  const handleEMRSubmit = async (e) => {
     e.preventDefault();
     if (emrForm.diagnosis && emrForm.assessment) {
-      const newRec = {
-        id: `EMR-${Date.now().toString().slice(-3)}`,
-        date: new Date().toISOString().split("T")[0],
+      const patientName = localStorage.getItem("pc_user_name") || "Jane Doe";
+      const newRec = await api.createEMR({
+        patientName,
         doctor: emrForm.doctor,
         diagnosis: emrForm.diagnosis,
         vitals: emrForm.vitals || "BP: 120/80, Temp: 98.6°F",
         assessment: emrForm.assessment
-      };
-      const updated = [newRec, ...emrRecords];
-      setEmrRecords(updated);
-      updateStorage("pc_emr", updated);
-      addSystemLog(`New EMR record added for patient by ${emrForm.doctor}.`);
-      setEmrForm({ doctor: "Dr. Sarah Ahmed", diagnosis: "", vitals: "", assessment: "" });
-      alert("EMR diagnostic record added to patient clinical history!");
+      });
+      if (newRec) {
+        const emrs = await api.getEMR(patientName);
+        setEmrRecords(emrs);
+        addSystemLog(`New EMR record added for patient by ${emrForm.doctor}.`);
+        setEmrForm({ doctor: "Dr. Sarah Ahmed", diagnosis: "", vitals: "", assessment: "" });
+        alert("EMR diagnostic record added to patient clinical history!");
+      }
     }
   };
 
   // Doctor Rx Prescription write handler
-  const handleRxSubmit = (e) => {
+  const handleRxSubmit = async (e) => {
     e.preventDefault();
     if (prescriptionForm.medicine && prescriptionForm.dosage) {
-      const newRx = {
-        id: `RX-${Date.now().toString().slice(-4)}`,
-        date: new Date().toISOString().split("T")[0],
+      const patientName = localStorage.getItem("pc_user_name") || "Jane Doe";
+      const newRx = await api.createPrescription({
+        patientName,
         doctor: prescriptionForm.doctor,
         medicine: prescriptionForm.medicine,
         dosage: prescriptionForm.dosage,
         duration: prescriptionForm.duration || "7 Days",
-        instructions: prescriptionForm.instructions || "After meals",
-        status: "Active"
-      };
-      const updated = [newRx, ...prescriptions];
-      setPrescriptions(updated);
-      updateStorage("pc_rx", updated);
-      addSystemLog(`Prescription ${newRx.id} generated by ${prescriptionForm.doctor}.`);
-      
-      // Auto append a billing invoice for prescription review
-      const newInv = {
-        id: `INV-${Date.now().toString().slice(-4)}`,
-        description: `Clinical Consultation Fee - ${prescriptionForm.doctor}`,
-        amount: "₨ 3,000",
-        status: "Unpaid",
-        date: new Date().toISOString().split("T")[0]
-      };
-      const updatedInvs = [newInv, ...invoices];
-      setInvoices(updatedInvs);
-      updateStorage("pc_invs", updatedInvs);
+        instructions: prescriptionForm.instructions || "After meals"
+      });
+      if (newRx) {
+        const rxs = await api.getPrescriptions(patientName);
+        setPrescriptions(rxs);
+        addSystemLog(`Prescription ${newRx.id} generated by ${prescriptionForm.doctor}.`);
+        
+        // Auto append a billing invoice for prescription review
+        await api.createInvoice({
+          patientName,
+          description: `Clinical Consultation Fee - ${prescriptionForm.doctor}`,
+          amount: "₨ 3,000",
+          status: "Unpaid"
+        });
+        const invs = await api.getInvoices(patientName);
+        setInvoices(invs);
 
-      setPrescriptionForm({ doctor: "Dr. Sarah Ahmed", medicine: "", dosage: "", duration: "", instructions: "" });
-      alert("Digital prescription generated successfully and published to Patient Portal!");
+        setPrescriptionForm({ doctor: "Dr. Sarah Ahmed", medicine: "", dosage: "", duration: "", instructions: "" });
+        alert("Digital prescription generated successfully and published to Patient Portal!");
+      }
     }
   };
 
   // Receptionist live Check-in toggle handler
-  const handleCheckInToggle = (id, currentStatus) => {
+  const handleCheckInToggle = async (id, currentStatus) => {
     let nextStatus = "Waiting";
     if (currentStatus === "Pending") nextStatus = "Checked In";
+    else if (currentStatus === "Confirmed") nextStatus = "Checked In";
     else if (currentStatus === "Checked In") nextStatus = "In Room";
     else if (currentStatus === "In Room") nextStatus = "Completed";
 
-    const updated = appointments.map(appt => appt.id === id ? { ...appt, status: nextStatus } : appt);
-    setAppointments(updated);
-    updateStorage("pc_appts", updated);
-    addSystemLog(`Patient queue status for ${id} updated to ${nextStatus}.`);
+    const success = await api.updateAppointmentStatus(id, nextStatus);
+    if (success) {
+      const appts = await api.getAppointments();
+      setAppointments(appts);
+      addSystemLog(`Patient queue status for ${id} updated to ${nextStatus}.`);
+    }
   };
 
   // Admin Doctor Registry CRUD - Create
-  const handleAddDoctor = (e) => {
+  const handleAddDoctor = async (e) => {
     e.preventDefault();
     if (newDoctor.name && newDoctor.specialty) {
-      const doc = {
-        id: doctorsList.length + 1,
-        name: newDoctor.name.startsWith("Dr.") ? newDoctor.name : `Dr. ${newDoctor.name}`,
+      const docName = newDoctor.name.startsWith("Dr.") ? newDoctor.name : `Dr. ${newDoctor.name}`;
+      const doc = await api.createDoctor({
+        name: docName,
         specialty: newDoctor.specialty,
         fee: `₨ ${newDoctor.fee || "2,500"}`,
-        branch: newDoctor.branch,
-        status: "Active"
-      };
-      const updated = [...doctorsList, doc];
-      setDoctorsList(updated);
-      updateStorage("pc_doctors", updated);
-      addSystemLog(`New specialist ${doc.name} registered under ${doc.specialty}.`);
-      setNewDoctor({ name: "", specialty: "", fee: "", branch: "Gulberg" });
-      alert("New specialist added to registry!");
+        branch: newDoctor.branch
+      });
+      if (doc) {
+        const docs = await api.getDoctors();
+        setDoctorsList(docs);
+        addSystemLog(`New specialist ${docName} registered under ${newDoctor.specialty}.`);
+        setNewDoctor({ name: "", specialty: "", fee: "", branch: "Gulberg" });
+        alert("New specialist added to registry!");
+      }
     }
   };
 
   // Admin Doctor Registry CRUD - Delete/Status toggle
-  const handleToggleDocStatus = (id) => {
-    const updated = doctorsList.map(doc => 
-      doc.id === id ? { ...doc, status: doc.status === "Active" ? "Suspended" : "Active" } : doc
-    );
-    setDoctorsList(updated);
-    updateStorage("pc_doctors", updated);
-    addSystemLog(`Doctor registry status modified for ID ${id}.`);
+  const handleToggleDocStatus = async (id) => {
+    const doc = doctorsList.find(d => d.id === id);
+    if (!doc) return;
+    const nextStatus = doc.status === "Active" ? "Suspended" : "Active";
+    const success = await api.toggleDoctorStatus(id, nextStatus);
+    if (success) {
+      const docs = await api.getDoctors();
+      setDoctorsList(docs);
+      addSystemLog(`Doctor registry status modified for ID ${id}.`);
+    }
   };
 
   return (

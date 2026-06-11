@@ -11,7 +11,8 @@ import { FaWhatsapp } from "react-icons/fa";
 import { LuCalendar, LuClock, LuCreditCard, LuMapPin } from "react-icons/lu";
 
 // ─── DATA ─────────────────────────────────────────────────────────────────────
-import { doctors as DOCTORS } from "../data/mockData";
+import { doctors as MOCK_DOCTORS } from "../data/mockData";
+import { api } from "../services/api";
 
 const TIME_SLOTS = [
   "09:00 AM", "09:30 AM", "10:00 AM", "10:30 AM",
@@ -1004,38 +1005,72 @@ export default function BookAppointmentPage() {
 
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [cardDetails, setCardDetails] = useState({ number: "", expiry: "", cvc: "" });
+  const [doctors, setDoctors] = useState([]);
 
-  const handlePaymentSubmit = (e) => {
+  useEffect(() => {
+    const fetchDoctors = async () => {
+      const dbDocs = await api.getDoctors();
+      const mergedDocs = dbDocs.map(dbDoc => {
+        const mockDoc = MOCK_DOCTORS.find(m => m.name.toLowerCase() === dbDoc.name.toLowerCase());
+        
+        let branches = ["Gulberg", "DHA"];
+        if (typeof dbDoc.branch === "string") {
+          branches = dbDoc.branch.split(",").map(b => b.trim());
+        } else if (Array.isArray(dbDoc.branch)) {
+          branches = dbDoc.branch;
+        }
+
+        return {
+          id: dbDoc.id,
+          name: dbDoc.name,
+          specialty: dbDoc.specialty,
+          fee: dbDoc.fee,
+          branch: branches,
+          status: dbDoc.status || "Active",
+          slug: mockDoc?.slug || dbDoc.name.toLowerCase().replace(/\s+/g, "-"),
+          title: mockDoc?.title || "Consultant Specialist",
+          tag: mockDoc?.tag || "general",
+          image: mockDoc?.image || "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=400&q=80",
+          experience: mockDoc?.experience || "10 Years",
+          patients: mockDoc?.patients || "5,000+",
+          rating: mockDoc?.rating || 4.8,
+          reviews: mockDoc?.reviews || 120,
+          languages: mockDoc?.languages || ["Urdu", "English"],
+          available: dbDoc.status === "Active" ? (mockDoc?.available !== undefined ? mockDoc.available : true) : false,
+          nextSlot: mockDoc?.nextSlot || "Today, 4:00 PM",
+          gender: mockDoc?.gender || "Female",
+          schedule: mockDoc?.schedule || ["Mon 10AM–2PM", "Wed 3PM–7PM", "Fri 10AM–1PM"],
+          solidColor: mockDoc?.solidColor || "#ec4899"
+        };
+      });
+      setDoctors(mergedDocs.filter(d => d.status === "Active"));
+    };
+
+    fetchDoctors();
+  }, []);
+
+  const handlePaymentSubmit = async (e) => {
     e.preventDefault();
-    
-    // Sync with pc_appts
-    const localAppt = localStorage.getItem("pc_appts");
-    const currentAppts = localAppt ? JSON.parse(localAppt) : [];
-    const newAppt = {
-      id: `PC-${Date.now().toString().slice(-5)}`,
+    const patientName = form.name || "Jane Doe";
+
+    // 1. Create Appointment
+    await api.createAppointment({
       doctor: selectedDoctor.name,
       date: days[selectedDay].date,
       time: selectedTime,
       type: consultType === "in-person" ? "In-Person Visit" : consultType === "video" ? "Video Consultation" : "WhatsApp Consult",
       branch: selectedBranch + " Branch",
       status: "Confirmed",
-      patient: form.name || "Jane Doe"
-    };
-    const updatedAppts = [newAppt, ...currentAppts];
-    localStorage.setItem("pc_appts", JSON.stringify(updatedAppts));
+      patient: patientName
+    });
 
-    // Sync paid invoice with pc_invs
-    const localInvs = localStorage.getItem("pc_invs");
-    const currentInvs = localInvs ? JSON.parse(localInvs) : [];
-    const newInv = {
-      id: `INV-${Date.now().toString().slice(-4)}`,
+    // 2. Create Invoice
+    await api.createInvoice({
+      patientName: patientName,
       description: `Consultation Booking - ${selectedDoctor.name}`,
       amount: selectedDoctor.fee,
-      status: "Paid",
-      date: new Date().toISOString().split("T")[0]
-    };
-    const updatedInvs = [newInv, ...currentInvs];
-    localStorage.setItem("pc_invs", JSON.stringify(updatedInvs));
+      status: "Paid"
+    });
 
     setShowPaymentModal(false);
     setSubmitted(true);
@@ -1045,7 +1080,7 @@ export default function BookAppointmentPage() {
     contentRef.current?.scrollTo({ top: 0, behavior: "smooth" });
   }, [step]);
 
-  const filteredDoctors = DOCTORS.filter(d => {
+  const filteredDoctors = doctors.filter(d => {
     const q = searchQ.toLowerCase();
     const matchSpec = specFilter === "all" || d.tag === specFilter;
     const matchQ = !q || d.name.toLowerCase().includes(q) || d.specialty.toLowerCase().includes(q);
