@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import Navbar from "../components/Navbar";
 import {
   FiCalendar, FiClock, FiUser, FiPhone, FiMail,
   FiChevronRight, FiChevronLeft, FiCheck, FiMapPin,
@@ -1135,6 +1136,7 @@ export default function BookAppointmentPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-sky-50 via-white to-pink-50">
+      <Navbar />
       {/* ── Page Header ── */}
       <div
         className="relative overflow-hidden"

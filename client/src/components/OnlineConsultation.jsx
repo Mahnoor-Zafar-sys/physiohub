@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import Footer from "./Footer";
+import Navbar from "./Navbar";
 import {
   FiVideo, FiPhone, FiMessageCircle, FiSearch, FiX,
   FiCalendar, FiCheck, FiUpload, FiSend,
@@ -491,6 +492,7 @@ export default function OnlineConsultation() {
 
   return (
     <div className="min-h-screen" style={{ background: "#f8fafc", fontFamily: "'DM Sans', system-ui, sans-serif" }}>
+      <Navbar />
 
       {/* ── HERO ── */}
       <div className="relative overflow-hidden" style={{ background: "linear-gradient(135deg,#0c1445 0%,#1a237e 50%,#0d47a1 100%)" }}>

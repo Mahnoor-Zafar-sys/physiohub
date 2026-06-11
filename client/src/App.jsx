@@ -27,6 +27,7 @@ import NewsPress from "./pages/NewsPress";
 import ResearchPage from "./pages/Research";
 import CSRPage from "./pages/CSR";
 import CookiePolicy from "./pages/CookiePolicy";
+import NewsArticlePage from "./pages/NewsArticlePage";
 
 export default function App() {
   const [splashDone, setSplashDone] = useState(false);
@@ -61,6 +62,7 @@ export default function App() {
         <Route path="/consultation-room" element={<VideoConsultationRoom />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/news" element={<NewsPress />} />
+        <Route path="/news/:id" element={<NewsArticlePage />} />
         <Route path="/research" element={<ResearchPage />} />
         <Route path="/csr" element={<CSRPage />} />
         <Route path="/cookie-policy" element={<CookiePolicy />} />
