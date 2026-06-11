@@ -771,9 +771,9 @@ function SuccessView({ doctor, day, time, consultType, form }) {
                 <span className="text-[9px] font-black uppercase tracking-wider text-emerald-400">WhatsApp Notification</span>
                 <button onClick={() => setShowAlert(false)} className="text-slate-400 hover:text-white text-xs bg-transparent border-none cursor-pointer p-0.5">✕</button>
               </div>
-              <p className="text-[11px] font-bold text-slate-100">Booking Confirmed — Premium Clinic</p>
+              <p className="text-[11px] font-bold text-slate-100">Booking Verification Initialized — Premium Clinic</p>
               <p className="text-[10px] text-slate-400 mt-1 leading-relaxed">
-                Dear <strong>{form.name}</strong>, your slot with <strong>{doctor.name}</strong> is confirmed on <strong>{day.date}</strong> at <strong>{time}</strong>. Ref: <strong>{bookingRef}</strong>.
+                Dear <strong>{form.name}</strong>, your slot with <strong>{doctor.name}</strong> on <strong>{day.date}</strong> at <strong>{time}</strong> has been submitted. It is pending admin payment verification. Ref: <strong>{bookingRef}</strong>.
               </p>
             </div>
           </motion.div>
@@ -808,11 +808,11 @@ function SuccessView({ doctor, day, time, consultType, form }) {
         transition={{ delay: 0.3 }}
         className="w-full max-w-md animate-none"
       >
-        <h2 className="text-2xl font-extrabold text-slate-800 mb-1">Appointment Confirmed!</h2>
+        <h2 className="text-2xl font-extrabold text-slate-800 mb-1">Booking Pending Verification</h2>
         <p className="text-sm text-slate-400 mb-1">
           Booking Reference: <span className="font-extrabold text-sky-600">{bookingRef}</span>
         </p>
-        <p className="text-sm text-slate-500 mb-8">Our team will contact you shortly to confirm your slot.</p>
+        <p className="text-sm text-slate-500 mb-8">Your slot is reserved. Once the admin verifies your payment, it will be forwarded to {doctor.name}'s workspace queue.</p>
 
         {/* Summary card */}
         <div
@@ -1075,7 +1075,8 @@ export default function BookAppointmentPage() {
       time: selectedTime,
       type: consultType === "in-person" ? "In-Person Visit" : consultType === "video" ? "Video Consultation" : "WhatsApp Consult",
       branch: selectedBranch + " Branch",
-      status: "Confirmed",
+      status: "Pending",
+      payment_status: "Pending Verification",
       patient: patientName
     });
 
@@ -1084,7 +1085,7 @@ export default function BookAppointmentPage() {
       patientName: patientName,
       description: `Consultation Booking - ${selectedDoctor.name}`,
       amount: selectedDoctor.fee,
-      status: "Paid"
+      status: "Unpaid"
     });
 
     setShowPaymentModal(false);

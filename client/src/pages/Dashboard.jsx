@@ -56,12 +56,15 @@ export default function Dashboard() {
   const [authForm, setAuthForm] = useState({ email: "patient@premiumclinic.com", password: "password123", role: "patient" });
   const [loginError, setLoginError] = useState("");
 
-  // Core Data State (synchronized with localStorage)
+  // Core Data State (synchronized with localStorage/SQL database)
   const [emrRecords, setEmrRecords] = useState([]);
   const [prescriptions, setPrescriptions] = useState([]);
   const [appointments, setAppointments] = useState([]);
   const [invoices, setInvoices] = useState([]);
   const [doctorsList, setDoctorsList] = useState([]);
+  const [articles, setArticles] = useState([]);
+  const [comments, setComments] = useState([]);
+  const [liveAlerts, setLiveAlerts] = useState([]);
   const [logs, setLogs] = useState([
     { time: "10:30 AM", event: "Billing Invoice INV-5002 marked as paid." },
     { time: "11:00 AM", event: "Appointment scheduled with Dr. Omar Farooq." }
@@ -77,7 +80,10 @@ export default function Dashboard() {
   const [checkoutCard, setCheckoutCard] = useState({ number: "", expiry: "", cvc: "" });
   const [rescheduleAppt, setRescheduleAppt] = useState(null);
   const [rescheduleData, setRescheduleData] = useState({ date: "", time: "09:00 AM" });
-  const [newDoctor, setNewDoctor] = useState({ name: "", specialty: "", fee: "", branch: "Gulberg" });
+  const [newDoctor, setNewDoctor] = useState({ name: "", specialty: "", fee: "", branch: "Gulberg", image: "", experience: "", title: "" });
+  const [articleForm, setArticleForm] = useState({ title: "", excerpt: "", content: "", category: "General Health", image: "" });
+  const [adminDocFilter, setAdminDocFilter] = useState("all");
+  const [adminPatientSearch, setAdminPatientSearch] = useState("");
   
   // Printable Prescription details modal
   const [selectedPrescriptionPrint, setSelectedPrescriptionPrint] = useState(null);
@@ -99,6 +105,43 @@ export default function Dashboard() {
 
     const invs = await api.getInvoices(patientName);
     setInvoices(invs);
+
+    const arts = await api.getArticles();
+    setArticles(arts);
+
+    const comms = await api.getComments();
+    setComments(comms);
+
+    // Dynamically compute on-time alerts feed
+    const alertsList = [];
+    appts.forEach(appt => {
+      if (appt.payment_status === "Pending Verification") {
+        alertsList.push({
+          id: `alert-pay-${appt.id}`,
+          type: "payment_pending",
+          message: `Booking ${appt.id} for ${appt.patient} needs payment verification by Admin.`,
+          time: "Just Now"
+        });
+      } else if (appt.payment_status === "Paid" && appt.status === "Confirmed") {
+        alertsList.push({
+          id: `alert-fwd-${appt.id}`,
+          type: "forwarded",
+          message: `Ontime Alert: Payment verified for ${appt.id}. Forwarded to ${appt.doctor}.`,
+          time: "On Time"
+        });
+      }
+    });
+    comms.forEach(c => {
+      if (c.status === "Pending") {
+        alertsList.push({
+          id: `alert-comm-${c.id}`,
+          type: "comment_moderation",
+          message: `Comment by ${c.author_name} is pending review: "${c.comment_text.slice(0, 35)}..."`,
+          time: "Awaiting Action"
+        });
+      }
+    });
+    setLiveAlerts(alertsList);
   };
 
   // Initialize and load localStorage/database data asynchronously
@@ -272,13 +315,16 @@ export default function Dashboard() {
         name: docName,
         specialty: newDoctor.specialty,
         fee: `₨ ${newDoctor.fee || "2,500"}`,
-        branch: newDoctor.branch
+        branch: newDoctor.branch,
+        image: newDoctor.image,
+        experience: newDoctor.experience,
+        title: newDoctor.title
       });
       if (doc) {
         const docs = await api.getDoctors();
         setDoctorsList(docs);
         addSystemLog(`New specialist ${docName} registered under ${newDoctor.specialty}.`);
-        setNewDoctor({ name: "", specialty: "", fee: "", branch: "Gulberg" });
+        setNewDoctor({ name: "", specialty: "", fee: "", branch: "Gulberg", image: "", experience: "", title: "" });
         alert("New specialist added to registry!");
       }
     }
@@ -297,9 +343,89 @@ export default function Dashboard() {
     }
   };
 
+  // Admin Payment verification & Appointment scheduling forward
+  const handleVerifyPayment = async (id) => {
+    const success = await api.approvePayment(id);
+    if (success) {
+      addSystemLog(`Payment verified and appointment ${id} approved & forwarded to doctor.`);
+      await loadDashboardData(userRole);
+      alert("Payment verified successfully! Appointment has been forwarded on-time to the specialist's queue.");
+    }
+  };
+
+  // Admin Clinical Blog Publisher
+  const handleArticleSubmit = async (e) => {
+    e.preventDefault();
+    if (articleForm.title && articleForm.content) {
+      const art = await api.createArticle({
+        title: articleForm.title,
+        excerpt: articleForm.excerpt || articleForm.content.slice(0, 100) + "...",
+        content: articleForm.content,
+        category: articleForm.category,
+        author: "Director Admin",
+        image: articleForm.image
+      });
+      if (art) {
+        addSystemLog(`Clinical Article Published: "${art.title}"`);
+        setArticleForm({ title: "", excerpt: "", content: "", category: "General Health", image: "" });
+        await loadDashboardData(userRole);
+        alert("Clinical article published successfully!");
+      }
+    }
+  };
+
+  const handleDeleteArticle = async (id) => {
+    const success = await api.deleteArticle(id);
+    if (success) {
+      addSystemLog(`Clinical Article ID ${id} removed.`);
+      await loadDashboardData(userRole);
+      alert("Article deleted successfully.");
+    }
+  };
+
+  // Admin Comments Moderation
+  const handleCommentStatus = async (id, status) => {
+    const success = await api.updateCommentStatus(id, status);
+    if (success) {
+      addSystemLog(`Comment ID ${id} moderation status set to ${status}.`);
+      await loadDashboardData(userRole);
+      alert(`Comment ${status.toLowerCase()} successfully!`);
+    }
+  };
+
+  const handleDeleteComment = async (id) => {
+    const success = await api.deleteComment(id);
+    if (success) {
+      addSystemLog(`Comment ID ${id} removed.`);
+      await loadDashboardData(userRole);
+      alert("Comment deleted successfully.");
+    }
+  };
+
   return (
     <div className="min-h-screen font-sans flex flex-col justify-between" style={{ background: "linear-gradient(135deg, #fce4ec 0%, #e0f2fe 60%, #fdf4ff 100%)" }}>
       <Navbar />
+
+      {/* --- LIVE ALERTS HUD MARQUEE --- */}
+      {userRole && liveAlerts.length > 0 && (
+        <div className="bg-slate-900/90 backdrop-blur-md text-white py-2.5 px-4 shadow-lg overflow-hidden relative z-40 flex items-center border-y border-white/5">
+          <div className="flex items-center gap-1.5 font-black text-[9px] uppercase tracking-wider text-pink-400 shrink-0 bg-pink-500/10 px-3 py-1 rounded-full border border-pink-500/30">
+            <span className="w-1.5 h-1.5 rounded-full bg-pink-500 animate-ping inline-block" />
+            Live Alerts Feed
+          </div>
+          <div className="flex-grow overflow-hidden relative ml-4 flex items-center">
+            <div className="animate-marquee gap-8">
+              {[...liveAlerts, ...liveAlerts, ...liveAlerts].map((alert, idx) => (
+                <span key={idx} className="text-xs font-semibold text-slate-200 flex items-center gap-2 pr-12">
+                  <FiAlertTriangle className="text-amber-400 shrink-0" />
+                  <span>{alert.message}</span>
+                  <span className="text-[9px] text-pink-400 font-bold bg-pink-500/10 px-2.5 py-0.5 rounded-full border border-pink-500/20">{alert.time}</span>
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* --- PRINT AREA STYLING FOR Rx PRESCRIPTION --- */}
       <style dangerouslySetInnerHTML={{__html: `
@@ -557,7 +683,10 @@ export default function Dashboard() {
                   {/* Admin Tabs */}
                   {userRole === "admin" && [
                     { id: "analytics", label: "Analytical Center", icon: FiTrendingUp },
-                    { id: "doctor-crud", label: "Doctor Registry", icon: FaUserMd }
+                    { id: "payments", label: "Payment Verification", icon: FaCreditCard },
+                    { id: "doctor-crud", label: "Doctor Registry", icon: FaUserMd },
+                    { id: "articles", label: "Clinical Articles", icon: FiFileText },
+                    { id: "comments", label: "Comments Moderation", icon: FiAlertTriangle }
                   ].map(tab => (
                     <button 
                       key={tab.id} 
@@ -899,7 +1028,13 @@ export default function Dashboard() {
                   </div>
 
                   <div className="space-y-3">
-                    {appointments.filter(appt => appt.status !== "Cancelled").map(appt => (
+                    {appointments.filter(appt => appt.status !== "Cancelled" && appt.payment_status === "Paid").length === 0 ? (
+                      <div className="p-8 text-center bg-slate-50 border border-dashed rounded-3xl text-slate-400 text-xs">
+                        <FiCheckCircle size={24} className="mx-auto mb-2 text-emerald-500" />
+                        No active/paid appointments in your queue today.
+                      </div>
+                    ) : (
+                      appointments.filter(appt => appt.status !== "Cancelled" && appt.payment_status === "Paid").map(appt => (
                       <div key={appt.id} className="border border-slate-100 rounded-2xl p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                         <div>
                           <div className="flex items-center gap-2">
@@ -927,7 +1062,8 @@ export default function Dashboard() {
                           )}
                         </div>
                       </div>
-                    ))}
+                    ))
+                  )}
                   </div>
                 </div>
               )}
@@ -1182,7 +1318,7 @@ export default function Dashboard() {
                     {/* Add Doctor Form */}
                     <div className="md:col-span-1 border border-slate-100 rounded-3xl p-5 bg-slate-50/50">
                       <h4 className="font-black text-slate-800 text-sm mb-4">Register Doctor</h4>
-                      <form onSubmit={handleAddDoctor} className="space-y-3.5">
+                      <form onSubmit={handleAddDoctor} className="space-y-3">
                         <div>
                           <label className="text-[9px] font-bold text-slate-400 uppercase block mb-1">Full Name</label>
                           <input 
@@ -1190,7 +1326,18 @@ export default function Dashboard() {
                             required
                             value={newDoctor.name}
                             onChange={e => setNewDoctor({...newDoctor, name: e.target.value})}
-                            placeholder="e.g. Sarah Ahmed" 
+                            placeholder="e.g. Dr. Sarah Ahmed" 
+                            className="w-full border border-slate-200 bg-white rounded-xl p-2.5 text-xs outline-none focus:border-pink-400"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[9px] font-bold text-slate-400 uppercase block mb-1">Credentials / Title</label>
+                          <input 
+                            type="text" 
+                            required
+                            value={newDoctor.title}
+                            onChange={e => setNewDoctor({...newDoctor, title: e.target.value})}
+                            placeholder="e.g. MBBS, FCPS (Dermatology)" 
                             className="w-full border border-slate-200 bg-white rounded-xl p-2.5 text-xs outline-none focus:border-pink-400"
                           />
                         </div>
@@ -1205,31 +1352,75 @@ export default function Dashboard() {
                             className="w-full border border-slate-200 bg-white rounded-xl p-2.5 text-xs outline-none focus:border-pink-400"
                           />
                         </div>
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <label className="text-[9px] font-bold text-slate-400 uppercase block mb-1">Fee (PKR)</label>
+                            <input 
+                              type="number" 
+                              required
+                              value={newDoctor.fee}
+                              onChange={e => setNewDoctor({...newDoctor, fee: e.target.value})}
+                              placeholder="3000" 
+                              className="w-full border border-slate-200 bg-white rounded-xl p-2.5 text-xs outline-none focus:border-pink-400"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-[9px] font-bold text-slate-400 uppercase block mb-1">Experience</label>
+                            <input 
+                              type="text" 
+                              required
+                              value={newDoctor.experience}
+                              onChange={e => setNewDoctor({...newDoctor, experience: e.target.value})}
+                              placeholder="e.g. 14 Years" 
+                              className="w-full border border-slate-200 bg-white rounded-xl p-2.5 text-xs outline-none focus:border-pink-400"
+                            />
+                          </div>
+                        </div>
                         <div>
-                          <label className="text-[9px] font-bold text-slate-400 uppercase block mb-1">Fee (PKR)</label>
+                          <label className="text-[9px] font-bold text-slate-400 uppercase block mb-1">Branch Locations</label>
                           <input 
-                            type="number" 
+                            type="text" 
                             required
-                            value={newDoctor.fee}
-                            onChange={e => setNewDoctor({...newDoctor, fee: e.target.value})}
-                            placeholder="e.g. 3000" 
+                            value={newDoctor.branch}
+                            onChange={e => setNewDoctor({...newDoctor, branch: e.target.value})}
+                            placeholder="e.g. Gulberg, DHA" 
                             className="w-full border border-slate-200 bg-white rounded-xl p-2.5 text-xs outline-none focus:border-pink-400"
                           />
                         </div>
-                        <button type="submit" className="w-full py-2.5 bg-slate-900 hover:bg-pink-600 text-white rounded-xl text-xs font-bold border-none cursor-pointer">
+                        <div>
+                          <label className="text-[9px] font-bold text-slate-400 uppercase block mb-1">Profile Photo URL</label>
+                          <input 
+                            type="url" 
+                            value={newDoctor.image}
+                            onChange={e => setNewDoctor({...newDoctor, image: e.target.value})}
+                            placeholder="https://images.unsplash.com/..." 
+                            className="w-full border border-slate-200 bg-white rounded-xl p-2.5 text-xs outline-none focus:border-pink-400"
+                          />
+                        </div>
+                        <button type="submit" className="w-full py-3 bg-slate-900 hover:bg-pink-600 text-white rounded-xl text-xs font-bold border-none cursor-pointer mt-2 shadow-md">
                           Add Specialist
                         </button>
                       </form>
                     </div>
 
                     {/* Doctors List */}
-                    <div className="md:col-span-2 space-y-3 max-h-[350px] overflow-y-auto pr-1 scrollbar-none">
+                    <div className="md:col-span-2 space-y-3 max-h-[500px] overflow-y-auto pr-1 scrollbar-none">
                       {doctorsList.map(doc => (
-                        <div key={doc.id} className="border border-slate-100 rounded-2xl p-4 flex justify-between items-center shadow-sm">
-                          <div>
-                            <h4 className="font-extrabold text-xs text-slate-800">{doc.name}</h4>
-                            <p className="text-[10px] text-slate-400 mt-0.5">{doc.specialty} · Fee: {doc.fee}</p>
-                            <span className="text-[9px] text-slate-400 mt-1 block">Branches: {doc.branch}</span>
+                        <div key={doc.id} className="border border-slate-100 bg-white/50 backdrop-blur-sm rounded-2xl p-4 flex justify-between items-center shadow-sm">
+                          <div className="flex items-center gap-3">
+                            <img 
+                              src={doc.image || "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=100&q=80"} 
+                              alt={doc.name} 
+                              className="w-12 h-12 rounded-xl object-cover border border-slate-100 shrink-0" 
+                            />
+                            <div>
+                              <div className="flex items-center gap-1.5 flex-wrap">
+                                <h4 className="font-extrabold text-xs text-slate-800">{doc.name}</h4>
+                                <span className="text-[9px] text-pink-500 font-bold bg-pink-50 px-1.5 py-0.5 rounded">{doc.title || "Consultant"}</span>
+                              </div>
+                              <p className="text-[10px] text-slate-400 mt-0.5">{doc.specialty} · {doc.experience || "10 Years"}</p>
+                              <span className="text-[9px] text-slate-500 font-semibold block">Branches: {doc.branch} · Fee: {doc.fee}</span>
+                            </div>
                           </div>
                           <div className="flex items-center gap-2">
                             <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${
@@ -1248,6 +1439,222 @@ export default function Dashboard() {
                       ))}
                     </div>
 
+                  </div>
+                </div>
+              )}
+
+              {/* --- ADMIN: PAYMENT VERIFICATION QUEUE --- */}
+              {activeTab === "payments" && (
+                <div className="space-y-6 text-left flex-grow">
+                  <div>
+                    <h3 className="text-lg font-black text-slate-800 flex items-center gap-2">
+                      <FaCreditCard className="text-pink-500" /> Payment Verification Desk
+                    </h3>
+                    <p className="text-xs text-slate-400 mt-0.5">Approve patient checkouts and route bookings to the respective specialist queues.</p>
+                  </div>
+
+                  <div className="space-y-3">
+                    {appointments.filter(appt => appt.payment_status === "Pending Verification").length === 0 ? (
+                      <div className="p-8 text-center bg-slate-50 border border-dashed rounded-3xl text-slate-400 text-xs">
+                        <FiCheckCircle size={24} className="mx-auto mb-2 text-emerald-500" />
+                        No payments awaiting verification.
+                      </div>
+                    ) : (
+                      appointments.filter(appt => appt.payment_status === "Pending Verification").map(appt => (
+                        <div key={appt.id} className="border border-slate-100 bg-white/50 backdrop-blur-sm rounded-2xl p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 shadow-sm">
+                          <div>
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="text-[10px] font-black uppercase text-pink-500 bg-pink-50 px-2 py-0.5 rounded">{appt.id}</span>
+                              <h4 className="font-extrabold text-sm text-slate-800">{appt.patient}</h4>
+                            </div>
+                            <p className="text-xs text-slate-500 mt-1">Consultation with <strong>{appt.doctor}</strong> · Branch: {appt.branch}</p>
+                            <span className="text-[10px] text-slate-400 font-semibold block mt-0.5">Slot: {appt.date} at {appt.time} ({appt.type})</span>
+                          </div>
+                          <div className="flex items-center gap-2.5 self-end sm:self-auto">
+                            <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-100 flex items-center gap-1">
+                              <span className="w-1 h-1 bg-amber-500 rounded-full animate-ping" />
+                              Unverified Payment
+                            </span>
+                            <button 
+                              onClick={() => handleVerifyPayment(appt.id)}
+                              className="px-4 py-2 bg-slate-900 hover:bg-pink-600 text-white rounded-xl text-xs font-bold border-none cursor-pointer shadow-md transition-colors flex items-center gap-1.5"
+                            >
+                              <FiCheck /> Verify & Forward
+                            </button>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* --- ADMIN: CLINICAL ARTICLES PUBLISHER --- */}
+              {activeTab === "articles" && (
+                <div className="space-y-6 text-left flex-grow">
+                  <div>
+                    <h3 className="text-lg font-black text-slate-800 flex items-center gap-2">
+                      <FiFileText className="text-pink-500" /> Clinical Articles & Blog Desk
+                    </h3>
+                    <p className="text-xs text-slate-400 mt-0.5">Draft, publish, and manage health publications for the patient resource library.</p>
+                  </div>
+
+                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    {/* Add Article Form */}
+                    <div className="lg:col-span-5 border border-slate-100 rounded-3xl p-5 bg-slate-50/50 space-y-4">
+                      <h4 className="font-black text-slate-800 text-sm">Write Article</h4>
+                      <form onSubmit={handleArticleSubmit} className="space-y-3">
+                        <div>
+                          <label className="text-[9px] font-bold text-slate-400 block mb-1">Article Title</label>
+                          <input 
+                            type="text" 
+                            required
+                            value={articleForm.title}
+                            onChange={e => setArticleForm({...articleForm, title: e.target.value})}
+                            placeholder="e.g. 5 Skincare Routine Mistakes to Avoid" 
+                            className="w-full border border-slate-200 bg-white rounded-xl p-2.5 text-xs outline-none focus:border-pink-400"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[9px] font-bold text-slate-400 block mb-1">Category</label>
+                          <input 
+                            type="text" 
+                            required
+                            value={articleForm.category}
+                            onChange={e => setArticleForm({...articleForm, category: e.target.value})}
+                            placeholder="e.g. Skin Care or General Health" 
+                            className="w-full border border-slate-200 bg-white rounded-xl p-2.5 text-xs outline-none focus:border-pink-400"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[9px] font-bold text-slate-400 block mb-1">Cover Image URL</label>
+                          <input 
+                            type="url" 
+                            value={articleForm.image}
+                            onChange={e => setArticleForm({...articleForm, image: e.target.value})}
+                            placeholder="https://images.unsplash.com/..." 
+                            className="w-full border border-slate-200 bg-white rounded-xl p-2.5 text-xs outline-none focus:border-pink-400"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[9px] font-bold text-slate-400 block mb-1">Short Excerpt</label>
+                          <input 
+                            type="text" 
+                            value={articleForm.excerpt}
+                            onChange={e => setArticleForm({...articleForm, excerpt: e.target.value})}
+                            placeholder="Brief description of the article..." 
+                            className="w-full border border-slate-200 bg-white rounded-xl p-2.5 text-xs outline-none focus:border-pink-400"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[9px] font-bold text-slate-400 block mb-1">Content Text</label>
+                          <textarea 
+                            rows={4}
+                            required
+                            value={articleForm.content}
+                            onChange={e => setArticleForm({...articleForm, content: e.target.value})}
+                            placeholder="Draft your main article content here..." 
+                            className="w-full border border-slate-200 bg-white rounded-xl p-2.5 text-xs outline-none focus:border-pink-400 resize-none"
+                          />
+                        </div>
+                        <button type="submit" className="w-full py-2.5 bg-slate-900 hover:bg-pink-600 text-white rounded-xl text-xs font-bold border-none cursor-pointer mt-2 shadow-md">
+                          Publish Article
+                        </button>
+                      </form>
+                    </div>
+
+                    {/* Articles List */}
+                    <div className="lg:col-span-7 space-y-3 max-h-[550px] overflow-y-auto pr-1 scrollbar-none">
+                      {articles.map(art => (
+                        <div key={art.id} className="border border-slate-100 bg-white/50 backdrop-blur-sm rounded-2xl p-4 flex gap-3 shadow-sm relative group">
+                          <img 
+                            src={art.image || "https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=150&q=80"} 
+                            alt={art.title} 
+                            className="w-20 h-20 rounded-xl object-cover border border-slate-100 shrink-0" 
+                          />
+                          <div className="flex-grow text-left">
+                            <span className="text-[8px] font-black text-pink-500 uppercase tracking-widest bg-pink-50 px-2 py-0.5 rounded">{art.category}</span>
+                            <h4 className="font-extrabold text-xs text-slate-800 mt-1 leading-tight">{art.title}</h4>
+                            <p className="text-[10px] text-slate-400 mt-1 line-clamp-2 leading-relaxed">{art.excerpt}</p>
+                            <span className="text-[9px] text-slate-400 mt-2 block font-semibold">Author: {art.author || "Director Admin"}</span>
+                          </div>
+                          <button 
+                            onClick={() => handleDeleteArticle(art.id)}
+                            className="absolute top-4 right-4 p-2 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg text-xs font-bold border-none cursor-pointer shadow-sm transition-colors"
+                          >
+                            <FiTrash size={12} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* --- ADMIN: COMMENTS MODERATION PANEL --- */}
+              {activeTab === "comments" && (
+                <div className="space-y-6 text-left flex-grow">
+                  <div>
+                    <h3 className="text-lg font-black text-slate-800 flex items-center gap-2">
+                      <FiAlertTriangle className="text-pink-500" /> Comments Moderation Desk
+                    </h3>
+                    <p className="text-xs text-slate-400 mt-0.5">Approve, reject, or delete patient comments on public health articles.</p>
+                  </div>
+
+                  <div className="space-y-3 max-h-[550px] overflow-y-auto pr-1 scrollbar-none">
+                    {comments.length === 0 ? (
+                      <div className="p-8 text-center bg-slate-50 border border-dashed rounded-3xl text-slate-400 text-xs">
+                        No comments found.
+                      </div>
+                    ) : (
+                      comments.map(c => {
+                        const relatedArticle = articles.find(art => art.id === c.article_id);
+                        return (
+                          <div key={c.id} className="border border-slate-100 bg-white/50 backdrop-blur-sm rounded-2xl p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-3 shadow-sm">
+                            <div className="text-left">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <h4 className="font-extrabold text-xs text-slate-800">{c.author_name}</h4>
+                                <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded ${
+                                  c.status === "Approved" ? "bg-emerald-50 text-emerald-700" :
+                                  c.status === "Rejected" ? "bg-red-50 text-red-700" : "bg-amber-50 text-amber-700"
+                                }`}>
+                                  {c.status}
+                                </span>
+                              </div>
+                              <p className="text-xs text-slate-600 mt-1 italic font-medium">"{c.comment_text}"</p>
+                              {relatedArticle && (
+                                <span className="text-[9px] text-slate-400 font-semibold block mt-1">Article: <strong>{relatedArticle.title}</strong></span>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-2 self-end md:self-auto shrink-0">
+                              {c.status === "Pending" && (
+                                <>
+                                  <button 
+                                    onClick={() => handleCommentStatus(c.id, "Approved")}
+                                    className="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-[10px] font-bold border-none cursor-pointer shadow-sm transition-colors flex items-center gap-1"
+                                  >
+                                    <FiCheck size={10} /> Approve
+                                  </button>
+                                  <button 
+                                    onClick={() => handleCommentStatus(c.id, "Rejected")}
+                                    className="px-2.5 py-1.5 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-[10px] font-bold border-none cursor-pointer shadow-sm transition-colors flex items-center gap-1"
+                                  >
+                                    <FiXCircle size={10} /> Reject
+                                  </button>
+                                </>
+                              )}
+                              <button 
+                                onClick={() => handleDeleteComment(c.id)}
+                                className="p-1.5 bg-slate-100 hover:bg-red-50 hover:text-red-600 text-slate-500 rounded-lg text-xs font-bold border-none cursor-pointer transition-colors"
+                                title="Delete comment"
+                              >
+                                <FiTrash size={12} />
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })
+                    )}
                   </div>
                 </div>
               )}

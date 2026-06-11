@@ -227,7 +227,13 @@ export const api = {
       specialty: docData.specialty,
       fee: docData.fee,
       branch: docData.branch,
-      status: "Active"
+      status: "Active",
+      image: docData.image || "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=400&q=80",
+      experience: docData.experience || "10 Years",
+      rating: docData.rating || 4.80,
+      title: docData.title || "Consultant Specialist",
+      slug: docData.slug || docData.name.toLowerCase().replace(/\s+/g, "-"),
+      available: 1
     };
     const updated = [...current, newDoc];
     localStorage.setItem("pc_doctors", JSON.stringify(updated));
@@ -243,6 +249,123 @@ export const api = {
       const current = JSON.parse(local);
       const updated = current.map(doc => doc.id === id ? { ...doc, status } : doc);
       localStorage.setItem("pc_doctors", JSON.stringify(updated));
+    }
+    return true;
+  },
+
+  approvePayment: async (id) => {
+    const res = await apiCall("/appointments/approve-payment", "POST", { id });
+    if (res && res.success) return true;
+
+    // Fallback
+    const local = localStorage.getItem("pc_appts");
+    if (local) {
+      const current = JSON.parse(local);
+      const updated = current.map(appt => 
+        appt.id === id ? { ...appt, payment_status: "Paid", status: "Confirmed" } : appt
+      );
+      localStorage.setItem("pc_appts", JSON.stringify(updated));
+    }
+    return true;
+  },
+
+  // Articles Crud
+  getArticles: async () => {
+    const res = await apiCall("/articles");
+    if (res) {
+      localStorage.setItem("pc_articles", JSON.stringify(res));
+      return res;
+    }
+    const local = localStorage.getItem("pc_articles");
+    return local ? JSON.parse(local) : [];
+  },
+
+  createArticle: async (artData) => {
+    const res = await apiCall("/articles", "POST", artData);
+    if (res && res.success) {
+      return res.article;
+    }
+    const local = localStorage.getItem("pc_articles");
+    const current = local ? JSON.parse(local) : [];
+    const newArt = {
+      id: Date.now(),
+      title: artData.title,
+      excerpt: artData.excerpt,
+      content: artData.content,
+      category: artData.category || "General Health",
+      author: artData.author || "Director Admin",
+      image: artData.image || "https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=700&q=80"
+    };
+    const updated = [newArt, ...current];
+    localStorage.setItem("pc_articles", JSON.stringify(updated));
+    return newArt;
+  },
+
+  deleteArticle: async (id) => {
+    const res = await apiCall(`/articles/${id}`, "DELETE");
+    if (res && res.success) return true;
+
+    const local = localStorage.getItem("pc_articles");
+    if (local) {
+      const current = JSON.parse(local);
+      const updated = current.filter(art => art.id !== id);
+      localStorage.setItem("pc_articles", JSON.stringify(updated));
+    }
+    return true;
+  },
+
+  // Comments Crud
+  getComments: async () => {
+    const res = await apiCall("/comments");
+    if (res) {
+      localStorage.setItem("pc_comments", JSON.stringify(res));
+      return res;
+    }
+    const local = localStorage.getItem("pc_comments");
+    return local ? JSON.parse(local) : [];
+  },
+
+  createComment: async (commData) => {
+    const res = await apiCall("/comments", "POST", commData);
+    if (res && res.success) {
+      return res.comment;
+    }
+    const local = localStorage.getItem("pc_comments");
+    const current = local ? JSON.parse(local) : [];
+    const newComm = {
+      id: Date.now(),
+      article_id: commData.articleId,
+      author_name: commData.authorName,
+      comment_text: commData.commentText,
+      status: "Pending"
+    };
+    const updated = [newComm, ...current];
+    localStorage.setItem("pc_comments", JSON.stringify(updated));
+    return newComm;
+  },
+
+  updateCommentStatus: async (id, status) => {
+    const res = await apiCall("/comments/status", "POST", { id, status });
+    if (res && res.success) return true;
+
+    const local = localStorage.getItem("pc_comments");
+    if (local) {
+      const current = JSON.parse(local);
+      const updated = current.map(c => c.id === id ? { ...c, status } : c);
+      localStorage.setItem("pc_comments", JSON.stringify(updated));
+    }
+    return true;
+  },
+
+  deleteComment: async (id) => {
+    const res = await apiCall(`/comments/${id}`, "DELETE");
+    if (res && res.success) return true;
+
+    const local = localStorage.getItem("pc_comments");
+    if (local) {
+      const current = JSON.parse(local);
+      const updated = current.filter(c => c.id !== id);
+      localStorage.setItem("pc_comments", JSON.stringify(updated));
     }
     return true;
   }

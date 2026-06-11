@@ -13,8 +13,8 @@ const JWT_SECRET = process.env.JWT_SECRET || "premium_secret_key";
 
 // In-memory fallbacks for appointment, EMR, and prescription storage when MySQL is unconfigured
 let mockAppointments = [
-  { id: "PC-88201", doctor: "Dr. Sarah Ahmed", date: "15 Jun, 2026", time: "04:30 PM", type: "Video Consultation", branch: "Online", status: "Confirmed", patient: "Jane Doe" },
-  { id: "PC-88202", doctor: "Dr. Omar Farooq", date: "18 Jun, 2026", time: "11:30 AM", type: "In-Person Visit", branch: "Gulberg Branch", status: "Pending", patient: "Jane Doe" }
+  { id: "PC-88201", doctor: "Dr. Sarah Ahmed", date: "15 Jun, 2026", time: "04:30 PM", type: "Video Consultation", branch: "Online", status: "Confirmed", patient: "Jane Doe", payment_status: "Paid" },
+  { id: "PC-88202", doctor: "Dr. Omar Farooq", date: "18 Jun, 2026", time: "11:30 AM", type: "In-Person Visit", branch: "Gulberg Branch", status: "Pending", patient: "Jane Doe", payment_status: "Pending Verification" }
 ];
 
 let mockEMR = [
@@ -33,9 +33,19 @@ let mockInvoices = [
 ];
 
 let mockDoctors = [
-  { id: 1, name: "Dr. Sarah Ahmed", specialty: "Skin & Dermatology", fee: "₨ 3,000", branch: "Gulberg, DHA", status: "Active" },
-  { id: 2, name: "Dr. Omar Farooq", specialty: "Dental Care", fee: "₨ 2,500", branch: "Gulberg", status: "Active" },
-  { id: 3, name: "Dr. Fatima Malik", specialty: "Gynecology & Obstetrics", fee: "₨ 3,500", branch: "DHA", status: "Active" }
+  { id: 1, name: "Dr. Sarah Ahmed", specialty: "Skin & Dermatology", fee: "₨ 3,000", branch: "Gulberg, DHA", status: "Active", image: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=400&q=80", experience: "14 Years", rating: 4.90, title: "MBBS, FCPS (Dermatology)", slug: "dr-sarah-ahmed", available: 1 },
+  { id: 2, name: "Dr. Omar Farooq", specialty: "Dental Care", fee: "₨ 2,500", branch: "Gulberg", status: "Active", image: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=400&q=80", experience: "11 Years", rating: 4.80, title: "BDS, FCPS (Oral Surgery)", slug: "dr-omar-farooq", available: 1 },
+  { id: 3, name: "Dr. Fatima Malik", specialty: "Gynecology & Obstetrics", fee: "₨ 3,500", branch: "DHA", status: "Active", image: "https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&w=400&q=80", experience: "16 Years", rating: 5.00, title: "MBBS, MRCOG (Gynecology)", slug: "dr-fatima-malik", available: 1 }
+];
+
+let mockArticles = [
+  { id: 1, title: "10 Warning Signs You Should Never Ignore", excerpt: "Critical symptoms that demand immediate medical attention and could save your life.", content: "Your body sends signals before serious conditions develop. Learn to watch for persistent chest pain, sudden numbness, extreme headaches, or unexplained weight loss. Consult our specialists promptly.", category: "General Health", author: "Dr. Sarah Ahmed", image: "https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=700&q=80" },
+  { id: 2, title: "The Complete Guide to Laser Skin Treatments", excerpt: "Understand how lasers address skin concerns and what results to expect.", content: "From fractional CO2 lasers to PicoSure, skin rejuvenation has advanced dramatically. Understand your skin type, recovery times, and expected sessions before choosing cosmetic therapies.", category: "Skin Care", author: "Dr. Sarah Ahmed", image: "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=700&q=80" }
+];
+
+let mockComments = [
+  { id: 1, article_id: 1, author_name: "Jane Doe", comment_text: "Thank you for this informative guide, very helpful!", status: "Approved" },
+  { id: 2, article_id: 2, author_name: "Alex Smith", comment_text: "Is laser safe for hyperpigmented skin?", status: "Pending" }
 ];
 
 // Root Endpoint
@@ -95,7 +105,8 @@ app.get("/api/appointments", async (req, res) => {
         type: row.type,
         branch: row.branch,
         status: row.status,
-        patient: row.patient_name
+        patient: row.patient_name,
+        payment_status: row.payment_status
       }));
       res.json(mapped);
     } catch (e) {
@@ -108,7 +119,7 @@ app.get("/api/appointments", async (req, res) => {
 
 // 3. Create Appointment
 app.post("/api/appointments", async (req, res) => {
-  const { doctor, date, time, type, branch, status, patient } = req.body;
+  const { doctor, date, time, type, branch, status, patient, payment_status } = req.body;
   const newAppt = {
     id: `PC-${Date.now().toString().slice(-5)}`,
     doctor: doctor,
@@ -116,15 +127,16 @@ app.post("/api/appointments", async (req, res) => {
     time,
     type,
     branch,
-    status: status || "Confirmed",
-    patient: patient || "Jane Doe"
+    status: status || "Pending",
+    patient: patient || "Jane Doe",
+    payment_status: payment_status || "Pending Verification"
   };
 
   if (db.isDbEnabled()) {
     try {
       await db.query(
-        "INSERT INTO appointments (id, doctor_name, date, time, type, branch, status, patient_name) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-        [newAppt.id, doctor, date, time, type, branch, newAppt.status, newAppt.patient]
+        "INSERT INTO appointments (id, doctor_name, date, time, type, branch, status, patient_name, payment_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        [newAppt.id, doctor, date, time, type, branch, newAppt.status, newAppt.patient, newAppt.payment_status]
       );
       res.json({ success: true, appointment: newAppt });
     } catch (e) {
@@ -155,6 +167,24 @@ app.post("/api/appointments/status", async (req, res) => {
       appt.id === id 
         ? { ...appt, status, ...(date ? { date } : {}), ...(time ? { time } : {}) } 
         : appt
+    );
+    res.json({ success: true });
+  }
+});
+
+// 4b. Approve Appointment Payment (Forward to Doctor)
+app.post("/api/appointments/approve-payment", async (req, res) => {
+  const { id } = req.body;
+  if (db.isDbEnabled()) {
+    try {
+      await db.query("UPDATE appointments SET payment_status = 'Paid', status = 'Confirmed' WHERE id = ?", [id]);
+      res.json({ success: true });
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  } else {
+    mockAppointments = mockAppointments.map(appt => 
+      appt.id === id ? { ...appt, payment_status: "Paid", status: "Confirmed" } : appt
     );
     res.json({ success: true });
   }
@@ -360,19 +390,25 @@ app.get("/api/doctors", async (req, res) => {
 
 // 13. Create Doctor CRUD
 app.post("/api/doctors", async (req, res) => {
-  const { name, specialty, fee, branch } = req.body;
+  const { name, specialty, fee, branch, image, experience, rating, title, slug } = req.body;
+  const docImg = image || "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=400&q=80";
+  const docExp = experience || "10 Years";
+  const docTitle = title || "Consultant Specialist";
+  const docSlug = slug || name.toLowerCase().replace(/\s+/g, "-");
+  const docRating = rating || 4.80;
+
   if (db.isDbEnabled()) {
     try {
       const results = await db.query(
-        "INSERT INTO doctors (name, specialty, fee, branch, status) VALUES (?, ?, ?, ?, 'Active')",
-        [name, specialty, fee, branch]
+        "INSERT INTO doctors (name, specialty, fee, branch, status, image, experience, rating, title, slug, available) VALUES (?, ?, ?, ?, 'Active', ?, ?, ?, ?, ?, 1)",
+        [name, specialty, fee, branch, docImg, docExp, docRating, docTitle, docSlug]
       );
-      res.json({ success: true, doctor: { id: results.insertId, name, specialty, fee, branch, status: "Active" } });
+      res.json({ success: true, doctor: { id: results.insertId, name, specialty, fee, branch, status: "Active", image: docImg, experience: docExp, rating: docRating, title: docTitle, slug: docSlug, available: 1 } });
     } catch (e) {
       res.status(500).json({ error: e.message });
     }
   } else {
-    const newDoc = { id: mockDoctors.length + 1, name, specialty, fee, branch, status: "Active" };
+    const newDoc = { id: mockDoctors.length + 1, name, specialty, fee, branch, status: "Active", image: docImg, experience: docExp, rating: docRating, title: docTitle, slug: docSlug, available: 1 };
     mockDoctors.push(newDoc);
     res.json({ success: true, doctor: newDoc });
   }
@@ -390,6 +426,134 @@ app.post("/api/doctors/status", async (req, res) => {
     }
   } else {
     mockDoctors = mockDoctors.map(doc => doc.id === parseInt(id) ? { ...doc, status } : doc);
+    res.json({ success: true });
+  }
+});
+
+// 15. Articles API (Blog posts)
+app.get("/api/articles", async (req, res) => {
+  if (db.isDbEnabled()) {
+    try {
+      const results = await db.query("SELECT * FROM articles ORDER BY created_at DESC");
+      res.json(results);
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  } else {
+    res.json(mockArticles);
+  }
+});
+
+app.post("/api/articles", async (req, res) => {
+  const { title, excerpt, content, category, author, image } = req.body;
+  const artImg = image || "https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=700&q=80";
+  const newArt = {
+    id: Date.now(),
+    title,
+    excerpt,
+    content,
+    category: category || "General Health",
+    author: author || "Director Admin",
+    image: artImg
+  };
+  if (db.isDbEnabled()) {
+    try {
+      const results = await db.query(
+        "INSERT INTO articles (title, excerpt, content, category, author, image) VALUES (?, ?, ?, ?, ?, ?)",
+        [title, excerpt, content, newArt.category, newArt.author, artImg]
+      );
+      newArt.id = results.insertId;
+      res.json({ success: true, article: newArt });
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  } else {
+    mockArticles.unshift(newArt);
+    res.json({ success: true, article: newArt });
+  }
+});
+
+app.delete("/api/articles/:id", async (req, res) => {
+  const { id } = req.params;
+  if (db.isDbEnabled()) {
+    try {
+      await db.query("DELETE FROM articles WHERE id = ?", [id]);
+      res.json({ success: true });
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  } else {
+    mockArticles = mockArticles.filter(art => art.id !== parseInt(id));
+    res.json({ success: true });
+  }
+});
+
+// 16. Comments API (Moderation system)
+app.get("/api/comments", async (req, res) => {
+  if (db.isDbEnabled()) {
+    try {
+      const results = await db.query("SELECT * FROM article_comments ORDER BY created_at DESC");
+      res.json(results);
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  } else {
+    res.json(mockComments);
+  }
+});
+
+app.post("/api/comments", async (req, res) => {
+  const { articleId, authorName, commentText } = req.body;
+  const newComm = {
+    id: Date.now(),
+    article_id: articleId,
+    author_name: authorName,
+    comment_text: commentText,
+    status: "Pending"
+  };
+  if (db.isDbEnabled()) {
+    try {
+      const results = await db.query(
+        "INSERT INTO article_comments (article_id, author_name, comment_text, status) VALUES (?, ?, ?, 'Pending')",
+        [articleId, authorName, commentText]
+      );
+      newComm.id = results.insertId;
+      res.json({ success: true, comment: newComm });
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  } else {
+    mockComments.unshift(newComm);
+    res.json({ success: true, comment: newComm });
+  }
+});
+
+app.post("/api/comments/status", async (req, res) => {
+  const { id, status } = req.body; // Approved / Rejected
+  if (db.isDbEnabled()) {
+    try {
+      await db.query("UPDATE article_comments SET status = ? WHERE id = ?", [status, id]);
+      res.json({ success: true });
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  } else {
+    mockComments = mockComments.map(c => c.id === parseInt(id) ? { ...c, status } : c);
+    res.json({ success: true });
+  }
+});
+
+app.delete("/api/comments/:id", async (req, res) => {
+  const { id } = req.params;
+  if (db.isDbEnabled()) {
+    try {
+      await db.query("DELETE FROM article_comments WHERE id = ?", [id]);
+      res.json({ success: true });
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  } else {
+    mockComments = mockComments.filter(c => c.id !== parseInt(id));
     res.json({ success: true });
   }
 });
