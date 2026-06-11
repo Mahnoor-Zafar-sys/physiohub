@@ -21,6 +21,8 @@ import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import VideoConsultationRoom from "./pages/VideoConsultationRoom";
 import BlogPostPage from "./pages/BlogPostPage";
+import Dashboard from "./pages/Dashboard";
+import AIChatbot from "./components/AIChatbot";
 
 export default function App() {
   const [splashDone, setSplashDone] = useState(false);
@@ -52,7 +54,9 @@ export default function App() {
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/consultation-room" element={<VideoConsultationRoom />} />
+        <Route path="/dashboard" element={<Dashboard />} />
       </Routes>
+      <AIChatbot />
     </Router>
   );
 }

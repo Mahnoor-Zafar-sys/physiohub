@@ -23,6 +23,7 @@ const navLinks = [
   },
   { name: "Online Consultation", path: "/online-consultation" },
   { name: "Contact Us",          path: "/contact" },
+  { name: "Clinic Portal",       path: "/dashboard" },
 ];
 
 export default function Navbar({ onBookAppointment }) {
@@ -200,15 +201,15 @@ export default function Navbar({ onBookAppointment }) {
  
             {/* ── Desktop CTAs ── */}
             <div className="hidden lg:flex items-center gap-2 shrink-0 ml-auto">
-              <motion.a
+              <motion.button
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
-                href="tel:+923001234567"
-                className="btn-sos flex items-center gap-1.5 px-3 py-2 rounded-xl text-white text-[11px] xl:text-xs font-bold uppercase tracking-wide whitespace-nowrap"
+                onClick={() => navigate("/emergency")}
+                className="btn-sos flex items-center gap-1.5 px-3 py-2 rounded-xl text-white text-[11px] xl:text-xs font-bold uppercase tracking-wide whitespace-nowrap border-none cursor-pointer"
               >
                 <FiPhoneCall className="animate-bounce shrink-0" size={13} />
                 SOS Emergency
-              </motion.a>
+              </motion.button>
  
               <motion.button
                 whileHover={{ scale: 1.03 }}
@@ -286,12 +287,15 @@ export default function Navbar({ onBookAppointment }) {
                     </div>
                   ))}
                   <div className="flex flex-col gap-2 mt-4 pb-1">
-                    <a
-                      href="tel:+923001234567"
-                      className="btn-sos w-full flex items-center justify-center gap-2 py-3 rounded-xl text-white font-bold text-sm"
+                    <button
+                      onClick={() => {
+                        setMobileOpen(false);
+                        navigate("/emergency");
+                      }}
+                      className="btn-sos w-full flex items-center justify-center gap-2 py-3 rounded-xl text-white font-bold text-sm border-none cursor-pointer"
                     >
                       <FiPhoneCall /> Emergency Contact
-                    </a>
+                    </button>
                     <button
                       onClick={handleBookClick}
                       className="btn-book w-full flex items-center justify-center gap-2 py-3 rounded-xl text-white font-bold text-sm cursor-pointer"

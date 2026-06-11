@@ -15,8 +15,8 @@ const links = {
   Patients: [
     { name: "Book Appointment", path: "/book-appointment" },
     { name: "Online Consultation", path: "/online-consultation" },
-    { name: "Patient Portal", path: "#" },
-    { name: "Medical Records", path: "#" },
+    { name: "Patient Portal", path: "/dashboard" },
+    { name: "Medical Records", path: "/dashboard" },
     { name: "Insurance", path: "/insurance" },
     { name: "Health Blog", path: "/blog" }
   ],
