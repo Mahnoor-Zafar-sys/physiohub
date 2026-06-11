@@ -406,26 +406,7 @@ export default function Dashboard() {
     <div className="min-h-screen font-sans flex flex-col justify-between" style={{ background: "linear-gradient(135deg, #fce4ec 0%, #e0f2fe 60%, #fdf4ff 100%)" }}>
       <Navbar />
 
-      {/* --- LIVE ALERTS HUD MARQUEE --- */}
-      {userRole && liveAlerts.length > 0 && (
-        <div className="bg-slate-900/90 backdrop-blur-md text-white py-2.5 px-4 shadow-lg overflow-hidden relative z-40 flex items-center border-y border-white/5">
-          <div className="flex items-center gap-1.5 font-black text-[9px] uppercase tracking-wider text-pink-400 shrink-0 bg-pink-500/10 px-3 py-1 rounded-full border border-pink-500/30">
-            <span className="w-1.5 h-1.5 rounded-full bg-pink-500 animate-ping inline-block" />
-            Live Alerts Feed
-          </div>
-          <div className="flex-grow overflow-hidden relative ml-4 flex items-center">
-            <div className="animate-marquee gap-8">
-              {[...liveAlerts, ...liveAlerts, ...liveAlerts].map((alert, idx) => (
-                <span key={idx} className="text-xs font-semibold text-slate-200 flex items-center gap-2 pr-12">
-                  <FiAlertTriangle className="text-amber-400 shrink-0" />
-                  <span>{alert.message}</span>
-                  <span className="text-[9px] text-pink-400 font-bold bg-pink-500/10 px-2.5 py-0.5 rounded-full border border-pink-500/20">{alert.time}</span>
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
+
 
       {/* --- PRINT AREA STYLING FOR Rx PRESCRIPTION --- */}
       <style dangerouslySetInnerHTML={{__html: `
@@ -534,6 +515,27 @@ export default function Dashboard() {
 
       {/* --- DASHBOARD ENTRY ROUTER --- */}
       <div className="flex-grow pt-28 pb-16 px-4">
+        
+        {/* --- LIVE ALERTS HUD MARQUEE --- */}
+        {userRole && liveAlerts.length > 0 && (
+          <div className="bg-slate-900/90 backdrop-blur-md text-white py-2.5 px-4 shadow-lg overflow-hidden rounded-2xl mb-6 flex items-center border border-white/5 max-w-7xl mx-auto">
+            <div className="flex items-center gap-1.5 font-black text-[9px] uppercase tracking-wider text-pink-400 shrink-0 bg-pink-500/10 px-3 py-1 rounded-full border border-pink-500/30">
+              <span className="w-1.5 h-1.5 rounded-full bg-pink-500 animate-ping inline-block" />
+              Live Alerts Feed
+            </div>
+            <div className="flex-grow overflow-hidden relative ml-4 flex items-center">
+              <div className="animate-marquee gap-8">
+                {[...liveAlerts, ...liveAlerts, ...liveAlerts].map((alert, idx) => (
+                  <span key={idx} className="text-xs font-semibold text-slate-200 flex items-center gap-2 pr-12">
+                    <FiAlertTriangle className="text-amber-400 shrink-0" />
+                    <span>{alert.message}</span>
+                    <span className="text-[9px] text-pink-400 font-bold bg-pink-500/10 px-2.5 py-0.5 rounded-full border border-pink-500/20">{alert.time}</span>
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
         
         {userRole === null ? (
           /* --- LOGIN AUTH SIMULATOR SCREEN --- */
