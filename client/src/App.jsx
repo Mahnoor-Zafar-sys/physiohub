@@ -27,7 +27,8 @@ import AIChatbot from "./components/AIChatbot";
 export default function App() {
   const [splashDone, setSplashDone] = useState(false);
 
-  if (!splashDone) {
+  const isHomePage = window.location.pathname === "/";
+  if (isHomePage && !splashDone) {
     return <SplashScreen onComplete={() => setSplashDone(true)} />;
   }
 

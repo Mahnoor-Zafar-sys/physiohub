@@ -51,7 +51,7 @@ export default function Dashboard() {
   const navigate = useNavigate();
 
   // Role authentication state
-  const [userRole, setUserRole] = useState(null); // 'patient' | 'doctor' | 'admin' | 'receptionist'
+  const [userRole, setUserRole] = useState(() => localStorage.getItem("pc_user_role") || null);
   const [authForm, setAuthForm] = useState({ email: "", password: "", role: "patient" });
 
   // Core Data State (synchronized with localStorage)
@@ -117,6 +117,15 @@ export default function Dashboard() {
       setDoctorsList(INITIAL_DOCTORS);
       localStorage.setItem("pc_doctors", JSON.stringify(INITIAL_DOCTORS));
     }
+
+    // Set default active tab based on saved user role
+    const savedRole = localStorage.getItem("pc_user_role");
+    if (savedRole) {
+      if (savedRole === "patient") setActiveTab("records");
+      else if (savedRole === "doctor") setActiveTab("queue");
+      else if (savedRole === "admin") setActiveTab("analytics");
+      else if (savedRole === "receptionist") setActiveTab("reception-queue");
+    }
   }, []);
 
   // Update localStorage when state updates
@@ -129,6 +138,7 @@ export default function Dashboard() {
     e.preventDefault();
     // In a fully built mock app, any credentials authenticate to speed up validation.
     setUserRole(authForm.role);
+    localStorage.setItem("pc_user_role", authForm.role);
     // Set default active tab based on role
     if (authForm.role === "patient") setActiveTab("records");
     else if (authForm.role === "doctor") setActiveTab("queue");
@@ -142,6 +152,7 @@ export default function Dashboard() {
   // Logout handler
   const handleLogout = () => {
     setUserRole(null);
+    localStorage.removeItem("pc_user_role");
     setActiveTab("");
   };
 

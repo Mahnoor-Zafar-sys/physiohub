@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   FiCalendar, FiClock, FiUser, FiPhone, FiMail,
   FiChevronRight, FiChevronLeft, FiCheck, FiMapPin,
-  FiVideo, FiSearch, FiStar, FiAlertCircle, FiArrowLeft,
+  FiVideo, FiSearch, FiStar, FiAlertCircle, FiArrowLeft, FiShield,
 } from "react-icons/fi";
 import { FaWhatsapp } from "react-icons/fa";
 import { LuCalendar, LuClock, LuCreditCard, LuMapPin } from "react-icons/lu";
@@ -899,6 +899,94 @@ function SuccessView({ doctor, day, time, consultType, form }) {
 export default function BookAppointmentPage() {
   const navigate = useNavigate();
   const location = useLocation();
+  const [userRole, setUserRole] = useState(() => localStorage.getItem("pc_user_role") || null);
+  const [authForm, setAuthForm] = useState({ email: "patient@premiumclinic.com", password: "••••••••", role: "patient" });
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+    setUserRole(authForm.role);
+    localStorage.setItem("pc_user_role", authForm.role);
+  };
+
+  if (!userRole) {
+    return (
+      <div className="min-h-screen font-sans flex flex-col justify-center items-center p-4" style={{ background: "linear-gradient(135deg, #fce4ec 0%, #e0f2fe 60%, #fdf4ff 100%)" }}>
+        <div className="max-w-md w-full bg-white/70 backdrop-blur-md rounded-3xl border border-white/50 shadow-2xl overflow-hidden text-left">
+          <div className="h-1.5 w-full bg-gradient-to-r from-sky-400 to-pink-500" />
+          <div className="p-6 sm:p-8 space-y-6">
+            <div className="text-center">
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-emerald-500 rounded-2xl flex items-center justify-center mx-auto text-white shadow-lg mb-4">
+                <FiShield size={24} />
+              </div>
+              <h2 className="text-xl font-extrabold text-slate-900">Authorization Required</h2>
+              <p className="text-xs text-slate-400 mt-1">Please authorize your profile to schedule an appointment</p>
+            </div>
+
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div>
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1.5">Select Role Profile</label>
+                <select 
+                  value={authForm.role}
+                  onChange={e => {
+                    const r = e.target.value;
+                    setAuthForm({
+                      role: r,
+                      email: r === "patient" ? "patient@premiumclinic.com" : r === "doctor" ? "doctor@premiumclinic.com" : r === "admin" ? "admin@premiumclinic.com" : "staff@premiumclinic.com",
+                      password: "••••••••"
+                    });
+                  }}
+                  className="w-full border border-slate-200 bg-white rounded-xl p-3 text-xs outline-none focus:border-pink-400 transition-colors"
+                >
+                  <option value="patient">Patient Portal (Jane Doe)</option>
+                  <option value="doctor">Doctor Portal (Dr. Sarah Ahmed)</option>
+                  <option value="admin">Administrator Dashboard (Clinical Analytics)</option>
+                  <option value="receptionist">Receptionist / Staff Desk</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1.5">Email Address</label>
+                <input 
+                  type="email" 
+                  required 
+                  readOnly
+                  value={authForm.email}
+                  className="w-full border border-slate-200 bg-slate-50 text-slate-400 rounded-xl p-3 text-xs outline-none cursor-not-allowed"
+                />
+              </div>
+
+              <div>
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1.5">Password</label>
+                <input 
+                  type="password" 
+                  required 
+                  readOnly
+                  value={authForm.password}
+                  className="w-full border border-slate-200 bg-slate-50 text-slate-400 rounded-xl p-3 text-xs outline-none cursor-not-allowed"
+                />
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <button 
+                  type="submit"
+                  className="flex-1 py-3.5 bg-slate-900 hover:bg-pink-600 text-white text-xs font-bold rounded-xl shadow-md transition-colors border-none cursor-pointer flex items-center justify-center gap-1.5"
+                >
+                  Authorize & Book
+                </button>
+                <button 
+                  type="button"
+                  onClick={() => navigate("/")}
+                  className="px-5 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold rounded-xl border-none cursor-pointer"
+                >
+                  Home
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    );
+  }
   const preselectedDoctor = location.state?.doctor || null;
   const [step, setStep] = useState(preselectedDoctor ? 2 : 1);
   const [searchQ, setSearchQ] = useState("");
