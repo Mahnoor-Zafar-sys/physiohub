@@ -198,6 +198,7 @@ export default function About() {
 
   // activeIndex — Our Story slider
   const [activeIndex, setActiveIndex] = useState(0);
+  const [ceoActiveTab, setCeoActiveTab] = useState("vision");
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -448,52 +449,172 @@ export default function About() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, amount: 0.2 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
-            className="lg:col-span-7 text-left space-y-6"
+            className="lg:col-span-7 text-left space-y-6 flex flex-col justify-between"
           >
-            <div className="flex items-center gap-3">
-              <div className="w-6 h-px bg-blue-500" />
-              <span className="text-[10px] font-bold text-blue-600 tracking-[0.3em] uppercase">Executive Message</span>
-            </div>
-            
-            <h2 className="text-3xl lg:text-4xl font-black text-slate-900 tracking-tight leading-tight">
-              "Redefining healthcare through <span className="text-blue-600">precision</span>, empathy, and verified trust."
-            </h2>
-
-            <div className="w-12 h-px bg-slate-300" />
-
-            <div className="space-y-4 text-slate-600 text-[14px] leading-relaxed font-medium">
-              <p>
-                At Premium Clinic, we built our foundation on a simple promise: delivering world-class, transparent healthcare that prioritizes patient wellness above all else. We understand that seeking medical care is a vulnerable moment. That is why our clinical framework is designed to merge medical precision with deep empathy.
-              </p>
-              <p>
-                By combining advanced clinical technologies—like automated diagnostic reporting and real-time portal monitoring—with Karachi's leading specialists, we ensure that you are never left with unanswered questions. We do not just treat illnesses; we care for human lives.
-              </p>
+            <div>
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-6 h-px bg-blue-500" />
+                <span className="text-[10px] font-bold text-blue-600 tracking-[0.3em] uppercase">Professional Profile</span>
+              </div>
+              <h2 className="text-3xl lg:text-4xl font-black text-slate-955 tracking-tight leading-tight">
+                Prof. Dr. Faisal Mahmood
+              </h2>
+              <p className="text-[#2165f4] text-xs font-black tracking-widest uppercase mt-1">Founder & Chief Executive Officer</p>
             </div>
 
-            {/* CEO Highlights Grid */}
-            <div className="grid sm:grid-cols-3 gap-4 pt-3">
+            {/* CEO Profile Tab Switcher */}
+            <div className="flex border-b border-slate-200 gap-5 pb-0.5 overflow-x-auto scrollbar-none w-full">
               {[
-                { icon: <FiAward size={16} className="text-blue-600" />, title: "15+ Years", desc: "Medical Leadership" },
-                { icon: <FiShield size={16} className="text-blue-600" />, title: "FRCP (London)", desc: "Royal Fellow" },
-                { icon: <FiCheckCircle size={16} className="text-blue-600" />, title: "PMDC Certified", desc: "Clinical Pioneer" }
-              ].map((item, idx) => (
-                <div key={idx} className="p-4 bg-slate-50 border border-slate-100 rounded-2xl flex flex-col gap-2">
-                  <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
-                    {item.icon}
-                  </div>
-                  <div>
-                    <h5 className="font-extrabold text-slate-800 text-xs">{item.title}</h5>
-                    <p className="text-[10px] text-slate-400 font-semibold mt-0.5">{item.desc}</p>
-                  </div>
-                </div>
-              ))}
+                { id: "vision", label: "CEO Vision" },
+                { id: "background", label: "Credentials & Education" },
+                { id: "journey", label: "Career Journey" },
+                { id: "expertise", label: "Clinical Expertise" }
+              ].map((tab) => {
+                const isActive = ceoActiveTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    onClick={() => setCeoActiveTab(tab.id)}
+                    className={`pb-2 text-[10px] font-extrabold uppercase tracking-wider transition-all relative border-none bg-transparent cursor-pointer whitespace-nowrap flex-shrink-0 ${
+                      isActive ? "text-blue-600" : "text-slate-400 hover:text-slate-600"
+                    }`}
+                  >
+                    {tab.label}
+                    {isActive && (
+                      <motion.div
+                        layoutId="ceoActiveTabBorder"
+                        className="absolute bottom-0 inset-x-0 h-0.5 bg-blue-600 rounded-full"
+                      />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Tab Contents */}
+            <div className="min-h-[260px] flex flex-col justify-center">
+              <AnimatePresence mode="wait">
+                {ceoActiveTab === "vision" && (
+                  <motion.div
+                    key="vision"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.3 }}
+                    className="space-y-4"
+                  >
+                    <h3 className="text-lg lg:text-xl font-bold text-slate-800 tracking-tight leading-snug italic">
+                      "Redefining healthcare through precision, empathy, and verified trust."
+                    </h3>
+                    <div className="space-y-3 text-slate-600 text-[13.5px] leading-relaxed font-medium">
+                      <p>
+                        At Premium Clinic, we built our foundation on a simple promise: delivering world-class, transparent healthcare that prioritizes patient wellness above all else. We understand that seeking medical care is a vulnerable moment. That is why our clinical framework is designed to merge medical precision with deep empathy.
+                      </p>
+                      <p>
+                        By combining advanced clinical technologies—like automated diagnostic reporting and real-time portal monitoring—with Karachi's leading specialists, we ensure that you are never left with unanswered questions. We do not just treat illnesses; we care for human lives.
+                      </p>
+                    </div>
+                  </motion.div>
+                )}
+
+                {ceoActiveTab === "background" && (
+                  <motion.div
+                    key="background"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.3 }}
+                    className="space-y-4"
+                  >
+                    <div>
+                      <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Education & Training</h4>
+                      <div className="space-y-2.5">
+                        {[
+                          { title: "Fellow of the Royal College of Physicians (FRCP, London)", inst: "Royal College of Physicians, UK" },
+                          { title: "Master of Business Administration (MBA - Health Services Management)", inst: "Institute of Business Administration (IBA), Karachi" },
+                          { title: "Bachelor of Medicine, Bachelor of Surgery (MBBS) with Honors", inst: "King Edward Medical University (KEMU)" }
+                        ].map((edu, idx) => (
+                          <div key={idx} className="flex gap-2.5 items-start">
+                            <span className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1.5 shrink-0" />
+                            <div>
+                              <p className="text-xs font-bold text-slate-800">{edu.title}</p>
+                              <p className="text-[10px] text-slate-400 font-semibold">{edu.inst}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="pt-2 border-t border-slate-100">
+                      <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Registrations & Affiliations</h4>
+                      <div className="flex gap-3 flex-wrap">
+                        <span className="text-[9px] font-black uppercase text-slate-600 bg-slate-100 px-2 py-1 rounded-lg border border-slate-200/40">PMDC Reg #12345-S</span>
+                        <span className="text-[9px] font-black uppercase text-slate-600 bg-slate-100 px-2 py-1 rounded-lg border border-slate-200/40">Fellow, ACP (USA)</span>
+                        <span className="text-[9px] font-black uppercase text-slate-600 bg-slate-100 px-2 py-1 rounded-lg border border-slate-200/40">Member, ISQua Quality Council</span>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+
+                {ceoActiveTab === "journey" && (
+                  <motion.div
+                    key="journey"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.3 }}
+                    className="relative pl-4 border-l border-blue-100 space-y-4"
+                  >
+                    {[
+                      { year: "2021 – Present", title: "Chief Executive Officer", desc: "Supervised the integration of local payment methods, HIPAA compliant EMR records, and administrative queue monitors serving 50,000+ patients annually." },
+                      { year: "2016 – 2021", title: "Chief Medical Director & Quality Auditor", desc: "Directed joint commission accreditation audits and aligned all clinical departments to JCI guidelines across DHA & Gulberg branches." },
+                      { year: "2011 – 2016", title: "Founding Clinical Consultant", desc: "Co-founded the practice with a core focus on general medical care and compassionate patient communication protocols." }
+                    ].map((step, idx) => (
+                      <div key={idx} className="relative space-y-1">
+                        {/* Timeline dot */}
+                        <div className="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full bg-blue-600 border border-white" />
+                        <span className="text-[9px] font-black text-blue-600 tracking-wider uppercase block">{step.year}</span>
+                        <h4 className="text-xs font-bold text-slate-800">{step.title}</h4>
+                        <p className="text-[11px] text-slate-500 leading-relaxed">{step.desc}</p>
+                      </div>
+                    ))}
+                  </motion.div>
+                )}
+
+                {ceoActiveTab === "expertise" && (
+                  <motion.div
+                    key="expertise"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.3 }}
+                    className="grid sm:grid-cols-2 gap-4"
+                  >
+                    {[
+                      { title: "Clinical Audit & Quality Assurance", val: "100%", desc: "Accredited JCI protocol director" },
+                      { title: "Internal Medicine Diagnostics", val: "15+ Years", desc: "Senior clinical consultant" },
+                      { title: "Medical Informatics & EMR Systems", val: "Architect", desc: "Designer of clinic digital workflows" },
+                      { title: "Healthcare Operations Leadership", val: "Fellow", desc: "National health advisor" }
+                    ].map((exp, idx) => (
+                      <div key={idx} className="p-3 bg-slate-50 border border-slate-100 rounded-xl flex flex-col gap-1.5 justify-center">
+                        <div className="flex justify-between items-center">
+                          <h4 className="text-xs font-bold text-slate-800 leading-tight">{exp.title}</h4>
+                          <span className="text-[10px] font-black text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded leading-none shrink-0">{exp.val}</span>
+                        </div>
+                        <p className="text-[10px] text-slate-400 font-semibold">{exp.desc}</p>
+                      </div>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
             {/* Signature & Closing */}
             <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
               <div>
                 <p className="font-extrabold text-slate-900 text-sm">Prof. Dr. Faisal Mahmood</p>
-                <p className="text-xs text-slate-400 mt-0.5">MBBS, FRCP (London), MBA (Health Management)</p>
+                <p className="text-[10px] text-slate-400 mt-0.5">MBBS, FRCP (London), MBA (Health Management)</p>
               </div>
               <div className="font-serif italic text-2xl text-slate-400 tracking-wider font-semibold opacity-80 rotate-[-4deg] select-none pointer-events-none pr-4">
                 F. Mahmood
