@@ -53,7 +53,8 @@ export default function Dashboard() {
 
   // Role authentication state
   const [userRole, setUserRole] = useState(() => localStorage.getItem("pc_user_role") || null);
-  const [authForm, setAuthForm] = useState({ email: "", password: "", role: "patient" });
+  const [authForm, setAuthForm] = useState({ email: "patient@premiumclinic.com", password: "password123", role: "patient" });
+  const [loginError, setLoginError] = useState("");
 
   // Core Data State (synchronized with localStorage)
   const [emrRecords, setEmrRecords] = useState([]);
@@ -116,6 +117,7 @@ export default function Dashboard() {
   // Login handler
   const handleLogin = async (e) => {
     e.preventDefault();
+    setLoginError("");
     const res = await api.login(authForm.email, authForm.password, authForm.role);
     if (res && res.success) {
       setUserRole(res.user.role);
@@ -128,6 +130,8 @@ export default function Dashboard() {
       // Add event log
       addSystemLog(`User logged in as ${res.user.role.toUpperCase()}`);
       await loadDashboardData(res.user.role);
+    } else {
+      setLoginError(res?.error || "Invalid credentials or role selected.");
     }
   };
 
@@ -419,6 +423,12 @@ export default function Dashboard() {
               </div>
 
               <form onSubmit={handleLogin} className="space-y-4">
+                {loginError && (
+                  <div className="p-3 bg-rose-50 text-rose-700 rounded-xl border border-rose-100 text-[11px] font-bold flex items-center gap-1.5">
+                    <FiAlertTriangle className="shrink-0" />
+                    {loginError}
+                  </div>
+                )}
                 <div>
                   <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1.5">Select Role Profile</label>
                   <select 
@@ -428,7 +438,7 @@ export default function Dashboard() {
                       setAuthForm({
                         role: r,
                         email: r === "patient" ? "patient@premiumclinic.com" : r === "doctor" ? "doctor@premiumclinic.com" : r === "admin" ? "admin@premiumclinic.com" : "staff@premiumclinic.com",
-                        password: "••••••••"
+                        password: "password123"
                       });
                     }}
                     className="w-full border border-slate-200 bg-white rounded-xl p-3 text-xs outline-none focus:border-pink-400 transition-colors"
@@ -445,9 +455,10 @@ export default function Dashboard() {
                   <input 
                     type="email" 
                     required 
-                    readOnly
-                    value={authForm.email || "patient@premiumclinic.com"}
-                    className="w-full border border-slate-200 bg-slate-50 text-slate-400 rounded-xl p-3 text-xs outline-none cursor-not-allowed"
+                    value={authForm.email}
+                    onChange={e => setAuthForm({ ...authForm, email: e.target.value })}
+                    className="w-full border border-slate-200 bg-white text-slate-800 rounded-xl p-3 text-xs outline-none focus:border-pink-400 transition-colors"
+                    placeholder="e.g. patient@premiumclinic.com"
                   />
                 </div>
 
@@ -456,9 +467,10 @@ export default function Dashboard() {
                   <input 
                     type="password" 
                     required 
-                    readOnly
-                    value={authForm.password || "••••••••"}
-                    className="w-full border border-slate-200 bg-slate-50 text-slate-400 rounded-xl p-3 text-xs outline-none cursor-not-allowed"
+                    value={authForm.password}
+                    onChange={e => setAuthForm({ ...authForm, password: e.target.value })}
+                    className="w-full border border-slate-200 bg-white text-slate-800 rounded-xl p-3 text-xs outline-none focus:border-pink-400 transition-colors"
+                    placeholder="e.g. password123"
                   />
                 </div>
 
@@ -466,7 +478,7 @@ export default function Dashboard() {
                   type="submit"
                   className="w-full py-3.5 bg-slate-900 hover:bg-pink-600 text-white text-xs font-bold rounded-xl shadow-md transition-colors border-none cursor-pointer flex items-center justify-center gap-1.5"
                 >
-                  <MdVerifiedUser size={14} /> Launch Demo Portal
+                  <MdVerifiedUser size={14} /> Log In to Portal
                 </button>
               </form>
             </div>

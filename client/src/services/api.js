@@ -27,7 +27,16 @@ export const api = {
       localStorage.setItem("pc_user_name", res.user.name);
       return res;
     }
-    // Fallback
+    // Fallback local validation
+    const expectedEmail = role === "patient" ? "patient@premiumclinic.com" :
+                          role === "doctor" ? "doctor@premiumclinic.com" :
+                          role === "admin" ? "admin@premiumclinic.com" : "staff@premiumclinic.com";
+    if (email !== expectedEmail || (password !== "password123" && password !== "••••••••")) {
+      return {
+        success: false,
+        error: `Authentication failed. Correct email for this role is '${expectedEmail}' and password is 'password123'`
+      };
+    }
     localStorage.setItem("pc_user_role", role);
     localStorage.setItem("pc_user_name", role === "patient" ? "Jane Doe" : role === "doctor" ? "Dr. Sarah Ahmed" : role === "admin" ? "Director Admin" : "Reception Desk");
     return {

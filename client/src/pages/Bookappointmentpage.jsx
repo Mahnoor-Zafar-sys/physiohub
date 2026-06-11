@@ -901,12 +901,19 @@ export default function BookAppointmentPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const [userRole, setUserRole] = useState(() => localStorage.getItem("pc_user_role") || null);
-  const [authForm, setAuthForm] = useState({ email: "patient@premiumclinic.com", password: "••••••••", role: "patient" });
+  const [authForm, setAuthForm] = useState({ email: "patient@premiumclinic.com", password: "password123", role: "patient" });
+  const [loginError, setLoginError] = useState("");
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    setUserRole(authForm.role);
-    localStorage.setItem("pc_user_role", authForm.role);
+    setLoginError("");
+    const res = await api.login(authForm.email, authForm.password, authForm.role);
+    if (res && res.success) {
+      setUserRole(res.user.role);
+      localStorage.setItem("pc_user_role", res.user.role);
+    } else {
+      setLoginError(res?.error || "Invalid credentials or role selected.");
+    }
   };
 
   if (!userRole) {
@@ -924,6 +931,12 @@ export default function BookAppointmentPage() {
             </div>
 
             <form onSubmit={handleLogin} className="space-y-4">
+              {loginError && (
+                <div className="p-3 bg-rose-50 text-rose-700 rounded-xl border border-rose-100 text-[11px] font-bold flex items-center gap-1.5">
+                  <FiAlertCircle className="shrink-0" />
+                  {loginError}
+                </div>
+              )}
               <div>
                 <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1.5">Select Role Profile</label>
                 <select 
@@ -933,7 +946,7 @@ export default function BookAppointmentPage() {
                     setAuthForm({
                       role: r,
                       email: r === "patient" ? "patient@premiumclinic.com" : r === "doctor" ? "doctor@premiumclinic.com" : r === "admin" ? "admin@premiumclinic.com" : "staff@premiumclinic.com",
-                      password: "••••••••"
+                      password: "password123"
                     });
                   }}
                   className="w-full border border-slate-200 bg-white rounded-xl p-3 text-xs outline-none focus:border-pink-400 transition-colors"
@@ -950,9 +963,10 @@ export default function BookAppointmentPage() {
                 <input 
                   type="email" 
                   required 
-                  readOnly
                   value={authForm.email}
-                  className="w-full border border-slate-200 bg-slate-50 text-slate-400 rounded-xl p-3 text-xs outline-none cursor-not-allowed"
+                  onChange={e => setAuthForm({ ...authForm, email: e.target.value })}
+                  className="w-full border border-slate-200 bg-white text-slate-800 rounded-xl p-3 text-xs outline-none focus:border-pink-400 transition-colors"
+                  placeholder="e.g. patient@premiumclinic.com"
                 />
               </div>
 
@@ -961,9 +975,10 @@ export default function BookAppointmentPage() {
                 <input 
                   type="password" 
                   required 
-                  readOnly
                   value={authForm.password}
-                  className="w-full border border-slate-200 bg-slate-50 text-slate-400 rounded-xl p-3 text-xs outline-none cursor-not-allowed"
+                  onChange={e => setAuthForm({ ...authForm, password: e.target.value })}
+                  className="w-full border border-slate-200 bg-white text-slate-800 rounded-xl p-3 text-xs outline-none focus:border-pink-400 transition-colors"
+                  placeholder="e.g. password123"
                 />
               </div>
 
