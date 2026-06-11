@@ -98,7 +98,7 @@ export default function AIChatbot() {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-[200] font-sans text-left">
+    <div className="fixed bottom-6 right-24 z-[200] font-sans text-left">
       <AnimatePresence>
         {isOpen && (
           <motion.div

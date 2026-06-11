@@ -21,7 +21,7 @@ const navLinks = [
       { name: "Careers / Jobs",         path: "/careers" },
     ],
   },
-  { name: "Online Consultation", path: "/online-consultation" },
+  { name: "Online Consult",      path: "/online-consultation" },
   { name: "Contact Us",          path: "/contact" },
   { name: "Clinic Portal",       path: "/dashboard" },
 ];
@@ -156,8 +156,8 @@ export default function Navbar({ onBookAppointment }) {
                     {link.isDropdown ? (
                       <>
                         <button
-                          className="nav-link-underline relative px-2 xl:px-2.5 py-2 text-slate-800 hover:text-blue-600 font-bold transition-colors duration-200 whitespace-nowrap flex items-center gap-1"
-                          style={{ fontSize: "clamp(0.72rem, 1vw, 0.88rem)" }}
+                          className="nav-link-underline relative px-1.5 xl:px-2 py-2 text-slate-800 hover:text-blue-600 font-bold transition-colors duration-200 whitespace-nowrap flex items-center gap-1"
+                          style={{ fontSize: "clamp(0.68rem, 0.85vw, 0.82rem)" }}
                         >
                           {link.name}
                           <FiChevronDown size={12} className={`transition-transform duration-200 ${activeDropdown === idx ? "rotate-180" : ""}`} />
@@ -188,8 +188,8 @@ export default function Navbar({ onBookAppointment }) {
                     ) : (
                       <Link
                         to={link.path}
-                        className="nav-link-underline relative px-2 xl:px-2.5 py-2 text-slate-800 hover:text-blue-600 font-bold transition-colors duration-200 whitespace-nowrap block"
-                        style={{ fontSize: "clamp(0.72rem, 1vw, 0.88rem)" }}
+                        className="nav-link-underline relative px-1.5 xl:px-2 py-2 text-slate-800 hover:text-blue-600 font-bold transition-colors duration-200 whitespace-nowrap block"
+                        style={{ fontSize: "clamp(0.68rem, 0.85vw, 0.82rem)" }}
                       >
                         {link.name}
                       </Link>
