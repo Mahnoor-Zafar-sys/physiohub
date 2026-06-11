@@ -1002,6 +1002,45 @@ export default function BookAppointmentPage() {
   const contentRef = useRef(null);
   const days = getNext7Days();
 
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [cardDetails, setCardDetails] = useState({ number: "", expiry: "", cvc: "" });
+
+  const handlePaymentSubmit = (e) => {
+    e.preventDefault();
+    
+    // Sync with pc_appts
+    const localAppt = localStorage.getItem("pc_appts");
+    const currentAppts = localAppt ? JSON.parse(localAppt) : [];
+    const newAppt = {
+      id: `PC-${Date.now().toString().slice(-5)}`,
+      doctor: selectedDoctor.name,
+      date: days[selectedDay].date,
+      time: selectedTime,
+      type: consultType === "in-person" ? "In-Person Visit" : consultType === "video" ? "Video Consultation" : "WhatsApp Consult",
+      branch: selectedBranch + " Branch",
+      status: "Confirmed",
+      patient: form.name || "Jane Doe"
+    };
+    const updatedAppts = [newAppt, ...currentAppts];
+    localStorage.setItem("pc_appts", JSON.stringify(updatedAppts));
+
+    // Sync paid invoice with pc_invs
+    const localInvs = localStorage.getItem("pc_invs");
+    const currentInvs = localInvs ? JSON.parse(localInvs) : [];
+    const newInv = {
+      id: `INV-${Date.now().toString().slice(-4)}`,
+      description: `Consultation Booking - ${selectedDoctor.name}`,
+      amount: selectedDoctor.fee,
+      status: "Paid",
+      date: new Date().toISOString().split("T")[0]
+    };
+    const updatedInvs = [newInv, ...currentInvs];
+    localStorage.setItem("pc_invs", JSON.stringify(updatedInvs));
+
+    setShowPaymentModal(false);
+    setSubmitted(true);
+  };
+
   useEffect(() => {
     contentRef.current?.scrollTo({ top: 0, behavior: "smooth" });
   }, [step]);
@@ -1027,7 +1066,7 @@ export default function BookAppointmentPage() {
     if (step === 1 && selectedDoctor) setStep(2);
     else if (step === 2 && selectedTime) setStep(3);
     else if (step === 3 && validateStep3()) setStep(4);
-    else if (step === 4) setSubmitted(true);
+    else if (step === 4) setShowPaymentModal(true);
   }
 
   function handleBack() {
@@ -1246,6 +1285,101 @@ export default function BookAppointmentPage() {
           </div>
         )}
       </div>
+
+      {/* ── Payment Checkout Modal ── */}
+      <AnimatePresence>
+        {showPaymentModal && (
+          <div className="fixed inset-0 z-[250] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white/95 backdrop-blur-md rounded-3xl p-6 sm:p-8 max-w-md w-full text-slate-800 shadow-2xl relative border border-white/50"
+            >
+              <button 
+                onClick={() => setShowPaymentModal(false)}
+                className="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 transition-colors border-none cursor-pointer"
+              >
+                ✕
+              </button>
+
+              <div className="text-center pb-4 border-b border-slate-100">
+                <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-sky-500 rounded-2xl flex items-center justify-center mx-auto text-white shadow-lg mb-3">
+                  <FiShield size={22} />
+                </div>
+                <h3 className="font-extrabold text-slate-900 text-lg">Secure Consultation Payment</h3>
+                <p className="text-xs text-slate-400 mt-1 uppercase tracking-wider">Fee Amount: <span className="font-black text-pink-600">{selectedDoctor?.fee}</span></p>
+              </div>
+
+              <form onSubmit={handlePaymentSubmit} className="space-y-4 mt-6 text-left">
+                <div>
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1.5">Cardholder Name</label>
+                  <input 
+                    type="text" 
+                    required 
+                    defaultValue={form.name}
+                    className="w-full border border-slate-200 rounded-xl p-3 text-xs outline-none focus:border-pink-400"
+                    placeholder="Jane Doe"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1.5">Card Number</label>
+                  <div className="relative">
+                    <LuCreditCard className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <input 
+                      type="text" 
+                      required 
+                      value={cardDetails.number}
+                      onChange={e => setCardDetails({ ...cardDetails, number: e.target.value })}
+                      placeholder="4242 4242 4242 4242"
+                      className="w-full border border-slate-200 pl-10 pr-4 py-3 rounded-xl text-xs outline-none focus:border-pink-400"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1.5">Expiry Date (MM/YY)</label>
+                    <input 
+                      type="text" 
+                      required 
+                      value={cardDetails.expiry}
+                      onChange={e => setCardDetails({ ...cardDetails, expiry: e.target.value })}
+                      placeholder="12/28"
+                      className="w-full border border-slate-200 p-3 rounded-xl text-xs outline-none focus:border-pink-400 text-center"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1.5">CVC / CVV</label>
+                    <input 
+                      type="password" 
+                      required 
+                      maxLength={3}
+                      value={cardDetails.cvc}
+                      onChange={e => setCardDetails({ ...cardDetails, cvc: e.target.value })}
+                      placeholder="•••"
+                      className="w-full border border-slate-200 p-3 rounded-xl text-xs outline-none focus:border-pink-400 text-center"
+                    />
+                  </div>
+                </div>
+
+                <div className="p-3 bg-emerald-50 text-emerald-700 rounded-2xl flex items-start gap-2 border border-emerald-100/50 font-semibold text-[10px] leading-relaxed">
+                  <FiShield size={14} className="shrink-0 mt-0.5" />
+                  <p>Stripe & 3D Secure checkout. Your credentials are fully encrypted under clinical HIPAA safety guidelines.</p>
+                </div>
+
+                <button 
+                  type="submit"
+                  className="w-full py-3.5 bg-slate-900 hover:bg-pink-600 text-white text-xs font-bold rounded-xl shadow-lg border-none cursor-pointer transition-colors flex items-center justify-center gap-1.5"
+                >
+                  Pay & Confirm Booking
+                </button>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
