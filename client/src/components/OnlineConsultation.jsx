@@ -407,26 +407,28 @@ function HeroIllustration() {
       className="relative w-full max-w-sm mx-auto"
     >
       {/* Glow ring */}
-      <div className="absolute inset-0 rounded-full" style={{ background: "radial-gradient(circle, rgba(96,165,250,0.25) 0%, transparent 70%)", transform: "scale(1.3)" }} />
+      <div className="absolute inset-0 rounded-full" style={{ background: "radial-gradient(circle, rgba(14,165,233,0.15) 0%, transparent 70%)", transform: "scale(1.3)" }} />
 
       {/* Main card */}
-      <div className="relative bg-white/10 backdrop-blur-md rounded-3xl p-5 border border-white/20 shadow-2xl">
+      <div className="relative bg-white rounded-3xl p-5 border border-slate-100 shadow-2xl">
         {/* Doctor row */}
         <div className="flex items-center gap-3 mb-4">
           <div className="relative">
-            <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=120&q=80" alt="Doctor" className="w-14 h-14 rounded-2xl object-cover border-2 border-white/30" />
+            <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=120&q=80" alt="Doctor" className="w-14 h-14 rounded-2xl object-cover border-2 border-slate-100" />
             <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-400 rounded-full border-2 border-white" />
           </div>
           <div>
-            <p className="text-white font-bold text-sm">Dr. Sarah Ahmed</p>
-            <p className="text-white/60 text-xs">Dermatologist • 14 Yrs</p>
+            <p className="text-slate-800 font-bold text-sm">Dr. Sarah Ahmed</p>
+            <p className="text-slate-400 text-xs mt-0.5">Dermatologist • 14 Yrs</p>
             <div className="flex items-center gap-1 mt-1">
               {[1,2,3,4,5].map(i => <FaStar key={i} size={9} color="#fbbf24" />)}
-              <span className="text-white/70 text-[10px] ml-1">4.9</span>
+              <span className="text-slate-500 text-[10px] ml-1 font-bold">4.9</span>
             </div>
           </div>
           <div className="ml-auto text-right">
-            <div className="bg-green-400/20 text-green-300 text-[10px] font-bold px-2 py-1 rounded-full border border-green-400/30">● Live</div>
+            <div className="bg-emerald-50 text-emerald-600 text-[10px] font-extrabold px-2.5 py-1 rounded-full border border-emerald-100 flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Live
+            </div>
           </div>
         </div>
 
@@ -435,7 +437,7 @@ function HeroIllustration() {
           {[{ label: "Video", color: "#0ea5e9", icon: FiVideo }, { label: "Audio", color: "#10b981", icon: FiPhone }, { label: "Chat", color: "#8b5cf6", icon: FiMessageCircle }].map(t => {
             const Icon = t.icon;
             return (
-              <div key={t.label} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-white text-[11px] font-semibold" style={{ background: `${t.color}30`, border: `1px solid ${t.color}50` }}>
+              <div key={t.label} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-slate-700 text-[11px] font-bold shadow-sm" style={{ background: `${t.color}12`, border: `1px solid ${t.color}30` }}>
                 <Icon size={12} style={{ color: t.color }} /> {t.label}
               </div>
             );
@@ -443,17 +445,17 @@ function HeroIllustration() {
         </div>
 
         {/* Time slot row */}
-        <div className="bg-white/10 rounded-2xl p-3 mb-3">
-          <p className="text-white/50 text-[10px] uppercase tracking-wide mb-2 font-semibold">Next Available</p>
+        <div className="bg-slate-50 border border-slate-100 rounded-2xl p-3 mb-3">
+          <p className="text-slate-400 text-[10px] uppercase tracking-wider mb-2 font-extrabold">Next Available</p>
           <div className="flex gap-2">
             {["3:00 PM", "4:00 PM", "5:30 PM"].map((t, i) => (
-              <div key={t} className="flex-1 text-center py-1.5 rounded-xl text-xs font-bold" style={{ background: i === 0 ? "rgba(96,165,250,0.5)" : "rgba(255,255,255,0.1)", color: i === 0 ? "white" : "rgba(255,255,255,0.5)" }}>{t}</div>
+              <div key={t} className="flex-1 text-center py-1.5 rounded-xl text-xs font-black shadow-sm transition-all" style={{ background: i === 0 ? "linear-gradient(135deg,#0ea5e9,#0284c7)" : "#ffffff", color: i === 0 ? "white" : "#64748b", border: i === 0 ? "none" : "1px solid #e2e8f0" }}>{t}</div>
             ))}
           </div>
         </div>
 
         {/* Book button */}
-        <div className="w-full py-2.5 rounded-xl text-center text-white text-sm font-bold" style={{ background: "linear-gradient(135deg,#60a5fa,#a78bfa)" }}>
+        <div className="w-full py-2.5 rounded-xl text-center text-white text-sm font-black shadow-md cursor-pointer hover:opacity-95 transition-opacity" style={{ background: "linear-gradient(135deg,#0ea5e9,#db2777)" }}>
           Book Consultation →
         </div>
       </div>
@@ -495,29 +497,29 @@ export default function OnlineConsultation() {
       <Navbar />
 
       {/* ── HERO ── */}
-      <div className="relative overflow-hidden" style={{ background: "linear-gradient(135deg,#0c1445 0%,#1a237e 50%,#0d47a1 100%)" }}>
-        <div className="absolute inset-0" style={{ backgroundImage: "radial-gradient(circle at 15% 50%, rgba(99,102,241,0.35) 0%, transparent 55%), radial-gradient(circle at 85% 20%, rgba(14,165,233,0.3) 0%, transparent 50%)" }} />
+      <div className="relative overflow-hidden" style={{ background: "linear-gradient(135deg,#f0f9ff 0%,#ffffff 45%,#fdf2f8 100%)" }}>
+        <div className="absolute inset-0" style={{ backgroundImage: "radial-gradient(circle at 15% 50%, rgba(14,165,233,0.08) 0%, transparent 55%), radial-gradient(circle at 85% 20%, rgba(219,39,119,0.06) 0%, transparent 50%)" }} />
 
         {/* Hero Content: Left text + Right illustration */}
         <div className="relative max-w-6xl mx-auto px-4 pt-36 pb-14 flex flex-col md:flex-row items-center gap-12">
           {/* LEFT: Text */}
           <div className="flex-1 text-left">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur mb-5">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-sky-100 shadow-sm mb-5">
               <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-              <span className="text-white/80 text-xs font-semibold">Doctors Online Now — Live</span>
+              <span className="text-sky-600 text-xs font-bold">Doctors Online Now — Live</span>
             </div>
-            <h1 className="text-4xl md:text-5xl font-black text-white mb-4 leading-tight">
+            <h1 className="text-4xl md:text-5xl font-black text-slate-900 mb-4 leading-tight">
               Online Consultation<br />
-              <span style={{ background: "linear-gradient(90deg,#60a5fa,#a78bfa)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Anywhere, Anytime</span>
+              <span style={{ background: "linear-gradient(90deg,#0ea5e9,#db2777)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Anywhere, Anytime</span>
             </h1>
-            <p className="text-white/70 text-base mb-7 max-w-lg">Consult certified specialists via Video, Audio, Chat, or WhatsApp. Get prescriptions, reports & follow-ups — all online, all secure.</p>
+            <p className="text-slate-500 text-base mb-7 max-w-lg">Consult certified specialists via Video, Audio, Chat, or WhatsApp. Get prescriptions, reports & follow-ups — all online, all secure.</p>
 
             {/* Stats */}
             <div className="flex gap-7 mb-7">
               {[{ v: "24+", l: "Specialists" }, { v: "50K+", l: "Consultations" }, { v: "4.9★", l: "Avg Rating" }, { v: "5 Min", l: "Response" }].map(s => (
                 <div key={s.l}>
-                  <p className="text-2xl font-black text-white">{s.v}</p>
-                  <p className="text-xs text-white/50 font-medium">{s.l}</p>
+                  <p className="text-2xl font-black text-slate-800">{s.v}</p>
+                  <p className="text-xs text-slate-400 font-bold">{s.l}</p>
                 </div>
               ))}
             </div>
@@ -527,7 +529,7 @@ export default function OnlineConsultation() {
               {CONSULT_TYPES.map(ct => {
                 const Icon = ct.icon;
                 return (
-                  <div key={ct.id} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur text-white text-xs font-semibold border border-white/20">
+                  <div key={ct.id} className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white text-slate-700 text-xs font-bold border border-slate-200/80 shadow-sm hover:shadow transition-shadow">
                     <Icon size={12} color={ct.color} /> {ct.label}
                   </div>
                 );

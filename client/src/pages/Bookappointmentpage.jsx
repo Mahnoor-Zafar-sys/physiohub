@@ -6,7 +6,7 @@ import Navbar from "../components/Navbar";
 import {
   FiCalendar, FiClock, FiUser, FiPhone, FiMail,
   FiChevronRight, FiChevronLeft, FiCheck, FiMapPin,
-  FiVideo, FiSearch, FiStar, FiAlertCircle, FiArrowLeft, FiShield,
+  FiVideo, FiSearch, FiStar, FiAlertCircle, FiShield,
 } from "react-icons/fi";
 import { FaWhatsapp } from "react-icons/fa";
 import { LuCalendar, LuClock, LuCreditCard, LuMapPin } from "react-icons/lu";
@@ -1150,14 +1150,6 @@ export default function BookAppointmentPage() {
 
         <div className="max-w-6xl mx-auto px-6 pt-32 pb-8 relative">
           <div className="flex items-center gap-4">
-            <motion.button
-              whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
-              onClick={() => navigate("/")}
-              className="flex items-center gap-2 text-slate-500 hover:text-slate-700 text-sm font-bold transition-colors"
-            >
-              <FiArrowLeft size={16} /> Back
-            </motion.button>
-            <div className="h-5 w-px bg-slate-200" />
             <div className="flex items-center gap-3">
               <div
                 className="w-8 h-8 rounded-xl flex items-center justify-center shadow-sm"
