@@ -1148,7 +1148,7 @@ export default function BookAppointmentPage() {
         <div className="absolute bottom-0 left-0 w-48 h-48 rounded-full opacity-15 pointer-events-none"
           style={{ background: "radial-gradient(circle,#0ea5e9,transparent)", transform: "translate(-30%,30%)" }} />
 
-        <div className="max-w-6xl mx-auto px-6 py-8 relative">
+        <div className="max-w-6xl mx-auto px-6 pt-32 pb-8 relative">
           <div className="flex items-center gap-4">
             <motion.button
               whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}

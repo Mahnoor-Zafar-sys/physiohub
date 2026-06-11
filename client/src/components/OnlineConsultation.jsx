@@ -498,18 +498,8 @@ export default function OnlineConsultation() {
       <div className="relative overflow-hidden" style={{ background: "linear-gradient(135deg,#0c1445 0%,#1a237e 50%,#0d47a1 100%)" }}>
         <div className="absolute inset-0" style={{ backgroundImage: "radial-gradient(circle at 15% 50%, rgba(99,102,241,0.35) 0%, transparent 55%), radial-gradient(circle at 85% 20%, rgba(14,165,233,0.3) 0%, transparent 50%)" }} />
 
-        {/* Back to Home */}
-        <div className="relative max-w-6xl mx-auto px-4 pt-6">
-          <Link to="/" className="inline-flex items-center gap-2 text-white/70 hover:text-white text-sm font-semibold transition-colors group">
-            <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors">
-              <FiArrowLeft size={14} />
-            </div>
-            Back to Home
-          </Link>
-        </div>
-
         {/* Hero Content: Left text + Right illustration */}
-        <div className="relative max-w-6xl mx-auto px-4 py-14 flex flex-col md:flex-row items-center gap-12">
+        <div className="relative max-w-6xl mx-auto px-4 pt-36 pb-14 flex flex-col md:flex-row items-center gap-12">
           {/* LEFT: Text */}
           <div className="flex-1 text-left">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur mb-5">
