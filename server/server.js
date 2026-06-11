@@ -106,7 +106,10 @@ app.get("/api/appointments", async (req, res) => {
         branch: row.branch,
         status: row.status,
         patient: row.patient_name,
-        payment_status: row.payment_status
+        payment_status: row.payment_status,
+        payment_method: row.payment_method,
+        payment_screenshot: row.payment_screenshot,
+        admin_note: row.admin_note
       }));
       res.json(mapped);
     } catch (e) {
@@ -119,7 +122,7 @@ app.get("/api/appointments", async (req, res) => {
 
 // 3. Create Appointment
 app.post("/api/appointments", async (req, res) => {
-  const { doctor, date, time, type, branch, status, patient, payment_status } = req.body;
+  const { doctor, date, time, type, branch, status, patient, payment_status, payment_method, payment_screenshot } = req.body;
   const newAppt = {
     id: `PC-${Date.now().toString().slice(-5)}`,
     doctor: doctor,
@@ -129,14 +132,17 @@ app.post("/api/appointments", async (req, res) => {
     branch,
     status: status || "Pending",
     patient: patient || "Jane Doe",
-    payment_status: payment_status || "Pending Verification"
+    payment_status: payment_status || "Pending Verification",
+    payment_method: payment_method || null,
+    payment_screenshot: payment_screenshot || null,
+    admin_note: null
   };
 
   if (db.isDbEnabled()) {
     try {
       await db.query(
-        "INSERT INTO appointments (id, doctor_name, date, time, type, branch, status, patient_name, payment_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-        [newAppt.id, doctor, date, time, type, branch, newAppt.status, newAppt.patient, newAppt.payment_status]
+        "INSERT INTO appointments (id, doctor_name, date, time, type, branch, status, patient_name, payment_status, payment_method, payment_screenshot) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        [newAppt.id, doctor, date, time, type, branch, newAppt.status, newAppt.patient, newAppt.payment_status, newAppt.payment_method, newAppt.payment_screenshot]
       );
       res.json({ success: true, appointment: newAppt });
     } catch (e) {
@@ -172,19 +178,27 @@ app.post("/api/appointments/status", async (req, res) => {
   }
 });
 
-// 4b. Approve Appointment Payment (Forward to Doctor)
+// 4b. Approve/Reject Appointment Payment (Forward or Cancel)
 app.post("/api/appointments/approve-payment", async (req, res) => {
-  const { id } = req.body;
+  const { id, status, admin_note } = req.body;
+  const targetPaymentStatus = status === "Paid" ? "Paid" : "Rejected";
+  const targetApptStatus = status === "Paid" ? "Confirmed" : "Cancelled";
+  
   if (db.isDbEnabled()) {
     try {
-      await db.query("UPDATE appointments SET payment_status = 'Paid', status = 'Confirmed' WHERE id = ?", [id]);
+      await db.query(
+        "UPDATE appointments SET payment_status = ?, status = ?, admin_note = ? WHERE id = ?",
+        [targetPaymentStatus, targetApptStatus, admin_note || null, id]
+      );
       res.json({ success: true });
     } catch (e) {
       res.status(500).json({ error: e.message });
     }
   } else {
     mockAppointments = mockAppointments.map(appt => 
-      appt.id === id ? { ...appt, payment_status: "Paid", status: "Confirmed" } : appt
+      appt.id === id 
+        ? { ...appt, payment_status: targetPaymentStatus, status: targetApptStatus, admin_note: admin_note || null } 
+        : appt
     );
     res.json({ success: true });
   }

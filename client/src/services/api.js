@@ -71,8 +71,12 @@ export const api = {
       time: apptData.time,
       type: apptData.type,
       branch: apptData.branch,
-      status: apptData.status || "Confirmed",
-      patient: apptData.patient || "Jane Doe"
+      status: apptData.status || "Pending",
+      patient: apptData.patient || "Jane Doe",
+      payment_status: apptData.payment_status || "Pending Verification",
+      payment_method: apptData.payment_method || null,
+      payment_screenshot: apptData.payment_screenshot || null,
+      admin_note: null
     };
     const updated = [newAppt, ...current];
     localStorage.setItem("pc_appts", JSON.stringify(updated));
@@ -253,16 +257,20 @@ export const api = {
     return true;
   },
 
-  approvePayment: async (id) => {
-    const res = await apiCall("/appointments/approve-payment", "POST", { id });
+  approvePayment: async (id, status, note) => {
+    const res = await apiCall("/appointments/approve-payment", "POST", { id, status, admin_note: note });
     if (res && res.success) return true;
 
     // Fallback
     const local = localStorage.getItem("pc_appts");
     if (local) {
       const current = JSON.parse(local);
+      const targetPaymentStatus = status === "Paid" ? "Paid" : "Rejected";
+      const targetApptStatus = status === "Paid" ? "Confirmed" : "Cancelled";
       const updated = current.map(appt => 
-        appt.id === id ? { ...appt, payment_status: "Paid", status: "Confirmed" } : appt
+        appt.id === id 
+          ? { ...appt, payment_status: targetPaymentStatus, status: targetApptStatus, admin_note: note || null } 
+          : appt
       );
       localStorage.setItem("pc_appts", JSON.stringify(updated));
     }

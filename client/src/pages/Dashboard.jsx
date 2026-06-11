@@ -84,6 +84,8 @@ export default function Dashboard() {
   const [articleForm, setArticleForm] = useState({ title: "", excerpt: "", content: "", category: "General Health", image: "" });
   const [adminDocFilter, setAdminDocFilter] = useState("all");
   const [adminPatientSearch, setAdminPatientSearch] = useState("");
+  const [adminNotes, setAdminNotes] = useState({});
+  const [selectedScreenshotModal, setSelectedScreenshotModal] = useState(null);
   
   // Printable Prescription details modal
   const [selectedPrescriptionPrint, setSelectedPrescriptionPrint] = useState(null);
@@ -344,12 +346,12 @@ export default function Dashboard() {
   };
 
   // Admin Payment verification & Appointment scheduling forward
-  const handleVerifyPayment = async (id) => {
-    const success = await api.approvePayment(id);
+  const handleProcessPayment = async (id, status, note) => {
+    const success = await api.approvePayment(id, status, note);
     if (success) {
-      addSystemLog(`Payment verified and appointment ${id} approved & forwarded to doctor.`);
+      addSystemLog(`Payment for ${id} was marked as ${status} with note: "${note || 'None'}".`);
       await loadDashboardData(userRole);
-      alert("Payment verified successfully! Appointment has been forwarded on-time to the specialist's queue.");
+      alert(`Payment status successfully set to ${status}!`);
     }
   };
 
@@ -839,42 +841,70 @@ export default function Dashboard() {
                   ) : (
                     <div className="space-y-3">
                       {appointments.map(appt => (
-                        <div key={appt.id} className="border border-slate-100 rounded-2xl p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <span className="text-xs font-black text-slate-800">{appt.doctor}</span>
-                              <span className="text-[9px] font-bold bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full">{appt.type}</span>
+                        <div key={appt.id} className="border border-slate-100 rounded-2xl p-4 flex flex-col justify-between items-stretch gap-3">
+                          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs font-black text-slate-800">{appt.doctor}</span>
+                                <span className="text-[9px] font-bold bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full">{appt.type}</span>
+                                <span className="text-[9px] font-black uppercase text-pink-500 bg-pink-50 px-2 py-0.5 rounded">{appt.id}</span>
+                              </div>
+                              <p className="text-xs text-slate-500 mt-1">Date: {appt.date} at {appt.time} ({appt.branch})</p>
+                              {appt.payment_method && (
+                                <p className="text-[10px] text-slate-400 mt-0.5">Method: {appt.payment_method}</p>
+                              )}
                             </div>
-                            <p className="text-xs text-slate-500 mt-1">Date: {appt.date} at {appt.time} ({appt.branch})</p>
+                            <div className="flex items-center gap-2 self-end sm:self-auto flex-wrap">
+                              {/* Payment Status Badge */}
+                              <span className={`text-[9px] font-extrabold px-2 py-0.5 rounded-full border uppercase ${
+                                appt.payment_status === "Paid" ? "bg-emerald-50 text-emerald-700 border-emerald-100" :
+                                appt.payment_status === "Rejected" ? "bg-rose-50 text-rose-700 border-rose-100 animate-pulse" :
+                                appt.payment_status === "Pending Verification" ? "bg-amber-50 text-amber-700 border-amber-100" :
+                                "bg-slate-50 text-slate-600 border-slate-100"
+                              }`}>
+                                Payment: {appt.payment_status || "Unpaid"}
+                              </span>
+
+                              {/* Appointment Status Badge */}
+                              <span className={`text-[9px] font-bold px-2.5 py-0.5 rounded-full uppercase border ${
+                                appt.status === "Confirmed" ? "bg-emerald-50 text-emerald-700 border-emerald-100" :
+                                appt.status === "Cancelled" ? "bg-red-50 text-red-700 border-red-100" : "bg-sky-50 text-sky-700 border-sky-100"
+                              }`}>
+                                {appt.status}
+                              </span>
+                              
+                              {appt.status !== "Cancelled" && appt.status !== "Completed" && (
+                                <>
+                                  <button 
+                                    onClick={() => {
+                                      setRescheduleAppt(appt);
+                                      setRescheduleData({ date: appt.date, time: appt.time });
+                                    }}
+                                    className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-[10px] font-bold border-none cursor-pointer"
+                                  >
+                                    Reschedule
+                                  </button>
+                                  <button 
+                                    onClick={() => handleCancelAppt(appt.id)}
+                                    className="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg text-[10px] font-bold border-none cursor-pointer"
+                                  >
+                                    Cancel
+                                  </button>
+                                </>
+                              )}
+                            </div>
                           </div>
-                          <div className="flex items-center gap-2 self-end sm:self-auto">
-                            <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full uppercase ${
-                              appt.status === "Confirmed" ? "bg-emerald-50 text-emerald-700" :
-                              appt.status === "Cancelled" ? "bg-red-50 text-red-700" : "bg-sky-50 text-sky-700"
-                            }`}>
-                              {appt.status}
-                            </span>
-                            
-                            {appt.status !== "Cancelled" && appt.status !== "Completed" && (
-                              <>
-                                <button 
-                                  onClick={() => {
-                                    setRescheduleAppt(appt);
-                                    setRescheduleData({ date: appt.date, time: appt.time });
-                                  }}
-                                  className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-[10px] font-bold border-none cursor-pointer"
-                                >
-                                  Reschedule
-                                </button>
-                                <button 
-                                  onClick={() => handleCancelAppt(appt.id)}
-                                  className="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg text-[10px] font-bold border-none cursor-pointer"
-                                >
-                                  Cancel
-                                </button>
-                              </>
-                            )}
-                          </div>
+
+                          {/* Admin Note Banner */}
+                          {appt.admin_note && (
+                            <div className="mt-1 p-3 bg-pink-50/40 border border-pink-100/50 rounded-xl text-[11px] text-slate-700 flex items-start gap-2">
+                              <FiAlertTriangle className="shrink-0 text-pink-500 mt-0.5" size={14} />
+                              <div className="space-y-0.5">
+                                <span className="font-bold text-slate-800">Clinic Verification Feedback:</span>
+                                <p className="text-slate-600 leading-relaxed font-medium">{appt.admin_note}</p>
+                              </div>
+                            </div>
+                          )}
                         </div>
                       ))}
                     </div>
@@ -1390,14 +1420,40 @@ export default function Dashboard() {
                           />
                         </div>
                         <div>
-                          <label className="text-[9px] font-bold text-slate-400 uppercase block mb-1">Profile Photo URL</label>
-                          <input 
-                            type="url" 
-                            value={newDoctor.image}
-                            onChange={e => setNewDoctor({...newDoctor, image: e.target.value})}
-                            placeholder="https://images.unsplash.com/..." 
-                            className="w-full border border-slate-200 bg-white rounded-xl p-2.5 text-xs outline-none focus:border-pink-400"
-                          />
+                          <label className="text-[9px] font-bold text-slate-400 uppercase block mb-1">Profile Photo</label>
+                          <div className="flex items-center gap-2">
+                            <input 
+                              type="file" 
+                              accept="image/*"
+                              onChange={(e) => {
+                                const file = e.target.files[0];
+                                if (file) {
+                                  if (file.size > 1024 * 1024) {
+                                    alert("Profile photo size must be less than 1MB");
+                                    return;
+                                  }
+                                  const reader = new FileReader();
+                                  reader.onloadend = () => {
+                                    setNewDoctor({ ...newDoctor, image: reader.result });
+                                  };
+                                  reader.readAsDataURL(file);
+                                }
+                              }}
+                              className="text-xs w-full text-slate-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-xl file:border file:border-slate-200 file:text-[10px] file:font-semibold file:bg-white file:text-slate-700 hover:file:bg-slate-55 cursor-pointer"
+                            />
+                            {newDoctor.image && (
+                              <div className="relative w-10 h-10 rounded-xl overflow-hidden border border-slate-200 flex-shrink-0">
+                                <img src={newDoctor.image} alt="Preview" className="w-full h-full object-cover" />
+                                <button
+                                  type="button"
+                                  onClick={() => setNewDoctor({ ...newDoctor, image: "" })}
+                                  className="absolute inset-0 bg-black/60 text-white flex items-center justify-center text-[8px] font-bold opacity-0 hover:opacity-100 transition-opacity border-none cursor-pointer"
+                                >
+                                  Clear
+                                </button>
+                              </div>
+                            )}
+                          </div>
                         </div>
                         <button type="submit" className="w-full py-3 bg-slate-900 hover:bg-pink-600 text-white rounded-xl text-xs font-bold border-none cursor-pointer mt-2 shadow-md">
                           Add Specialist
@@ -1463,26 +1519,60 @@ export default function Dashboard() {
                       </div>
                     ) : (
                       appointments.filter(appt => appt.payment_status === "Pending Verification").map(appt => (
-                        <div key={appt.id} className="border border-slate-100 bg-white/50 backdrop-blur-sm rounded-2xl p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 shadow-sm">
-                          <div>
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <span className="text-[10px] font-black uppercase text-pink-500 bg-pink-50 px-2 py-0.5 rounded">{appt.id}</span>
-                              <h4 className="font-extrabold text-sm text-slate-800">{appt.patient}</h4>
+                        <div key={appt.id} className="border border-slate-100 bg-white/50 backdrop-blur-sm rounded-2xl p-4 flex flex-col gap-4 shadow-sm text-left">
+                          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                            <div>
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="text-[10px] font-black uppercase text-pink-500 bg-pink-50 px-2 py-0.5 rounded">{appt.id}</span>
+                                <h4 className="font-extrabold text-sm text-slate-800">{appt.patient}</h4>
+                              </div>
+                              <p className="text-xs text-slate-500 mt-1">Consultation with <strong>{appt.doctor}</strong> · Branch: {appt.branch}</p>
+                              <span className="text-[10px] text-slate-400 font-semibold block mt-0.5">Slot: {appt.date} at {appt.time} ({appt.type})</span>
                             </div>
-                            <p className="text-xs text-slate-500 mt-1">Consultation with <strong>{appt.doctor}</strong> · Branch: {appt.branch}</p>
-                            <span className="text-[10px] text-slate-400 font-semibold block mt-0.5">Slot: {appt.date} at {appt.time} ({appt.type})</span>
+                            <div className="flex items-center gap-3 self-end sm:self-auto">
+                              <div className="text-right">
+                                <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-100 flex items-center gap-1">
+                                  <span className="w-1 h-1 bg-amber-500 rounded-full animate-ping" />
+                                  Unverified Payment
+                                </span>
+                                {appt.payment_method && (
+                                  <span className="text-[10px] text-slate-505 block font-bold mt-1 bg-slate-100/80 px-2 py-0.5 rounded-lg border border-slate-200/50">{appt.payment_method}</span>
+                                )}
+                              </div>
+                              {appt.payment_screenshot && (
+                                <div className="relative w-12 h-12 rounded-xl overflow-hidden border border-slate-200 flex-shrink-0 cursor-zoom-in group" onClick={() => setSelectedScreenshotModal(appt.payment_screenshot)}>
+                                  <img src={appt.payment_screenshot} alt="Receipt proof" className="w-full h-full object-cover" />
+                                  <div className="absolute inset-0 bg-black/40 text-white text-[8px] font-extrabold flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                    VIEW
+                                  </div>
+                                </div>
+                              )}
+                            </div>
                           </div>
-                          <div className="flex items-center gap-2.5 self-end sm:self-auto">
-                            <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-100 flex items-center gap-1">
-                              <span className="w-1 h-1 bg-amber-500 rounded-full animate-ping" />
-                              Unverified Payment
-                            </span>
-                            <button 
-                              onClick={() => handleVerifyPayment(appt.id)}
-                              className="px-4 py-2 bg-slate-900 hover:bg-pink-600 text-white rounded-xl text-xs font-bold border-none cursor-pointer shadow-md transition-colors flex items-center gap-1.5"
-                            >
-                              <FiCheck /> Verify & Forward
-                            </button>
+
+                          {/* Note input and Moderation buttons */}
+                          <div className="flex flex-col sm:flex-row gap-3 pt-3 border-t border-slate-100/60 items-center justify-between w-full">
+                            <input 
+                              type="text" 
+                              placeholder="Review feedback note (e.g. Transaction ID matched successfully)"
+                              value={adminNotes[appt.id] || ""}
+                              onChange={e => setAdminNotes({ ...adminNotes, [appt.id]: e.target.value })}
+                              className="w-full sm:flex-1 border border-slate-200 bg-white rounded-xl p-2.5 text-xs outline-none focus:border-pink-400 text-slate-800"
+                            />
+                            <div className="flex gap-2 w-full sm:w-auto">
+                              <button 
+                                onClick={() => handleProcessPayment(appt.id, "Paid", adminNotes[appt.id] || "")}
+                                className="flex-1 sm:flex-none px-4 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-xs font-bold border-none cursor-pointer shadow-md transition-colors flex items-center justify-center gap-1.5"
+                              >
+                                <FiCheck /> Approve
+                              </button>
+                              <button 
+                                onClick={() => handleProcessPayment(appt.id, "Rejected", adminNotes[appt.id] || "")}
+                                className="flex-1 sm:flex-none px-4 py-2.5 bg-rose-500 hover:bg-rose-600 text-white rounded-xl text-xs font-bold border-none cursor-pointer shadow-md transition-colors flex items-center justify-center gap-1.5"
+                              >
+                                <FiXCircle /> Reject
+                              </button>
+                            </div>
                           </div>
                         </div>
                       ))
@@ -1771,6 +1861,35 @@ export default function Dashboard() {
       </div>
 
       <Footer />
+
+      {/* Full Screenshot Preview Modal */}
+      <AnimatePresence>
+        {selectedScreenshotModal && (
+          <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white rounded-3xl p-6 max-w-2xl w-full text-slate-800 shadow-2xl relative border border-white/50 flex flex-col items-center"
+            >
+              <button 
+                onClick={() => setSelectedScreenshotModal(null)}
+                className="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 hover:bg-rose-100 hover:text-rose-600 flex items-center justify-center text-slate-500 transition-colors border-none cursor-pointer font-bold"
+              >
+                ✕
+              </button>
+              <h3 className="font-extrabold text-slate-900 text-sm mb-4 text-center">Proof of Payment Receipt Screenshot</h3>
+              <div className="w-full overflow-auto max-h-[70vh] border border-slate-100 rounded-xl bg-slate-50 flex items-center justify-center">
+                <img 
+                  src={selectedScreenshotModal} 
+                  alt="Payment Receipt Full View" 
+                  className="max-w-full h-auto object-contain"
+                />
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

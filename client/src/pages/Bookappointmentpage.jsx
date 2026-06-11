@@ -1345,86 +1345,176 @@ export default function BookAppointmentPage() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-white/95 backdrop-blur-md rounded-3xl p-6 sm:p-8 max-w-md w-full text-slate-800 shadow-2xl relative border border-white/50"
+              className="bg-white/95 backdrop-blur-md rounded-3xl p-6 sm:p-8 max-w-lg w-full text-slate-800 shadow-2xl relative border border-white/50 overflow-y-auto max-h-[90vh]"
             >
               <button 
                 onClick={() => setShowPaymentModal(false)}
-                className="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 transition-colors border-none cursor-pointer"
+                className="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 hover:bg-rose-100 hover:text-rose-600 flex items-center justify-center text-slate-500 transition-colors border-none cursor-pointer"
               >
                 ✕
               </button>
 
               <div className="text-center pb-4 border-b border-slate-100">
-                <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-sky-500 rounded-2xl flex items-center justify-center mx-auto text-white shadow-lg mb-3">
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-pink-500 rounded-2xl flex items-center justify-center mx-auto text-white shadow-lg mb-3">
                   <FiShield size={22} />
                 </div>
-                <h3 className="font-extrabold text-slate-900 text-lg">Secure Consultation Payment</h3>
+                <h3 className="font-extrabold text-slate-900 text-lg">Secure Local Payment Gateway</h3>
                 <p className="text-xs text-slate-400 mt-1 uppercase tracking-wider">Fee Amount: <span className="font-black text-pink-600">{selectedDoctor?.fee}</span></p>
               </div>
 
-              <form onSubmit={handlePaymentSubmit} className="space-y-4 mt-6 text-left">
+              <form onSubmit={handlePaymentSubmit} className="space-y-5 mt-6 text-left">
+                {/* 1. Select Payment Method Grid */}
                 <div>
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1.5">Cardholder Name</label>
-                  <input 
-                    type="text" 
-                    required 
-                    defaultValue={form.name}
-                    className="w-full border border-slate-200 rounded-xl p-3 text-xs outline-none focus:border-pink-400"
-                    placeholder="Jane Doe"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1.5">Card Number</label>
-                  <div className="relative">
-                    <LuCreditCard className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                    <input 
-                      type="text" 
-                      required 
-                      value={cardDetails.number}
-                      onChange={e => setCardDetails({ ...cardDetails, number: e.target.value })}
-                      placeholder="4242 4242 4242 4242"
-                      className="w-full border border-slate-200 pl-10 pr-4 py-3 rounded-xl text-xs outline-none focus:border-pink-400"
-                    />
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2.5">Select Payment Method</label>
+                  <div className="grid grid-cols-2 gap-3">
+                    {[
+                      { name: "Easypaisa", color: "border-emerald-500 text-emerald-600 bg-emerald-50/30", brand: "Easypaisa" },
+                      { name: "JazzCash", color: "border-yellow-500 text-yellow-600 bg-yellow-50/30", brand: "JazzCash" },
+                      { name: "SadaPay", color: "border-teal-500 text-teal-600 bg-teal-50/30", brand: "SadaPay" },
+                      { name: "Bank Transfer", color: "border-blue-500 text-blue-600 bg-blue-50/30", brand: "Bank Account" }
+                    ].map((method) => {
+                      const isSelected = selectedMethod === method.name;
+                      return (
+                        <button
+                          key={method.name}
+                          type="button"
+                          onClick={() => setSelectedMethod(method.name)}
+                          className={`p-3 rounded-2xl border text-left transition-all relative flex flex-col justify-between h-20 w-full cursor-pointer ${
+                            isSelected 
+                              ? `${method.color} border-2 shadow-sm font-bold` 
+                              : "border-slate-200 hover:border-slate-300 text-slate-600 hover:bg-slate-50"
+                          }`}
+                        >
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                            {method.brand}
+                          </span>
+                          <span className="text-xs font-extrabold text-slate-800">{method.name}</span>
+                          {isSelected && (
+                            <div className="absolute right-2 top-2 w-4 h-4 rounded-full bg-slate-900 text-white flex items-center justify-center text-[8px]">
+                              ✓
+                            </div>
+                          )}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                {/* 2. Display Selected Payment Method Account Credentials */}
+                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 space-y-2">
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-slate-400 font-semibold uppercase tracking-wider text-[10px]">Recipient Info</span>
+                    <span className="px-2 py-0.5 bg-slate-200 rounded text-[9px] font-bold text-slate-600">{selectedMethod}</span>
+                  </div>
+                  {selectedMethod === "Bank Transfer" ? (
+                    <div className="space-y-1 text-slate-700 text-xs">
+                      <p className="font-extrabold text-slate-900">Bank: <span className="font-normal text-slate-600">Allied Bank Limited (ABL)</span></p>
+                      <p className="font-extrabold text-slate-900">Account Title: <span className="font-normal text-slate-600">Premium Clinic Systems (Pvt) Ltd</span></p>
+                      <p className="font-extrabold text-slate-900">IBAN / Account #: <span className="font-mono bg-white px-1.5 py-0.5 border border-slate-200 rounded text-pink-600 font-bold select-all">PK12ALBL0012345678901234</span></p>
+                    </div>
+                  ) : (
+                    <div className="space-y-1 text-slate-700 text-xs">
+                      <p className="font-extrabold text-slate-900">Account Title: <span className="font-normal text-slate-600">Premium Clinic</span></p>
+                      <p className="font-extrabold text-slate-900">Mobile Wallet Number: <span className="font-mono bg-white px-1.5 py-0.5 border border-slate-200 rounded text-pink-600 font-bold select-all">0300-1234567</span></p>
+                    </div>
+                  )}
+                  <p className="text-[10px] text-slate-400 mt-1 italic">
+                    {selectedMethod === "Bank Transfer" 
+                      ? "Please perform an IBAN bank transfer from your mobile banking app." 
+                      : `Please send the consultation fee (${selectedDoctor?.fee}) to the wallet number above.`
+                    }
+                  </p>
+                </div>
+
+                {/* 3. Verification Method Toggle */}
+                <div>
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wide block mb-2">Verification Protocol</label>
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setVerificationMode("manual")}
+                      className={`flex-1 py-3 px-4 rounded-xl border text-center text-xs font-bold transition-all cursor-pointer ${
+                        verificationMode === "manual"
+                          ? "bg-slate-900 text-white border-slate-900"
+                          : "border-slate-200 text-slate-600 hover:bg-slate-50"
+                      }`}
+                    >
+                      Manual Receipt Check
+                    </button>
+                    <button
+                      type="button"
+                      disabled
+                      className="flex-1 py-3 px-4 rounded-xl border border-slate-100 text-slate-300 text-center text-xs font-medium cursor-not-allowed flex items-center justify-center gap-1 bg-slate-50/50"
+                      title="Automated payment check is coming soon!"
+                    >
+                      Auto Verify <span className="text-[9px] bg-slate-200 text-slate-500 font-bold px-1.5 py-0.5 rounded leading-none">Soon</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* 4. Manual Verification Upload Fields */}
+                <div className="space-y-4 pt-1 border-t border-slate-100">
                   <div>
-                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1.5">Expiry Date (MM/YY)</label>
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1.5">Transaction ID / Reference ID</label>
                     <input 
                       type="text" 
                       required 
-                      value={cardDetails.expiry}
-                      onChange={e => setCardDetails({ ...cardDetails, expiry: e.target.value })}
-                      placeholder="12/28"
-                      className="w-full border border-slate-200 p-3 rounded-xl text-xs outline-none focus:border-pink-400 text-center"
+                      value={txnRef}
+                      onChange={e => setTxnRef(e.target.value)}
+                      placeholder="Enter 12-digit payment Transaction ID"
+                      className="w-full border border-slate-200 rounded-xl p-3 text-xs outline-none focus:border-pink-400 text-slate-800"
                     />
                   </div>
+
                   <div>
-                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1.5">CVC / CVV</label>
-                    <input 
-                      type="password" 
-                      required 
-                      maxLength={3}
-                      value={cardDetails.cvc}
-                      onChange={e => setCardDetails({ ...cardDetails, cvc: e.target.value })}
-                      placeholder="•••"
-                      className="w-full border border-slate-200 p-3 rounded-xl text-xs outline-none focus:border-pink-400 text-center"
-                    />
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1.5">Upload Receipt Screenshot</label>
+                    <div className="flex items-center gap-3">
+                      <div className="flex-1 relative">
+                        <input 
+                          type="file" 
+                          accept="image/*"
+                          onChange={handleScreenshotChange}
+                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                        />
+                        <div className="border-2 border-dashed border-slate-200 hover:border-pink-300 rounded-xl p-4 text-center transition-colors bg-slate-50/50 flex flex-col items-center justify-center gap-1">
+                          <span className="text-xs font-bold text-slate-600">Select receipt image</span>
+                          <span className="text-[9px] text-slate-400">PNG, JPG or JPEG up to 1MB</span>
+                        </div>
+                      </div>
+
+                      {screenshotPreview && (
+                        <div className="relative w-20 h-20 rounded-xl overflow-hidden border border-slate-200 flex-shrink-0 group">
+                          <img 
+                            src={screenshotPreview} 
+                            alt="Receipt Preview" 
+                            className="w-full h-full object-cover"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setScreenshotPreview(null);
+                              setScreenshotBase64("");
+                            }}
+                            className="absolute inset-0 bg-black/60 flex items-center justify-center text-white text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity border-none cursor-pointer"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
 
                 <div className="p-3 bg-emerald-50 text-emerald-700 rounded-2xl flex items-start gap-2 border border-emerald-100/50 font-semibold text-[10px] leading-relaxed">
                   <FiShield size={14} className="shrink-0 mt-0.5" />
-                  <p>Stripe & 3D Secure checkout. Your credentials are fully encrypted under clinical HIPAA safety guidelines.</p>
+                  <p>Our billing desk manually verifies receipts within 1-2 hours. You will receive an update notification on your patient profile feed immediately.</p>
                 </div>
 
                 <button 
                   type="submit"
                   className="w-full py-3.5 bg-slate-900 hover:bg-pink-600 text-white text-xs font-bold rounded-xl shadow-lg border-none cursor-pointer transition-colors flex items-center justify-center gap-1.5"
                 >
-                  Pay & Confirm Booking
+                  Submit Payment Verification
                 </button>
               </form>
             </motion.div>
