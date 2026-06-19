@@ -110,7 +110,7 @@ export default function Hero() {
           <img ref={imageRef} src="/heroimage.jpg" alt="Premium Healthcare Clinic Background"
             style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center center", transform: "scale(1.03)", transition: "transform .3s ease-out" }}
           />
-          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg, rgba(255,255,255,0.52) 0%, rgba(255,255,255,0.42) 50%, rgba(240,246,255,0.58) 100%)" }} />
+          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.32) 50%, rgba(240,246,255,0.48) 100%)" }} />
           <div style={{ position: "absolute", inset: 0, background: "radial-gradient(circle at 20% 30%, rgba(59,130,246,0.18) 0%, transparent 50%), radial-gradient(circle at 80% 70%, rgba(236,72,153,0.18) 0%, transparent 50%)" }} />
         </div>
 
@@ -131,7 +131,22 @@ export default function Hero() {
           <motion.div
             variants={staggerContainer} initial="hidden" whileInView="show"
             viewport={{ once: false, amount: 0.15 }}
-            style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "2.2rem", textAlign: "center", maxWidth: 860, width: "100%" }}
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: "2.2rem",
+              textAlign: "center",
+              maxWidth: 860,
+              width: "100%",
+              padding: "48px 32px",
+              borderRadius: "32px",
+              background: "rgba(255, 255, 255, 0.72)",
+              backdropFilter: "blur(16px)",
+              WebkitBackdropFilter: "blur(16px)",
+              border: "1px solid rgba(255, 255, 255, 0.5)",
+              boxShadow: "0 20px 40px -15px rgba(15, 23, 42, 0.08)",
+            }}
           >
             <motion.h1 variants={fadeUpVariant} style={{
               fontFamily: "'Playfair Display',Georgia,serif",
