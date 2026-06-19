@@ -132,7 +132,7 @@ export default function WhyUsPage() {
               Our Core Strengths
             </div>
             <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight font-serif mb-6 leading-tight text-slate-900">
-              Why Patients Trust <span style={{ background: "linear-gradient(135deg,#0ea5e9,#db2777)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Premium Clinic</span>
+              Why Patients Trust <span style={{ background: "linear-gradient(135deg,#0ea5e9,#db2777)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Vital Physio Hub</span>
             </h1>
             <p className="text-slate-500 text-base sm:text-lg max-w-3xl mx-auto leading-relaxed font-normal">
               We coordinate elite medical specialists, modern clinical diagnostics, and a patient-first support ecosystem to deliver optimal healthcare outcomes with maximum care.
@@ -278,7 +278,7 @@ export default function WhyUsPage() {
                 {/* Bottom navigation hooks */}
                 <div className="border-t border-slate-100 pt-6 mt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
                   <span className="text-xs text-slate-400">
-                    Premium Clinic Advanced Healthcare Standards
+                    Vital Physio Hub Advanced Rehabilitation Standards
                   </span>
                   <button 
                     onClick={() => navigate("/book-appointment")}

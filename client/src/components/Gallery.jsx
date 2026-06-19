@@ -7,7 +7,7 @@ import { FiMaximize2, FiChevronLeft, FiChevronRight } from "react-icons/fi";
 const galleryImages = [
   {
     id: 1,
-    label: "Premium Clinic Interior & Reception Setup",
+    label: "Vital Physio Hub Interior & Reception Setup",
     category: "Clinic Images",
     url: "https://images.unsplash.com/photo-1587351021759-3e566b6af7cc?auto=format&fit=crop&w=1600&q=100",
   },

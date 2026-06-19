@@ -4,7 +4,7 @@ const poolConfig = {
   host: process.env.DB_HOST || "localhost",
   user: process.env.DB_USER || "root",
   password: process.env.DB_PASSWORD || "",
-  database: process.env.DB_NAME || "premium_clinic",
+  database: process.env.DB_NAME || "vital_physio_hub",
   connectionLimit: 150,
   queueLimit: 0,
   waitForConnections: true

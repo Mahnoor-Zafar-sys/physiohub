@@ -53,7 +53,7 @@ export default function Dashboard() {
 
   // Role authentication state
   const [userRole, setUserRole] = useState(() => localStorage.getItem("pc_user_role") || null);
-  const [authForm, setAuthForm] = useState({ email: "patient@premiumclinic.com", password: "password123", role: "patient" });
+  const [authForm, setAuthForm] = useState({ email: "patient@vitalphysiohub.com", password: "password123", role: "patient" });
   const [loginError, setLoginError] = useState("");
 
   // Core Data State (synchronized with localStorage/SQL database)
@@ -440,8 +440,8 @@ export default function Dashboard() {
               {/* Letterhead */}
               <div className="flex justify-between items-start border-b-2 border-slate-100 pb-5 mb-6 text-left">
                 <div>
-                  <h3 className="text-xl font-black text-slate-900 tracking-tight">PREMIUM CLINIC</h3>
-                  <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Advanced digital healthcare</p>
+                  <h3 className="text-xl font-black text-slate-900 tracking-tight">VITAL PHYSIO HUB</h3>
+                  <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Advanced rehabilitation & physio</p>
                   <p className="text-xs text-slate-500 mt-2">Plaza 56, Block L, Blue Area, Islamabad</p>
                 </div>
                 <div className="text-right">
@@ -567,7 +567,7 @@ export default function Dashboard() {
                       const r = e.target.value;
                       setAuthForm({
                         role: r,
-                        email: r === "patient" ? "patient@premiumclinic.com" : r === "doctor" ? "doctor@premiumclinic.com" : r === "admin" ? "admin@premiumclinic.com" : "staff@premiumclinic.com",
+                        email: r === "patient" ? "patient@vitalphysiohub.com" : r === "doctor" ? "doctor@vitalphysiohub.com" : r === "admin" ? "admin@vitalphysiohub.com" : "staff@vitalphysiohub.com",
                         password: "password123"
                       });
                     }}

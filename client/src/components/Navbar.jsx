@@ -142,10 +142,10 @@ export default function Navbar({ onBookAppointment }) {
               </div>
               <div className="hidden sm:block leading-none">
                 <p className="text-slate-900 font-extrabold text-[1rem] tracking-tight leading-tight">
-                  Premium<span className="text-blue-600"> Clinic</span>
+                  Vital Physio<span className="text-blue-600"> Hub</span>
                 </p>
                 <p className="text-slate-400 text-[9px] font-bold tracking-widest uppercase mt-0.5">
-                  Advanced Healthcare
+                  Physical Therapy & Rehab
                 </p>
               </div>
             </motion.div>

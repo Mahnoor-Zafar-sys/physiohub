@@ -28,7 +28,7 @@ const INSURANCE_PARTNERS = [
 ];
 
 const INSURANCE_FAQS = [
-  { q: "How do I use my insurance at Premium Clinic?", a: "Bring your insurance card and CNIC at reception. Our insurance desk will verify your coverage on the spot and handle all paperwork — you only pay the co-pay if applicable." },
+  { q: "How do I use my insurance at Vital Physio Hub?", a: "Bring your insurance card and CNIC at reception. Our insurance desk will verify your coverage on the spot and handle all paperwork — you only pay the co-pay if applicable." },
   { q: "What if my insurer is not on your panel?", a: "We'll provide detailed itemized invoices that you can submit directly to your insurance company for reimbursement. Our billing team is happy to assist with any claim documentation." },
   { q: "Does insurance cover cosmetic procedures?", a: "Most cosmetic procedures (like laser skin treatments or hair transplants) are not covered unless medically indicated. However, reconstructive and medically necessary aesthetic procedures are often covered. Check with your insurer." },
   { q: "Can I get pre-authorization assistance?", a: "Yes. Our insurance coordination desk handles all pre-authorization requests on your behalf. Simply bring your insurance details 24–48 hours before your scheduled procedure." },
@@ -109,7 +109,7 @@ export default function Insurance({ onBookAppointment }) {
               { step: "01", icon: LuContact, title: "Bring Your Card", desc: "Bring your insurance card and CNIC to our reception desk.", color: "text-blue-500" },
               { step: "02", icon: LuCircleCheck, title: "Instant Verification", desc: "Our insurance desk verifies your eligibility in real-time.", color: "text-green-500" },
               { step: "03", icon: LuStethoscope, title: "Receive Treatment", desc: "Get treated — our doctors focus on your care, not the paperwork.", color: "text-rose-500" },
-              { step: "04", icon: LuFileText, title: "We Handle Claims", desc: "Premium Clinic submits all claims directly to your insurer.", color: "text-amber-500" },
+              { step: "04", icon: LuFileText, title: "We Handle Claims", desc: "Vital Physio Hub submits all claims directly to your insurer.", color: "text-amber-500" },
             ].map((step, i) => {
               const Icon = step.icon;
               return (

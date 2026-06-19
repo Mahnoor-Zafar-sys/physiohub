@@ -308,8 +308,8 @@ export default function VideoConsultationRoom() {
             {/* Header / Letterhead */}
             <div className="flex justify-between items-start border-b-2 border-slate-100 pb-6">
               <div className="text-left">
-                <h2 className="text-2xl font-black tracking-tight text-slate-900">PREMIUM CLINIC</h2>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">Advanced Digital Healthcare</p>
+                <h2 className="text-2xl font-black tracking-tight text-slate-900">VITAL PHYSIO HUB</h2>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">Advanced Rehabilitation & Physio</p>
                 <p className="text-xs text-slate-500 mt-2">Plaza 56, Block L, Blue Area, Islamabad</p>
                 <p className="text-xs text-slate-500">Helpline: +92 (51) 111-911-273</p>
               </div>
@@ -337,7 +337,7 @@ export default function VideoConsultationRoom() {
               </div>
               <div>
                 <p className="text-slate-400 uppercase font-bold text-[9px] tracking-wider">Session ID</p>
-                <p className="font-bold text-slate-800 mt-0.5">#PC-VIR-92043</p>
+                <p className="font-bold text-slate-800 mt-0.5">#VPH-VIR-92043</p>
               </div>
             </div>
 

@@ -9,7 +9,7 @@ export default function AIChatbot() {
   const [messages, setMessages] = useState([
     {
       sender: "bot",
-      text: "Hello! I am your Premium AI Medical Assistant. How can I help you today?",
+      text: "Hello! I am your Vital Physio Hub AI Assistant. How can I help you today?",
       time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
     }
   ]);
@@ -35,7 +35,7 @@ export default function AIChatbot() {
     },
     branches: {
       keywords: ["branch", "location", "address", "where", "islamabad", "lahore", "karachi"],
-      text: "Premium Clinic has branches in major cities:\n• Islamabad: Plaza 56, Block L, Blue Area\n• Lahore: Gulberg Center\n• Karachi: DHA Phase VI\nWould you like to contact a specific branch?",
+      text: "Vital Physio Hub has branches in major cities:\n• Islamabad: Plaza 56, Block L, Blue Area\n• Lahore: Gulberg Center\n• Karachi: DHA Phase VI\nWould you like to contact a specific branch?",
       action: { label: "Contact Us", path: "/contact" }
     },
     fallback: "I understand. As an AI health assistant, I can provide general health information, but cannot replace a doctor's diagnosis. If you have active health concerns, we strongly recommend consulting our specialists."
@@ -116,7 +116,7 @@ export default function AIChatbot() {
                   <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-400 rounded-full border border-white" />
                 </div>
                 <div>
-                  <h3 className="font-extrabold text-sm tracking-tight leading-tight">Premium AI Assist</h3>
+                  <h3 className="font-extrabold text-sm tracking-tight leading-tight">Vital Physio AI Assist</h3>
                   <span className="text-[9px] font-bold tracking-wider uppercase text-sky-100 flex items-center gap-1">
                     <FiActivity size={10} className="animate-pulse" /> Clinical Guard Enabled
                   </span>

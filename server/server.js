@@ -50,7 +50,7 @@ let mockComments = [
 
 // Root Endpoint
 app.get("/", (req, res) => {
-  res.send("Premium Clinic Scale-Optimized Backend Running");
+  res.send("Vital Physio Hub Scale-Optimized Backend Running");
 });
 
 // 1. Auth Login Simulation (JWT generation)

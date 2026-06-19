@@ -198,8 +198,8 @@ function LoadingDots() {
    MAIN SPLASH SCREEN
 ══════════════════════════════════════════ */
 export default function SplashScreen({
-  clinicName = 'Premium Care Clinic',
-  tagline = 'Excellence in Healthcare · Compassion in Care',
+  clinicName = 'Vital Physio Hub',
+  tagline = 'Advanced Physical Therapy · Compassion in Rehab',
   duration = 5500,
   onComplete,
 }) {

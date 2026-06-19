@@ -60,7 +60,7 @@ export default function Terms() {
               <FiMapPin className="text-sky-500" /> 3. Video Consultations & Technical Requirements
             </h2>
             <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
-              Virtual consult sessions require an active internet connection, functional audio-video peripherals, and browser microphone/webcam permissions. Premium Clinic is not liable for dropped calls due to patient connection failures.
+              Virtual consult sessions require an active internet connection, functional audio-video peripherals, and browser microphone/webcam permissions. Vital Physio Hub is not liable for dropped calls due to patient connection failures.
             </p>
           </div>
 

@@ -1,6 +1,6 @@
--- SQL Schema for Premium Clinic production database
-CREATE DATABASE IF NOT EXISTS premium_clinic;
-USE premium_clinic;
+-- SQL Schema for Vital Physio Hub production database
+CREATE DATABASE IF NOT EXISTS vital_physio_hub;
+USE vital_physio_hub;
 
 -- 1. Users / Auth credentials
 CREATE TABLE IF NOT EXISTS users (
@@ -115,10 +115,10 @@ CREATE TABLE IF NOT EXISTS article_comments (
 -- 9. Seed Initial Data
 -- Seed Users (passwords are simple mock references)
 INSERT INTO users (name, email, password, role) VALUES
-('Jane Doe', 'patient@premiumclinic.com', 'password123', 'patient'),
-('Dr. Sarah Ahmed', 'doctor@premiumclinic.com', 'password123', 'doctor'),
-('Director Admin', 'admin@premiumclinic.com', 'password123', 'admin'),
-('Reception Desk', 'staff@premiumclinic.com', 'password123', 'receptionist')
+('Jane Doe', 'patient@vitalphysiohub.com', 'password123', 'patient'),
+('Dr. Sarah Ahmed', 'doctor@vitalphysiohub.com', 'password123', 'doctor'),
+('Director Admin', 'admin@vitalphysiohub.com', 'password123', 'admin'),
+('Reception Desk', 'staff@vitalphysiohub.com', 'password123', 'receptionist')
 ON DUPLICATE KEY UPDATE id=id;
 
 -- Seed Doctors List with extended attributes

@@ -40,7 +40,7 @@ const FAQ_CATEGORIES = [
     questions: [
       { q: "What specialties does Vital Physio Hub offer?", a: "We offer 8 clinical facilities including Physiotherapy, Chiropractic Adjustments, Cupping, Hijama, Electrotherapy, Kinesio Taping, Fitness Training, and Dry Needling." },
       { q: "Do you offer online video consultations?", a: "Yes. Our telemedicine platform supports video, audio, and chat consultations. You can consult with any of our doctors from the comfort of your home via Zoom or our in-app system." },
-      { q: "Are your treatments FDA-approved?", a: "All procedures, devices, and medications used at Premium Clinic are either FDA-approved or certified by equivalent international regulatory authorities. Patient safety is our highest priority." },
+      { q: "Are your treatments FDA-approved?", a: "All procedures, devices, and rehabilitation equipment used at Vital Physio Hub are certified by relevant healthcare and regulatory authorities. Patient safety is our highest priority." },
       { q: "Can I get a second opinion from your specialists?", a: "Of course. We welcome second-opinion consultations and can review previous reports, imaging, and diagnoses from other providers to give you a comprehensive independent assessment." },
     ],
   },

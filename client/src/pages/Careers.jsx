@@ -256,7 +256,7 @@ export default function Careers({ onBookAppointment }) {
                   Send CV via Email
                 </a>
                 <a
-                  href={`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Hi, I'd like to apply for the ${appliedJob.title} position at Premium Clinic.`)}`}
+                  href={`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Hi, I'd like to apply for the ${appliedJob.title} position at Vital Physio Hub.`)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center justify-center gap-3 w-full px-5 py-3.5 rounded-2xl font-bold text-sm"

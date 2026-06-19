@@ -155,7 +155,7 @@ function StepSidebar({ step, selectedDoctor, selectedDay, selectedTime, consultT
 
       {/* Clinic info */}
       <div className="mt-4 p-4 rounded-2xl bg-gradient-to-br from-sky-50 to-pink-50 border border-sky-100/60">
-        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Premium Clinic</p>
+        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Vital Physio Hub</p>
         <div className="space-y-1.5">
           {[
             { icon: FiMapPin, text: "Gulberg · DHA, Lahore" },
@@ -712,7 +712,7 @@ function SuccessView({ doctor, day, time, consultType, form }) {
     )}&dates=${startFormat}/${endFormat}&details=${encodeURIComponent(
       `Consultation with ${doctor.name}\nPatient: ${form.name}\nRef: ${bookingRef}\nMode: ${consultType}`
     )}&location=${encodeURIComponent(
-      consultType === "in-person" ? "Premium Clinic, Plaza 56, Block L, Blue Area, Islamabad" : "Online HD Video Consult"
+      consultType === "in-person" ? "Vital Physio Hub, Plaza 56, Block L, Blue Area, Islamabad" : "Online HD Video Consult"
     )}`;
   } catch (err) {
     console.error("Error generating calendar links:", err);
@@ -723,12 +723,12 @@ function SuccessView({ doctor, day, time, consultType, form }) {
       const calendarData = [
         "BEGIN:VCALENDAR",
         "VERSION:2.0",
-        "PRODID:-//Premium Clinic//NONSGML Appointment System//EN",
+        "PRODID:-//Vital Physio Hub//NONSGML Appointment System//EN",
         "BEGIN:VEVENT",
-        `UID:${bookingRef}-${Date.now()}@premiumclinic.com`,
+        `UID:${bookingRef}-${Date.now()}@vitalphysiohub.com`,
         `SUMMARY:Doctor Appointment: ${doctor.name}`,
         `DESCRIPTION:Your appointment is scheduled with ${doctor.name} (${doctor.specialty}). Patient: ${form.name}. Reference: ${bookingRef}.`,
-        `LOCATION:${consultType === "in-person" ? "Premium Clinic, Plaza 56, Block L, Blue Area, Islamabad" : "Online Video Consult"}`,
+        `LOCATION:${consultType === "in-person" ? "Vital Physio Hub, Plaza 56, Block L, Blue Area, Islamabad" : "Online Video Consult"}`,
         `DTSTART:${startFormat}`,
         `DTEND:${endFormat}`,
         "END:VEVENT",
@@ -772,7 +772,7 @@ function SuccessView({ doctor, day, time, consultType, form }) {
                 <span className="text-[9px] font-black uppercase tracking-wider text-emerald-400">WhatsApp Notification</span>
                 <button onClick={() => setShowAlert(false)} className="text-slate-400 hover:text-white text-xs bg-transparent border-none cursor-pointer p-0.5">✕</button>
               </div>
-              <p className="text-[11px] font-bold text-slate-100">Booking Verification Initialized — Premium Clinic</p>
+              <p className="text-[11px] font-bold text-slate-100">Booking Verification Initialized — Vital Physio Hub</p>
               <p className="text-[10px] text-slate-400 mt-1 leading-relaxed">
                 Dear <strong>{form.name}</strong>, your slot with <strong>{doctor.name}</strong> on <strong>{day.date}</strong> at <strong>{time}</strong> has been submitted. It is pending admin payment verification. Ref: <strong>{bookingRef}</strong>.
               </p>
@@ -1159,7 +1159,7 @@ export default function BookAppointmentPage() {
               </div>
               <div>
                 <h1 className="text-lg font-extrabold text-slate-800 leading-none">Book Appointment</h1>
-                <p className="text-xs text-slate-400 mt-0.5">Premium Clinic · Advanced Healthcare</p>
+                <p className="text-xs text-slate-400 mt-0.5">Vital Physio Hub · Physical Therapy & Rehab</p>
               </div>
             </div>
           </div>
@@ -1403,12 +1403,12 @@ export default function BookAppointmentPage() {
                   {selectedMethod === "Bank Transfer" ? (
                     <div className="space-y-1 text-slate-700 text-xs">
                       <p className="font-extrabold text-slate-900">Bank: <span className="font-normal text-slate-600">Allied Bank Limited (ABL)</span></p>
-                      <p className="font-extrabold text-slate-900">Account Title: <span className="font-normal text-slate-600">Premium Clinic Systems (Pvt) Ltd</span></p>
+                      <p className="font-extrabold text-slate-900">Account Title: <span className="font-normal text-slate-600">Vital Physio Hub (Pvt) Ltd</span></p>
                       <p className="font-extrabold text-slate-900">IBAN / Account #: <span className="font-mono bg-white px-1.5 py-0.5 border border-slate-200 rounded text-pink-600 font-bold select-all">PK12ALBL0012345678901234</span></p>
                     </div>
                   ) : (
                     <div className="space-y-1 text-slate-700 text-xs">
-                      <p className="font-extrabold text-slate-900">Account Title: <span className="font-normal text-slate-600">Premium Clinic</span></p>
+                      <p className="font-extrabold text-slate-900">Account Title: <span className="font-normal text-slate-600">Vital Physio Hub</span></p>
                       <p className="font-extrabold text-slate-900">Mobile Wallet Number: <span className="font-mono bg-white px-1.5 py-0.5 border border-slate-200 rounded text-pink-600 font-bold select-all">0300-8786187</span></p>
                     </div>
                   )}
