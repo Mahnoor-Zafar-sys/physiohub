@@ -422,8 +422,8 @@ export default function About() {
             {/* 3D Glassmorphic Photo Frame */}
             <div className="relative rounded-3xl overflow-hidden border border-slate-200 shadow-2xl aspect-[4/5] bg-slate-100 group">
               <img 
-                src="https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=800&q=80" 
-                alt="Prof. Dr. Faisal Mahmood" 
+                src="/ceo.jpg" 
+                alt="Dr. Ghulam Jellani" 
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent pointer-events-none" />
@@ -431,7 +431,7 @@ export default function About() {
               {/* Overlay Badge */}
               <div className="absolute bottom-6 left-6 right-6 flex justify-between items-end">
                 <div>
-                  <h4 className="text-white text-base font-extrabold tracking-tight">Prof. Dr. Faisal Mahmood</h4>
+                  <h4 className="text-white text-base font-extrabold tracking-tight">Dr. Ghulam Jellani, DPT</h4>
                   <p className="text-blue-300 text-xs font-semibold tracking-wider uppercase mt-1">Founder & CEO</p>
                 </div>
                 <div className="px-3 py-1.5 bg-blue-600/90 backdrop-blur-sm text-white text-[9px] font-black tracking-widest rounded-xl uppercase border border-blue-500/30">
@@ -457,10 +457,10 @@ export default function About() {
                 <div className="w-6 h-px bg-blue-500" />
                 <span className="text-[10px] font-bold text-blue-600 tracking-[0.3em] uppercase">Professional Profile</span>
               </div>
-              <h2 className="text-3xl lg:text-4xl font-black text-slate-955 tracking-tight leading-tight">
-                Prof. Dr. Faisal Mahmood
+              <h2 className="text-3xl lg:text-4xl font-black text-slate-900 tracking-tight leading-tight">
+                Dr. Ghulam Jellani, DPT
               </h2>
-              <p className="text-[#2165f4] text-xs font-black tracking-widest uppercase mt-1">Founder & Chief Executive Officer</p>
+              <p className="text-[#2165f4] text-xs font-black tracking-widest uppercase mt-1">Founder & Chief Executive Officer — VPH</p>
             </div>
 
             {/* CEO Profile Tab Switcher */}
@@ -506,14 +506,14 @@ export default function About() {
                     className="space-y-4"
                   >
                     <h3 className="text-lg lg:text-xl font-bold text-slate-800 tracking-tight leading-snug italic">
-                      "Redefining healthcare through precision, empathy, and verified trust."
+                      "My dream is to create a platform that inspires trust, promotes evidence-based physiotherapy, and positively impacts lives across the world."
                     </h3>
                     <div className="space-y-3 text-slate-600 text-[13.5px] leading-relaxed font-medium">
                       <p>
-                        At Premium Clinic, we built our foundation on a simple promise: delivering world-class, transparent healthcare that prioritizes patient wellness above all else. We understand that seeking medical care is a vulnerable moment. That is why our clinical framework is designed to merge medical precision with deep empathy.
+                        At Vital Physio Hub, our vision is to establish a trusted global healthcare platform that transforms the way people access physiotherapy services, rehabilitation resources, and evidence-based health education. We believe that quality physical rehabilitation should be accessible to everyone, regardless of location or background.
                       </p>
                       <p>
-                        By combining advanced clinical technologies—like automated diagnostic reporting and real-time portal monitoring—with Karachi's leading specialists, we ensure that you are never left with unanswered questions. We do not just treat illnesses; we care for human lives.
+                        Through digital health innovations, outpatient clinic integration, and professional collaboration, we aim to bridge the gap between patients and qualified specialists, empowering individuals to lead active, healthy, and independent lives.
                       </p>
                     </div>
                   </motion.div>
@@ -532,9 +532,9 @@ export default function About() {
                       <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Education & Training</h4>
                       <div className="space-y-2.5">
                         {[
-                          { title: "Fellow of the Royal College of Physicians (FRCP, London)", inst: "Royal College of Physicians, UK" },
-                          { title: "Master of Business Administration (MBA - Health Services Management)", inst: "Institute of Business Administration (IBA), Karachi" },
-                          { title: "Bachelor of Medicine, Bachelor of Surgery (MBBS) with Honors", inst: "King Edward Medical University (KEMU)" }
+                          { title: "Doctor of Physical Therapy (DPT)", inst: "Iqra University, Islamabad" },
+                          { title: "Structured Academic Hospital-based Clinical Rotations", inst: "Academic and Professional Placements" },
+                          { title: "Hands-on Patient Management & Outpatient Rehab", inst: "Clinical Exposure Summary" }
                         ].map((edu, idx) => (
                           <div key={idx} className="flex gap-2.5 items-start">
                             <span className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1.5 shrink-0" />
@@ -550,9 +550,9 @@ export default function About() {
                     <div className="pt-2 border-t border-slate-100">
                       <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Registrations & Affiliations</h4>
                       <div className="flex gap-3 flex-wrap">
-                        <span className="text-[9px] font-black uppercase text-slate-600 bg-slate-100 px-2 py-1 rounded-lg border border-slate-200/40">PMDC Reg #12345-S</span>
-                        <span className="text-[9px] font-black uppercase text-slate-600 bg-slate-100 px-2 py-1 rounded-lg border border-slate-200/40">Fellow, ACP (USA)</span>
-                        <span className="text-[9px] font-black uppercase text-slate-600 bg-slate-100 px-2 py-1 rounded-lg border border-slate-200/40">Member, ISQua Quality Council</span>
+                        <span className="text-[9px] font-black uppercase text-slate-600 bg-slate-100 px-2 py-1 rounded-lg border border-slate-200/40">Founder & CEO — Vital Physio Hub (VPH)</span>
+                        <span className="text-[9px] font-black uppercase text-slate-600 bg-slate-100 px-2 py-1 rounded-lg border border-slate-200/40">Physiotherapy Educator & Content Developer</span>
+                        <span className="text-[9px] font-black uppercase text-slate-600 bg-slate-100 px-2 py-1 rounded-lg border border-slate-200/40">Evidence-Based Practice (EBP) Advocate</span>
                       </div>
                     </div>
                   </motion.div>
@@ -568,9 +568,9 @@ export default function About() {
                     className="relative pl-4 border-l border-blue-100 space-y-4"
                   >
                     {[
-                      { year: "2021 – Present", title: "Chief Executive Officer", desc: "Supervised the integration of local payment methods, HIPAA compliant EMR records, and administrative queue monitors serving 50,000+ patients annually." },
-                      { year: "2016 – 2021", title: "Chief Medical Director & Quality Auditor", desc: "Directed joint commission accreditation audits and aligned all clinical departments to JCI guidelines across DHA & Gulberg branches." },
-                      { year: "2011 – 2016", title: "Founding Clinical Consultant", desc: "Co-founded the practice with a core focus on general medical care and compassionate patient communication protocols." }
+                      { year: "Vital Physio Hub (VPH)", title: "Founder & CEO", desc: "Building a global physiotherapy platform integrating educational resources, clinical guidance, and digital rehabilitation standards." },
+                      { year: "Clinical Experience", title: "Physiotherapist — Thrivex Physio Clinic", desc: "Managed clinical assessments, manual therapy sessions, and designed individual programs for musculoskeletal and chronic pain recovery." },
+                      { year: "Early Career", title: "Clinical Rotations & DPT Foundation", desc: "Obtained clinical training and hospital placement exposure in orthopedic, neurological, and cardiopulmonary rehabilitation science." }
                     ].map((step, idx) => (
                       <div key={idx} className="relative space-y-1">
                         {/* Timeline dot */}
@@ -593,10 +593,10 @@ export default function About() {
                     className="grid sm:grid-cols-2 gap-4"
                   >
                     {[
-                      { title: "Clinical Audit & Quality Assurance", val: "100%", desc: "Accredited JCI protocol director" },
-                      { title: "Internal Medicine Diagnostics", val: "15+ Years", desc: "Senior clinical consultant" },
-                      { title: "Medical Informatics & EMR Systems", val: "Architect", desc: "Designer of clinic digital workflows" },
-                      { title: "Healthcare Operations Leadership", val: "Fellow", desc: "National health advisor" }
+                      { title: "Musculoskeletal Physiotherapy", val: "Expert", desc: "Chronic pain, joint/spine dysfunction" },
+                      { title: "Orthopedic Rehabilitation", val: "Specialist", desc: "Post-surgical ACL/PCL & gait training" },
+                      { title: "Neurological Recovery & facilitation", val: "DPT Focus", desc: "Stroke & motor control recovery" },
+                      { title: "Manual Therapy & Pain Science", val: "Practitioner", desc: "Mobilization & trigger point therapy" }
                     ].map((exp, idx) => (
                       <div key={idx} className="p-3 bg-slate-50 border border-slate-100 rounded-xl flex flex-col gap-1.5 justify-center">
                         <div className="flex justify-between items-center">
@@ -614,11 +614,11 @@ export default function About() {
             {/* Signature & Closing */}
             <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
               <div>
-                <p className="font-extrabold text-slate-900 text-sm">Prof. Dr. Faisal Mahmood</p>
-                <p className="text-[10px] text-slate-400 mt-0.5">MBBS, FRCP (London), MBA (Health Management)</p>
+                <p className="font-extrabold text-slate-900 text-sm">Dr. Ghulam Jellani</p>
+                <p className="text-[10px] text-slate-400 mt-0.5">DPT, Founder & CEO, Vital Physio Hub</p>
               </div>
               <div className="font-serif italic text-2xl text-slate-400 tracking-wider font-semibold opacity-80 rotate-[-4deg] select-none pointer-events-none pr-4">
-                F. Mahmood
+                G. Jellani
               </div>
             </div>
           </motion.div>
