@@ -5,14 +5,17 @@ import { doctors } from "../data/mockData";
 
 export default function Doctors() {
   const navigate = useNavigate();
-  // PDF Scope ke mutabik filter karne ke liye allowed specialties array
   const allowedSpecialties = [
-    "dental care", 
-    "skin & dermatology", 
-    "hair transplant", 
-    "orthopedic surgery", 
-    "ent specialist", 
-    "gynecology & obstetrics"
+    "orthopedic physical therapy",
+    "musculoskeletal physical therapy",
+    "sports physical therapy",
+    "neurological physical therapy",
+    "women’s health & pelvic floor pt",
+    "pediatric physical therapy",
+    "cardiopulmonary physical therapy",
+    "geriatric physical therapy",
+    "oncological physical therapy",
+    "integumentary physical therapy"
   ];
 
   const filteredDoctors = doctors.filter((doc) =>

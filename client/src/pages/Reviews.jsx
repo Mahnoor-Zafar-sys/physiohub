@@ -24,13 +24,13 @@ const REVIEWS = [
     name: "Ayesha Tariq",
     avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=120&q=80",
     rating: 5,
-    service: "Skin & Dermatology",
+    service: "Integumentary Physical Therapy",
     doctor: "Dr. Sarah Ahmed",
     date: "2 days ago",
-    text: "Absolutely phenomenal experience at Premium Clinic! Dr. Sarah Ahmed completely transformed my skin in just 3 sessions. The laser therapy was painless and the results are beyond my expectations. The staff is so warm and professional.",
+    text: "Absolutely phenomenal experience at Vital Physio Hub! Dr. Sarah Ahmed completely transformed my recovery after a severe burn. The scar and integumentary rehabilitation was painless and the results are beyond my expectations. The staff is so warm and professional.",
     helpful: 47,
     verified: true,
-    tag: "dermatology",
+    tag: "integumentary",
     source: "google",
     featured: true,
   },
@@ -39,13 +39,13 @@ const REVIEWS = [
     name: "Bilal Hussain",
     avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80",
     rating: 5,
-    service: "Dental Care",
+    service: "Musculoskeletal Physical Therapy",
     doctor: "Dr. Omar Farooq",
     date: "1 week ago",
-    text: "I was terrified of root canals but Dr. Omar made the entire procedure completely painless. His technique is world-class. Best dental experience of my life. The clinic is hygienic, modern, and welcoming.",
+    text: "I was struggling with chronic jaw dysfunction (TMJ) and neck pain, but Dr. Omar Farooq made the entire musculoskeletal physical therapy program incredibly effective. His manual therapy technique is world-class. Best rehab experience of my life.",
     helpful: 63,
     verified: true,
-    tag: "dental",
+    tag: "musculoskeletal",
     source: "google",
     featured: true,
   },
@@ -54,13 +54,13 @@ const REVIEWS = [
     name: "Sana Mirza",
     avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=120&q=80",
     rating: 5,
-    service: "Gynecology",
+    service: "Women’s Health & Pelvic Floor PT",
     doctor: "Dr. Fatima Malik",
     date: "3 days ago",
-    text: "Dr. Fatima is a blessing for every woman. She handled my high-risk pregnancy with such compassion and expertise. Her London training truly shows in her approach. I trusted her completely throughout my journey.",
+    text: "Dr. Fatima Malik is a blessing for women. She handled my postpartum pelvic floor rehabilitation with such compassion and expertise. Her evidence-based physical therapy approach truly shows. I trusted her completely.",
     helpful: 89,
     verified: true,
-    tag: "gynecology",
+    tag: "womens-health",
     source: "facebook",
     featured: true,
   },
@@ -69,10 +69,10 @@ const REVIEWS = [
     name: "Usman Khalid",
     avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=120&q=80",
     rating: 5,
-    service: "Orthopedic Surgery",
+    service: "Orthopedic Physical Therapy",
     doctor: "Dr. Hassan Raza",
     date: "5 days ago",
-    text: "After 18 months of knee pain, Dr. Hassan's minimally invasive procedure gave me my life back. Within 3 weeks I was walking without pain. His team's post-op care is exceptional. Highly recommended!",
+    text: "After 18 months of post-op knee stiffness, Dr. Hassan Raza's customized physical therapy program gave me my life back. Within 3 weeks I was walking without pain and regained full range of motion. Highly recommended!",
     helpful: 71,
     verified: true,
     tag: "orthopedic",
@@ -84,13 +84,13 @@ const REVIEWS = [
     name: "Nadia Anwar",
     avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=120&q=80",
     rating: 5,
-    service: "Hair Transplant",
-    doctor: "Dr. Imran Sheikh",
+    service: "Sports Physical Therapy",
+    doctor: "Dr. Nadia Hussain",
     date: "1 week ago",
-    text: "The FUE hair transplant results are incredible. Natural hairline, zero scarring. Dr. Imran is an artist. 6 months post-op and I have full confidence back. The clinic's follow-up care is consistent and caring.",
+    text: "The sports physical therapy program at Physiohub for my rotator cuff tear was incredible. No surgery needed! Dr. Nadia Hussain is an absolute expert. 6 weeks post-rehab and I have full mobility back.",
     helpful: 54,
     verified: true,
-    tag: "hair",
+    tag: "sports",
     source: "google",
     featured: false,
   },
@@ -99,13 +99,13 @@ const REVIEWS = [
     name: "Tariq Mehmood",
     avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=120&q=80",
     rating: 5,
-    service: "Cardiology",
-    doctor: "Dr. Zara Ahmed",
+    service: "Cardiopulmonary Physical Therapy",
+    doctor: "Dr. Kamran Ali",
     date: "2 weeks ago",
-    text: "Came in with chest pains and left with complete peace of mind. Dr. Zara's thorough diagnosis caught an issue my previous doctor missed. Premium Clinic lives up to its name in every way. State-of-the-art equipment.",
+    text: "Came in for post-cardiac surgery rehabilitation and left with complete confidence in my recovery. Dr. Kamran Ali's thorough monitoring and customized cardiopulmonary exercise program was outstanding. Physiohub is state-of-the-art.",
     helpful: 92,
     verified: true,
-    tag: "cardiology",
+    tag: "cardiopulmonary",
     source: "google",
     featured: false,
   },
@@ -114,13 +114,13 @@ const REVIEWS = [
     name: "Rabia Shaheen",
     avatar: "https://images.unsplash.com/photo-1489424731084-a5d8b219a5bb?auto=format&fit=crop&w=120&q=80",
     rating: 4,
-    service: "ENT",
-    doctor: "Dr. Kamran Ali",
+    service: "Neurological Physical Therapy",
+    doctor: "Dr. Bilal Siddiqui",
     date: "3 weeks ago",
-    text: "Tonsil surgery done with extreme precision. Recovery was smooth thanks to the detailed care instructions. The booking process was seamless and the WhatsApp reminders are so helpful. Would recommend to everyone.",
+    text: "Neurological rehabilitation for stroke recovery was done with extreme precision. Balance and gait exercises were smooth thanks to the detailed guidance. The booking process was seamless and the reminders were helpful.",
     helpful: 38,
     verified: true,
-    tag: "ent",
+    tag: "neurological",
     source: "facebook",
     featured: false,
   },
@@ -129,13 +129,13 @@ const REVIEWS = [
     name: "Hamza Iqbal",
     avatar: "https://images.unsplash.com/photo-1463453091185-61582044d556?auto=format&fit=crop&w=120&q=80",
     rating: 5,
-    service: "General Medicine",
-    doctor: "Dr. Sadia Noor",
+    service: "Geriatric Physical Therapy",
+    doctor: "Dr. Faisal Mehmood",
     date: "1 month ago",
-    text: "Premium Clinic is hands down the best healthcare facility in Lahore. Everything from reception to the doctor's consultation is polished and professional. Felt genuinely cared for, not just processed.",
+    text: "Physiohub is hands down the best physical therapy facility in Lahore. Everything from the reception to the geriatric physical therapy consultation for my grandfather was polished and professional. Felt genuinely cared for.",
     helpful: 66,
     verified: true,
-    tag: "general",
+    tag: "geriatric",
     source: "google",
     featured: false,
   },
@@ -146,36 +146,36 @@ const VIDEO_TESTIMONIALS = [
     id: 1,
     name: "Maryam Aslam",
     thumbnail: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=600&q=80",
-    service: "Dermatology",
+    service: "Integumentary Rehab",
     duration: "2:34",
-    title: "My skin transformation journey",
+    title: "My burn scar recovery journey",
   },
   {
     id: 2,
     name: "Ahmed Raza",
     thumbnail: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=600&q=80",
-    service: "Dental Implants",
+    service: "Musculoskeletal Rehab",
     duration: "3:12",
-    title: "Finally smiling with confidence",
+    title: "Overcoming chronic TMJ & jaw stiffness",
   },
   {
     id: 3,
     name: "Fatima Khan",
     thumbnail: "https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&w=600&q=80",
-    service: "Gynecology",
+    service: "Women's Health PT",
     duration: "1:58",
-    title: "Safe pregnancy journey at Premium",
+    title: "Postpartum pelvic floor recovery guide",
   },
 ];
 
 const REVIEW_TAGS = [
   { value: "all", label: "All Reviews" },
-  { value: "dermatology", label: "Skin & Laser" },
-  { value: "dental", label: "Dental" },
-  { value: "gynecology", label: "Gynecology" },
-  { value: "orthopedic", label: "Orthopedic" },
-  { value: "hair", label: "Hair Transplant" },
-  { value: "cardiology", label: "Cardiology" },
+  { value: "orthopedic", label: "Orthopedic PT" },
+  { value: "musculoskeletal", label: "Musculoskeletal PT" },
+  { value: "sports", label: "Sports PT" },
+  { value: "neurological", label: "Neurological PT" },
+  { value: "womens-health", label: "Women's Health PT" },
+  { value: "cardiopulmonary", label: "Cardiopulmonary PT" },
 ];
 
 function StarRow({ rating, size = 14 }) {
@@ -286,7 +286,7 @@ export default function Reviews({ onBookAppointment }) {
   const [reviewTag, setReviewTag] = useState("all");
   const [search, setSearch] = useState("");
   const [writeModalOpen, setWriteModalOpen] = useState(false);
-  const [newReviewForm, setNewReviewForm] = useState({ name: "", text: "", rating: 5, service: "Skin & Dermatology", doctor: "Dr. Sarah Ahmed" });
+  const [newReviewForm, setNewReviewForm] = useState({ name: "", text: "", rating: 5, service: "Orthopedic Physical Therapy", doctor: "Dr. Hassan Raza" });
 
   const filteredReviews = allReviews.filter((r) => {
     const matchTag = reviewTag === "all" || r.tag === reviewTag;
@@ -315,7 +315,7 @@ export default function Reviews({ onBookAppointment }) {
           </motion.h1>
 
           <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25, duration: 0.7 }} className="text-slate-500 text-lg max-w-2xl mx-auto mb-8">
-            Read what our verified patients have to say about their treatment journeys at Premium Clinic.
+            Read what our verified patients have to say about their treatment journeys at Vital Physio Hub.
           </motion.p>
 
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="flex flex-wrap items-center justify-center gap-8 sm:gap-14 mb-8">
@@ -446,16 +446,21 @@ export default function Reviews({ onBookAppointment }) {
                     text: newReviewForm.text,
                     helpful: 0,
                     verified: true,
-                    tag: newReviewForm.service.toLowerCase().includes("skin") ? "dermatology" : 
-                         newReviewForm.service.toLowerCase().includes("dent") ? "dental" :
-                         newReviewForm.service.toLowerCase().includes("gyn") ? "gynecology" :
-                         newReviewForm.service.toLowerCase().includes("orth") ? "orthopedic" :
-                         newReviewForm.service.toLowerCase().includes("card") ? "cardiology" : "general",
-                    source: "google"
-                  };
+                    tag: newReviewForm.service.toLowerCase().includes("orth") ? "orthopedic" :
+                          newReviewForm.service.toLowerCase().includes("musc") ? "musculoskeletal" :
+                          newReviewForm.service.toLowerCase().includes("spor") ? "sports" :
+                          newReviewForm.service.toLowerCase().includes("neur") ? "neurological" :
+                          newReviewForm.service.toLowerCase().includes("wome") ? "womens-health" :
+                          newReviewForm.service.toLowerCase().includes("card") ? "cardiopulmonary" :
+                          newReviewForm.service.toLowerCase().includes("pedi") ? "pediatric" :
+                          newReviewForm.service.toLowerCase().includes("geri") ? "geriatric" :
+                          newReviewForm.service.toLowerCase().includes("onco") ? "oncological" :
+                          newReviewForm.service.toLowerCase().includes("inte") ? "integumentary" : "orthopedic",
+                     source: "google"
+                   };
                   setAllReviews([newRev, ...allReviews]);
                   setWriteModalOpen(false);
-                  setNewReviewForm({ name: "", text: "", rating: 5, service: "Skin & Dermatology", doctor: "Dr. Sarah Ahmed" });
+                   setNewReviewForm({ name: "", text: "", rating: 5, service: "Orthopedic Physical Therapy", doctor: "Dr. Hassan Raza" });
                   alert("Thank you! Your verified review has been submitted successfully and added to the list.");
                 }}
                 className="space-y-4"
@@ -493,13 +498,16 @@ export default function Reviews({ onBookAppointment }) {
                       onChange={e => setNewReviewForm({...newReviewForm, service: e.target.value})}
                       className="w-full border border-slate-200 bg-white rounded-xl p-3 text-xs outline-none focus:border-pink-400 transition-colors"
                     >
-                      <option value="Skin & Dermatology">Skin & Dermatology</option>
-                      <option value="Dental Care">Dental Care</option>
-                      <option value="Gynecology">Gynecology</option>
-                      <option value="Orthopedic Surgery">Orthopedic Surgery</option>
-                      <option value="Hair Transplant">Hair Transplant</option>
-                      <option value="Cardiology">Cardiology</option>
-                      <option value="General Medicine">General Medicine</option>
+                      <option value="Orthopedic Physical Therapy">Orthopedic Physical Therapy</option>
+                      <option value="Musculoskeletal Physical Therapy">Musculoskeletal Physical Therapy</option>
+                      <option value="Sports Physical Therapy">Sports Physical Therapy</option>
+                      <option value="Neurological Physical Therapy">Neurological Physical Therapy</option>
+                      <option value="Women’s Health & Pelvic Floor PT">Women’s Health & Pelvic Floor PT</option>
+                      <option value="Cardiopulmonary Physical Therapy">Cardiopulmonary Physical Therapy</option>
+                      <option value="Pediatric Physical Therapy">Pediatric Physical Therapy</option>
+                      <option value="Geriatric Physical Therapy">Geriatric Physical Therapy</option>
+                      <option value="Oncological Physical Therapy">Oncological Physical Therapy</option>
+                      <option value="Integumentary Physical Therapy">Integumentary Physical Therapy</option>
                     </select>
                   </div>
                   <div>

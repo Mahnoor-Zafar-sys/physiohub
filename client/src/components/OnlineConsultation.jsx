@@ -11,7 +11,7 @@ import {
   FiGlobe, FiUser, FiFileText, FiActivity, FiArrowLeft,
 } from "react-icons/fi";
 import { FaWhatsapp, FaStar } from "react-icons/fa";
-import { GiTooth, GiBrain, GiBabyFace } from "react-icons/gi";
+import { GiTooth, GiBrain, GiBabyFace, GiHeartBeats } from "react-icons/gi";
 import { TbStethoscope, TbBone, TbEar } from "react-icons/tb";
 import { MdFace, MdOutlineContentCut } from "react-icons/md";
 import { LuLock, LuUsers } from "react-icons/lu";
@@ -20,15 +20,17 @@ import { LuLock, LuUsers } from "react-icons/lu";
 import { doctors } from "../data/mockData";
 
 const TAGS = [
-  { value: "all", label: "All", icon: TbStethoscope, color: "#0ea5e9" },
-  { value: "skin", label: "Skin", icon: MdFace, color: "#ec4899" },
-  { value: "dental", label: "Dental", icon: GiTooth, color: "#0ea5e9" },
-  { value: "gynecology", label: "Gynecology", icon: GiBabyFace, color: "#a855f7" },
-  { value: "orthopedic", label: "Orthopedic", icon: TbBone, color: "#f59e0b" },
-  { value: "ent", label: "ENT", icon: TbEar, color: "#14b8a6" },
-  { value: "neurology", label: "Neurology", icon: GiBrain, color: "#6366f1" },
-  { value: "hair", label: "Hair", icon: MdOutlineContentCut, color: "#8b5cf6" },
-  { value: "general", label: "General", icon: TbStethoscope, color: "#10b981" },
+  { value: "all", label: "All Specialists", icon: TbStethoscope, color: "#0ea5e9" },
+  { value: "orthopedic", label: "Orthopedic PT", icon: TbBone, color: "#f59e0b" },
+  { value: "musculoskeletal", label: "Musculoskeletal PT", icon: TbStethoscope, color: "#0ea5e9" },
+  { value: "sports", label: "Sports PT", icon: FiActivity, color: "#ef4444" },
+  { value: "neurological", label: "Neurological PT", icon: GiBrain, color: "#6366f1" },
+  { value: "cardiopulmonary", label: "Cardiopulmonary PT", icon: GiHeartBeats, color: "#10b981" },
+  { value: "pediatric", label: "Pediatric PT", icon: GiBabyFace, color: "#ec4899" },
+  { value: "geriatric", label: "Geriatric PT", icon: LuUsers, color: "#8b5cf6" },
+  { value: "womens-health", label: "Women's Health PT", icon: GiBabyFace, color: "#a855f7" },
+  { value: "oncological", label: "Oncological PT", icon: FiActivity, color: "#14b8a6" },
+  { value: "integumentary", label: "Integumentary PT", icon: MdFace, color: "#f43f5e" },
 ];
 
 const CONSULT_TYPES = [
@@ -324,16 +326,16 @@ function DoctorCard({ doc, onBook, onChat }) {
 
 // ─── SYMPTOM CHECKER ──────────────────────────────────────────────────────────
 const SYMPTOM_MAP = {
-  fever: { issue: "Possible Infection / Viral Illness", specialist: "General Medicine", urgency: "medium", doctor: 8 },
-  acne: { issue: "Acne Vulgaris / Skin Condition", specialist: "Skin & Dermatology", urgency: "low", doctor: 1 },
-  "hair fall": { issue: "Alopecia / Hair Loss Disorder", specialist: "Hair Transplant", urgency: "low", doctor: 7 },
-  "tooth pain": { issue: "Dental Caries / Abscess", specialist: "Dental Care", urgency: "high", doctor: 2 },
-  headache: { issue: "Tension Headache / Migraine", specialist: "Neurology", urgency: "medium", doctor: 6 },
-  "joint pain": { issue: "Arthritis / Musculoskeletal Issue", specialist: "Orthopedic Surgery", urgency: "medium", doctor: 4 },
-  "ear pain": { issue: "Otitis / Ear Infection", specialist: "ENT Specialist", urgency: "medium", doctor: 5 },
-  "irregular periods": { issue: "Hormonal Imbalance / PCOS", specialist: "Gynecology & Obstetrics", urgency: "medium", doctor: 3 },
-  diabetes: { issue: "Diabetes Management Required", specialist: "General Medicine", urgency: "high", doctor: 8 },
-  "back pain": { issue: "Musculoskeletal / Disc Issue", specialist: "Orthopedic Surgery", urgency: "medium", doctor: 4 },
+  "back pain": { issue: "Low Back Pain / Lumbar Instability", specialist: "Orthopedic Physical Therapy", urgency: "medium", doctor: 4 },
+  "neck pain": { issue: "Cervical Dysfunction / Neck Stiffness", specialist: "Musculoskeletal Physical Therapy", urgency: "medium", doctor: 2 },
+  "joint pain": { issue: "Arthritis / Joint Dysfunction", specialist: "Orthopedic Physical Therapy", urgency: "medium", doctor: 4 },
+  "sports injury": { issue: "Sprain, Strain, or Ligament Tear", specialist: "Sports Physical Therapy", urgency: "high", doctor: 7 },
+  "stroke rehab": { issue: "Neurological Gait or Balance Deficit", specialist: "Neurological Physical Therapy", urgency: "high", doctor: 6 },
+  "shortness of breath": { issue: "Cardiopulmonary Functional Limitation", specialist: "Cardiopulmonary Physical Therapy", urgency: "high", doctor: 8 },
+  "delayed milestones": { issue: "Pediatric Developmental Delay", specialist: "Pediatric Physical Therapy", urgency: "medium", doctor: 5 },
+  "balance issue": { issue: "Geriatric Instability & Fall Risk", specialist: "Geriatric Physical Therapy", urgency: "medium", doctor: 17 },
+  "pelvic pain": { issue: "Pelvic Floor Muscle Dysfunction", specialist: "Women’s Health & Pelvic Floor PT", urgency: "medium", doctor: 3 },
+  "burn rehab": { issue: "Scar Tissue & Wound Limitation", specialist: "Integumentary Physical Therapy", urgency: "low", doctor: 1 },
 };
 const URGENCY_COLOR = {
   low: { bg: "#dcfce7", text: "#16a34a", label: "Not Urgent" },
@@ -348,7 +350,7 @@ function SymptomChecker({ onBook }) {
 
   function check() {
     const key = Object.keys(SYMPTOM_MAP).find(k => symptom.toLowerCase().includes(k));
-    setResult(key ? SYMPTOM_MAP[key] : { issue: "Symptom not recognized. Please consult a General Physician.", specialist: "General Medicine", urgency: "low", doctor: 8 });
+    setResult(key ? SYMPTOM_MAP[key] : { issue: "Symptom not recognized. Please consult a Physical Therapist for evaluation.", specialist: "Orthopedic Physical Therapy", urgency: "low", doctor: 4 });
     setChecked(true);
   }
   const resultDoc = result ? doctors.find(d => d.id === result.doctor) : null;
@@ -360,11 +362,11 @@ function SymptomChecker({ onBook }) {
         <div><h3 className="font-black text-gray-900">AI Symptom Checker</h3><p className="text-xs text-gray-500">Enter symptoms for doctor recommendation</p></div>
       </div>
       <div className="flex gap-2 mb-4">
-        <input value={symptom} onChange={e => setSymptom(e.target.value)} onKeyDown={e => e.key === "Enter" && check()} placeholder="e.g. fever, acne, tooth pain, headache..." className="flex-1 border border-gray-200 rounded-2xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-400 transition-colors" />
+        <input value={symptom} onChange={e => setSymptom(e.target.value)} onKeyDown={e => e.key === "Enter" && check()} placeholder="e.g. back pain, sports injury, neck stiffness, stroke rehab..." className="flex-1 border border-gray-200 rounded-2xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-400 transition-colors" />
         <button onClick={check} className="px-5 py-2.5 rounded-2xl text-white text-sm font-bold transition-all hover:opacity-90 active:scale-95" style={{ background: "linear-gradient(135deg,#6366f1,#8b5cf6)" }}>Check</button>
       </div>
       <div className="flex flex-wrap gap-1.5 mb-4">
-        {["Fever", "Acne", "Hair Fall", "Tooth Pain", "Headache", "Joint Pain", "Ear Pain", "Back Pain"].map(s => (
+        {["Back Pain", "Neck Pain", "Joint Pain", "Sports Injury", "Stroke Rehab", "Shortness of Breath", "Balance Issue", "Pelvic Pain"].map(s => (
           <button key={s} onClick={() => { setSymptom(s.toLowerCase()); setChecked(false); setResult(null); }} className="text-xs px-3 py-1.5 rounded-full border border-gray-200 text-gray-600 hover:border-indigo-400 hover:text-indigo-600 transition-colors font-medium">{s}</button>
         ))}
       </div>

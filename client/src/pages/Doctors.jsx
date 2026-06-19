@@ -8,6 +8,7 @@ import {
   FiAward, FiClock, FiSearch, FiX, FiChevronDown,
   FiGlobe, FiPhone, FiMail, FiLinkedin, FiFilter,
   FiMapPin, FiCheckCircle, FiHeart, FiTwitter, FiArrowLeft,
+  FiActivity, FiUsers,
 } from "react-icons/fi";
 import {
   FaWhatsapp, FaLinkedinIn, FaFacebook, FaTwitter, FaInstagram,
@@ -22,15 +23,17 @@ import { HiOutlineArrowRight, HiOutlineBadgeCheck } from "react-icons/hi";
 import { doctors } from "../data/mockData";
 
 const TAGS = [
-  { value: "all",         label: "All Doctors",     color: "#0ea5e9", icon: TbStethoscope },
-  { value: "skin",        label: "Skin Care",        color: "#ec4899", icon: MdFace },
-  { value: "dental",      label: "Dental",           color: "#0ea5e9", icon: GiTooth },
-  { value: "gynecology",  label: "Gynecology",       color: "#a855f7", icon: GiBabyFace },
-  { value: "orthopedic",  label: "Orthopedic",       color: "#f59e0b", icon: TbBone },
-  { value: "ent",         label: "ENT",              color: "#14b8a6", icon: TbEar },
-  { value: "neurology",   label: "Neurology",        color: "#6366f1", icon: GiBrain },
-  { value: "hair",        label: "Hair Transplant",  color: "#8b5cf6", icon: MdOutlineContentCut },
-  { value: "general",     label: "General",          color: "#10b981", icon: TbStethoscope },
+  { value: "all",             label: "All Specialists",     color: "#0ea5e9", icon: TbStethoscope },
+  { value: "orthopedic",      label: "Orthopedic",          color: "#f59e0b", icon: TbBone },
+  { value: "musculoskeletal",  label: "Musculoskeletal",     color: "#0ea5e9", icon: TbStethoscope },
+  { value: "sports",          label: "Sports PT",           color: "#ef4444", icon: FiActivity },
+  { value: "neurological",    label: "Neurological",        color: "#6366f1", icon: GiBrain },
+  { value: "cardiopulmonary", label: "Cardiopulmonary",     color: "#10b981", icon: GiHeartBeats },
+  { value: "pediatric",       label: "Pediatric",           color: "#ec4899", icon: GiBabyFace },
+  { value: "geriatric",       label: "Geriatric",           color: "#8b5cf6", icon: FiUsers },
+  { value: "womens-health",   label: "Women's Health",      color: "#a855f7", icon: GiBabyFace },
+  { value: "oncological",     label: "Oncological",         color: "#14b8a6", icon: FiActivity },
+  { value: "integumentary",   label: "Integumentary",       color: "#f43f5e", icon: MdFace },
 ];
 
 const GENDERS  = ["all", "Male", "Female"];
@@ -77,8 +80,8 @@ const floatIcons = [
   { Icon: GiBrain,       style:{ bottom:"22%",left:"7%" },     size:24, delay:0.9  },
   { Icon: TbBone,        style:{ bottom:"28%",right:"5%" },    size:22, delay:1.3  },
   { Icon: MdFace,        style:{ top:"58%",   left:"2.5%" },   size:20, delay:0.7  },
-  { Icon: TbEar,         style:{ top:"12%",   right:"19%" },   size:19, delay:1.1  },
-  { Icon: GiTooth,       style:{ bottom:"12%",right:"22%" },   size:18, delay:1.6  },
+  { Icon: FiActivity,    style:{ top:"12%",   right:"19%" },   size:19, delay:1.1  },
+  { Icon: FiUsers,       style:{ bottom:"12%",right:"22%" },   size:18, delay:1.6  },
   { Icon: GiBabyFace,    style:{ top:"42%",   right:"3%" },    size:21, delay:0.3  },
 ];
 
@@ -88,7 +91,7 @@ function Banner() {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true });
 
-  const line1 = "World-Class Medical Experts";
+  const line1 = "World-Class Physical Therapists";
   const line2 = "At Your Service";
   const { displayed: tw1, done: done1 } = useTypewriter(line1, 50, 600);
   const { displayed: tw2 } = useTypewriter(done1 ? line2 : "", 65, 200);
@@ -126,7 +129,7 @@ function Banner() {
         {/* Typewriter Heading */}
         <div className="text-4xl sm:text-6xl font-extrabold text-slate-900 leading-tight tracking-tight font-serif mb-5 min-h-[5rem] sm:min-h-[7.5rem]">
           <span>{tw1.split(" ").map((word, wi) => {
-            const gradientWords = ["Medical", "Experts"];
+            const gradientWords = ["Physical", "Therapists"];
             const isGrad = gradientWords.includes(word);
             return (
               <span key={wi}>
@@ -146,15 +149,15 @@ function Banner() {
         <motion.p initial={{ opacity:0, y:20 }} animate={inView ? { opacity:1, y:0 } : {}}
           transition={{ duration:0.9, delay:0.25 }}
           className="text-lg text-slate-500 max-w-2xl mx-auto leading-relaxed mb-10">
-          Board-certified specialists with international training — delivering compassionate, cutting-edge care across 8 medical disciplines.
+          Board-certified physical therapists with international training — delivering compassionate, cutting-edge care across 10 specialties.
         </motion.p>
 
         <motion.div initial={{ opacity:0, y:20 }} animate={inView ? { opacity:1, y:0 } : {}}
           transition={{ duration:0.8, delay:0.4 }}
           className="flex flex-wrap justify-center gap-6 sm:gap-10 mb-10">
           {[
-            {num:"30+", label:"Specialists"},
-            {num:"8",   label:"Disciplines"},
+            {num:"24", label:"Specialists"},
+            {num:"10",   label:"Specialties"},
             {num:"50K+",label:"Patients Served"},
             {num:"15+", label:"Years Avg. Exp."},
           ].map((s,i) => (

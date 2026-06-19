@@ -2,15 +2,18 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { FiPhone, FiMail, FiMapPin, FiInstagram, FiTwitter, FiFacebook, FiLinkedin } from "react-icons/fi";
 import { MdLocalHospital } from "react-icons/md";
-
 const links = {
   Services: [
-    { name: "Cardiology", path: "/services" },
-    { name: "Neurology", path: "/services" },
-    { name: "Dermatology", path: "/services" },
-    { name: "Orthopedics", path: "/services" },
-    { name: "Dental Care", path: "/services" },
-    { name: "Emergency", path: "/emergency" }
+    { name: "Orthopedic PT", path: "/services" },
+    { name: "Musculoskeletal PT", path: "/services" },
+    { name: "Sports PT", path: "/services" },
+    { name: "Neurological PT", path: "/services" },
+    { name: "Cardiopulmonary PT", path: "/services" },
+    { name: "Pediatric PT", path: "/services" },
+    { name: "Geriatric PT", path: "/services" },
+    { name: "Women's Health & Pelvic Floor PT", path: "/services" },
+    { name: "Oncological PT", path: "/services" },
+    { name: "Integumentary PT", path: "/services" }
   ],
   Patients: [
     { name: "Book Appointment", path: "/book-appointment" },

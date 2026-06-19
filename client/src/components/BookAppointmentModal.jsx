@@ -30,14 +30,16 @@ const BRANCHES = ["Gulberg", "DHA"];
 
 const SPECIALTIES = [
   { label: "All Specialties", value: "all" },
-  { label: "Skin & Dermatology", value: "skin" },
-  { label: "Dental Care", value: "dental" },
-  { label: "Gynecology", value: "gynecology" },
-  { label: "Orthopedic", value: "orthopedic" },
-  { label: "ENT", value: "ent" },
-  { label: "Neurology", value: "neurology" },
-  { label: "Hair Transplant", value: "hair" },
-  { label: "General Medicine", value: "general" },
+  { label: "Orthopedic Physical Therapy", value: "orthopedic" },
+  { label: "Musculoskeletal Physical Therapy", value: "musculoskeletal" },
+  { label: "Sports Physical Therapy", value: "sports" },
+  { label: "Neurological Physical Therapy", value: "neurological" },
+  { label: "Cardiopulmonary Physical Therapy", value: "cardiopulmonary" },
+  { label: "Pediatric Physical Therapy", value: "pediatric" },
+  { label: "Geriatric Physical Therapy", value: "geriatric" },
+  { label: "Women’s Health & Pelvic Floor PT", value: "womens-health" },
+  { label: "Oncological Physical Therapy", value: "oncological" },
+  { label: "Integumentary Physical Therapy", value: "integumentary" },
 ];
 
 // Generate next 7 days

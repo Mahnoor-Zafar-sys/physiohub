@@ -32,15 +32,17 @@ const CONSULTATION_TYPES = [
 const BRANCHES = ["Gulberg", "DHA"];
 
 const SPECIALTIES = [
-  { label: "All", value: "all" },
-  { label: "Skin", value: "skin" },
-  { label: "Dental", value: "dental" },
-  { label: "Gynecology", value: "gynecology" },
-  { label: "Orthopedic", value: "orthopedic" },
-  { label: "ENT", value: "ent" },
-  { label: "Neurology", value: "neurology" },
-  { label: "Hair Transplant", value: "hair" },
-  { label: "General", value: "general" },
+  { label: "All Specialties", value: "all" },
+  { label: "Orthopedic Physical Therapy", value: "orthopedic" },
+  { label: "Musculoskeletal Physical Therapy", value: "musculoskeletal" },
+  { label: "Sports Physical Therapy", value: "sports" },
+  { label: "Neurological Physical Therapy", value: "neurological" },
+  { label: "Cardiopulmonary Physical Therapy", value: "cardiopulmonary" },
+  { label: "Pediatric Physical Therapy", value: "pediatric" },
+  { label: "Geriatric Physical Therapy", value: "geriatric" },
+  { label: "Women’s Health & Pelvic Floor PT", value: "womens-health" },
+  { label: "Oncological Physical Therapy", value: "oncological" },
+  { label: "Integumentary Physical Therapy", value: "integumentary" },
 ];
 
 const UNAVAILABLE_SLOTS = ["09:30 AM", "11:00 AM", "02:30 PM", "05:00 PM", "06:30 PM"];
