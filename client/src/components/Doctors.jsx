@@ -130,32 +130,37 @@ export default function Doctors() {
                       {doc.specialty}
                     </p>
                   </div>
-                  <div className="flex items-center gap-1 bg-amber-50 px-2.5 py-1 rounded-xl">
-                    <FiStar className="text-amber-400 text-xs fill-current" />
-                    <span className="text-amber-600 text-xs font-bold font-body">{doc.rating}</span>
+                  {doc.realStats && (
+                    <div className="flex items-center gap-1 bg-amber-50 px-2.5 py-1 rounded-xl">
+                      <FiStar className="text-amber-400 text-xs fill-current" />
+                      <span className="text-amber-600 text-xs font-bold font-body">{doc.rating}</span>
+                    </div>
+                  )}
+                </div>
+
+                {doc.realStats && (
+                  <div className="flex items-center justify-between mt-3">
+                    <span className="text-slate-400 text-xs font-body">
+                      {doc.experience} Experience
+                    </span>
+                    <span className="text-slate-400 text-xs font-body">
+                      {doc.reviews} reviews
+                    </span>
                   </div>
-                </div>
+                )}
 
-                <div className="flex items-center justify-between mt-3">
-                  <span className="text-slate-400 text-xs font-body">
-                    {doc.experience} Experience
-                  </span>
-                  <span className="text-slate-400 text-xs font-body">
-                    {doc.reviews} reviews
-                  </span>
-                </div>
-
-                {/* Progress Metric Rating Vector */}
-                <div className="mt-4 h-1 bg-slate-100 rounded-full overflow-hidden">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    whileInView={{ width: `${(doc.rating / 5) * 100}%` }}
-                    viewport={{ once: false }}
-                    transition={{ duration: 1.2, delay: i * 0.08, ease: "easeOut" }}
-                    className="h-full rounded-full"
-                    style={{ background: "linear-gradient(90deg, #1e3a8a, #3b82f6)" }}
-                  />
-                </div>
+                {doc.realStats && (
+                  <div className="mt-4 h-1 bg-slate-100 rounded-full overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      whileInView={{ width: `${(doc.rating / 5) * 100}%` }}
+                      viewport={{ once: false }}
+                      transition={{ duration: 1.2, delay: i * 0.08, ease: "easeOut" }}
+                      className="h-full rounded-full"
+                      style={{ background: "linear-gradient(90deg, #1e3a8a, #3b82f6)" }}
+                    />
+                  </div>
+                )}
               </div>
             </motion.div>
           ))}

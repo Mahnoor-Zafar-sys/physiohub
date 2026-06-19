@@ -398,17 +398,19 @@ function DoctorModal({ doctor: d, onClose }) {
                 <p className={`text-sm font-semibold ${d.accentText} mb-3`}>{d.title}</p>
 
                 <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-slate-500 mb-4">
-                  <span className="flex items-center gap-1.5"><FiAward size={13} style={{color:d.solidColor}} /> {d.experience} Experience</span>
-                  <span className="flex items-center gap-1.5"><FiHeart size={13} style={{color:d.solidColor}} /> {d.patients} Patients</span>
+                  {d.realStats && <span className="flex items-center gap-1.5"><FiAward size={13} style={{color:d.solidColor}} /> {d.experience} Experience</span>}
+                  {d.realStats && <span className="flex items-center gap-1.5"><FiHeart size={13} style={{color:d.solidColor}} /> {d.patients} Patients</span>}
                   <span className="flex items-center gap-1.5"><FiMapPin size={13} style={{color:d.solidColor}} /> {d.branch.join(", ")}</span>
                   <span className="flex items-center gap-1.5"><FiGlobe size={13} style={{color:d.solidColor}} /> {d.languages.join(", ")}</span>
                 </div>
 
-                <div className="flex items-center gap-2 mb-4">
-                  <StarRating rating={d.rating} color={d.solidColor} />
-                  <span className="font-bold text-slate-800 text-sm">{d.rating}</span>
-                  <span className="text-slate-400 text-xs">({d.reviews} reviews)</span>
-                </div>
+                {d.realStats && (
+                  <div className="flex items-center gap-2 mb-4">
+                    <StarRating rating={d.rating} color={d.solidColor} />
+                    <span className="font-bold text-slate-800 text-sm">{d.rating}</span>
+                    <span className="text-slate-400 text-xs">({d.reviews} reviews)</span>
+                  </div>
+                )}
 
                 {/* Social Links */}
                 {d.social && (
@@ -576,62 +578,64 @@ function DoctorModal({ doctor: d, onClose }) {
             </div>
 
             {/* Ratings & Reviews summary */}
-            <div className="rounded-2xl p-5" style={{ background:`${d.solidColor}06`, border:`1px solid ${d.solidColor}20` }}>
-              <h4 className="text-slate-900 font-extrabold text-base mb-3 flex items-center gap-2">
-                <span className="w-1 h-4 rounded-full inline-block" style={{ background:d.solidColor }} />
-                Ratings & Reviews
-              </h4>
-              <div className="flex items-center gap-4">
-                <div className="text-center">
-                  <p className="text-4xl font-extrabold" style={{color:d.solidColor}}>{d.rating}</p>
-                  <StarRating rating={d.rating} color={d.solidColor} />
-                  <p className="text-slate-400 text-xs mt-1">{d.reviews} reviews</p>
-                </div>
-                <div className="flex-1 space-y-1.5">
-                  {[5,4,3,2,1].map(star => {
-                    const pct = star === 5 ? 72 : star === 4 ? 18 : star === 3 ? 6 : star === 2 ? 2 : 2;
-                    return (
-                      <div key={star} className="flex items-center gap-2">
-                        <span className="text-xs text-slate-400 w-3">{star}</span>
-                        <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                          <motion.div className="h-full rounded-full" style={{ background:d.solidColor, width:`${pct}%` }}
-                            initial={{ width:0 }} animate={{ width:`${pct}%` }} transition={{ delay:0.3, duration:0.8 }} />
-                        </div>
-                        <span className="text-[10px] text-slate-400 w-6">{pct}%</span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-              
-              {/* Doctor Reviews Feed list */}
-              <div className="mt-6 border-t border-slate-100 pt-5 space-y-4 text-left">
-                <h5 className="font-extrabold text-[10px] uppercase tracking-widest text-slate-400 mb-3">Patient Feedbacks</h5>
-                <div className="space-y-3">
-                  {[
-                    { name: "Ayesha Tariq", rating: 5, date: "3 days ago", comment: `Excellent consultation! Dr. ${d.name.split(" ").slice(-1)[0]} was extremely detailed, patient, and recommended a very effective treatment plan. Highly recommended.` },
-                    { name: "Bilal Hussain", rating: 5, date: "1 week ago", comment: "Outstanding professionalism and bedside manner. The doctor explained everything clearly and made me feel completely comfortable. Very satisfied with the outcome." },
-                    { name: "Sana Mirza", rating: 4, date: "2 weeks ago", comment: "Very clinical and thorough in investigation. The clinic hygiene standard was also outstanding." }
-                  ].map((rev, idx) => (
-                    <div key={idx} className="bg-slate-50/70 border border-slate-100 rounded-xl p-3.5 space-y-1.5">
-                      <div className="flex justify-between items-center">
-                        <div>
-                          <p className="text-xs font-bold text-slate-800">{rev.name}</p>
-                          <div className="flex items-center gap-1.5 mt-0.5">
-                            <StarRating rating={rev.rating} color={d.solidColor} />
-                            <span className="text-[9px] text-slate-400 font-semibold">{rev.date}</span>
+            {d.realStats && (
+              <div className="rounded-2xl p-5" style={{ background:`${d.solidColor}06`, border:`1px solid ${d.solidColor}20` }}>
+                <h4 className="text-slate-900 font-extrabold text-base mb-3 flex items-center gap-2">
+                  <span className="w-1 h-4 rounded-full inline-block" style={{ background:d.solidColor }} />
+                  Ratings & Reviews
+                </h4>
+                <div className="flex items-center gap-4">
+                  <div className="text-center">
+                    <p className="text-4xl font-extrabold" style={{color:d.solidColor}}>{d.rating}</p>
+                    <StarRating rating={d.rating} color={d.solidColor} />
+                    <p className="text-slate-400 text-xs mt-1">{d.reviews} reviews</p>
+                  </div>
+                  <div className="flex-1 space-y-1.5">
+                    {[5,4,3,2,1].map(star => {
+                      const pct = star === 5 ? 72 : star === 4 ? 18 : star === 3 ? 6 : star === 2 ? 2 : 2;
+                      return (
+                        <div key={star} className="flex items-center gap-2">
+                          <span className="text-xs text-slate-400 w-3">{star}</span>
+                          <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                            <motion.div className="h-full rounded-full" style={{ background:d.solidColor, width:`${pct}%` }}
+                              initial={{ width:0 }} animate={{ width:`${pct}%` }} transition={{ delay:0.3, duration:0.8 }} />
                           </div>
+                          <span className="text-[10px] text-slate-400 w-6">{pct}%</span>
                         </div>
-                        <span className="text-[9px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full flex items-center gap-1">
-                          <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full inline-block" /> Verified Patient
-                        </span>
+                      );
+                    })}
+                  </div>
+                </div>
+                
+                {/* Doctor Reviews Feed list */}
+                <div className="mt-6 border-t border-slate-100 pt-5 space-y-4 text-left">
+                  <h5 className="font-extrabold text-[10px] uppercase tracking-widest text-slate-400 mb-3">Patient Feedbacks</h5>
+                  <div className="space-y-3">
+                    {[
+                      { name: "Ayesha Tariq", rating: 5, date: "3 days ago", comment: `Excellent consultation! Dr. ${d.name.split(" ").slice(-1)[0]} was extremely detailed, patient, and recommended a very effective treatment plan. Highly recommended.` },
+                      { name: "Bilal Hussain", rating: 5, date: "1 week ago", comment: "Outstanding professionalism and bedside manner. The doctor explained everything clearly and made me feel completely comfortable. Very satisfied with the outcome." },
+                      { name: "Sana Mirza", rating: 4, date: "2 weeks ago", comment: "Very clinical and thorough in investigation. The clinic hygiene standard was also outstanding." }
+                    ].map((rev, idx) => (
+                      <div key={idx} className="bg-slate-50/70 border border-slate-100 rounded-xl p-3.5 space-y-1.5">
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <p className="text-xs font-bold text-slate-800">{rev.name}</p>
+                            <div className="flex items-center gap-1.5 mt-0.5">
+                              <StarRating rating={rev.rating} color={d.solidColor} />
+                              <span className="text-[9px] text-slate-400 font-semibold">{rev.date}</span>
+                            </div>
+                          </div>
+                          <span className="text-[9px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full inline-block" /> Verified Patient
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-600 leading-relaxed font-medium">{rev.comment}</p>
                       </div>
-                      <p className="text-xs text-slate-600 leading-relaxed font-medium">{rev.comment}</p>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
         </motion.div>
       </motion.div>
@@ -713,25 +717,37 @@ function DoctorCard({ doctor: d, onOpen, index }) {
           <p className={`text-xs font-semibold ${d.accentText} mt-0.5`}>{d.title}</p>
         </div>
 
-        <div className="flex items-center gap-2 mb-3">
-          <StarRating rating={d.rating} color={d.solidColor} />
-          <span className="font-bold text-slate-800 text-sm">{d.rating}</span>
-          <span className="text-slate-400 text-xs">({d.reviews})</span>
-        </div>
+        {d.realStats && (
+          <div className="flex items-center gap-2 mb-3">
+            <StarRating rating={d.rating} color={d.solidColor} />
+            <span className="font-bold text-slate-800 text-sm">{d.rating}</span>
+            <span className="text-slate-400 text-xs">({d.reviews})</span>
+          </div>
+        )}
 
-        <div className="grid grid-cols-3 gap-2 mb-4">
-          {[
-            { icon:<FiAward size={12}/>, val:d.experience, label:"Exp." },
-            { icon:<FiHeart size={12}/>, val:d.patients,   label:"Patients" },
-            { icon:<span className="text-xs font-bold">₨</span>, val:d.fee.replace("PKR ",""), label:"Fee" },
-          ].map(s => (
-            <div key={s.label} className="text-center rounded-xl py-2"
-              style={{ background:`${d.solidColor}08`, border:`1px solid ${d.solidColor}15` }}>
-              <div className="flex justify-center mb-0.5" style={{color:d.solidColor}}>{s.icon}</div>
-              <p className="text-slate-800 font-bold text-xs leading-tight">{s.val}</p>
-              <p className="text-slate-400 text-[9px] uppercase tracking-wider">{s.label}</p>
-            </div>
-          ))}
+        <div className={`grid ${d.realStats ? "grid-cols-3" : "grid-cols-1"} gap-2 mb-4`}>
+          {d.realStats && (
+            <>
+              <div className="text-center rounded-xl py-2"
+                style={{ background:`${d.solidColor}08`, border:`1px solid ${d.solidColor}15` }}>
+                <div className="flex justify-center mb-0.5" style={{color:d.solidColor}}><FiAward size={12}/></div>
+                <p className="text-slate-800 font-bold text-xs leading-tight">{d.experience}</p>
+                <p className="text-slate-400 text-[9px] uppercase tracking-wider">Exp.</p>
+              </div>
+              <div className="text-center rounded-xl py-2"
+                style={{ background:`${d.solidColor}08`, border:`1px solid ${d.solidColor}15` }}>
+                <div className="flex justify-center mb-0.5" style={{color:d.solidColor}}><FiHeart size={12}/></div>
+                <p className="text-slate-800 font-bold text-xs leading-tight">{d.patients}</p>
+                <p className="text-slate-400 text-[9px] uppercase tracking-wider">Patients</p>
+              </div>
+            </>
+          )}
+          <div className="text-center rounded-xl py-2"
+            style={{ background:`${d.solidColor}08`, border:`1px solid ${d.solidColor}15` }}>
+            <div className="flex justify-center mb-0.5" style={{color:d.solidColor}}><span className="text-xs font-bold">₨</span></div>
+            <p className="text-slate-800 font-bold text-xs leading-tight">{d.fee.replace("PKR ","")}</p>
+            <p className="text-slate-400 text-[9px] uppercase tracking-wider">Fee</p>
+          </div>
         </div>
 
         <div className="flex items-center gap-2 mb-4 p-2.5 rounded-xl"

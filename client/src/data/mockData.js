@@ -98,7 +98,7 @@ export const doctors = [
     specialty: "Physiotherapy",
     tag: "physiotherapy",
     tags: ["physiotherapy", "hijama", "cupping", "needling", "kinesio"],
-    image: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=400&q=80",
+    image: "https://images.unsplash.com/photo-1537368910025-700350fe46c7?auto=format&fit=crop&w=400&q=80",
     experience: "15 Years",
     patients: "9,800+",
     rating: 5.0,
