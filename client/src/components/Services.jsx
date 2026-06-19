@@ -331,7 +331,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { LuActivity, LuBone, LuBaby } from "react-icons/lu";
+import { LuActivity, LuBone, LuBaby, LuSparkles } from "react-icons/lu";
 import { GiBrain, GiHeartBeats } from "react-icons/gi";
 
 const servicesData = [
