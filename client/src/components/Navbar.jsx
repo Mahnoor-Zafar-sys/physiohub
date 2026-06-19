@@ -55,6 +55,13 @@ export default function Navbar({ onBookAppointment }) {
   return (
     <>
       <style>{`
+        .nav-glass-top {
+          background: rgba(255, 255, 255, 0.45) !important;
+          backdrop-filter: blur(10px) !important;
+          -webkit-backdrop-filter: blur(10px) !important;
+          border: 1.2px solid rgba(255, 255, 255, 0.4) !important;
+          box-shadow: 0 4px 20px -6px rgba(0, 0, 0, 0.01) !important;
+        }
         .nav-glass {
           background: linear-gradient(135deg,
             rgba(255,255,255,0.45) 0%,
@@ -112,7 +119,7 @@ export default function Navbar({ onBookAppointment }) {
           initial={{ y: -80, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-          className={`relative rounded-2xl transition-all duration-500 ${scrolled ? "nav-glass" : "bg-transparent"}`}
+          className={`relative rounded-2xl transition-all duration-500 ${scrolled ? "nav-glass" : "nav-glass-top"}`}
         >
           {scrolled && (
             <div className="absolute inset-0 rounded-2xl opacity-30 pointer-events-none"
