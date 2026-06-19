@@ -8,7 +8,7 @@ import {
   FiAward, FiClock, FiSearch, FiX, FiChevronDown,
   FiGlobe, FiPhone, FiMail, FiLinkedin, FiFilter,
   FiMapPin, FiCheckCircle, FiHeart, FiTwitter, FiArrowLeft,
-  FiActivity, FiUsers,
+  FiActivity, FiUsers, FiZap,
 } from "react-icons/fi";
 import {
   FaWhatsapp, FaLinkedinIn, FaFacebook, FaTwitter, FaInstagram,
@@ -24,16 +24,14 @@ import { doctors } from "../data/mockData";
 
 const TAGS = [
   { value: "all",             label: "All Specialists",     color: "#0ea5e9", icon: TbStethoscope },
-  { value: "orthopedic",      label: "Orthopedic",          color: "#f59e0b", icon: TbBone },
-  { value: "musculoskeletal",  label: "Musculoskeletal",     color: "#0ea5e9", icon: TbStethoscope },
-  { value: "sports",          label: "Sports PT",           color: "#ef4444", icon: FiActivity },
-  { value: "neurological",    label: "Neurological",        color: "#6366f1", icon: GiBrain },
-  { value: "cardiopulmonary", label: "Cardiopulmonary",     color: "#10b981", icon: GiHeartBeats },
-  { value: "pediatric",       label: "Pediatric",           color: "#ec4899", icon: GiBabyFace },
-  { value: "geriatric",       label: "Geriatric",           color: "#8b5cf6", icon: FiUsers },
-  { value: "womens-health",   label: "Women's Health",      color: "#a855f7", icon: GiBabyFace },
-  { value: "oncological",     label: "Oncological",         color: "#14b8a6", icon: FiActivity },
-  { value: "integumentary",   label: "Integumentary",       color: "#f43f5e", icon: MdFace },
+  { value: "physiotherapy",  label: "Physiotherapy",       color: "#0ea5e9", icon: FiActivity },
+  { value: "chiropractic",   label: "Chiropractic Adjustments",color: "#8b5cf6", icon: TbBone },
+  { value: "cupping",        label: "Cupping Therapy",     color: "#0d9488", icon: GiHeartBeats },
+  { value: "hijama",         label: "Hijama Therapy",      color: "#4f46e5", icon: GiHeartBeats },
+  { value: "electrotherapy", label: "Electrotherapy",      color: "#dc2626", icon: FiZap },
+  { value: "kinesio",        label: "Kinesio Taping",      color: "#ec4899", icon: FiActivity },
+  { value: "fitness",        label: "Fitness Training",    color: "#d97706", icon: FiActivity },
+  { value: "needling",       label: "Dry Needling",        color: "#10b981", icon: TbStethoscope },
 ];
 
 const GENDERS  = ["all", "Male", "Female"];
@@ -149,17 +147,17 @@ function Banner() {
         <motion.p initial={{ opacity:0, y:20 }} animate={inView ? { opacity:1, y:0 } : {}}
           transition={{ duration:0.9, delay:0.25 }}
           className="text-lg text-slate-500 max-w-2xl mx-auto leading-relaxed mb-10">
-          Board-certified physical therapists with international training — delivering compassionate, cutting-edge care across 10 specialties.
+          Board-certified physical therapists with international training — delivering compassionate, cutting-edge care across 8 clinic facilities.
         </motion.p>
 
         <motion.div initial={{ opacity:0, y:20 }} animate={inView ? { opacity:1, y:0 } : {}}
           transition={{ duration:0.8, delay:0.4 }}
           className="flex flex-wrap justify-center gap-6 sm:gap-10 mb-10">
           {[
-            {num:"24", label:"Specialists"},
-            {num:"10",   label:"Specialties"},
-            {num:"50K+",label:"Patients Served"},
-            {num:"15+", label:"Years Avg. Exp."},
+            {num:"3", label:"Therapists"},
+            {num:"8",   label:"Facilities"},
+            {num:"20K+",label:"Patients Served"},
+            {num:"12+", label:"Years Avg. Exp."},
           ].map((s,i) => (
             <motion.div key={s.label} initial={{ opacity:0, y:20 }} animate={inView ? { opacity:1, y:0 } : {}}
               transition={{ delay:0.4+i*0.08 }} className="text-center">
@@ -180,7 +178,7 @@ function Banner() {
             style={{ background:"linear-gradient(135deg,#0ea5e9,#db2777)" }}>
             <FiCalendar size={15} /> Book Appointment
           </button>
-          <a href="tel:+923001234567"
+          <a href="tel:+923008786187"
             className="px-8 py-3.5 rounded-xl font-bold text-sm text-slate-700 bg-white border border-slate-200 hover:border-slate-300 hover:shadow-md transition-all flex items-center gap-2">
             <FiPhone size={15} /> Call Us Now
           </a>
@@ -453,7 +451,7 @@ function DoctorModal({ doctor: d, onClose }) {
                 <FiCalendar size={14} /> Book Appointment
               </motion.button>
               <motion.a whileHover={{ scale:1.04 }} whileTap={{ scale:0.97 }}
-                href={`https://wa.me/923001234567?text=${whatsappMsg}`} target="_blank" rel="noopener noreferrer"
+                href={`https://wa.me/923008786187?text=${whatsappMsg}`} target="_blank" rel="noopener noreferrer"
                 className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-white text-sm bg-[#25D366] shadow-lg">
                 <FaWhatsapp size={14} /> WhatsApp
               </motion.a>
@@ -791,7 +789,7 @@ export default function DoctorsPage() {
   const [selected,   setSelected]   = useState(null);
 
   const filtered = doctors.filter(d => {
-    const matchTag    = activeTag === "all" || d.tag === activeTag;
+    const matchTag    = activeTag === "all" || d.tag === activeTag || (d.tags && d.tags.includes(activeTag));
     const matchGender = gender === "all"    || d.gender === gender;
     const matchBranch = branch === "all"    || d.branch.includes(branch);
     const matchAvail  = avail === "all"     || d.available;
@@ -804,8 +802,8 @@ export default function DoctorsPage() {
     return matchTag && matchGender && matchBranch && matchAvail && matchSearch;
   });
 
-  const whatsappNumber = "+923001234567";
-  const welcomeMessage = encodeURIComponent("Hello Premium Clinic, I want to inquire about your healthcare services.");
+  const whatsappNumber = "923008786187";
+  const welcomeMessage = encodeURIComponent("Hello Vital Physio Hub, I want to inquire about your healthcare services.");
 
   return (
     <div className="min-h-screen bg-slate-50 font-body">

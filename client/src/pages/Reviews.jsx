@@ -24,13 +24,13 @@ const REVIEWS = [
     name: "Ayesha Tariq",
     avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=120&q=80",
     rating: 5,
-    service: "Integumentary Physical Therapy",
-    doctor: "Dr. Sarah Ahmed",
+    service: "Women’s Health & Pelvic Floor PT",
+    doctor: "Dr. Humna Zohra",
     date: "2 days ago",
-    text: "Absolutely phenomenal experience at Vital Physio Hub! Dr. Sarah Ahmed completely transformed my recovery after a severe burn. The scar and integumentary rehabilitation was painless and the results are beyond my expectations. The staff is so warm and professional.",
+    text: "Absolutely phenomenal experience at Vital Physio Hub! Dr. Humna Zohra completely transformed my recovery. Her postpartum pelvic floor rehabilitation was conducted with extreme professionalism and care.",
     helpful: 47,
     verified: true,
-    tag: "integumentary",
+    tag: "womens-health",
     source: "google",
     featured: true,
   },
@@ -39,13 +39,13 @@ const REVIEWS = [
     name: "Bilal Hussain",
     avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80",
     rating: 5,
-    service: "Musculoskeletal Physical Therapy",
-    doctor: "Dr. Omar Farooq",
+    service: "Chiropractic Adjustments",
+    doctor: "Dr. Haseeb Ur Rehman",
     date: "1 week ago",
-    text: "I was struggling with chronic jaw dysfunction (TMJ) and neck pain, but Dr. Omar Farooq made the entire musculoskeletal physical therapy program incredibly effective. His manual therapy technique is world-class. Best rehab experience of my life.",
+    text: "I was struggling with chronic lumbar instability and radiating back pain. Dr. Haseeb Ur Rehman's chiropractic adjustments and spinal manipulation techniques provided instant decompression and long-term relief.",
     helpful: 63,
     verified: true,
-    tag: "musculoskeletal",
+    tag: "chiropractic",
     source: "google",
     featured: true,
   },
@@ -54,13 +54,13 @@ const REVIEWS = [
     name: "Sana Mirza",
     avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=120&q=80",
     rating: 5,
-    service: "Women’s Health & Pelvic Floor PT",
-    doctor: "Dr. Fatima Malik",
+    service: "Hijama Therapy",
+    doctor: "Dr. Ghulam Jellani",
     date: "3 days ago",
-    text: "Dr. Fatima Malik is a blessing for women. She handled my postpartum pelvic floor rehabilitation with such compassion and expertise. Her evidence-based physical therapy approach truly shows. I trusted her completely.",
+    text: "Dr. Ghulam Jellani is an absolute expert in clinical wet cupping (Hijama). The environment is incredibly sterile and professional. Felt completely detoxified and energised after the treatment.",
     helpful: 89,
     verified: true,
-    tag: "womens-health",
+    tag: "hijama",
     source: "facebook",
     featured: true,
   },
@@ -69,13 +69,13 @@ const REVIEWS = [
     name: "Usman Khalid",
     avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=120&q=80",
     rating: 5,
-    service: "Orthopedic Physical Therapy",
-    doctor: "Dr. Hassan Raza",
+    service: "Physiotherapy",
+    doctor: "Dr. Humna Zohra",
     date: "5 days ago",
-    text: "After 18 months of post-op knee stiffness, Dr. Hassan Raza's customized physical therapy program gave me my life back. Within 3 weeks I was walking without pain and regained full range of motion. Highly recommended!",
+    text: "Dr. Humna's manual physical therapy was exactly what I needed for my frozen shoulder. Within a few sessions of joint mobilization and targeted exercises, I regained my full range of motion. Highly recommended!",
     helpful: 71,
     verified: true,
-    tag: "orthopedic",
+    tag: "physiotherapy",
     source: "google",
     featured: false,
   },
@@ -84,13 +84,13 @@ const REVIEWS = [
     name: "Nadia Anwar",
     avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=120&q=80",
     rating: 5,
-    service: "Sports Physical Therapy",
-    doctor: "Dr. Nadia Hussain",
+    service: "Dry Needling",
+    doctor: "Dr. Ghulam Jellani",
     date: "1 week ago",
-    text: "The sports physical therapy program at Physiohub for my rotator cuff tear was incredible. No surgery needed! Dr. Nadia Hussain is an absolute expert. 6 weeks post-rehab and I have full mobility back.",
+    text: "The dry needling session by Dr. Ghulam Jellani for my chronic shoulder knots was amazing. Precision trigger point deactivation that worked like magic. No pain, pure relief!",
     helpful: 54,
     verified: true,
-    tag: "sports",
+    tag: "needling",
     source: "google",
     featured: false,
   },
@@ -99,13 +99,13 @@ const REVIEWS = [
     name: "Tariq Mehmood",
     avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=120&q=80",
     rating: 5,
-    service: "Cardiopulmonary Physical Therapy",
-    doctor: "Dr. Kamran Ali",
+    service: "Fitness Training",
+    doctor: "Dr. Haseeb Ur Rehman",
     date: "2 weeks ago",
-    text: "Came in for post-cardiac surgery rehabilitation and left with complete confidence in my recovery. Dr. Kamran Ali's thorough monitoring and customized cardiopulmonary exercise program was outstanding. Physiohub is state-of-the-art.",
+    text: "Excellent physical conditioning program led by Dr. Haseeb. As a sports coach, he perfectly customized a medical strength training plan to help me recover my core stability safely. Outstanding facility!",
     helpful: 92,
     verified: true,
-    tag: "cardiopulmonary",
+    tag: "fitness",
     source: "google",
     featured: false,
   },
@@ -114,13 +114,13 @@ const REVIEWS = [
     name: "Rabia Shaheen",
     avatar: "https://images.unsplash.com/photo-1489424731084-a5d8b219a5bb?auto=format&fit=crop&w=120&q=80",
     rating: 4,
-    service: "Neurological Physical Therapy",
-    doctor: "Dr. Bilal Siddiqui",
+    service: "Electrotherapy",
+    doctor: "Dr. Ghulam Jellani",
     date: "3 weeks ago",
-    text: "Neurological rehabilitation for stroke recovery was done with extreme precision. Balance and gait exercises were smooth thanks to the detailed guidance. The booking process was seamless and the reminders were helpful.",
+    text: "Electrotherapy and TENS stimulation sessions helped block my acute inflammatory pain immediately. Extremely modern equipment and helpful staff at Vital Physio Hub.",
     helpful: 38,
     verified: true,
-    tag: "neurological",
+    tag: "electrotherapy",
     source: "facebook",
     featured: false,
   },
@@ -129,13 +129,13 @@ const REVIEWS = [
     name: "Hamza Iqbal",
     avatar: "https://images.unsplash.com/photo-1463453091185-61582044d556?auto=format&fit=crop&w=120&q=80",
     rating: 5,
-    service: "Geriatric Physical Therapy",
-    doctor: "Dr. Faisal Mehmood",
+    service: "Kinesio Taping",
+    doctor: "Dr. Ghulam Jellani",
     date: "1 month ago",
-    text: "Physiohub is hands down the best physical therapy facility in Lahore. Everything from the reception to the geriatric physical therapy consultation for my grandfather was polished and professional. Felt genuinely cared for.",
+    text: "Dr. Ghulam Jellani used functional Kinesio taping to support my ligament strain. It provided great support and joint stability, allowing me to move easily. Vital Physio Hub is definitely the best physical therapy clinic.",
     helpful: 66,
     verified: true,
-    tag: "geriatric",
+    tag: "kinesio",
     source: "google",
     featured: false,
   },
@@ -146,36 +146,38 @@ const VIDEO_TESTIMONIALS = [
     id: 1,
     name: "Maryam Aslam",
     thumbnail: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=600&q=80",
-    service: "Integumentary Rehab",
+    service: "Pelvic Floor PT",
     duration: "2:34",
-    title: "My burn scar recovery journey",
+    title: "My postpartum pelvic recovery journey with Dr. Humna",
   },
   {
     id: 2,
     name: "Ahmed Raza",
     thumbnail: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=600&q=80",
-    service: "Musculoskeletal Rehab",
+    service: "Chiropractic Care",
     duration: "3:12",
-    title: "Overcoming chronic TMJ & jaw stiffness",
+    title: "Overcoming severe sciatica with Dr. Haseeb",
   },
   {
     id: 3,
     name: "Fatima Khan",
     thumbnail: "https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&w=600&q=80",
-    service: "Women's Health PT",
+    service: "Hijama Therapy",
     duration: "1:58",
-    title: "Postpartum pelvic floor recovery guide",
+    title: "Hijama detoxification & muscle pain relief with Dr. Jellani",
   },
 ];
 
 const REVIEW_TAGS = [
   { value: "all", label: "All Reviews" },
-  { value: "orthopedic", label: "Orthopedic PT" },
-  { value: "musculoskeletal", label: "Musculoskeletal PT" },
-  { value: "sports", label: "Sports PT" },
-  { value: "neurological", label: "Neurological PT" },
-  { value: "womens-health", label: "Women's Health PT" },
-  { value: "cardiopulmonary", label: "Cardiopulmonary PT" },
+  { value: "physiotherapy", label: "Physiotherapy" },
+  { value: "chiropractic", label: "Chiropractic Adjustments" },
+  { value: "cupping", label: "Cupping Therapy" },
+  { value: "hijama", label: "Hijama Therapy" },
+  { value: "electrotherapy", label: "Electrotherapy" },
+  { value: "kinesio", label: "Kinesio Taping" },
+  { value: "fitness", label: "Fitness Training" },
+  { value: "needling", label: "Dry Needling" },
 ];
 
 function StarRow({ rating, size = 14 }) {
@@ -286,7 +288,7 @@ export default function Reviews({ onBookAppointment }) {
   const [reviewTag, setReviewTag] = useState("all");
   const [search, setSearch] = useState("");
   const [writeModalOpen, setWriteModalOpen] = useState(false);
-  const [newReviewForm, setNewReviewForm] = useState({ name: "", text: "", rating: 5, service: "Orthopedic Physical Therapy", doctor: "Dr. Hassan Raza" });
+  const [newReviewForm, setNewReviewForm] = useState({ name: "", text: "", rating: 5, service: "Physiotherapy", doctor: "Dr. Ghulam Jellani" });
 
   const filteredReviews = allReviews.filter((r) => {
     const matchTag = reviewTag === "all" || r.tag === reviewTag;
@@ -295,7 +297,7 @@ export default function Reviews({ onBookAppointment }) {
     return matchTag && matchSearch;
   });
 
-  const whatsappNumber = "+923001234567";
+  const whatsappNumber = "923008786187";
 
   return (
     <div className="min-h-screen font-sans" style={{ background: THEME.grad }}>
@@ -446,21 +448,19 @@ export default function Reviews({ onBookAppointment }) {
                     text: newReviewForm.text,
                     helpful: 0,
                     verified: true,
-                    tag: newReviewForm.service.toLowerCase().includes("orth") ? "orthopedic" :
-                          newReviewForm.service.toLowerCase().includes("musc") ? "musculoskeletal" :
-                          newReviewForm.service.toLowerCase().includes("spor") ? "sports" :
-                          newReviewForm.service.toLowerCase().includes("neur") ? "neurological" :
-                          newReviewForm.service.toLowerCase().includes("wome") ? "womens-health" :
-                          newReviewForm.service.toLowerCase().includes("card") ? "cardiopulmonary" :
-                          newReviewForm.service.toLowerCase().includes("pedi") ? "pediatric" :
-                          newReviewForm.service.toLowerCase().includes("geri") ? "geriatric" :
-                          newReviewForm.service.toLowerCase().includes("onco") ? "oncological" :
-                          newReviewForm.service.toLowerCase().includes("inte") ? "integumentary" : "orthopedic",
+                    tag: newReviewForm.service.toLowerCase().includes("physio") ? "physiotherapy" :
+                         newReviewForm.service.toLowerCase().includes("chiro") ? "chiropractic" :
+                         newReviewForm.service.toLowerCase().includes("cup") ? "cupping" :
+                         newReviewForm.service.toLowerCase().includes("hij") ? "hijama" :
+                         newReviewForm.service.toLowerCase().includes("elect") ? "electrotherapy" :
+                         newReviewForm.service.toLowerCase().includes("kine") ? "kinesio" :
+                         newReviewForm.service.toLowerCase().includes("fit") ? "fitness" :
+                         newReviewForm.service.toLowerCase().includes("need") ? "needling" : "physiotherapy",
                      source: "google"
                    };
                   setAllReviews([newRev, ...allReviews]);
                   setWriteModalOpen(false);
-                   setNewReviewForm({ name: "", text: "", rating: 5, service: "Orthopedic Physical Therapy", doctor: "Dr. Hassan Raza" });
+                   setNewReviewForm({ name: "", text: "", rating: 5, service: "Physiotherapy", doctor: "Dr. Ghulam Jellani" });
                   alert("Thank you! Your verified review has been submitted successfully and added to the list.");
                 }}
                 className="space-y-4"
@@ -498,16 +498,14 @@ export default function Reviews({ onBookAppointment }) {
                       onChange={e => setNewReviewForm({...newReviewForm, service: e.target.value})}
                       className="w-full border border-slate-200 bg-white rounded-xl p-3 text-xs outline-none focus:border-pink-400 transition-colors"
                     >
-                      <option value="Orthopedic Physical Therapy">Orthopedic Physical Therapy</option>
-                      <option value="Musculoskeletal Physical Therapy">Musculoskeletal Physical Therapy</option>
-                      <option value="Sports Physical Therapy">Sports Physical Therapy</option>
-                      <option value="Neurological Physical Therapy">Neurological Physical Therapy</option>
-                      <option value="Women’s Health & Pelvic Floor PT">Women’s Health & Pelvic Floor PT</option>
-                      <option value="Cardiopulmonary Physical Therapy">Cardiopulmonary Physical Therapy</option>
-                      <option value="Pediatric Physical Therapy">Pediatric Physical Therapy</option>
-                      <option value="Geriatric Physical Therapy">Geriatric Physical Therapy</option>
-                      <option value="Oncological Physical Therapy">Oncological Physical Therapy</option>
-                      <option value="Integumentary Physical Therapy">Integumentary Physical Therapy</option>
+                      <option value="Physiotherapy">Physiotherapy</option>
+                      <option value="Chiropractic Adjustments">Chiropractic Adjustments</option>
+                      <option value="Cupping Therapy">Cupping Therapy</option>
+                      <option value="Hijama Therapy">Hijama Therapy</option>
+                      <option value="Electrotherapy">Electrotherapy</option>
+                      <option value="Kinesio Taping">Kinesio Taping</option>
+                      <option value="Fitness Training">Fitness Training</option>
+                      <option value="Dry Needling">Dry Needling</option>
                     </select>
                   </div>
                   <div>

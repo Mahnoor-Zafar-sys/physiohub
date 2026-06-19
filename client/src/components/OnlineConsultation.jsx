@@ -8,7 +8,7 @@ import {
   FiVideo, FiPhone, FiMessageCircle, FiSearch, FiX,
   FiCalendar, FiCheck, FiUpload, FiSend,
   FiPaperclip, FiDownload, FiShield,
-  FiGlobe, FiUser, FiFileText, FiActivity, FiArrowLeft,
+  FiGlobe, FiUser, FiFileText, FiActivity, FiArrowLeft, FiZap
 } from "react-icons/fi";
 import { FaWhatsapp, FaStar } from "react-icons/fa";
 import { GiTooth, GiBrain, GiBabyFace, GiHeartBeats } from "react-icons/gi";
@@ -21,16 +21,14 @@ import { doctors } from "../data/mockData";
 
 const TAGS = [
   { value: "all", label: "All Specialists", icon: TbStethoscope, color: "#0ea5e9" },
-  { value: "orthopedic", label: "Orthopedic PT", icon: TbBone, color: "#f59e0b" },
-  { value: "musculoskeletal", label: "Musculoskeletal PT", icon: TbStethoscope, color: "#0ea5e9" },
-  { value: "sports", label: "Sports PT", icon: FiActivity, color: "#ef4444" },
-  { value: "neurological", label: "Neurological PT", icon: GiBrain, color: "#6366f1" },
-  { value: "cardiopulmonary", label: "Cardiopulmonary PT", icon: GiHeartBeats, color: "#10b981" },
-  { value: "pediatric", label: "Pediatric PT", icon: GiBabyFace, color: "#ec4899" },
-  { value: "geriatric", label: "Geriatric PT", icon: LuUsers, color: "#8b5cf6" },
-  { value: "womens-health", label: "Women's Health PT", icon: GiBabyFace, color: "#a855f7" },
-  { value: "oncological", label: "Oncological PT", icon: FiActivity, color: "#14b8a6" },
-  { value: "integumentary", label: "Integumentary PT", icon: MdFace, color: "#f43f5e" },
+  { value: "physiotherapy", label: "Physiotherapy", icon: FiActivity, color: "#0ea5e9" },
+  { value: "chiropractic", label: "Chiropractic Adjustments", icon: TbBone, color: "#8b5cf6" },
+  { value: "cupping", label: "Cupping Therapy", icon: GiHeartBeats, color: "#0d9488" },
+  { value: "hijama", label: "Hijama Therapy", icon: GiHeartBeats, color: "#4f46e5" },
+  { value: "electrotherapy", label: "Electrotherapy", icon: FiZap, color: "#dc2626" },
+  { value: "kinesio", label: "Kinesio Taping", icon: FiActivity, color: "#ec4899" },
+  { value: "fitness", label: "Fitness Training", icon: FiActivity, color: "#d97706" },
+  { value: "needling", label: "Dry Needling", icon: TbStethoscope, color: "#10b981" },
 ];
 
 const CONSULT_TYPES = [
@@ -326,16 +324,18 @@ function DoctorCard({ doc, onBook, onChat }) {
 
 // ─── SYMPTOM CHECKER ──────────────────────────────────────────────────────────
 const SYMPTOM_MAP = {
-  "back pain": { issue: "Low Back Pain / Lumbar Instability", specialist: "Orthopedic Physical Therapy", urgency: "medium", doctor: 4 },
-  "neck pain": { issue: "Cervical Dysfunction / Neck Stiffness", specialist: "Musculoskeletal Physical Therapy", urgency: "medium", doctor: 2 },
-  "joint pain": { issue: "Arthritis / Joint Dysfunction", specialist: "Orthopedic Physical Therapy", urgency: "medium", doctor: 4 },
-  "sports injury": { issue: "Sprain, Strain, or Ligament Tear", specialist: "Sports Physical Therapy", urgency: "high", doctor: 7 },
-  "stroke rehab": { issue: "Neurological Gait or Balance Deficit", specialist: "Neurological Physical Therapy", urgency: "high", doctor: 6 },
-  "shortness of breath": { issue: "Cardiopulmonary Functional Limitation", specialist: "Cardiopulmonary Physical Therapy", urgency: "high", doctor: 8 },
-  "delayed milestones": { issue: "Pediatric Developmental Delay", specialist: "Pediatric Physical Therapy", urgency: "medium", doctor: 5 },
-  "balance issue": { issue: "Geriatric Instability & Fall Risk", specialist: "Geriatric Physical Therapy", urgency: "medium", doctor: 17 },
-  "pelvic pain": { issue: "Pelvic Floor Muscle Dysfunction", specialist: "Women’s Health & Pelvic Floor PT", urgency: "medium", doctor: 3 },
-  "burn rehab": { issue: "Scar Tissue & Wound Limitation", specialist: "Integumentary Physical Therapy", urgency: "low", doctor: 1 },
+  "back pain": { issue: "Low Back Pain / Lumbar Instability", specialist: "Chiropractic Adjustments", urgency: "medium", doctor: 1 },
+  "neck pain": { issue: "Cervical Dysfunction / Neck Stiffness", specialist: "Chiropractic Adjustments", urgency: "medium", doctor: 1 },
+  "joint pain": { issue: "Arthritis / Joint Stiffness", specialist: "Physiotherapy", urgency: "medium", doctor: 2 },
+  "sports injury": { issue: "Sprain, Strain, or Ligament Injury", specialist: "Physiotherapy / Fitness", urgency: "high", doctor: 1 },
+  "pelvic pain": { issue: "Pelvic Floor Muscle Dysfunction", specialist: "Women's Health PT", urgency: "medium", doctor: 2 },
+  "pregnancy backache": { issue: "Pregnancy-related back pain", specialist: "Women's Health PT", urgency: "medium", doctor: 2 },
+  "muscle knot": { issue: "Myofascial Trigger Points", specialist: "Dry Needling", urgency: "medium", doctor: 3 },
+  "hijama detox": { issue: "Systemic Inflammatory Load", specialist: "Hijama Therapy", urgency: "medium", doctor: 3 },
+  "muscle spasm": { issue: "Myofascial Spasms & Pain", specialist: "Cupping Therapy", urgency: "medium", doctor: 3 },
+  "fitness training": { issue: "Physical Deconditioning / Strength", specialist: "Fitness Training", urgency: "low", doctor: 1 },
+  "post-op rehab": { issue: "Post-Surgical Joint Stiffness", specialist: "Physiotherapy", urgency: "medium", doctor: 2 },
+  "nerve pain": { issue: "Sciatica or Pinched Nerve", specialist: "Chiropractic Adjustments", urgency: "high", doctor: 1 },
 };
 const URGENCY_COLOR = {
   low: { bg: "#dcfce7", text: "#16a34a", label: "Not Urgent" },
@@ -350,7 +350,7 @@ function SymptomChecker({ onBook }) {
 
   function check() {
     const key = Object.keys(SYMPTOM_MAP).find(k => symptom.toLowerCase().includes(k));
-    setResult(key ? SYMPTOM_MAP[key] : { issue: "Symptom not recognized. Please consult a Physical Therapist for evaluation.", specialist: "Orthopedic Physical Therapy", urgency: "low", doctor: 4 });
+    setResult(key ? SYMPTOM_MAP[key] : { issue: "Symptom not recognized. Please consult a specialist for a detailed evaluation.", specialist: "Physiotherapy", urgency: "low", doctor: 3 });
     setChecked(true);
   }
   const resultDoc = result ? doctors.find(d => d.id === result.doctor) : null;
@@ -488,7 +488,7 @@ export default function OnlineConsultation() {
   const [chatDoc, setChatDoc] = useState(null);
 
   const filtered = doctors.filter(d => {
-    const matchTag = activeTag === "all" || d.tag === activeTag;
+    const matchTag = activeTag === "all" || d.tag === activeTag || (d.tags && d.tags.includes(activeTag));
     const matchSearch = !search || d.name.toLowerCase().includes(search.toLowerCase()) || d.specialty.toLowerCase().includes(search.toLowerCase());
     const matchAvail = !availOnly || d.available;
     return matchTag && matchSearch && matchAvail;
@@ -646,7 +646,7 @@ export default function OnlineConsultation() {
       </AnimatePresence>
 
       {/* ── WhatsApp Float ── */}
-      <a href="https://wa.me/923001234567" target="_blank" rel="noopener noreferrer"
+      <a href="https://wa.me/923008786187" target="_blank" rel="noopener noreferrer"
         className="fixed bottom-6 right-6 z-40 w-14 h-14 rounded-full flex items-center justify-center shadow-xl transition-transform hover:scale-110 active:scale-95"
         style={{ background: "#25d366" }}>
         <FaWhatsapp size={26} color="white" />

@@ -188,7 +188,7 @@ export default function Hero() {
               <motion.a
                 variants={fadeUpVariant}
                 className="hbtn hbtn-whatsapp"
-                href="https://wa.me/923001234567?text=Hello%20Premium%20Clinic%2C%20I%20want%20to%20inquire%20about%20your%20healthcare%20services."
+                href="https://wa.me/923008786187?text=Hello%20Vital%20Physio%20Hub%2C%20I%20want%20to%20inquire%20about%20your%20healthcare%20services."
                 target="_blank" rel="noopener noreferrer"
               >
                 <FaWhatsapp size="1.1rem" /> WhatsApp Chat
@@ -197,7 +197,7 @@ export default function Hero() {
               <motion.a
                 variants={fadeUpVariant}
                 className="hbtn hbtn-emergency"
-                href="tel:+923001234567"
+                href="tel:+923417388830"
               >
                 <FiPhoneCall /> Call Now / Emergency
               </motion.a>

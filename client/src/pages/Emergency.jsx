@@ -15,7 +15,7 @@ const triageGuidelines = [
     title: "Chest Pain & Cardiac Distress",
     severity: "CRITICAL (Immediate Action)",
     steps: [
-      "Call our hotline immediately: +92 (51) 111-911-273.",
+      "Call our hotline immediately: +92 300 8786187.",
       "Have the patient sit down and remain completely calm.",
       "Loosen any tight clothing around their neck or chest.",
       "If the patient is conscious and has prescribed nitroglycerin, administer it.",
@@ -133,11 +133,11 @@ export default function Emergency() {
 
             <div className="flex flex-wrap justify-center gap-4">
               <a
-                href="tel:+9251111911273"
+                href="tel:+923008786187"
                 className="inline-flex items-center gap-2 px-8 py-4 bg-red-600 text-white font-bold rounded-2xl shadow-xl shadow-red-200 hover:bg-red-700 transition-colors border-none text-base"
                 style={{ textDecoration: "none" }}
               >
-                <FiPhoneCall className="animate-pulse" /> Call +92 (51) 111-911-273
+                <FiPhoneCall className="animate-pulse" /> Call +92 300 8786187
               </a>
             </div>
           </motion.div>
@@ -178,7 +178,7 @@ export default function Emergency() {
                     type="tel" 
                     value={phone} 
                     onChange={e => setPhone(e.target.value)}
-                    placeholder="e.g. +92 300 1234567"
+                    placeholder="e.g. +92 300 8786187"
                     required
                     className="w-full border border-slate-200 rounded-xl p-3 text-sm focus:outline-none focus:border-red-400 transition-colors bg-white"
                   />
@@ -238,12 +238,12 @@ export default function Emergency() {
                 <div className="text-xs text-slate-600 space-y-1">
                   <p><strong>Pickup Location:</strong> {location}</p>
                   <p><strong>Triage Priority:</strong> {urgency} Emergency</p>
-                  <p><strong>Driver Contact:</strong> +92 (300) 911-2733</p>
+                  <p><strong>Driver Contact:</strong> +92 341 7388830</p>
                 </div>
               </div>
 
               <div className="flex justify-center gap-4">
-                <a href="tel:+9251111911273" className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-xl flex items-center gap-1.5" style={{ textDecoration: "none" }}>
+                <a href="tel:+923008786187" className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-xl flex items-center gap-1.5" style={{ textDecoration: "none" }}>
                   <FiPhoneCall /> Call Dispatcher
                 </a>
                 <button onClick={() => setBookingConfirmed(false)} className="px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl cursor-pointer border-none">

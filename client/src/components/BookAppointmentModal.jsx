@@ -30,16 +30,14 @@ const BRANCHES = ["Gulberg", "DHA"];
 
 const SPECIALTIES = [
   { label: "All Specialties", value: "all" },
-  { label: "Orthopedic Physical Therapy", value: "orthopedic" },
-  { label: "Musculoskeletal Physical Therapy", value: "musculoskeletal" },
-  { label: "Sports Physical Therapy", value: "sports" },
-  { label: "Neurological Physical Therapy", value: "neurological" },
-  { label: "Cardiopulmonary Physical Therapy", value: "cardiopulmonary" },
-  { label: "Pediatric Physical Therapy", value: "pediatric" },
-  { label: "Geriatric Physical Therapy", value: "geriatric" },
-  { label: "Women’s Health & Pelvic Floor PT", value: "womens-health" },
-  { label: "Oncological Physical Therapy", value: "oncological" },
-  { label: "Integumentary Physical Therapy", value: "integumentary" },
+  { label: "Physiotherapy", value: "physiotherapy" },
+  { label: "Chiropractic Adjustments", value: "chiropractic" },
+  { label: "Cupping Therapy", value: "cupping" },
+  { label: "Hijama Therapy", value: "hijama" },
+  { label: "Electrotherapy", value: "electrotherapy" },
+  { label: "Kinesio Taping", value: "kinesio" },
+  { label: "Fitness Training", value: "fitness" },
+  { label: "Dry Needling", value: "needling" },
 ];
 
 // Generate next 7 days
@@ -183,7 +181,7 @@ export default function BookAppointmentModal({ isOpen, onClose, preselectedDocto
 
   const filteredDoctors = DOCTORS.filter(d => {
     const q = searchQ.toLowerCase();
-    const matchSpec = specFilter === "all" || d.tag === specFilter;
+    const matchSpec = specFilter === "all" || d.tag === specFilter || (d.tags && d.tags.includes(specFilter));
     const matchQ = !q || d.name.toLowerCase().includes(q) || d.specialty.toLowerCase().includes(q);
     return matchSpec && matchQ;
   });
@@ -763,7 +761,7 @@ function SuccessView({ doctor, day, time, consultType, branch, form, onClose }) 
         {/* Actions */}
         <div className="flex gap-3 w-full">
           <motion.a whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
-            href={`https://wa.me/923001234567?text=${encodeURIComponent(`Hello! I just booked an appointment.\nRef: ${bookingRef}\nDoctor: ${doctor.name}\nDate: ${day.label}, ${day.date}\nTime: ${time}\nName: ${form.name}\nPhone: ${form.phone}`)}`}
+            href={`https://wa.me/923008786187?text=${encodeURIComponent(`Hello! I just booked an appointment.\nRef: ${bookingRef}\nDoctor: ${doctor.name}\nDate: ${day.label}, ${day.date}\nTime: ${time}\nName: ${form.name}\nPhone: ${form.phone}`)}`}
             target="_blank" rel="noopener noreferrer"
             className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-[#25D366] text-white text-sm font-bold shadow-md">
             <FaWhatsapp size={16} /> WhatsApp Confirm

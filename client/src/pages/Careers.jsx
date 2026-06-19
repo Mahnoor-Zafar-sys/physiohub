@@ -216,7 +216,7 @@ function JobCard({ job, index, onApply }) {
 
 export default function Careers({ onBookAppointment }) {
   const [appliedJob, setAppliedJob] = useState(null);
-  const whatsappNumber = "+923001234567";
+  const whatsappNumber = "923008786187";
 
   return (
     <div className="min-h-screen font-sans" style={{ background: THEME.grad }}>
@@ -248,7 +248,7 @@ export default function Careers({ onBookAppointment }) {
               <p className="text-slate-500 text-sm mb-6">Send your CV and cover letter to our HR team. We review applications within 3–5 working days.</p>
               <div className="space-y-3">
                 <a
-                  href={`mailto:hr@premiumclinic.com?subject=Application for ${appliedJob.title}`}
+                  href={`mailto:hr@vitalphysiohub.com?subject=Application for ${appliedJob.title}`}
                   className="flex items-center justify-center gap-3 w-full px-5 py-3.5 rounded-2xl font-bold text-sm text-white shadow-lg"
                   style={{ background: THEME.gradBtn, textDecoration: "none" }}
                 >
@@ -266,7 +266,7 @@ export default function Careers({ onBookAppointment }) {
                   Apply via WhatsApp
                 </a>
               </div>
-              <p className="text-xs text-slate-400 mt-4 text-center">hr@premiumclinic.com · +92-300-1234567</p>
+              <p className="text-xs text-slate-400 mt-4 text-center">hr@vitalphysiohub.com · +92 300 8786187</p>
             </motion.div>
           </motion.div>
         )}

@@ -1864,7 +1864,7 @@ function ContactBanner() {
           transition={{ duration: 0.6 }}
           className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/80 border border-sky-200/70 text-sky-600 text-xs font-bold uppercase tracking-widest mb-6 shadow-sm backdrop-blur-sm">
           <FaHeartbeat className="animate-pulse text-pink-500" />
-          Premium Clinic · Contact Us
+          Vital Physio Hub · Contact Us
         </motion.div>
 
         <motion.h1 initial={{ opacity: 0, y: 30 }} animate={inView ? { opacity: 1, y: 0 } : {}}
@@ -1909,8 +1909,8 @@ function ContactBanner() {
           transition={{ duration: 0.7, delay: 0.55 }}
           className="flex flex-wrap justify-center gap-3">
           {[
-            { icon: <FaPhone />, label: "Call Now",   href: "tel:+923001234567",  cls: "bg-white border-sky-200   text-sky-600   hover:bg-sky-50   hover:border-sky-400" },
-            { icon: <FaWhatsapp />, label: "WhatsApp", href: "https://wa.me/923001234567?text=" + encodeURIComponent("Hello Premium Clinic, I want to inquire about your healthcare services."), cls: "bg-white border-green-200  text-green-600  hover:bg-green-50  hover:border-green-400" },
+            { icon: <FaPhone />, label: "Call Now",   href: "tel:+923417388830",  cls: "bg-white border-sky-200   text-sky-600   hover:bg-sky-50   hover:border-sky-400" },
+            { icon: <FaWhatsapp />, label: "WhatsApp", href: "https://wa.me/923008786187?text=" + encodeURIComponent("Hello Vital Physio Hub, I want to inquire about your healthcare services."), cls: "bg-white border-green-200  text-green-600  hover:bg-green-50  hover:border-green-400" },
             { icon: <FaAmbulance />, label: "Emergency", href: "tel:1122",          cls: "bg-white border-red-200    text-red-500    hover:bg-red-50    hover:border-red-400" },
           ].map((btn) => (
             <a key={btn.label} href={btn.href}
@@ -1929,8 +1929,8 @@ function ContactBanner() {
 // ── Main ContactUs Page ───────────────────────────────────────────────────────
 export default function ContactUs() {
   const navigate = useNavigate();
-  const whatsappNumber = "+923001234567";
-  const welcomeMessage = encodeURIComponent("Hello Premium Clinic, I want to inquire about your healthcare services.");
+  const whatsappNumber = "923008786187";
+  const welcomeMessage = encodeURIComponent("Hello Vital Physio Hub, I want to inquire about your healthcare services.");
 
   const [formData, setFormData] = useState({ name: "", phone: "", email: "", subject: "", department: "", message: "" });
   const [submitted, setSubmitted] = useState(false);
@@ -1970,8 +1970,8 @@ export default function ContactUs() {
           <motion.div variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-60px" }}
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {[
-              { icon: <FaPhone size={20} />, title: "Phone", lines: ["+92 300 123 4567", "+92 42 111 2222"], color: "sky" },
-              { icon: <FaEnvelope size={20} />, title: "Email", lines: ["info@premiumclinic.pk", "appointments@premiumclinic.pk"], color: "pink" },
+              { icon: <FaPhone size={20} />, title: "Phone", lines: ["+92 300 8786187", "+92 341 7388830"], color: "sky" },
+              { icon: <FaEnvelope size={20} />, title: "Email", lines: ["info@vitalphysiohub.com", "appointments@vitalphysiohub.com"], color: "pink" },
               { icon: <FaClock size={20} />, title: "Opening Hours", lines: ["Mon–Sat: 9AM – 9PM", "Sun: 10AM – 4PM"], color: "amber" },
               { icon: <MdEmergency size={20} />, title: "Emergency", lines: ["1122 – Rescue", "24/7 Available"], color: "red", urgent: true },
             ].map((card, i) => {
@@ -2123,7 +2123,7 @@ export default function ContactUs() {
                   <div>
                     <p className="text-slate-800 font-bold text-base">Chat on WhatsApp</p>
                     <p className="text-green-500 text-xs mt-0.5 font-semibold">Instant replies · 24/7</p>
-                    <p className="text-slate-400 text-xs mt-1">+92 300 123 4567</p>
+                    <p className="text-slate-400 text-xs mt-1">+92 300 8786187</p>
                   </div>
                   <div className="absolute inset-0 bg-green-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl" />
                 </motion.a>
@@ -2142,8 +2142,8 @@ export default function ContactUs() {
                   <p className="text-slate-400 text-xs mb-3">For life-threatening emergencies, call immediately:</p>
                   <a href="tel:1122" className="block text-3xl font-black text-red-500 hover:text-red-600 transition-colors tracking-wider">1122</a>
                   <p className="text-slate-400 text-xs mt-1">Rescue / Ambulance — Free 24/7</p>
-                  <a href="tel:+923001234567" className="mt-3 block text-sm text-red-400 hover:text-red-500 transition-colors font-semibold">
-                    Clinic Emergency: +92 300 123 4567
+                  <a href="tel:+923008786187" className="mt-3 block text-sm text-red-400 hover:text-red-500 transition-colors font-semibold">
+                    Clinic Helpline: +92 300 8786187
                   </a>
                   <div className="absolute bottom-0 left-0 right-0 h-0.5" style={{ background: "linear-gradient(90deg,#ef4444,#fb7185)" }} />
                 </div>
@@ -2184,21 +2184,21 @@ export default function ContactUs() {
                         icon: <FaFacebook size={18} />,
                         label: "Facebook",
                         // ← Replace with your real Facebook page URL
-                        href: "https://www.facebook.com/PremiumClinic",
+                        href: "https://www.facebook.com/vitalphysiohub",
                         cls: "bg-blue-50 border-blue-200 text-blue-600 hover:bg-blue-100 hover:border-blue-400",
                       },
                       {
                         icon: <FaInstagram size={18} />,
                         label: "Instagram",
                         // ← Replace with your real Instagram profile URL
-                        href: "https://www.instagram.com/PremiumClinic",
+                        href: "https://www.instagram.com/vitalphysiohub",
                         cls: "bg-pink-50 border-pink-200 text-pink-500 hover:bg-pink-100 hover:border-pink-400",
                       },
                       {
                         icon: <FaYoutube size={18} />,
                         label: "YouTube",
                         // ← Replace with your real YouTube channel URL
-                        href: "https://www.youtube.com/@PremiumClinic",
+                        href: "https://www.youtube.com/@vitalphysiohub",
                         cls: "bg-red-50 border-red-200 text-red-500 hover:bg-red-100 hover:border-red-400",
                       },
                       {
@@ -2224,13 +2224,13 @@ export default function ContactUs() {
                   {/* Social handle labels */}
                   <div className="mt-4 pt-4 border-t border-slate-50 space-y-2">
                     <p className="text-slate-400 text-xs font-medium flex items-center gap-2">
-                      <FaFacebook className="text-blue-500" /> facebook.com/<span className="text-slate-600 font-semibold">PremiumClinic</span>
+                      <FaFacebook className="text-blue-500" /> facebook.com/<span className="text-slate-600 font-semibold">vitalphysiohub</span>
                     </p>
                     <p className="text-slate-400 text-xs font-medium flex items-center gap-2">
-                      <FaInstagram className="text-pink-500" /> @<span className="text-slate-600 font-semibold">PremiumClinic</span>
+                      <FaInstagram className="text-pink-500" /> @<span className="text-slate-600 font-semibold">vitalphysiohub</span>
                     </p>
                     <p className="text-slate-400 text-xs font-medium flex items-center gap-2">
-                      <FaYoutube className="text-red-500" /> youtube.com/<span className="text-slate-600 font-semibold">@PremiumClinic</span>
+                      <FaYoutube className="text-red-500" /> youtube.com/<span className="text-slate-600 font-semibold">@vitalphysiohub</span>
                     </p>
                   </div>
                 </div>

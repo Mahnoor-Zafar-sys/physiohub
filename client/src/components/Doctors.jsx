@@ -6,16 +6,8 @@ import { doctors } from "../data/mockData";
 export default function Doctors() {
   const navigate = useNavigate();
   const allowedSpecialties = [
-    "orthopedic physical therapy",
-    "musculoskeletal physical therapy",
-    "sports physical therapy",
-    "neurological physical therapy",
-    "women’s health & pelvic floor pt",
-    "pediatric physical therapy",
-    "cardiopulmonary physical therapy",
-    "geriatric physical therapy",
-    "oncological physical therapy",
-    "integumentary physical therapy"
+    "chiropractic adjustments",
+    "physiotherapy"
   ];
 
   const filteredDoctors = doctors.filter((doc) =>

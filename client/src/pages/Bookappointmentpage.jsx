@@ -32,17 +32,15 @@ const CONSULTATION_TYPES = [
 const BRANCHES = ["Gulberg", "DHA"];
 
 const SPECIALTIES = [
-  { label: "All Specialties", value: "all" },
-  { label: "Orthopedic Physical Therapy", value: "orthopedic" },
-  { label: "Musculoskeletal Physical Therapy", value: "musculoskeletal" },
-  { label: "Sports Physical Therapy", value: "sports" },
-  { label: "Neurological Physical Therapy", value: "neurological" },
-  { label: "Cardiopulmonary Physical Therapy", value: "cardiopulmonary" },
-  { label: "Pediatric Physical Therapy", value: "pediatric" },
-  { label: "Geriatric Physical Therapy", value: "geriatric" },
-  { label: "Women’s Health & Pelvic Floor PT", value: "womens-health" },
-  { label: "Oncological Physical Therapy", value: "oncological" },
-  { label: "Integumentary Physical Therapy", value: "integumentary" },
+  { label: "All Facilities", value: "all" },
+  { label: "Physiotherapy", value: "physiotherapy" },
+  { label: "Chiropractic Adjustments", value: "chiropractic" },
+  { label: "Cupping Therapy", value: "cupping" },
+  { label: "Hijama Therapy", value: "hijama" },
+  { label: "Electrotherapy", value: "electrotherapy" },
+  { label: "Kinesio Taping", value: "kinesio" },
+  { label: "Fitness Training", value: "fitness" },
+  { label: "Dry Needling", value: "needling" },
 ];
 
 const UNAVAILABLE_SLOTS = ["09:30 AM", "11:00 AM", "02:30 PM", "05:00 PM", "06:30 PM"];
@@ -161,7 +159,7 @@ function StepSidebar({ step, selectedDoctor, selectedDay, selectedTime, consultT
         <div className="space-y-1.5">
           {[
             { icon: FiMapPin, text: "Gulberg · DHA, Lahore" },
-            { icon: FiPhone, text: "+92 300 123 4567" },
+            { icon: FiPhone, text: "+92 300 8786187" },
             { icon: FiClock, text: "Mon–Sat, 9AM–9PM" },
           ].map(({ icon: Icon, text }) => (
             <div key={text} className="flex items-center gap-2 text-[11px] text-slate-500">
@@ -876,7 +874,7 @@ function SuccessView({ doctor, day, time, consultType, form }) {
         <div className="flex gap-3 w-full">
           <motion.a
             whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
-            href={`https://wa.me/923001234567?text=${encodeURIComponent(
+            href={`https://wa.me/923008786187?text=${encodeURIComponent(
               `Hello! I just booked an appointment.\nRef: ${bookingRef}\nDoctor: ${doctor.name}\nDate: ${day.label}, ${day.date}\nTime: ${time}\nName: ${form.name}\nPhone: ${form.phone}`
             )}`}
             target="_blank" rel="noopener noreferrer"
@@ -1411,7 +1409,7 @@ export default function BookAppointmentPage() {
                   ) : (
                     <div className="space-y-1 text-slate-700 text-xs">
                       <p className="font-extrabold text-slate-900">Account Title: <span className="font-normal text-slate-600">Premium Clinic</span></p>
-                      <p className="font-extrabold text-slate-900">Mobile Wallet Number: <span className="font-mono bg-white px-1.5 py-0.5 border border-slate-200 rounded text-pink-600 font-bold select-all">0300-1234567</span></p>
+                      <p className="font-extrabold text-slate-900">Mobile Wallet Number: <span className="font-mono bg-white px-1.5 py-0.5 border border-slate-200 rounded text-pink-600 font-bold select-all">0300-8786187</span></p>
                     </div>
                   )}
                   <p className="text-[10px] text-slate-400 mt-1 italic">

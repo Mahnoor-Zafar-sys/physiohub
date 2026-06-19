@@ -4,16 +4,14 @@ import { FiPhone, FiMail, FiMapPin, FiInstagram, FiTwitter, FiFacebook, FiLinked
 import { MdLocalHospital } from "react-icons/md";
 const links = {
   Services: [
-    { name: "Orthopedic PT", path: "/services" },
-    { name: "Musculoskeletal PT", path: "/services" },
-    { name: "Sports PT", path: "/services" },
-    { name: "Neurological PT", path: "/services" },
-    { name: "Cardiopulmonary PT", path: "/services" },
-    { name: "Pediatric PT", path: "/services" },
-    { name: "Geriatric PT", path: "/services" },
-    { name: "Women's Health & Pelvic Floor PT", path: "/services" },
-    { name: "Oncological PT", path: "/services" },
-    { name: "Integumentary PT", path: "/services" }
+    { name: "Physiotherapy", path: "/services" },
+    { name: "Chiropractic Adjustments", path: "/services" },
+    { name: "Cupping Therapy", path: "/services" },
+    { name: "Hijama Therapy", path: "/services" },
+    { name: "Electrotherapy", path: "/services" },
+    { name: "Kinesio Taping", path: "/services" },
+    { name: "Fitness Training", path: "/services" },
+    { name: "Dry Needling", path: "/services" }
   ],
   Patients: [
     { name: "Book Appointment", path: "/book-appointment" },
@@ -71,9 +69,9 @@ export default function Footer() {
               </div>
               <div>
                 <span className="text-slate-900 font-display font-black text-xl tracking-tight">
-                  Premium<span style={{ background: "linear-gradient(90deg, #1e3a8a, #3b82f6)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}> Clinic</span>
+                  Vital Physio<span style={{ background: "linear-gradient(90deg, #1e3a8a, #3b82f6)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}> Hub</span>
                 </span>
-                <p className="text-slate-400 text-[10px] font-body font-bold tracking-widest uppercase mt-0.5">Advanced Healthcare</p>
+                <p className="text-slate-400 text-[10px] font-body font-bold tracking-widest uppercase mt-0.5">Advanced Physical Therapy & Rehabilitation</p>
               </div>
             </div>
             
@@ -84,8 +82,9 @@ export default function Footer() {
             {/* Corrected & Synced Information Section */}
             <div className="flex flex-col gap-3">
               {[
-                { icon: FiPhone, text: "+92 (51) 111-911-273" },
-                { icon: FiMail, text: "care@premiumclinic.com" },
+                { icon: FiPhone, text: "+92 300 8786187 (Personal)" },
+                { icon: FiPhone, text: "+92 341 7388830 (Clinic)" },
+                { icon: FiMail, text: "jellaniphysio@gmail.com" },
                 { icon: FiMapPin, text: "Plaza 56, Block L, Blue Area, Islamabad" },
               ].map(({ icon: Icon, text }) => (
                 <div key={text} className="flex items-center gap-3 text-slate-600 text-sm font-body hover:text-blue-600 transition-colors cursor-pointer group">
@@ -138,7 +137,7 @@ export default function Footer() {
       <div className="bg-[#1e3a8a] py-6 shadow-[inner_0_2px_4px_rgba(0,0,0,0.06)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-blue-100 text-xs font-body font-semibold tracking-wide">
-            © {new Date().getFullYear()} Premium Clinic. All rights reserved.
+            © {new Date().getFullYear()} Vital Physio Hub. All rights reserved.
           </p>
           <div className="flex gap-6">
             <Link 

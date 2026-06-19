@@ -12,9 +12,9 @@ import Gallery from "../components/Gallery";
 import Footer from "../components/Footer";
 
 export default function Home() {
-  const whatsappNumber = "+923001234567";
+  const whatsappNumber = "923008786187";
   const welcomeMessage = encodeURIComponent(
-    "Hello Premium Clinic, I want to inquire about your healthcare services."
+    "Hello Vital Physio Hub, I want to inquire about your healthcare services."
   );
 
   const [showNavbar, setShowNavbar] = useState(true);

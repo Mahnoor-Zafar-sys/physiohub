@@ -1,16 +1,18 @@
+import { useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
+import { motion, AnimatePresence, useInView } from "framer-motion";
+import {
+  FiSearch, FiArrowRight, FiPhone, FiCalendar, FiX,
+  FiMessageCircle, FiClock, FiCheckCircle, FiAlertCircle,
+  FiDollarSign, FiChevronRight, FiStar,
+  FiActivity, FiShield, FiZap, FiChevronDown, FiFilter, FiHeart
+} from "react-icons/fi";
+import { GiTooth, GiHeartBeats, GiBabyFace, GiBrain } from "react-icons/gi";
+import { MdFace, MdContentCut } from "react-icons/md";
+import { TbEar, TbBone, TbStethoscope } from "react-icons/tb";
 
-
-// import { useState, useRef } from "react";
-// import { motion, AnimatePresence, useInView } from "framer-motion";
-// import {
-//   FiSearch, FiArrowRight, FiPhone, FiCalendar, FiX,
-//   FiMessageCircle, FiClock, FiCheckCircle, FiAlertCircle,
-//   FiDollarSign, FiChevronRight, FiStar,
-//   FiActivity, FiShield, FiZap, FiChevronDown, FiFilter
-// } from "react-icons/fi";
-// import { GiTooth, GiHeartBeats, GiBabyFace, GiBrain } from "react-icons/gi";
-// import { MdFace, MdContentCut } from "react-icons/md";
-// import { TbEar, TbBone } from "react-icons/tb";
 
 // // ─────────────────────────────────────────────────────────────────────────────
 // // DATA — custom image URLs preserved exactly as user provided
@@ -830,56 +832,12 @@
 //       {/* Bottom CTA */}
 //       <section className="relative overflow-hidden py-20 mt-4"
 //         style={{ background:"linear-gradient(135deg,#0ea5e9 0%,#7c3aed 50%,#db2777 100%)" }}>
-//         <div className="absolute inset-0 pointer-events-none">
-//           <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-white/5 rounded-full blur-[100px]" />
-//           <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-white/5 rounded-full blur-[100px]" />
-//         </div>
-//         <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 text-center">
-//           <h2 className="text-3xl sm:text-5xl font-extrabold text-white mb-4 font-serif">
-//             Not Sure Which Service You Need?
-//           </h2>
-//           <p className="text-white/75 text-lg mb-10 max-w-xl mx-auto">
-//             Our team will guide you to the right specialist. Book a free consultation or chat with us on WhatsApp.
-//           </p>
-//           <div className="flex flex-wrap justify-center gap-4">
-//             <a href="#booking" className="px-8 py-3.5 rounded-xl font-bold text-sky-600 bg-white shadow-xl hover:bg-white/90 transition-all flex items-center gap-2 text-sm">
-//               <FiCalendar size={14} /> Book Free Consultation
-//             </a>
-//             <a href="https://wa.me/+923001234567" target="_blank" rel="noopener noreferrer"
-//               className="px-8 py-3.5 rounded-xl font-bold text-white border-2 border-white/40 hover:bg-white/10 transition-all flex items-center gap-2 text-sm">
-//               <FiMessageCircle size={14} /> Chat on WhatsApp
-//             </a>
-//           </div>
-//         </div>
-//       </section>
-//     </div>
-//   );
-// }
-
-import { useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
-import { motion, AnimatePresence, useInView } from "framer-motion";
-import {
-  FiSearch, FiArrowRight, FiArrowLeft, FiPhone, FiCalendar, FiX,
-  FiMessageCircle, FiClock, FiCheckCircle, FiAlertCircle,
-  FiDollarSign, FiChevronRight, FiStar,
-  FiActivity, FiShield, FiZap, FiChevronDown, FiFilter, FiHeart
-} from "react-icons/fi";
-import { GiHeartBeats, GiBabyFace, GiBrain } from "react-icons/gi";
-import { MdFace } from "react-icons/md";
-import { TbBone } from "react-icons/tb";
-
-// ─────────────────────────────────────────────────────────────────────────────
-// DATA — custom image URLs preserved exactly as user provided
-// ─────────────────────────────────────────────────────────────────────────────
 const services = [
   {
-    id: "orthopedic-pt",
-    category: "Orthopedic Physical Therapy",
-    icon: TbBone,
-    image: "https://images.unsplash.com/photo-1597764690523-15bea4c581c9?auto=format&fit=crop&w=800&q=80",
+    id: "physiotherapy",
+    category: "Physiotherapy",
+    icon: FiActivity,
+    image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=800&q=80",
     gradient: "from-sky-600 to-cyan-400",
     solidColor: "#0ea5e9",
     lightBg: "from-sky-50 to-cyan-50",
@@ -887,29 +845,29 @@ const services = [
     accent: "text-sky-600",
     badgeBg: "bg-sky-100",
     badgeText: "text-sky-700",
-    tag: "orthopedic",
+    tag: "physiotherapy",
     type: "therapy",
     popular: true,
-    tagline: "Reclaiming Strength, Restoring Mobility",
-    shortDesc: "Targeted therapy for joint rehabilitation, bone health, and post-surgical recovery.",
-    overview: "Our orthopedic physical therapy clinic is dedicated to diagnosing, managing, and treating disorders of the musculoskeletal system. From joint replacement recovery to spinal rehabilitation, our certified physical therapists use evidence-based protocols to restore your function and alleviate pain.",
-    symptoms: ["Chronic joint pain or stiffness", "Post-surgical joint replacement", "Fracture recovery", "Low back or neck pain", "Tendonitis or bursitis"],
-    benefits: ["OCS certified specialists", "Custom movement recovery plan", "Advanced non-drug pain management", "Accelerated recovery timelines"],
-    treatments: ["Manual Therapy", "Joint Mobilization", "Post-Operative Rehabilitation", "Therapeutic Exercises", "Spine Decompression", "Dry Needling", "Therapeutic Ultrasound"],
-    procedure: "Initial Assessment → Functional Range Evaluation → Customized Program → Supervised Session → Progress Tracking",
+    tagline: "Restoring Movement, Improving Quality of Life",
+    shortDesc: "Comprehensive physical rehabilitation to recover mobility, strength, and function after injury.",
+    overview: "Physiotherapy is the core clinical facility at Vital Physio Hub, specializing in dynamic movement restoration. Our certified manual therapists design custom physical rehabilitation programs to target skeletal stiffness, neurological path retraining, and post-surgical functional delays.",
+    symptoms: ["Post-surgical stiffness", "Chronic joint dysfunction", "Arthritis limitations", "Muscle weakness", "Gait & balance instability"],
+    benefits: ["Custom recovery timeline", "Manual therapy adjustments", "Skilled guidance & home planning", "Safe non-pharmacological pain relief"],
+    treatments: ["Joint Mobilization", "Therapeutic Exercise", "Postural Correction", "Gait Retraining", "Manual Stretch Therapy"],
+    procedure: "Clinical evaluation → Biomechanical mapping → Custom rehab plan → Supervised session → Independent home regime",
     duration: "45 – 60 min",
     recovery: "2 – 12 weeks",
     fee: "From PKR 2,500",
     faqs: [
-      { q: "How soon can I start PT after joint surgery?", a: "Many patients start as early as 24-48 hours post-surgery under surgeon guidance." },
-      { q: "What should I wear to my session?", a: "Loose, comfortable clothing that allows easy access to the joint being treated." }
+      { q: "What should I expect in my first physical therapy session?", a: "An in-depth biomechanical assessment of your joint range, posture, and motor control, followed by a personalized rehabilitation plan." },
+      { q: "How many sessions will I need?", a: "This depends on your condition, but most patients see noticeable functional improvement within 4-6 sessions." }
     ],
   },
   {
-    id: "musculoskeletal-pt",
-    category: "Musculoskeletal Physical Therapy",
-    icon: FiActivity,
-    image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=800&q=80",
+    id: "chiropractic",
+    category: "Chiropractic Adjustments",
+    icon: TbBone,
+    image: "https://images.unsplash.com/photo-1597764690523-15bea4c581c9?auto=format&fit=crop&w=800&q=80",
     gradient: "from-violet-500 to-purple-400",
     solidColor: "#8b5cf6",
     lightBg: "from-violet-50 to-purple-50",
@@ -917,115 +875,176 @@ const services = [
     accent: "text-violet-600",
     badgeBg: "bg-violet-100",
     badgeText: "text-violet-700",
-    tag: "musculoskeletal",
+    tag: "chiropractic",
     type: "therapy",
     popular: true,
-    tagline: "Relieve Chronic Pain, Move Freely",
-    shortDesc: "Comprehensive management of soft tissue injuries, muscle spasms, and spinal dysfunction.",
-    overview: "Musculoskeletal physical therapy focuses on treating injuries and conditions affecting muscles, ligaments, tendons, and joints. We employ advanced manual therapy techniques and neuromuscular retraining to address the root causes of pain.",
-    symptoms: ["Muscle spasms and strains", "Tendonitis & ligament sprains", "Chronic low back or neck pain", "Postural imbalances", "Tension headaches"],
-    benefits: ["Drug-free pain management solutions", "Expert manual manipulation techniques", "Posture and ergonomics optimization", "Prevent recurrence of chronic pain"],
-    treatments: ["Myofascial Release", "Trigger Point Therapy", "Kinesiology Taping", "Core Stability Retraining", "Instrument Assisted Soft Tissue Mobilization"],
-    procedure: "Pain Assessment → Biomechanical Evaluation → Muscle Balance Testing → Pain Relief Therapy → Strength Building",
-    duration: "40 – 60 min",
-    recovery: "1 – 8 weeks",
-    fee: "From PKR 2,500",
-    faqs: [
-      { q: "Is musculoskeletal therapy painful?", a: "Some techniques might cause mild soreness, but the overall goal is immediate pain relief and long-term comfort." }
-    ],
-  },
-  {
-    id: "sports-pt",
-    category: "Sports Physical Therapy",
-    icon: FiZap,
-    image: "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80",
-    gradient: "from-rose-500 to-red-400",
-    solidColor: "#e11d48",
-    lightBg: "from-rose-50 to-red-50",
-    border: "border-rose-200",
-    accent: "text-rose-600",
-    badgeBg: "bg-rose-100",
-    badgeText: "text-rose-700",
-    tag: "sports",
-    type: "therapy",
-    popular: true,
-    tagline: "Optimize Performance, Prevent Injury",
-    shortDesc: "Specialized rehabilitation for athletes of all levels to safely return to play.",
-    overview: "Sports physical therapy addresses sports-specific injuries and athletic performance optimization. Our program focuses on rapid recovery, injury prevention, and conditioning designed for athletes.",
-    symptoms: ["ACL/MCL tears", "Rotator cuff injuries", "Shin splints & running injuries", "Ankle sprains"],
-    benefits: ["Athletic performance enhancement", "Sports-specific movement analysis", "Minimally invasive recovery programs", "Certified sports therapy specialists"],
-    treatments: ["Sports Biomechanics Analysis", "Taping & Bracing", "Plyometric Retraining", "High-Performance Conditioning", "Electrotherapy"],
-    procedure: "Movement Analysis → Athletic Goal Alignment → Customized Sports Rehab → Return-to-Play Testing",
-    duration: "45 – 75 min",
-    recovery: "2 – 24 weeks",
+    tagline: "Precision Spinal Alignment & Nerve Relief",
+    shortDesc: "Spinal adjustments and manual manipulation to relieve pressure on the nervous system and restore alignment.",
+    overview: "Chiropractic Adjustments focus on the diagnosis, treatment, and prevention of neuromuscular disorders, with a primary emphasis on manual manipulation of the spine. Dr. Haseeb Ur Rehman utilizes advanced Italian osteopathy and chiropractic techniques to treat joint dysfunction and alleviate radiating nerve pain.",
+    symptoms: ["Sciatica & radiating leg pain", "Lumbar instability & back pain", "Cervical stiffness & neck pain", "Postural headaches", "Joint subluxation"],
+    benefits: ["Instant spinal pressure release", "Enhanced joint range of motion", "Painless mechanical adjustments", "Long-term spine health and posture"],
+    treatments: ["Spinal Manipulation", "Joint Decompression", "Manual Adjustments", "Posture Correction Therapy", "Flexion-Distraction Technique"],
+    procedure: "Spine alignment check → Joint palpation → Decompression therapy → Manual adjustments",
+    duration: "30 – 45 min",
+    recovery: "1 – 6 weeks",
     fee: "From PKR 3,000",
     faqs: [
-      { q: "When can I safely return to sports?", a: "Return to play depends on passing sports-specific functional movement tests to ensure zero reinjury risk." }
+      { q: "Are chiropractic adjustments safe?", a: "Yes, when performed by a classified chiropractor (like Dr. Haseeb who is trained in advanced Italian manual techniques), adjustments are highly safe and effective." },
+      { q: "Do chiropractic adjustments hurt?", a: "No, adjustments are generally painless. Many patients experience immediate relief from tension and pressure." }
     ],
   },
   {
-    id: "neurological-pt",
-    category: "Neurological Physical Therapy",
-    icon: GiBrain,
-    image: "https://images.unsplash.com/photo-1559757175-5700dde675bc?auto=format&fit=crop&w=800&q=80",
-    gradient: "from-indigo-600 to-blue-500",
+    id: "cupping",
+    category: "Cupping Therapy",
+    icon: GiHeartBeats,
+    image: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=800&q=80",
+    gradient: "from-teal-500 to-emerald-400",
+    solidColor: "#0d9488",
+    lightBg: "from-teal-50 to-emerald-50",
+    border: "border-teal-200",
+    accent: "text-teal-600",
+    badgeBg: "bg-teal-100",
+    badgeText: "text-teal-700",
+    tag: "cupping",
+    type: "therapy",
+    popular: false,
+    tagline: "Deep Tissue Detoxification & Muscle Relaxation",
+    shortDesc: "Dry and massage cupping to improve localized blood flow and relieve chronic myofascial trigger points.",
+    overview: "Cupping therapy is an ancient form of alternative medicine in which a therapist puts special cups on your skin for a few minutes to create suction. We use dry and massage cupping to stimulate blood circulation, enhance lymphatic drainage, and release deep myofascial trigger points.",
+    symptoms: ["Deep muscle spasms", "Persistent shoulder & back knots", "Poor localized circulation", "Chronic muscular fatigue"],
+    benefits: ["Deep tissue myofascial release", "Rapid muscle recovery", "Reduced muscle inflammation", "Relaxation of the nervous system"],
+    treatments: ["Dry Cupping", "Massage Cupping", "Myofascial Trigger Point Release", "Detox Circulation Therapy"],
+    procedure: "Trigger point identification → Skin preparation → Cup suction application → Myofascial massage",
+    duration: "30 – 40 min",
+    recovery: "1 – 3 days (marks fade quickly)",
+    fee: "From PKR 2,000",
+    faqs: [
+      { q: "What are the round marks left after cupping?", a: "These are superficial discolorations caused by blood drawn to the skin surface. They are painless and fade in 3-7 days." },
+      { q: "Who can benefit from cupping?", a: "Athletes, office workers with stiff shoulders, and anyone suffering from chronic muscular tension." }
+    ],
+  },
+  {
+    id: "hijama",
+    category: "Hijama Therapy",
+    icon: GiHeartBeats,
+    image: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=800&q=80",
+    gradient: "from-indigo-500 to-purple-400",
     solidColor: "#4f46e5",
-    lightBg: "from-indigo-50 to-blue-50",
+    lightBg: "from-indigo-50 to-purple-50",
     border: "border-indigo-200",
     accent: "text-indigo-600",
     badgeBg: "bg-indigo-100",
     badgeText: "text-indigo-700",
-    tag: "neurological",
+    tag: "hijama",
     type: "therapy",
-    popular: false,
-    tagline: "Restoring Balance, Rebuilding Pathways",
-    shortDesc: "Neurorehabilitation for stroke, Parkinson's, and balance disorders.",
-    overview: "Neurological physical therapy focuses on patients with neurological disorders or injuries. Using principles of neuroplasticity, we help retrain brain and nerve pathways to improve balance, coordination, and mobility.",
-    symptoms: ["Post-stroke mobility loss", "Balance and coordination issues", "Parkinson's tremors & rigidity", "Multiple sclerosis mobility issues"],
-    benefits: ["Neuroplasticity-driven recovery techniques", "Specialized balance & fall-prevention training", "Adaptive device training", "Improved daily functional independence"],
-    treatments: ["Gait Training", "Balance & Vestibular Rehab", "Constraint-Induced Movement Therapy", "Neuromuscular Facilitation"],
-    procedure: "Neurological Evaluation → Balance & Gait Assessment → Pathway Retraining → Task-Specific Practice",
-    duration: "50 – 75 min",
-    recovery: "Ongoing rehabilitation",
-    fee: "From PKR 3,500",
+    popular: true,
+    tagline: "Traditional Wet Cupping for Blood Purification",
+    shortDesc: "Clinical wet cupping (Hijama) for systemic detoxification and immune system revitalization.",
+    overview: "Hijama Therapy, or wet cupping, is a clinical procedure that draws out toxic blood and metabolic waste from the body through superficial micro-scratches on the skin. Dr. Ghulam Jellani is a certified Hijama expert, combining traditional healing with clinical sterile standards.",
+    symptoms: ["Chronic fatigue syndrome", "Inflammatory disorders", "Persistent body aches", "High blood pressure", "Migraines"],
+    benefits: ["Blood detoxification", "Immune system boost", "Chronic pain mitigation", "Stress & tension relief"],
+    treatments: ["Clinical Wet Cupping", "Hijama Detox Therapy", "Sterile Skin Care", "Immunological Revitalization"],
+    procedure: "Initial dry suction → Superficial micro-scratching → Targeted wet extraction → Sterilization & dressing",
+    duration: "45 – 60 min",
+    recovery: "3 – 5 days (micro-scratches heal fully)",
+    fee: "From PKR 2,500",
     faqs: [
-      { q: "Can long-term neurological conditions improve with PT?", a: "Yes, neurorehabilitation can stimulate neuroplasticity and improve balance/independence at any stage." }
+      { q: "Is Hijama performed under sterile conditions?", a: "Yes, we use 100% disposable, single-use sterile cups, surgical blades, and strict clinical protocols to ensure zero infection risk." },
+      { q: "How often should I get Hijama?", a: "For general wellness and detox, every 3-6 months. For chronic pain management, a tailored monthly protocol may be recommended." }
     ],
   },
   {
-    id: "cardiopulmonary-pt",
-    category: "Cardiopulmonary Physical Therapy",
-    icon: GiHeartBeats,
-    image: "https://images.unsplash.com/photo-1628348068343-c6a848d2b6dd?auto=format&fit=crop&w=800&q=80",
-    gradient: "from-red-600 to-rose-500",
+    id: "electrotherapy",
+    category: "Electrotherapy",
+    icon: FiZap,
+    image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&q=80",
+    gradient: "from-red-500 to-rose-400",
     solidColor: "#dc2626",
     lightBg: "from-red-50 to-rose-50",
     border: "border-red-200",
     accent: "text-red-600",
     badgeBg: "bg-red-100",
     badgeText: "text-red-700",
-    tag: "cardiopulmonary",
+    tag: "electrotherapy",
     type: "therapy",
     popular: false,
-    tagline: "Breathe Better, Build Endurance",
-    shortDesc: "Cardiac and pulmonary rehabilitation to restore cardiovascular stamina.",
-    overview: "Cardiopulmonary physical therapy helps patients recover from heart attacks, bypass surgeries, chronic obstructive pulmonary disease (COPD), and general breathing issues. We design supervised cardiovascular training programs.",
-    symptoms: ["Shortness of breath on exertion", "Post-cardiac surgery recovery", "COPD or asthma restrictions", "Chronic respiratory fatigue"],
-    benefits: ["Supervised, safe cardiovascular conditioning", "Improved lung capacity & breathing efficiency", "Reduced hospital readmissions", "Enhanced physical stamina"],
-    treatments: ["Breathing Exercises & Chest PT", "Controlled Aerobic Conditioning", "Energy Conservation Training", "Post-Op Cardiac Mobilization"],
-    procedure: "Vitals & Aerobic Testing → Risk Profiling → Supervised Exercise → Breathing Retraining",
-    duration: "30 – 50 min",
-    recovery: "6 – 12 weeks",
-    fee: "From PKR 3,000",
+    tagline: "Advanced Electronic Modalities for Pain & Healing",
+    shortDesc: "Non-invasive electrical stimulation to block pain pathways and stimulate muscle recovery.",
+    overview: "Electrotherapy is a gentle, non-invasive clinical facility utilizing modern electrical modalities like TENS (Transcutaneous Electrical Nerve Stimulation), EMS (Electrical Muscle Stimulation), and therapeutic ultrasound. These modalities block pain signals to the brain and stimulate deep cellular tissue repair.",
+    symptoms: ["Acute inflammatory pain", "Muscle atrophy and wasting", "Severe muscle spasms", "Post-surgical swelling"],
+    benefits: ["Non-invasive pain block", "Accelerated tissue repair", "Improved local blood flow", "Restoration of muscle tone"],
+    treatments: ["TENS Therapy", "Electrical Muscle Stimulation (EMS)", "Therapeutic Ultrasound", "Interferential Current (IFC)"],
+    procedure: "Symptom check → Modality selection → Electrode pad placement → Controlled electrical dosage → Healing review",
+    duration: "20 – 30 min",
+    recovery: "Immediate pain relief",
+    fee: "From PKR 1,500",
     faqs: [
-      { q: "Is cardiac rehab safe?", a: "Yes, our programs are carefully monitored with real-time heart rate and blood oxygen tracking." }
+      { q: "Does electrotherapy shock you?", a: "No. You will feel a pleasant, tingling, or pulsing sensation, but it is not painful and is completely controlled by the therapist." }
     ],
   },
   {
-    id: "pediatric-pt",
-    category: "Pediatric Physical Therapy",
-    icon: GiBabyFace,
-    image: "https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=800&q=80",
+    id: "kinesio",
+    category: "Kinesio Taping",
+    icon: FiActivity,
+    image: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=800&q=80",
+    gradient: "from-pink-500 to-rose-400",
+    solidColor: "#ec4899",
+    lightBg: "from-pink-50 to-rose-50",
+    border: "border-pink-200",
+    accent: "text-pink-600",
+    badgeBg: "bg-pink-100",
+    badgeText: "text-pink-700",
+    tag: "kinesio",
+    type: "therapy",
+    popular: false,
+    tagline: "Elastic Therapeutic Taping for Joint Support",
+    shortDesc: "Elastic taping to support joints, muscles, and facilitate lymphatic flow during activity.",
+    overview: "Kinesio Taping involves applying a specialized elastic therapeutic tape to joints and muscles to reduce pain, facilitate lymphatic drainage, and provide structural support without restricting range of motion. It is an excellent sports therapy modality used by Dr. Ghulam Jellani and Dr. Haseeb.",
+    symptoms: ["Ligament sprains & muscle strains", "Joint instability", "Sports-induced swelling", "Muscle tracking issues"],
+    benefits: ["Structural joint support", "Unrestricted natural movement", "Reduced muscle fatigue & bruising", "Improved lymphatic drainage"],
+    treatments: ["Sports Taping", "Lymphatic Taping", "Joint Stability Taping", "Muscle Tracking Taping"],
+    procedure: "Muscle assessment → Skin preparation → Customized tape stretching → Functional activation check",
+    duration: "15 – 25 min",
+    recovery: "Tape remains active for 3-5 days",
+    fee: "From PKR 1,200",
+    faqs: [
+      { q: "Can I shower with the Kinesio tape on?", a: "Yes, the tape is highly water-resistant and breathable, allowing you to shower normally." }
+    ],
+  },
+  {
+    id: "fitness",
+    category: "Fitness Training",
+    icon: FiActivity,
+    image: "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80",
+    gradient: "from-amber-500 to-orange-400",
+    solidColor: "#d97706",
+    lightBg: "from-amber-50 to-orange-50",
+    border: "border-amber-200",
+    accent: "text-amber-600",
+    badgeBg: "bg-amber-100",
+    badgeText: "text-amber-700",
+    tag: "fitness",
+    type: "therapy",
+    popular: false,
+    tagline: "Medical Fitness & Physical Conditioning",
+    shortDesc: "Supervised exercise planning to build core strength, endurance, and target biomechanical alignment.",
+    overview: "Fitness Training at Vital Physio Hub bridges the gap between rehabilitation and active lifestyle. Designed by Dr. Haseeb Ur Rehman (certified fitness trainer and sports coach), we offer medically supervised physical conditioning programs tailored to your specific biomechanical needs and goals.",
+    symptoms: ["General physical deconditioning", "Core muscle weakness", "Poor physical endurance", "Post-rehab strength maintenance need"],
+    benefits: ["Medically supervised by clinical experts", "Fully custom progressive programming", "Core and posture-focused targets", "Safe transition from injury to active sport"],
+    treatments: ["Medical Strength Training", "Cardiovascular Conditioning", "Core Stabilization Programs", "Post-Rehab Maintenance Training"],
+    procedure: "Physical baseline assessment → Goal mapping → Customized exercise prescription → Supervised training cycles",
+    duration: "45 – 60 min",
+    recovery: "Ongoing wellness",
+    fee: "From PKR 3,000",
+    faqs: [
+      { q: "How is medical fitness training different from a regular gym?", a: "Our training is designed and supervised directly by physiotherapists and certified coaches, ensuring that every movement is biomechanically safe for your joints." }
+    ],
+  },
+  {
+    id: "needling",
+    category: "Dry Needling",
+    icon: TbStethoscope,
+    image: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&w=800&q=80",
     gradient: "from-emerald-500 to-teal-400",
     solidColor: "#10b981",
     lightBg: "from-emerald-50 to-teal-50",
@@ -1033,158 +1052,41 @@ const services = [
     accent: "text-emerald-600",
     badgeBg: "bg-emerald-100",
     badgeText: "text-emerald-700",
-    tag: "pediatric",
-    type: "therapy",
-    popular: false,
-    tagline: "Supporting Growing Steps",
-    shortDesc: "Developmental therapy for infants, children, and adolescents.",
-    overview: "Pediatric physical therapy addresses developmental delays, genetic conditions, and pediatric orthopedic injuries. We use fun, play-based therapies to help children achieve milestones and move confidently.",
-    symptoms: ["Delayed developmental milestones (sitting, walking)", "Cerebral Palsy mobility issues", "Congenital torticollis (neck stiffness)", "Pediatric sports injuries"],
-    benefits: ["Fun, play-based therapeutic environments", "Early intervention developmental tracking", "Family education & home exercise support", "Achieve motor skill milestones"],
-    treatments: ["Developmental Milestone Training", "Pediatric Gait & Balance Training", "Spasticity Management Support", "Torticollis Stretching Programs"],
-    procedure: "Child Friendly Assessment → Play-Based Goal Setting → Active Therapy Session → Parent Home Plan",
-    duration: "30 – 45 min",
-    recovery: "4 – 24 weeks",
-    fee: "From PKR 2,000",
-    faqs: [
-      { q: "Is pediatric physical therapy play-based?", a: "Yes! We design therapies as fun games so children participate enthusiastically without feeling pressured." }
-    ],
-  },
-  {
-    id: "geriatric-pt",
-    category: "Geriatric Physical Therapy",
-    icon: FiActivity,
-    image: "https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=800&q=80",
-    gradient: "from-amber-600 to-yellow-500",
-    solidColor: "#d97706",
-    lightBg: "from-amber-50 to-yellow-50",
-    border: "border-amber-200",
-    accent: "text-amber-600",
-    badgeBg: "bg-amber-100",
-    badgeText: "text-amber-700",
-    tag: "geriatric",
-    type: "therapy",
-    popular: false,
-    tagline: "Graceful Aging, Active Living",
-    shortDesc: "Balance, strength, and mobility therapy for older adults.",
-    overview: "Geriatric physical therapy treats conditions affecting older adults. We focus on arthritis pain relief, fall prevention, balance restoration, and maintaining functional independence for seniors.",
-    symptoms: ["Frequent falls or loss of balance", "Severe arthritis stiffness", "Osteoporosis bone health", "General age-related weakness"],
-    benefits: ["Proven fall-prevention strategies", "Gentle, low-impact strength training", "Joint pain reduction for arthritis", "Safe preservation of independence"],
-    treatments: ["Fall Prevention & Balance Training", "Gentle Strengthening Exercises", "Joint Protection Techniques", "Mobility Aid (Walker/Cane) Training"],
-    procedure: "Fall Risk Assessment → Balance Testing → Strength Evaluation → Gentle Exercise Protocol",
-    duration: "40 – 60 min",
-    recovery: "Ongoing or 6 - 12 weeks",
-    fee: "From PKR 2,500",
-    faqs: [
-      { q: "How does therapy help prevent falls?", a: "We target weak balance muscles, retrain vestibular reflexes, and teach safe walking strategies." }
-    ],
-  },
-  {
-    id: "womens-health-pt",
-    category: "Women’s Health & Pelvic Floor PT",
-    icon: FiHeart,
-    image: "https://images.unsplash.com/photo-1551190822-a9333d879b1f?auto=format&fit=crop&w=800&q=80",
-    gradient: "from-pink-600 to-fuchsia-500",
-    solidColor: "#db2777",
-    lightBg: "from-pink-50 to-fuchsia-50",
-    border: "border-pink-200",
-    accent: "text-pink-600",
-    badgeBg: "bg-pink-100",
-    badgeText: "text-pink-700",
-    tag: "womens-health",
+    tag: "needling",
     type: "therapy",
     popular: true,
-    tagline: "Restoring Core & Pelvic Strength",
-    shortDesc: "Specialized therapy for pelvic floor dysfunction, pregnancy, and postpartum recovery.",
-    overview: "Women's Health and Pelvic Floor physical therapy is a highly specialized, private clinical program. We address pelvic pain, incontinence, prenatal discomfort, and postpartum core rehabilitation.",
-    symptoms: ["Pelvic floor pain or weakness", "Incontinence or bladder leaks", "Diastasis Recti (postpartum core separation)", "Pregnancy-related back pain"],
-    benefits: ["Strictly private, compassionate consultation", "Proven non-surgical bladder control solutions", "Safe prenatal & postpartum core recovery", "Dedicated female clinical specialists"],
-    treatments: ["Pelvic Floor Muscle Training", "Biofeedback & Relaxation Techniques", "Diastasis Recti Core Repair", "Pregnancy Pain Management"],
-    procedure: "Confidential Assessment → Muscle Tone Evaluation → Pelvic Biofeedback → Tailored Home Program",
-    duration: "45 – 60 min",
-    recovery: "4 – 12 weeks",
-    fee: "From PKR 3,500",
-    faqs: [
-      { q: "Do you have female therapists for pelvic floor sessions?", a: "Yes, our pelvic floor sessions are conducted in private rooms by certified female specialists." }
-    ],
-  },
-  {
-    id: "oncological-pt",
-    category: "Oncological Physical Therapy",
-    icon: FiShield,
-    image: "https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=800&q=80",
-    gradient: "from-teal-600 to-cyan-500",
-    solidColor: "#0d9488",
-    lightBg: "from-teal-50 to-cyan-50",
-    border: "border-teal-200",
-    accent: "text-teal-600",
-    badgeBg: "bg-teal-100",
-    badgeText: "text-teal-700",
-    tag: "oncological",
-    type: "therapy",
-    popular: false,
-    tagline: "Strength Through Recovery",
-    shortDesc: "Restoring energy, range of motion, and lymphatic flow for cancer survivors.",
-    overview: "Oncological physical therapy supports patients during and after cancer treatment. We manage cancer-related fatigue, post-surgical stiffness, range-of-motion loss, and lymphedema.",
-    symptoms: ["Cancer-related fatigue & weakness", "Post-surgical shoulder stiffness", "Lymphedema swelling", "Radiation-induced tissue tightness"],
-    benefits: ["Gentle, oncology-safe exercise protocols", "Manual lymphatic drainage for swelling", "Energy conservation strategies", "Restored movement after mastectomy"],
-    treatments: ["Lymphedema Therapy & Bandaging", "Gentle Range of Motion Stretching", "Oncology Exercise Conditioning", "Scar Tissue Release"],
-    procedure: "Health Assessment → Lymphatic Flow Evaluation → Gentle Mobility Stretching → Endurance Training",
-    duration: "45 – 60 min",
-    recovery: "Ongoing support",
-    fee: "From PKR 3,000",
-    faqs: [
-      { q: "Is physical therapy safe during chemotherapy?", a: "Yes, we customize gentle exercises to match your blood counts and energy levels on treatment days." }
-    ],
-  },
-  {
-    id: "integumentary-pt",
-    category: "Integumentary Physical Therapy",
-    icon: MdFace,
-    image: "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=800&q=80",
-    gradient: "from-emerald-600 to-green-500",
-    solidColor: "#059669",
-    lightBg: "from-emerald-50 to-green-50",
-    border: "border-emerald-200",
-    accent: "text-emerald-600",
-    badgeBg: "bg-emerald-100",
-    badgeText: "text-emerald-700",
-    tag: "integumentary",
-    type: "therapy",
-    popular: false,
-    tagline: "Accelerating Skin & Wound Healing",
-    shortDesc: "Advanced wound care, scar management, and burn rehabilitation.",
-    overview: "Integumentary physical therapy specializes in treating wounds, severe burns, and complex scar tissue. We use specialized cleaning, compression, and skin mobility techniques to accelerate healing and reduce scarring.",
-    symptoms: ["Non-healing diabetic ulcers", "Severe burn scar contractures", "Post-surgical scar adhesions", "Chronic venous or arterial wounds"],
-    benefits: ["Accelerated wound healing timelines", "Reduced risk of chronic scar stiffness", "Prevent infection through sterile techniques", "Improved cosmetic scar outcomes"],
-    treatments: ["Sterile Wound Care Support", "Scar Mobilization Therapy", "Compression Bandaging", "Laser Skin Healing protocols"],
-    procedure: "Wound Bed Assessment → Sterile dressing/cleaning → Compression application → Scar tissue stretching",
-    duration: "30 – 60 min",
-    recovery: "2 – 16 weeks",
+    tagline: "Intramuscular Stimulation & Pain Deactivation",
+    shortDesc: "Thin acupuncture-style needles targeted at myofascial trigger points to deactivate deep muscle pain.",
+    overview: "Dry Needling involves inserting thin, sterile monofilament needles directly into myofascial trigger points (muscle knots). This creates a local twitch response that disrupts the pain cycle, releases muscular tension, and increases localized micro-circulation. Dr. Ghulam Jellani is a certified practitioner who safely performs this treatment.",
+    symptoms: ["Chronic tension headaches", "Deep muscle knots & myofascial pain", "Radiating muscle tightness", "Temporomandibular joint (TMJ) stiffness"],
+    benefits: ["Immediate deep muscle release", "Highly precise trigger point targeting", "Rapid restoration of range of motion", "Painless insertion process"],
+    treatments: ["Trigger Point Dry Needling", "Intramuscular Stimulation", "Myofascial Release Needling", "Neuromuscular Pain Deactivation"],
+    procedure: "Muscle palpation to identify trigger point → Sterile skin preparation → Needle insertion & stimulation → Muscle relaxation check",
+    duration: "25 – 40 min",
+    recovery: "1 – 2 days (mild local soreness is normal)",
     fee: "From PKR 2,500",
     faqs: [
-      { q: "How does physical therapy help wound healing?", a: "We improve localized blood circulation, apply therapeutic dressings, and perform scar stretching to prevent contractures." }
+      { q: "Is dry needling the same as acupuncture?", a: "No. While they use similar needles, acupuncture is based on traditional Chinese medicine energy channels, whereas dry needling is based on modern Western neuroanatomy and muscular trigger points." },
+      { q: "Does dry needling hurt?", a: "You may feel a brief 'cramp' or twitch sensation when the trigger point is deactivated, which can be slightly intense but lasts only a second. Most patients find it highly tolerable." }
     ],
   },
 ];
 
 const TAGS = [
-  { value: "all",             label: "All Services",   color: null },
-  { value: "orthopedic",      label: "Orthopedic",     color: "#0ea5e9" },
-  { value: "musculoskeletal",  label: "Musculoskeletal",color: "#8b5cf6" },
-  { value: "sports",          label: "Sports PT",      color: "#e11d48" },
-  { value: "neurological",    label: "Neurological",   color: "#4f46e5" },
-  { value: "cardiopulmonary",  label: "Cardiopulmonary",color: "#dc2626" },
-  { value: "pediatric",       label: "Pediatric",      color: "#10b981" },
-  { value: "geriatric",       label: "Geriatric",      color: "#d97706" },
-  { value: "womens-health",   label: "Women's Health", color: "#db2777" },
-  { value: "oncological",     label: "Oncological",    color: "#0d9488" },
-  { value: "integumentary",    label: "Integumentary",  color: "#059669" },
+  { value: "all",            label: "All Services",            color: null },
+  { value: "physiotherapy",  label: "Physiotherapy",           color: "#0ea5e9" },
+  { value: "chiropractic",   label: "Chiropractic Adjustments",color: "#8b5cf6" },
+  { value: "cupping",        label: "Cupping Therapy",         color: "#0d9488" },
+  { value: "hijama",         label: "Hijama Therapy",          color: "#4f46e5" },
+  { value: "electrotherapy", label: "Electrotherapy",          color: "#dc2626" },
+  { value: "kinesio",        label: "Kinesio Taping",          color: "#ec4899" },
+  { value: "fitness",        label: "Fitness Training",        color: "#d97706" },
+  { value: "needling",       label: "Dry Needling",            color: "#10b981" },
 ];
 
 const TYPES = [
   { value: "all",       label: "All Types" },
-  { value: "therapy",   label: "Physical Therapy" },
+  { value: "therapy",   label: "Clinical Facility" },
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1345,11 +1247,11 @@ function ServiceModal({ service, onClose }) {
               className={`flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl bg-gradient-to-r ${service.gradient} text-white font-bold text-sm shadow-lg hover:opacity-90 transition-opacity`}>
               <FiCalendar size={14} /> Book Appointment
             </button>
-            <a href="tel:+923001234567"
+            <a href="tel:+923008786187"
               className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl border-2 border-slate-200 text-slate-700 font-bold text-sm hover:bg-slate-50 transition-all">
               <FiPhone size={14} /> Call Us
             </a>
-            <a href="https://wa.me/+923001234567" target="_blank" rel="noopener noreferrer"
+            <a href="https://wa.me/923008786187" target="_blank" rel="noopener noreferrer"
               className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl border-2 border-emerald-200 text-emerald-700 font-bold text-sm hover:bg-emerald-50 transition-all">
               <FiMessageCircle size={14} /> WhatsApp
             </a>
@@ -1642,11 +1544,11 @@ function Banner() {
         </motion.h1>
         <motion.p initial={{ opacity:0,y:20 }} animate={inView ? { opacity:1,y:0 } : {}} transition={{ duration:0.9,delay:0.25 }}
           className="text-lg text-slate-500 max-w-2xl mx-auto leading-relaxed mb-10">
-          10 specialties · 50+ procedures · Board-certified specialists delivering exceptional care with compassion and technology.
+          8 clinic facilities · 20+ procedures · Board-certified therapists delivering exceptional care with compassion and technology.
         </motion.p>
         <motion.div initial={{ opacity:0,y:20 }} animate={inView ? { opacity:1,y:0 } : {}} transition={{ duration:0.8,delay:0.4 }}
           className="flex flex-wrap justify-center gap-6 sm:gap-10 mb-10">
-          {[{num:"10",label:"Specialties"},{num:"50+",label:"Procedures"},{num:"30+",label:"Doctors"},{num:"10K+",label:"Patients Treated"}].map((s,i) => (
+          {[{num:"8",label:"Facilities"},{num:"20+",label:"Procedures"},{num:"3",label:"Therapists"},{num:"20K+",label:"Patients Treated"}].map((s,i) => (
             <motion.div key={s.label} initial={{ opacity:0,y:20 }} animate={inView ? { opacity:1,y:0 } : {}} transition={{ delay:0.4+i*0.08 }} className="text-center">
               <p className="text-3xl font-extrabold" style={{ background:"linear-gradient(135deg,#0ea5e9,#db2777)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent" }}>{s.num}</p>
               <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mt-0.5">{s.label}</p>
@@ -1659,7 +1561,7 @@ function Banner() {
             style={{ background:"linear-gradient(135deg,#0ea5e9,#db2777)" }}>
             <FiCalendar size={15} /> Book Appointment
           </button>
-          <a href="tel:+923001234567" className="px-8 py-3.5 rounded-xl font-bold text-sm text-slate-700 bg-white border border-slate-200 hover:border-slate-300 hover:shadow-md transition-all flex items-center gap-2">
+          <a href="tel:+923008786187" className="px-8 py-3.5 rounded-xl font-bold text-sm text-slate-700 bg-white border border-slate-200 hover:border-slate-300 hover:shadow-md transition-all flex items-center gap-2">
             <FiPhone size={15} /> Call Us Now
           </a>
         </motion.div>
@@ -1760,7 +1662,7 @@ export default function ServicesPage() {
             <button onClick={() => navigate("/book-appointment")} className="px-8 py-3.5 rounded-xl font-bold text-sky-600 bg-white shadow-xl hover:bg-white/90 transition-all flex items-center gap-2 text-sm">
               <FiCalendar size={14} /> Book Free Consultation
             </button>
-            <a href="https://wa.me/+923001234567" target="_blank" rel="noopener noreferrer"
+            <a href="https://wa.me/923008786187" target="_blank" rel="noopener noreferrer"
               className="px-8 py-3.5 rounded-xl font-bold text-white border-2 border-white/40 hover:bg-white/10 transition-all flex items-center gap-2 text-sm">
               <FiMessageCircle size={14} /> Chat on WhatsApp
             </a>

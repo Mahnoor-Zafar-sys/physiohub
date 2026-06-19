@@ -74,7 +74,7 @@ function FaqAccordion({ faqs, color, bg }) {
 }
 
 export default function Insurance({ onBookAppointment }) {
-  const whatsappNumber = "+923001234567";
+  const whatsappNumber = "923008786187";
 
   return (
     <div className="min-h-screen font-sans" style={{ background: THEME.grad }}>
@@ -223,7 +223,7 @@ export default function Insurance({ onBookAppointment }) {
             <p className="text-slate-500 text-sm">Our dedicated insurance coordination desk is available 9 AM – 6 PM, Monday through Saturday.</p>
           </div>
           <div className="sm:ml-auto flex flex-shrink-0 gap-2">
-            <motion.a href="tel:+923001234567" whileHover={{ scale: 1.04 }} className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm text-white" style={{ background: THEME.gradBtn, textDecoration: "none" }}>
+            <motion.a href="tel:+923417388830" whileHover={{ scale: 1.04 }} className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm text-white" style={{ background: THEME.gradBtn, textDecoration: "none" }}>
               <FiPhone size={14} /> Call Desk
             </motion.a>
             <motion.a href={`https://wa.me/${whatsappNumber}`} target="_blank" whileHover={{ scale: 1.04 }} className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm text-white" style={{ background: "#25D366", textDecoration: "none" }}>
