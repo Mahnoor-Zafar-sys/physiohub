@@ -121,7 +121,7 @@ export const doctors = [
     education: [
       { degree: "DPT", institution: "IUCSI", year: "2011" },
     ],
-    bio: "Dr. Ghulam Jellani is the Founder & CEO of Vital Physio Hub. He is an experienced Practitioner Physiotherapist specializing in advanced manipulation, Hijama, cupping therapy, dry needling, and sports taping techniques.",
+    bio: "Dr. Ghulam Jellani is the Founder & CEO of Physiohub. He is an experienced Practitioner Physiotherapist specializing in advanced manipulation, Hijama, cupping therapy, dry needling, and sports taping techniques.",
     certifications: ["Advanced Manipulation Certified", "Hijama & Cupping Therapy Specialist", "Dry Needling Practitioner", "Sports Taping Practitioner"],
     social: { linkedin: "#", facebook: "#", instagram: "#", twitter: "#" },
     solidColor: "#ec4899",
@@ -149,7 +149,7 @@ export const testimonials = [
     id: 2,
     name: "Marcus Chen",
     role: "Athlete",
-    review: "Vital Physio Hub is top-notch. Dr. Jellani's Hijama and dry needling got me back on the track in record time.",
+    review: "Physiohub is top-notch. Dr. Jellani's Hijama and dry needling got me back on the track in record time.",
     rating: 5,
     avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face",
     date: "1 month ago",

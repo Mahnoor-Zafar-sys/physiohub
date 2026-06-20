@@ -143,9 +143,11 @@ export default function VideoConsultationRoom() {
 
       <style dangerouslySetInnerHTML={{__html: `
         @media print {
-          body * { visibility: hidden; }
-          .print-area, .print-area * { visibility: visible; }
-          .print-area { position: absolute; left: 0; top: 0; width: 100%; color: #000 !important; background: white !important; }
+          body { background: white !important; color: black !important; margin: 0 !important; padding: 0 !important; }
+          nav, footer, .navbar, .footer, .print\\:hidden, .print-hidden { display: none !important; }
+          .min-h-screen { background: white !important; min-height: 0 !important; display: block !important; }
+          .flex-grow { padding: 0 !important; margin: 0 !important; max-w-none !important; width: 100% !important; }
+          .print-area { position: static !important; width: 100% !important; max-w-none !important; box-shadow: none !important; border: none !important; padding: 0 !important; margin: 0 !important; background: white !important; color: black !important; }
         }
       `}} />
 

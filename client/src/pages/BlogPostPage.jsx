@@ -9,12 +9,65 @@ import { FaWhatsapp, FaTwitter, FaFacebook, FaLinkedin, FaStar } from "react-ico
 import { HiSparkles } from "react-icons/hi";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import { api } from "../services/api";
 
 const THEME = {
   pink:    "#e91e8c",
   sky:     "#0ea5e9",
   grad:    "linear-gradient(135deg, #f0f9ff 0%, #ffffff 50%, #fdf2f8 100%)",
   gradBtn: "linear-gradient(135deg, #0ea5e9, #e91e8c)",
+};
+
+const getCategoryStyles = (category) => {
+  const cat = String(category).toLowerCase();
+  if (cat.includes("skin")) return { color: "#e91e8c", bg: "#fce4ec" };
+  if (cat.includes("hair")) return { color: "#a78bfa", bg: "#ede9fe" };
+  if (cat.includes("diabetes")) return { color: "#34d399", bg: "#d1fae5" };
+  if (cat.includes("gynecology")) return { color: "#f59e0b", bg: "#fef3c7" };
+  if (cat.includes("orthopedic") || cat.includes("physio")) return { color: "#ff7f50", bg: "#fff0eb" };
+  return { color: "#0ea5e9", bg: "#e0f2fe" }; // default General Health
+};
+
+const getAuthorImg = (author) => {
+  const aut = String(author).toLowerCase();
+  if (aut.includes("sarah")) return "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=80&q=80"; // Dr. Sarah Ahmed
+  if (aut.includes("fatima")) return "https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&w=80&q=80"; // Dr. Fatima Malik
+  if (aut.includes("sadia")) return "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=80&q=80"; // Dr. Sadia Noor
+  if (aut.includes("zara")) return "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=80&q=80"; // Dr. Zara Ahmed
+  if (aut.includes("jellani")) return "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=80&q=80"; // Dr. Ghulam Jellani
+  if (aut.includes("imran")) return "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=80&q=80"; // Dr. Imran Sheikh
+  if (aut.includes("hassan")) return "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=80&q=80"; // Dr. Hassan Raza
+  return "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=80&q=80"; // default admin / director
+};
+
+const getFormattedDate = (dateStr) => {
+  if (!dateStr) return "June 3, 2026";
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return dateStr;
+    return d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+  } catch (e) {
+    return dateStr;
+  }
+};
+
+const getReadTime = (content) => {
+  if (!content) return "5 min read";
+  const words = typeof content === 'string' ? content.split(/\s+/).length : JSON.stringify(content).split(/\s+/).length;
+  const time = Math.max(3, Math.ceil(words / 200));
+  return `${time} min read`;
+};
+
+const parseContent = (contentVal) => {
+  if (!contentVal) return [];
+  if (Array.isArray(contentVal)) return contentVal;
+  try {
+    const parsed = JSON.parse(contentVal);
+    if (Array.isArray(parsed)) return parsed;
+    return [{ type: "p", text: String(contentVal) }];
+  } catch (e) {
+    return [{ type: "p", text: String(contentVal) }];
+  }
 };
 
 const BLOG_POSTS = [
@@ -373,14 +426,78 @@ export default function BlogPostPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   
-  // Find the current post
-  const post = BLOG_POSTS.find(p => p.id === parseInt(id)) || BLOG_POSTS[0];
-
-  const [comments, setComments] = useState(INITIAL_COMMENTS);
+  const [post, setPost] = useState(null);
+  const [allPosts, setAllPosts] = useState([]);
+  const [comments, setComments] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [commentForm, setCommentForm] = useState({ name: "", text: "", rating: 5 });
   const [likes, setLikes] = useState(42);
   const [hasLiked, setHasLiked] = useState(false);
   const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    async function loadData() {
+      setLoading(true);
+      const data = await api.getArticles();
+      const comms = await api.getComments();
+      
+      let postsList = BLOG_POSTS;
+      if (data && data.length > 0) {
+        const blogs = data.filter(p => p.type === "blog" || !p.type);
+        if (blogs.length > 0) {
+          postsList = blogs.map((p, idx) => {
+            const catStyles = getCategoryStyles(p.category);
+            return {
+              ...p,
+              content: parseContent(p.content),
+              featured: p.featured !== undefined ? !!p.featured : idx < 3,
+              categoryColor: catStyles.color,
+              categoryBg: catStyles.bg,
+              authorImg: getAuthorImg(p.author),
+              date: getFormattedDate(p.created_at),
+              readTime: getReadTime(p.content),
+              tag: String(p.category).toLowerCase().includes("skin") ? "skin" :
+                   String(p.category).toLowerCase().includes("hair") ? "hair" :
+                   String(p.category).toLowerCase().includes("gyne") ? "gynecology" :
+                   String(p.category).toLowerCase().includes("ortho") ? "orthopedic" : "health"
+            };
+          });
+        }
+      } else {
+        postsList = BLOG_POSTS.map(p => {
+          const catStyles = getCategoryStyles(p.category);
+          return {
+            ...p,
+            categoryColor: catStyles.color,
+            categoryBg: catStyles.bg
+          };
+        });
+      }
+
+      setAllPosts(postsList);
+
+      const found = postsList.find(p => String(p.id) === String(id));
+      if (found) {
+        setPost(found);
+      } else {
+        setPost(postsList[0]);
+      }
+
+      if (comms && comms.length > 0) {
+        const filtered = comms.filter(c => String(c.article_id) === String(id) && c.status === "Approved");
+        setComments(filtered);
+      } else {
+        setComments(INITIAL_COMMENTS.map(c => ({
+          author_name: c.name,
+          comment_text: c.text,
+          rating: c.rating,
+          date: c.date
+        })));
+      }
+      setLoading(false);
+    }
+    loadData();
+  }, [id]);
 
   // Scroll to top on load
   useEffect(() => {
@@ -403,27 +520,43 @@ export default function BlogPostPage() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handlePostComment = (e) => {
+  const handlePostComment = async (e) => {
     e.preventDefault();
     if (commentForm.name && commentForm.text) {
-      const newComment = {
-        name: commentForm.name,
-        rating: commentForm.rating,
-        text: commentForm.text,
-        date: "Just now"
+      const commData = {
+        articleId: parseInt(id),
+        authorName: commentForm.name,
+        commentText: commentForm.text
       };
-      setComments([newComment, ...comments]);
-      setCommentForm({ name: "", text: "", rating: 5 });
-      alert("Comment posted successfully!");
+      const res = await api.createComment(commData);
+      if (res) {
+        alert("Your comment has been submitted and is pending administrator review!");
+        setCommentForm({ name: "", text: "", rating: 5 });
+        // Reload comments from server
+        const comms = await api.getComments();
+        if (comms) {
+          const filtered = comms.filter(c => String(c.article_id) === String(id) && c.status === "Approved");
+          setComments(filtered);
+        }
+      } else {
+        alert("Failed to submit comment. Please try again.");
+      }
     }
   };
 
+  if (loading || !post) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-slate-400 font-bold">Loading article...</div>
+      </div>
+    );
+  }
+
   // Find the authoring doctor from the mock data to pass to the booking page
-  // If doctor details aren't matching exactly, fallback to general details
   const matchingDoctor = {
     name: post.author,
     specialty: post.category,
-    title: post.authorTitle,
+    title: post.authorTitle || "Consultant Specialist",
     image: post.authorImg,
     solidColor: post.categoryColor,
     lightBg: "from-sky-50 to-pink-50",
@@ -435,7 +568,7 @@ export default function BlogPostPage() {
   };
 
   // Related articles filter (excluding the current one)
-  const relatedPosts = BLOG_POSTS.filter(p => p.id !== post.id).slice(0, 3);
+  const relatedPosts = allPosts.filter(p => String(p.id) !== String(post.id)).slice(0, 3);
 
   const shareText = `Check out this excellent medical article: "${post.title}"`;
   const shareUrl = window.location.href;
@@ -634,14 +767,14 @@ export default function BlogPostPage() {
                   <div key={index} className="bg-white border border-slate-100 rounded-2xl p-4 space-y-2">
                     <div className="flex justify-between items-center">
                       <div>
-                        <p className="text-xs font-extrabold text-slate-800">{comment.name}</p>
+                        <p className="text-xs font-extrabold text-slate-800">{comment.author_name || comment.name}</p>
                         <div className="flex items-center gap-1.5 mt-0.5">
                           <div className="flex gap-0.5">
                             {[1, 2, 3, 4, 5].map(s => (
-                              <FaStar key={s} size={9} color={comment.rating >= s ? "#FBBF24" : "#e2e8f0"} />
+                              <FaStar key={s} size={9} color={(comment.rating || 5) >= s ? "#FBBF24" : "#e2e8f0"} />
                             ))}
                           </div>
-                          <span className="text-[9px] text-slate-400 font-bold">{comment.date}</span>
+                          <span className="text-[9px] text-slate-400 font-bold">{comment.date || "Just now"}</span>
                         </div>
                       </div>
                       <span className="text-[9px] font-bold text-sky-600 bg-sky-50 px-2 py-0.5 rounded-full">
@@ -649,7 +782,7 @@ export default function BlogPostPage() {
                       </span>
                     </div>
                     <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-medium">
-                      {comment.text}
+                      {comment.comment_text || comment.text}
                     </p>
                   </div>
                 ))}

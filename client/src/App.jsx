@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Home from "./pages/Home";
 import AboutPremium from "./pages/About";
 import OnlineConsultation from "./components/OnlineConsultation";
@@ -21,13 +21,31 @@ import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import VideoConsultationRoom from "./pages/VideoConsultationRoom";
 import BlogPostPage from "./pages/BlogPostPage";
-import Dashboard from "./pages/Dashboard";
+import LoginPage from "./pages/LoginPage";
+import SignupPage from "./pages/SignupPage";
+import PatientPortal from "./pages/PatientPortal";
+import DoctorPortal from "./pages/DoctorPortal";
+import AdminPanel from "./pages/AdminPanel";
+import AuthGuard from "./components/AuthGuard";
 import AIChatbot from "./components/AIChatbot";
 import NewsPress from "./pages/NewsPress";
 import ResearchPage from "./pages/Research";
 import CSRPage from "./pages/CSR";
 import CookiePolicy from "./pages/CookiePolicy";
 import NewsArticlePage from "./pages/NewsArticlePage";
+import Shop from "./pages/Shop";
+
+function DashboardRedirect() {
+  const role = localStorage.getItem("vph_user_role");
+  if (!role) return <Navigate to="/login" replace />;
+  const portalMap = {
+    patient: "/patient-portal",
+    doctor: "/doctor-portal",
+    admin: "/admin",
+    receptionist: "/admin"
+  };
+  return <Navigate to={portalMap[role] || "/login"} replace />;
+}
 
 export default function App() {
   const [splashDone, setSplashDone] = useState(false);
@@ -45,8 +63,13 @@ export default function App() {
         <Route path="/about" element={<AboutPremium />} />
         <Route path="/doctors" element={<DoctorsPage />} />
         <Route path="/services" element={<ServicesPage />} />
+        <Route path="/shop" element={<Shop />} />
         <Route path="/contact" element={<ContactUs />} />
-        <Route path="/book-appointment" element={<BookAppointmentPage />} />
+        <Route path="/book-appointment" element={
+          <AuthGuard allowedRoles={["patient"]}>
+            <BookAppointmentPage />
+          </AuthGuard>
+        } />
         <Route path="/online-consultation" element={<OnlineConsultation />} />
         <Route path="/reviews" element={<Reviews />} />
         <Route path="/gallery" element={<GalleryPage />} />
@@ -60,7 +83,31 @@ export default function App() {
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/consultation-room" element={<VideoConsultationRoom />} />
-        <Route path="/dashboard" element={<Dashboard />} />
+        
+        {/* Authentication Routes */}
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
+
+        {/* Protected Portals */}
+        <Route path="/patient-portal" element={
+          <AuthGuard allowedRoles={["patient"]}>
+            <PatientPortal />
+          </AuthGuard>
+        } />
+        <Route path="/doctor-portal" element={
+          <AuthGuard allowedRoles={["doctor"]}>
+            <DoctorPortal />
+          </AuthGuard>
+        } />
+        <Route path="/admin" element={
+          <AuthGuard allowedRoles={["admin", "receptionist"]}>
+            <AdminPanel />
+          </AuthGuard>
+        } />
+
+        {/* Backward Compatibility */}
+        <Route path="/dashboard" element={<DashboardRedirect />} />
+
         <Route path="/news" element={<NewsPress />} />
         <Route path="/news/:id" element={<NewsArticlePage />} />
         <Route path="/research" element={<ResearchPage />} />

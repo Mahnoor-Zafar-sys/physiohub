@@ -9,6 +9,7 @@ import { HiOutlineBadgeCheck, HiSparkles } from "react-icons/hi";
 import { MdVerified } from "react-icons/md";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import { api } from "../services/api";
 
 const THEME = {
   pink:    "#e91e8c",
@@ -27,7 +28,7 @@ const REVIEWS = [
     service: "Women’s Health & Pelvic Floor PT",
     doctor: "Dr. Humna Zohra",
     date: "2 days ago",
-    text: "Absolutely phenomenal experience at Vital Physio Hub! Dr. Humna Zohra completely transformed my recovery. Her postpartum pelvic floor rehabilitation was conducted with extreme professionalism and care.",
+    text: "Absolutely phenomenal experience at Physiohub! Dr. Humna Zohra completely transformed my recovery. Her postpartum pelvic floor rehabilitation was conducted with extreme professionalism and care.",
     helpful: 47,
     verified: true,
     tag: "womens-health",
@@ -117,7 +118,7 @@ const REVIEWS = [
     service: "Electrotherapy",
     doctor: "Dr. Ghulam Jellani",
     date: "3 weeks ago",
-    text: "Electrotherapy and TENS stimulation sessions helped block my acute inflammatory pain immediately. Extremely modern equipment and helpful staff at Vital Physio Hub.",
+    text: "Electrotherapy and TENS stimulation sessions helped block my acute inflammatory pain immediately. Extremely modern equipment and helpful staff at Physiohub.",
     helpful: 38,
     verified: true,
     tag: "electrotherapy",
@@ -132,7 +133,7 @@ const REVIEWS = [
     service: "Kinesio Taping",
     doctor: "Dr. Ghulam Jellani",
     date: "1 month ago",
-    text: "Dr. Ghulam Jellani used functional Kinesio taping to support my ligament strain. It provided great support and joint stability, allowing me to move easily. Vital Physio Hub is definitely the best physical therapy clinic.",
+    text: "Dr. Ghulam Jellani used functional Kinesio taping to support my ligament strain. It provided great support and joint stability, allowing me to move easily. Physiohub is definitely the best physical therapy clinic.",
     helpful: 66,
     verified: true,
     tag: "kinesio",
@@ -288,7 +289,19 @@ export default function Reviews({ onBookAppointment }) {
   const [reviewTag, setReviewTag] = useState("all");
   const [search, setSearch] = useState("");
   const [writeModalOpen, setWriteModalOpen] = useState(false);
-  const [newReviewForm, setNewReviewForm] = useState({ name: "", text: "", rating: 5, service: "Physiotherapy", doctor: "Dr. Ghulam Jellani" });
+  const [newReviewForm, setNewReviewForm] = useState({ name: "", text: "", rating: 5, service: "Physiotherapy", doctor: "Dr. Sarah Ahmed" });
+
+  useEffect(() => {
+    async function loadReviews() {
+      const data = await api.getReviews();
+      if (data && data.length > 0) {
+        setAllReviews(data);
+      } else {
+        setAllReviews(REVIEWS);
+      }
+    }
+    loadReviews();
+  }, []);
 
   const filteredReviews = allReviews.filter((r) => {
     const matchTag = reviewTag === "all" || r.tag === reviewTag;
@@ -317,7 +330,7 @@ export default function Reviews({ onBookAppointment }) {
           </motion.h1>
 
           <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25, duration: 0.7 }} className="text-slate-500 text-lg max-w-2xl mx-auto mb-8">
-            Read what our verified patients have to say about their treatment journeys at Vital Physio Hub.
+            Read what our verified patients have to say about their treatment journeys at Physiohub.
           </motion.p>
 
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="flex flex-wrap items-center justify-center gap-8 sm:gap-14 mb-8">
@@ -337,7 +350,7 @@ export default function Reviews({ onBookAppointment }) {
             <div className="px-3 py-1 rounded-full text-xs font-bold ml-1" style={{ background: "#fce4ec", color: THEME.pink }}>Editor's Pick</div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {REVIEWS.filter((r) => r.featured).map((review, i) => (
+            {allReviews.filter((r) => r.featured).map((review, i) => (
               <motion.div key={review.id} initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: i * 0.1 }} className="relative rounded-3xl overflow-hidden p-7 shadow-lg hover:shadow-2xl transition-shadow duration-500" style={{ background: "linear-gradient(145deg, rgba(255,255,255,0.95), rgba(252,228,236,0.3))", border: "1.5px solid rgba(233,30,140,0.1)" }}>
                 <div className="absolute top-0 left-0 right-0 h-1 rounded-t-3xl" style={{ background: THEME.gradBtn }} />
                 <FaQuoteLeft size={28} className="mb-3" style={{ color: "#fce4ec" }} />
@@ -435,10 +448,9 @@ export default function Reviews({ onBookAppointment }) {
               </p>
 
               <form 
-                onSubmit={(e) => {
+                onSubmit={async (e) => {
                   e.preventDefault();
                   const newRev = {
-                    id: allReviews.length + 1,
                     name: newReviewForm.name || "Anonymous Patient",
                     avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(newReviewForm.name || "Anonymous Patient")}&background=e91e8c&color=fff`,
                     rating: newReviewForm.rating,
@@ -447,7 +459,7 @@ export default function Reviews({ onBookAppointment }) {
                     date: "Just now",
                     text: newReviewForm.text,
                     helpful: 0,
-                    verified: true,
+                    verified: 1,
                     tag: newReviewForm.service.toLowerCase().includes("physio") ? "physiotherapy" :
                          newReviewForm.service.toLowerCase().includes("chiro") ? "chiropractic" :
                          newReviewForm.service.toLowerCase().includes("cup") ? "cupping" :
@@ -456,12 +468,23 @@ export default function Reviews({ onBookAppointment }) {
                          newReviewForm.service.toLowerCase().includes("kine") ? "kinesio" :
                          newReviewForm.service.toLowerCase().includes("fit") ? "fitness" :
                          newReviewForm.service.toLowerCase().includes("need") ? "needling" : "physiotherapy",
-                     source: "google"
-                   };
-                  setAllReviews([newRev, ...allReviews]);
+                     source: "google",
+                     featured: 0
+                  };
+                  const res = await api.createReview(newRev);
+                  if (res) {
+                    const data = await api.getReviews();
+                    if (data && data.length > 0) {
+                      setAllReviews(data);
+                    } else {
+                      setAllReviews([res, ...allReviews]);
+                    }
+                  } else {
+                    setAllReviews([newRev, ...allReviews]);
+                  }
                   setWriteModalOpen(false);
-                   setNewReviewForm({ name: "", text: "", rating: 5, service: "Physiotherapy", doctor: "Dr. Ghulam Jellani" });
-                  alert("Thank you! Your verified review has been submitted successfully and added to the list.");
+                  setNewReviewForm({ name: "", text: "", rating: 5, service: "Physiotherapy", doctor: "Dr. Sarah Ahmed" });
+                  alert("Thank you! Your verified review has been submitted successfully.");
                 }}
                 className="space-y-4"
               >

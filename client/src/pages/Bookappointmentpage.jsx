@@ -897,6 +897,36 @@ function SuccessView({ doctor, day, time, consultType, form }) {
   );
 }
 
+// Specialty tag mapping helper
+const getTagFromSpecialty = (specialty) => {
+  if (!specialty) return "all";
+  const s = specialty.toLowerCase();
+  if (s.includes("physio")) return "physiotherapy";
+  if (s.includes("chiro")) return "chiropractic";
+  if (s.includes("cup")) return "cupping";
+  if (s.includes("hij")) return "hijama";
+  if (s.includes("electro")) return "electrotherapy";
+  if (s.includes("kinesio")) return "kinesio";
+  if (s.includes("fit")) return "fitness";
+  if (s.includes("needl")) return "needling";
+  return "all";
+};
+
+// Specialty styling colors mapping helper
+const getStylesForTag = (tag) => {
+  const stylesMap = {
+    physiotherapy: { solidColor: "#0ea5e9" },
+    chiropractic: { solidColor: "#8b5cf6" },
+    cupping: { solidColor: "#0d9488" },
+    hijama: { solidColor: "#4f46e5" },
+    electrotherapy: { solidColor: "#dc2626" },
+    kinesio: { solidColor: "#ec4899" },
+    fitness: { solidColor: "#d97706" },
+    needling: { solidColor: "#10b981" }
+  };
+  return stylesMap[tag] || { solidColor: "#0ea5e9" };
+};
+
 // ─── MAIN PAGE ────────────────────────────────────────────────────────────────
 export default function BookAppointmentPage() {
   const navigate = useNavigate();
@@ -1022,6 +1052,27 @@ export default function BookAppointmentPage() {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [cardDetails, setCardDetails] = useState({ number: "", expiry: "", cvc: "" });
   const [doctors, setDoctors] = useState([]);
+  const [selectedMethod, setSelectedMethod] = useState("Easypaisa");
+  const [verificationMode, setVerificationMode] = useState("manual");
+  const [txnRef, setTxnRef] = useState("");
+  const [screenshotPreview, setScreenshotPreview] = useState(null);
+  const [screenshotBase64, setScreenshotBase64] = useState("");
+
+  const handleScreenshotChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 1024 * 1024) {
+        alert("File size is too large. Please select an image under 1MB.");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setScreenshotPreview(reader.result);
+        setScreenshotBase64(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   useEffect(() => {
     const fetchDoctors = async () => {
@@ -1043,20 +1094,20 @@ export default function BookAppointmentPage() {
           fee: dbDoc.fee,
           branch: branches,
           status: dbDoc.status || "Active",
-          slug: mockDoc?.slug || dbDoc.name.toLowerCase().replace(/\s+/g, "-"),
-          title: mockDoc?.title || "Consultant Specialist",
-          tag: mockDoc?.tag || "general",
-          image: mockDoc?.image || "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=400&q=80",
-          experience: mockDoc?.experience || "10 Years",
+          slug: dbDoc.slug || mockDoc?.slug || dbDoc.name.toLowerCase().replace(/\s+/g, "-"),
+          title: dbDoc.title || mockDoc?.title || "Consultant Specialist",
+          tag: mockDoc?.tag || getTagFromSpecialty(dbDoc.specialty),
+          image: dbDoc.image || mockDoc?.image || "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=400&q=80",
+          experience: dbDoc.experience || mockDoc?.experience || "10 Years",
           patients: mockDoc?.patients || "5,000+",
-          rating: mockDoc?.rating || 4.8,
+          rating: dbDoc.rating || mockDoc?.rating || 4.8,
           reviews: mockDoc?.reviews || 120,
           languages: mockDoc?.languages || ["Urdu", "English"],
           available: dbDoc.status === "Active" ? (mockDoc?.available !== undefined ? mockDoc.available : true) : false,
           nextSlot: mockDoc?.nextSlot || "Today, 4:00 PM",
           gender: mockDoc?.gender || "Female",
           schedule: mockDoc?.schedule || ["Mon 10AM–2PM", "Wed 3PM–7PM", "Fri 10AM–1PM"],
-          solidColor: mockDoc?.solidColor || "#ec4899"
+          solidColor: mockDoc?.solidColor || getStylesForTag(mockDoc?.tag || getTagFromSpecialty(dbDoc.specialty)).solidColor
         };
       });
       setDoctors(mergedDocs.filter(d => d.status === "Active"));
@@ -1078,7 +1129,9 @@ export default function BookAppointmentPage() {
       branch: selectedBranch + " Branch",
       status: "Pending",
       payment_status: "Pending Verification",
-      patient: patientName
+      patient: patientName,
+      payment_method: selectedMethod,
+      payment_screenshot: screenshotBase64 || txnRef
     });
 
     // 2. Create Invoice

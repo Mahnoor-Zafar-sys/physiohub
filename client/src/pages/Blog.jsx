@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import {
@@ -8,12 +8,53 @@ import { HiSparkles } from "react-icons/hi";
 import { LuMailOpen } from "react-icons/lu";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import { api } from "../services/api";
 
 const THEME = {
   pink:    "#e91e8c",
   sky:     "#0ea5e9",
   grad:    "linear-gradient(135deg, #fce4ec 0%, #e0f2fe 60%, #fdf4ff 100%)",
   gradBtn: "linear-gradient(135deg, #0ea5e9, #e91e8c)",
+};
+
+const getCategoryStyles = (category) => {
+  const cat = String(category).toLowerCase();
+  if (cat.includes("skin")) return { color: "#e91e8c", bg: "#fce4ec" };
+  if (cat.includes("hair")) return { color: "#a78bfa", bg: "#ede9fe" };
+  if (cat.includes("diabetes")) return { color: "#34d399", bg: "#d1fae5" };
+  if (cat.includes("gynecology")) return { color: "#f59e0b", bg: "#fef3c7" };
+  if (cat.includes("orthopedic") || cat.includes("physio")) return { color: "#ff7f50", bg: "#fff0eb" };
+  return { color: "#0ea5e9", bg: "#e0f2fe" }; // default General Health
+};
+
+const getAuthorImg = (author) => {
+  const aut = String(author).toLowerCase();
+  if (aut.includes("sarah")) return "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=80&q=80"; // Dr. Sarah Ahmed
+  if (aut.includes("fatima")) return "https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&w=80&q=80"; // Dr. Fatima Malik
+  if (aut.includes("sadia")) return "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=80&q=80"; // Dr. Sadia Noor
+  if (aut.includes("zara")) return "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=80&q=80"; // Dr. Zara Ahmed
+  if (aut.includes("jellani")) return "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=80&q=80"; // Dr. Ghulam Jellani
+  if (aut.includes("imran")) return "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=80&q=80"; // Dr. Imran Sheikh
+  if (aut.includes("hassan")) return "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=80&q=80"; // Dr. Hassan Raza
+  return "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=80&q=80"; // default admin / director
+};
+
+const getFormattedDate = (dateStr) => {
+  if (!dateStr) return "June 3, 2026";
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return dateStr;
+    return d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+  } catch (e) {
+    return dateStr;
+  }
+};
+
+const getReadTime = (content) => {
+  if (!content) return "5 min read";
+  const words = typeof content === 'string' ? content.split(/\s+/).length : JSON.stringify(content).split(/\s+/).length;
+  const time = Math.max(3, Math.ceil(words / 200));
+  return `${time} min read`;
 };
 
 const BLOG_POSTS = [
@@ -184,17 +225,60 @@ function BlogCard({ post, index, featured = false }) {
 }
 
 export default function Blog({ onBookAppointment }) {
+  const [posts, setPosts] = useState(BLOG_POSTS);
   const [blogTag, setBlogTag] = useState("all");
   const [search, setSearch] = useState("");
 
-  const filteredBlogFeatured = BLOG_POSTS.filter((p) => {
+  useEffect(() => {
+    async function loadPosts() {
+      const data = await api.getArticles();
+      if (data && data.length > 0) {
+        const blogs = data.filter(p => p.type === "blog" || !p.type);
+        if (blogs.length > 0) {
+          const mapped = blogs.map((p, idx) => {
+            const catStyles = getCategoryStyles(p.category);
+            return {
+              ...p,
+              featured: p.featured !== undefined ? !!p.featured : idx < 3,
+              categoryColor: catStyles.color,
+              categoryBg: catStyles.bg,
+              authorImg: getAuthorImg(p.author),
+              date: getFormattedDate(p.created_at),
+              readTime: getReadTime(p.content),
+              tag: String(p.category).toLowerCase().includes("skin") ? "skin" :
+                   String(p.category).toLowerCase().includes("hair") ? "hair" :
+                   String(p.category).toLowerCase().includes("gyne") ? "gynecology" :
+                   String(p.category).toLowerCase().includes("ortho") ? "orthopedic" : "health"
+            };
+          });
+          setPosts(mapped);
+        } else {
+          setPosts([]);
+        }
+      } else {
+        // Map default ones with correct details
+        const mapped = BLOG_POSTS.map(p => {
+          const catStyles = getCategoryStyles(p.category);
+          return {
+            ...p,
+            categoryColor: catStyles.color,
+            categoryBg: catStyles.bg
+          };
+        });
+        setPosts(mapped);
+      }
+    }
+    loadPosts();
+  }, []);
+
+  const filteredBlogFeatured = posts.filter((p) => {
     const matchTag = blogTag === "all" || p.tag === blogTag;
     const q = search.toLowerCase();
     const matchSearch = !q || p.title.toLowerCase().includes(q) || p.excerpt.toLowerCase().includes(q) || p.author.toLowerCase().includes(q) || p.category.toLowerCase().includes(q);
     return p.featured && matchTag && matchSearch;
   });
 
-  const filteredBlogRest = BLOG_POSTS.filter((p) => {
+  const filteredBlogRest = posts.filter((p) => {
     const matchTag = blogTag === "all" || p.tag === blogTag;
     const q = search.toLowerCase();
     const matchSearch = !q || p.title.toLowerCase().includes(q) || p.excerpt.toLowerCase().includes(q) || p.author.toLowerCase().includes(q) || p.category.toLowerCase().includes(q);

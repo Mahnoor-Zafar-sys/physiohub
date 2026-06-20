@@ -1724,10 +1724,11 @@
 //   );
 // }
 
-import { useState, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import { api } from "../services/api";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import {
   FaWhatsapp, FaPhone, FaEnvelope, FaMapMarkerAlt,
@@ -1816,7 +1817,7 @@ function FAQItem({ q, a, index }) {
 }
 
 // ── Contact Banner (Services page Banner style — with floating contact icons) ──
-function ContactBanner() {
+function ContactBanner({ settings }) {
   const navigate = useNavigate();
   const ref = useRef(null);
   const inView = useInView(ref, { once: true });
@@ -1864,7 +1865,7 @@ function ContactBanner() {
           transition={{ duration: 0.6 }}
           className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/80 border border-sky-200/70 text-sky-600 text-xs font-bold uppercase tracking-widest mb-6 shadow-sm backdrop-blur-sm">
           <FaHeartbeat className="animate-pulse text-pink-500" />
-          Vital Physio Hub · Contact Us
+          Physiohub · Contact Us
         </motion.div>
 
         <motion.h1 initial={{ opacity: 0, y: 30 }} animate={inView ? { opacity: 1, y: 0 } : {}}
@@ -1909,9 +1910,9 @@ function ContactBanner() {
           transition={{ duration: 0.7, delay: 0.55 }}
           className="flex flex-wrap justify-center gap-3">
           {[
-            { icon: <FaPhone />, label: "Call Now",   href: "tel:+923417388830",  cls: "bg-white border-sky-200   text-sky-600   hover:bg-sky-50   hover:border-sky-400" },
-            { icon: <FaWhatsapp />, label: "WhatsApp", href: "https://wa.me/923008786187?text=" + encodeURIComponent("Hello Vital Physio Hub, I want to inquire about your healthcare services."), cls: "bg-white border-green-200  text-green-600  hover:bg-green-50  hover:border-green-400" },
-            { icon: <FaAmbulance />, label: "Emergency", href: "tel:1122",          cls: "bg-white border-red-200    text-red-500    hover:bg-red-50    hover:border-red-400" },
+            { icon: <FaPhone />, label: "Call Now",   href: `tel:${settings.clinic_phone}`,  cls: "bg-white border-sky-200   text-sky-600   hover:bg-sky-50   hover:border-sky-400" },
+            { icon: <FaWhatsapp />, label: "WhatsApp", href: `https://wa.me/${settings.clinic_phone.replace(/[^\d]/g, "")}?text=` + encodeURIComponent("Hello Physiohub, I want to inquire about your healthcare services."), cls: "bg-white border-green-200  text-green-600  hover:bg-green-50  hover:border-green-400" },
+            { icon: <FaAmbulance />, label: "Emergency", href: `tel:${settings.ambulance_phone}`, cls: "bg-white border-red-200    text-red-500    hover:bg-red-50    hover:border-red-400" },
           ].map((btn) => (
             <a key={btn.label} href={btn.href}
               target={btn.href.startsWith("http") ? "_blank" : undefined}
@@ -1929,8 +1930,26 @@ function ContactBanner() {
 // ── Main ContactUs Page ───────────────────────────────────────────────────────
 export default function ContactUs() {
   const navigate = useNavigate();
-  const whatsappNumber = "923008786187";
-  const welcomeMessage = encodeURIComponent("Hello Vital Physio Hub, I want to inquire about your healthcare services.");
+  const [settings, setSettings] = useState({
+    clinic_phone: "+92 300 8786187",
+    clinic_email: "info@physiohub.com",
+    clinic_address: "First Floor, Building 14-B, Main Boulevard, Gulberg, Lahore, Pakistan",
+    clinic_hours: "Mon - Sat: 09:00 AM - 09:00 PM",
+    ambulance_phone: "+92 (51) 111-911-273"
+  });
+
+  useEffect(() => {
+    let active = true;
+    api.getSettings().then(res => {
+      if (res && active) {
+        setSettings(prev => ({ ...prev, ...res }));
+      }
+    });
+    return () => { active = false; };
+  }, []);
+
+  const whatsappNumber = settings.clinic_phone.replace(/[^\d]/g, "");
+  const welcomeMessage = encodeURIComponent("Hello Physiohub, I want to inquire about your healthcare services.");
 
   const [formData, setFormData] = useState({ name: "", phone: "", email: "", subject: "", department: "", message: "" });
   const [submitted, setSubmitted] = useState(false);
@@ -1960,7 +1979,7 @@ export default function ContactUs() {
       {/* ═══════════════════════════════════════════
           BANNER — Services-style with floating icons
       ═══════════════════════════════════════════ */}
-      <ContactBanner />
+      <ContactBanner settings={settings} />
 
       {/* ═══════════════════════════════════════════
           QUICK INFO CARDS
@@ -1970,10 +1989,10 @@ export default function ContactUs() {
           <motion.div variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-60px" }}
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {[
-              { icon: <FaPhone size={20} />, title: "Phone", lines: ["+92 300 8786187", "+92 341 7388830"], color: "sky" },
-              { icon: <FaEnvelope size={20} />, title: "Email", lines: ["info@vitalphysiohub.com", "appointments@vitalphysiohub.com"], color: "pink" },
-              { icon: <FaClock size={20} />, title: "Opening Hours", lines: ["Mon–Sat: 9AM – 9PM", "Sun: 10AM – 4PM"], color: "amber" },
-              { icon: <MdEmergency size={20} />, title: "Emergency", lines: ["1122 – Rescue", "24/7 Available"], color: "red", urgent: true },
+              { icon: <FaPhone size={20} />, title: "Phone", lines: [settings.clinic_phone], color: "sky" },
+              { icon: <FaEnvelope size={20} />, title: "Email", lines: [settings.clinic_email], color: "pink" },
+              { icon: <FaClock size={20} />, title: "Opening Hours", lines: [settings.clinic_hours], color: "amber" },
+              { icon: <MdEmergency size={20} />, title: "Emergency", lines: [settings.ambulance_phone, "24/7 Available"], color: "red", urgent: true },
             ].map((card, i) => {
               const colorMap = {
                 sky:   { bg: "bg-sky-50",   border: "border-sky-200",   icon: "text-sky-500",   gIcon: "bg-sky-100",   hover: "hover:border-sky-300 hover:shadow-sky-100" },
@@ -2123,7 +2142,7 @@ export default function ContactUs() {
                   <div>
                     <p className="text-slate-800 font-bold text-base">Chat on WhatsApp</p>
                     <p className="text-green-500 text-xs mt-0.5 font-semibold">Instant replies · 24/7</p>
-                    <p className="text-slate-400 text-xs mt-1">+92 300 8786187</p>
+                    <p className="text-slate-400 text-xs mt-1">{settings.clinic_phone}</p>
                   </div>
                   <div className="absolute inset-0 bg-green-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl" />
                 </motion.a>
@@ -2140,10 +2159,10 @@ export default function ContactUs() {
                     <span className="text-slate-800 font-bold text-base">Emergency Line</span>
                   </div>
                   <p className="text-slate-400 text-xs mb-3">For life-threatening emergencies, call immediately:</p>
-                  <a href="tel:1122" className="block text-3xl font-black text-red-500 hover:text-red-600 transition-colors tracking-wider">1122</a>
+                  <a href={`tel:${settings.ambulance_phone}`} className="block text-3xl font-black text-red-500 hover:text-red-600 transition-colors tracking-wider">{settings.ambulance_phone}</a>
                   <p className="text-slate-400 text-xs mt-1">Rescue / Ambulance — Free 24/7</p>
-                  <a href="tel:+923008786187" className="mt-3 block text-sm text-red-400 hover:text-red-500 transition-colors font-semibold">
-                    Clinic Helpline: +92 300 8786187
+                  <a href={`tel:${settings.clinic_phone}`} className="mt-3 block text-sm text-red-400 hover:text-red-500 transition-colors font-semibold">
+                    Clinic Helpline: {settings.clinic_phone}
                   </a>
                   <div className="absolute bottom-0 left-0 right-0 h-0.5" style={{ background: "linear-gradient(90deg,#ef4444,#fb7185)" }} />
                 </div>
@@ -2159,11 +2178,8 @@ export default function ContactUs() {
                     <span className="text-slate-800 font-bold text-sm">Working Hours</span>
                   </div>
                   {[
-                    { day: "Mon – Wed",  hours: "9:00 AM – 9:00 PM" },
-                    { day: "Thu – Fri",  hours: "9:00 AM – 9:00 PM" },
-                    { day: "Saturday",   hours: "9:00 AM – 6:00 PM" },
-                    { day: "Sunday",     hours: "10:00 AM – 4:00 PM" },
-                    { day: "Emergency",  hours: "24 / 7", highlight: true },
+                    { day: "Clinic Schedule", hours: settings.clinic_hours },
+                    { day: "Emergency Services", hours: "24 / 7 Available", highlight: true },
                   ].map(item => (
                     <div key={item.day} className="flex justify-between items-center py-2 border-b border-slate-50 last:border-0">
                       <span className="text-slate-400 text-xs font-medium">{item.day}</span>
@@ -2184,21 +2200,21 @@ export default function ContactUs() {
                         icon: <FaFacebook size={18} />,
                         label: "Facebook",
                         // ← Replace with your real Facebook page URL
-                        href: "https://www.facebook.com/vitalphysiohub",
+                        href: "https://www.facebook.com/physiohub",
                         cls: "bg-blue-50 border-blue-200 text-blue-600 hover:bg-blue-100 hover:border-blue-400",
                       },
                       {
                         icon: <FaInstagram size={18} />,
                         label: "Instagram",
                         // ← Replace with your real Instagram profile URL
-                        href: "https://www.instagram.com/vitalphysiohub",
+                        href: "https://www.instagram.com/physiohub",
                         cls: "bg-pink-50 border-pink-200 text-pink-500 hover:bg-pink-100 hover:border-pink-400",
                       },
                       {
                         icon: <FaYoutube size={18} />,
                         label: "YouTube",
                         // ← Replace with your real YouTube channel URL
-                        href: "https://www.youtube.com/@vitalphysiohub",
+                        href: "https://www.youtube.com/@physiohub",
                         cls: "bg-red-50 border-red-200 text-red-500 hover:bg-red-100 hover:border-red-400",
                       },
                       {
@@ -2224,13 +2240,13 @@ export default function ContactUs() {
                   {/* Social handle labels */}
                   <div className="mt-4 pt-4 border-t border-slate-50 space-y-2">
                     <p className="text-slate-400 text-xs font-medium flex items-center gap-2">
-                      <FaFacebook className="text-blue-500" /> facebook.com/<span className="text-slate-600 font-semibold">vitalphysiohub</span>
+                      <FaFacebook className="text-blue-500" /> facebook.com/<span className="text-slate-600 font-semibold">physiohub</span>
                     </p>
                     <p className="text-slate-400 text-xs font-medium flex items-center gap-2">
-                      <FaInstagram className="text-pink-500" /> @<span className="text-slate-600 font-semibold">vitalphysiohub</span>
+                      <FaInstagram className="text-pink-500" /> @<span className="text-slate-600 font-semibold">physiohub</span>
                     </p>
                     <p className="text-slate-400 text-xs font-medium flex items-center gap-2">
-                      <FaYoutube className="text-red-500" /> youtube.com/<span className="text-slate-600 font-semibold">@vitalphysiohub</span>
+                      <FaYoutube className="text-red-500" /> youtube.com/<span className="text-slate-600 font-semibold">@physiohub</span>
                     </p>
                   </div>
                 </div>

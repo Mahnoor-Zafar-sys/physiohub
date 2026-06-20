@@ -1,7 +1,9 @@
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { FiPhone, FiMail, FiMapPin, FiInstagram, FiTwitter, FiFacebook, FiLinkedin } from "react-icons/fi";
 import { MdLocalHospital } from "react-icons/md";
+import { api } from "../services/api";
 const links = {
   Services: [
     { name: "Physiotherapy", path: "/services" },
@@ -19,7 +21,8 @@ const links = {
     { name: "Patient Portal", path: "/dashboard" },
     { name: "Medical Records", path: "/dashboard" },
     { name: "Insurance", path: "/insurance" },
-    { name: "Health Blog", path: "/blog" }
+    { name: "Health Blog", path: "/blog" },
+    { name: "Vital Shop", path: "/shop" }
   ],
   Company: [
     { name: "About Us", path: "/about" },
@@ -56,6 +59,22 @@ const socials = [
 ];
 
 export default function Footer() {
+  const [settings, setSettings] = useState({
+    clinic_phone: "+92 300 8786187",
+    clinic_email: "jellaniphysio@gmail.com",
+    clinic_address: "Plaza 56, Block L, Blue Area, Islamabad"
+  });
+
+  useEffect(() => {
+    let active = true;
+    api.getSettings().then(res => {
+      if (res && active) {
+        setSettings(prev => ({ ...prev, ...res }));
+      }
+    });
+    return () => { active = false; };
+  }, []);
+
   return (
     <footer className="bg-gradient-to-b from-slate-50 to-slate-100 border-t border-slate-200/80">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-16 pb-12">
@@ -69,7 +88,7 @@ export default function Footer() {
               </div>
               <div>
                 <span className="text-slate-900 font-display font-black text-xl tracking-tight">
-                  Vital Physio<span style={{ background: "linear-gradient(90deg, #1e3a8a, #3b82f6)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}> Hub</span>
+                  Physio<span style={{ background: "linear-gradient(90deg, #1e3a8a, #3b82f6)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>hub</span>
                 </span>
                 <p className="text-slate-400 text-[10px] font-body font-bold tracking-widest uppercase mt-0.5">Advanced Physical Therapy & Rehabilitation</p>
               </div>
@@ -82,10 +101,9 @@ export default function Footer() {
             {/* Corrected & Synced Information Section */}
             <div className="flex flex-col gap-3">
               {[
-                { icon: FiPhone, text: "+92 300 8786187 (Personal)" },
-                { icon: FiPhone, text: "+92 341 7388830 (Clinic)" },
-                { icon: FiMail, text: "jellaniphysio@gmail.com" },
-                { icon: FiMapPin, text: "Plaza 56, Block L, Blue Area, Islamabad" },
+                { icon: FiPhone, text: `${settings.clinic_phone} (Clinic)` },
+                { icon: FiMail, text: settings.clinic_email },
+                { icon: FiMapPin, text: settings.clinic_address },
               ].map(({ icon: Icon, text }) => (
                 <div key={text} className="flex items-center gap-3 text-slate-600 text-sm font-body hover:text-blue-600 transition-colors cursor-pointer group">
                   <Icon className="text-blue-500 flex-shrink-0 transition-colors group-hover:text-blue-600" />
@@ -137,7 +155,7 @@ export default function Footer() {
       <div className="bg-[#1e3a8a] py-6 shadow-[inner_0_2px_4px_rgba(0,0,0,0.06)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-blue-100 text-xs font-body font-semibold tracking-wide">
-            © {new Date().getFullYear()} Vital Physio Hub. All rights reserved.
+            © {new Date().getFullYear()} Physiohub. All rights reserved.
           </p>
           <div className="flex gap-6">
             <Link 

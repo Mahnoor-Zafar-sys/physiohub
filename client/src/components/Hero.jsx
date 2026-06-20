@@ -141,11 +141,11 @@ export default function Hero() {
               width: "100%",
               padding: "48px 32px",
               borderRadius: "32px",
-              background: "rgba(255, 255, 255, 0.72)",
-              backdropFilter: "blur(16px)",
-              WebkitBackdropFilter: "blur(16px)",
-              border: "1px solid rgba(255, 255, 255, 0.5)",
-              boxShadow: "0 20px 40px -15px rgba(15, 23, 42, 0.08)",
+              background: "rgba(255, 255, 255, 0.22)",
+              backdropFilter: "blur(20px)",
+              WebkitBackdropFilter: "blur(20px)",
+              border: "1px solid rgba(255, 255, 255, 0.4)",
+              boxShadow: "0 20px 50px -15px rgba(0, 0, 0, 0.1), inset 0 0 0 1px rgba(255, 255, 255, 0.2)",
             }}
           >
             <motion.h1 variants={fadeUpVariant} style={{
@@ -188,7 +188,7 @@ export default function Hero() {
               <motion.a
                 variants={fadeUpVariant}
                 className="hbtn hbtn-whatsapp"
-                href="https://wa.me/923008786187?text=Hello%20Vital%20Physio%20Hub%2C%20I%20want%20to%20inquire%20about%20your%20healthcare%20services."
+                href="https://wa.me/923008786187?text=Hello%20Physiohub%2C%20I%20want%20to%20inquire%20about%20your%20healthcare%20services."
                 target="_blank" rel="noopener noreferrer"
               >
                 <FaWhatsapp size="1.1rem" /> WhatsApp Chat

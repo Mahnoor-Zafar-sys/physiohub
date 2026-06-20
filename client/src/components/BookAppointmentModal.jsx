@@ -246,7 +246,7 @@ export default function BookAppointmentModal({ isOpen, onClose, preselectedDocto
                       </div>
                       <h2 className="text-lg font-extrabold text-slate-800">Book Appointment</h2>
                     </div>
-                    <p className="text-xs text-slate-500 ml-9">Vital Physio Hub · Physical Therapy & Rehab</p>
+                    <p className="text-xs text-slate-500 ml-9">Physiohub · Physical Therapy & Rehab</p>
                   </div>
                   <motion.button
                     whileHover={{ scale: 1.1, rotate: 90 }} whileTap={{ scale: 0.9 }}

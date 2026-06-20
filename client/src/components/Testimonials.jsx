@@ -62,7 +62,7 @@ export default function Testimonials() {
             Patients
           </h2>
           <p className="mt-4 text-slate-500 text-lg max-w-xl mx-auto font-normal leading-relaxed">
-            Real stories from real people who've experienced the Vital Physio Hub difference.
+            Real stories from real people who've experienced the Physiohub difference.
           </p>
         </motion.div>
 

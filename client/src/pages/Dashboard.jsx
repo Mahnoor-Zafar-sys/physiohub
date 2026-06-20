@@ -53,7 +53,7 @@ export default function Dashboard() {
 
   // Role authentication state
   const [userRole, setUserRole] = useState(() => localStorage.getItem("pc_user_role") || null);
-  const [authForm, setAuthForm] = useState({ email: "patient@vitalphysiohub.com", password: "password123", role: "patient" });
+  const [authForm, setAuthForm] = useState({ email: "patient@physiohub.com", password: "password123", role: "patient" });
   const [loginError, setLoginError] = useState("");
 
   // Core Data State (synchronized with localStorage/SQL database)
@@ -413,9 +413,10 @@ export default function Dashboard() {
       {/* --- PRINT AREA STYLING FOR Rx PRESCRIPTION --- */}
       <style dangerouslySetInnerHTML={{__html: `
         @media print {
-          body * { visibility: hidden; }
-          .print-prescription-area, .print-prescription-area * { visibility: visible; }
-          .print-prescription-area { position: absolute; left: 0; top: 0; width: 100%; color: #000 !important; background: white !important; }
+          body { background: white !important; color: black !important; margin: 0 !important; padding: 0 !important; }
+          nav, footer, .navbar, .footer, .print\\:hidden, .print-hidden { display: none !important; }
+          .fixed.inset-0 { position: static !important; background: none !important; backdrop-filter: none !important; padding: 0 !important; display: block !important; }
+          .print-prescription-area { position: static !important; width: 100% !important; max-w-none !important; box-shadow: none !important; border: none !important; padding: 0 !important; margin: 0 !important; background: white !important; color: black !important; }
         }
       `}} />
 
@@ -440,7 +441,7 @@ export default function Dashboard() {
               {/* Letterhead */}
               <div className="flex justify-between items-start border-b-2 border-slate-100 pb-5 mb-6 text-left">
                 <div>
-                  <h3 className="text-xl font-black text-slate-900 tracking-tight">VITAL PHYSIO HUB</h3>
+                  <h3 className="text-xl font-black text-slate-900 tracking-tight">PHYSIOHUB</h3>
                   <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Advanced rehabilitation & physio</p>
                   <p className="text-xs text-slate-500 mt-2">Plaza 56, Block L, Blue Area, Islamabad</p>
                 </div>
@@ -516,7 +517,7 @@ export default function Dashboard() {
       </AnimatePresence>
 
       {/* --- DASHBOARD ENTRY ROUTER --- */}
-      <div className="flex-grow pt-28 pb-16 px-4">
+      <div className="flex-grow pt-28 pb-16 px-4 print:hidden">
         
         {/* --- LIVE ALERTS HUD MARQUEE --- */}
         {userRole && liveAlerts.length > 0 && (
@@ -567,7 +568,7 @@ export default function Dashboard() {
                       const r = e.target.value;
                       setAuthForm({
                         role: r,
-                        email: r === "patient" ? "patient@vitalphysiohub.com" : r === "doctor" ? "doctor@vitalphysiohub.com" : r === "admin" ? "admin@vitalphysiohub.com" : "staff@vitalphysiohub.com",
+                        email: r === "patient" ? "patient@physiohub.com" : r === "doctor" ? "doctor@physiohub.com" : r === "admin" ? "admin@physiohub.com" : "staff@physiohub.com",
                         password: "password123"
                       });
                     }}

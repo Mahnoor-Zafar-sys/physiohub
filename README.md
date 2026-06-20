@@ -1,11 +1,11 @@
-# Vital Physio Hub — Advanced Rehabilitation & Physical Therapy Ecosystem
+# Physiohub — Advanced Rehabilitation & Physical Therapy Ecosystem
 
 [![Vite](https://img.shields.io/badge/Vite-v8.0-blue.svg)](https://vitejs.dev/)
 [![React](https://img.shields.io/badge/React-v18.0-blue.svg)](https://react.dev/)
 [![Framer Motion](https://img.shields.io/badge/Framer--Motion-v11.0-pink.svg)](https://www.framer.com/motion/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](#)
 
-The **Vital Physio Hub** is a state-of-the-art digital rehabilitation platform and patient care ecosystem. It is engineered with a premium glassmorphic visual aesthetic, smooth hardware-accelerated animations, and responsive components to provide a world-class physical therapy, booking, and medical management experience.
+The **Physiohub** is a state-of-the-art digital rehabilitation platform and patient care ecosystem. It is engineered with a premium glassmorphic visual aesthetic, smooth hardware-accelerated animations, and responsive components to provide a world-class physical therapy, booking, and medical management experience.
 
 ---
 

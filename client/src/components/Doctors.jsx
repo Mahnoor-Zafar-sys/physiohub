@@ -1,20 +1,59 @@
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { FiStar, FiCalendar, FiMessageCircle } from "react-icons/fi";
-import { doctors } from "../data/mockData";
+import { doctors as MOCK_DOCTORS } from "../data/mockData";
+import { api } from "../services/api";
 
 export default function Doctors() {
   const navigate = useNavigate();
+  const [doctorsList, setDoctorsList] = useState([]);
+
+  useEffect(() => {
+    const fetchDoctors = async () => {
+      const dbDocs = await api.getDoctors();
+      const mergedDocs = dbDocs.map(dbDoc => {
+        const mockDoc = MOCK_DOCTORS.find(m => m.name.toLowerCase() === dbDoc.name.toLowerCase());
+        
+        let branches = ["Gulberg", "DHA"];
+        if (typeof dbDoc.branch === "string") {
+          branches = dbDoc.branch.split(",").map(b => b.trim());
+        }
+
+        return {
+          id: dbDoc.id,
+          name: dbDoc.name,
+          specialty: dbDoc.specialty,
+          fee: dbDoc.fee,
+          branch: branches,
+          status: dbDoc.status || "Active",
+          slug: dbDoc.slug || mockDoc?.slug || dbDoc.name.toLowerCase().replace(/\s+/g, "-"),
+          title: dbDoc.title || mockDoc?.title || "Consultant Specialist",
+          image: dbDoc.image || mockDoc?.image || "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=400&q=80",
+          experience: dbDoc.experience || mockDoc?.experience || "10 Years",
+          rating: dbDoc.rating || mockDoc?.rating || 4.8,
+          available: dbDoc.status === "Active" ? (mockDoc?.available !== undefined ? mockDoc.available : true) : false,
+          realStats: true, // Show experience, ratings
+          reviews: mockDoc?.reviews || 120,
+        };
+      });
+      setDoctorsList(mergedDocs.filter(d => d.status === "Active"));
+    };
+    fetchDoctors();
+  }, []);
+
   const allowedSpecialties = [
     "chiropractic adjustments",
-    "physiotherapy"
+    "physiotherapy",
+    "skin & dermatology",
+    "dental care",
+    "gynecology & obstetrics"
   ];
 
-  const filteredDoctors = doctors.filter((doc) =>
+  const filteredDoctors = doctorsList.filter((doc) =>
     allowedSpecialties.includes(doc.specialty.toLowerCase())
   );
 
-  // Strictly sirf pehle 4 doctors ko home page grid me dikhane ke liye slice kiya hai
   const homePageDoctors = filteredDoctors.slice(0, 4);
 
   return (

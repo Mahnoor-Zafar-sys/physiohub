@@ -10,6 +10,7 @@ import { MdOutlineHealthAndSafety } from "react-icons/md";
 import { LuHospital, LuGlobe } from "react-icons/lu";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import { api } from "../services/api";
 
 const THEME = {
   pink:    "#e91e8c",
@@ -18,18 +19,15 @@ const THEME = {
   gradBtn: "linear-gradient(135deg, #0ea5e9, #e91e8c)",
 };
 
-const GALLERY_ITEMS = [
-  { id: 1, src: "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=800&q=80", category: "facility", title: "Main Reception & Lounge", desc: "State-of-the-art welcoming area", span: "wide" },
-  { id: 2, src: "https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?auto=format&fit=crop&w=800&q=80", category: "equipment", title: "Advanced Diagnostic Lab", desc: "ISO-certified laboratory", span: "normal" },
-  { id: 3, src: "https://images.unsplash.com/photo-1551884170-09fb70a3a2ed?auto=format&fit=crop&w=800&q=80", category: "team", title: "Our Expert Medical Team", desc: "Dedicated professionals", span: "normal" },
-  { id: 4, src: "https://images.unsplash.com/photo-1578991624414-276ef23a534f?auto=format&fit=crop&w=800&q=80", category: "treatment", title: "Laser Treatment Suite", desc: "Advanced dermatology tech", span: "normal" },
-  { id: 5, src: "https://images.unsplash.com/photo-1584820927498-cfe5211fd8bf?auto=format&fit=crop&w=800&q=80", category: "facility", title: "Private Consultation Rooms", desc: "Comfortable & confidential", span: "normal" },
-  { id: 6, src: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=800&q=80", category: "equipment", title: "Digital X-Ray & Imaging", desc: "High-resolution diagnostics", span: "tall" },
-  { id: 7, src: "https://images.unsplash.com/photo-1519494080410-f9aa76cb4283?auto=format&fit=crop&w=800&q=80", category: "facility", title: "Modern Operation Theater", desc: "Sterile & fully equipped OT", span: "wide" },
-  { id: 8, src: "https://images.unsplash.com/photo-1571772996211-2f02c9727629?auto=format&fit=crop&w=800&q=80", category: "team", title: "Dental Care Unit", desc: "Advanced oral health center", span: "normal" },
-  { id: 9, src: "https://images.unsplash.com/photo-1530026405186-ed1f139313f8?auto=format&fit=crop&w=800&q=80", category: "results", title: "Patient Recovery Suite", desc: "Comfortable post-care rooms", span: "normal" },
-  { id: 10, src: "https://images.unsplash.com/photo-1587854692152-cbe660dbde88?auto=format&fit=crop&w=800&q=80", category: "equipment", title: "In-House Pharmacy", desc: "Stocked with 5000+ medicines", span: "normal" },
+const DEFAULT_GALLERY = [
+  { id: 1, src: "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=800&q=80", category: "facility", title: "Main Reception & Waiting Lobby", desc: "Premium glassmorphic waiting area with botanical healing aesthetics.", span: "wide" },
+  { id: 2, src: "https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?auto=format&fit=crop&w=800&q=80", category: "equipment", title: "Advanced Diagnostic Wing", desc: "German-engineered biomechanical diagnostic terminals.", span: "normal" },
+  { id: 3, src: "https://images.unsplash.com/photo-1551884170-09fb70a3a2ed?auto=format&fit=crop&w=800&q=80", category: "team", title: "Team of Expert Consultants", desc: "Board-certified medical and manual therapy practitioners.", span: "normal" },
+  { id: 4, src: "https://images.unsplash.com/photo-1578991624414-276ef23a534f?auto=format&fit=crop&w=800&q=80", category: "treatment", title: "Laser Treatment Suite", desc: "Advanced clinical skin laser devices.", span: "normal" },
+  { id: 5, src: "https://images.unsplash.com/photo-1608248597481-496100c8c836?auto=format&fit=crop&w=600&q=80,https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=600&q=80", category: "before-after", title: "Acne & Skin Resurfacing", desc: "Clinical results after 3 sessions of fractional CO2 laser treatment. Acne scarring and hyperpigmentation reduced by 85%.", span: "Dermatology" },
+  { id: 6, src: "https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?auto=format&fit=crop&w=600&q=80,https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80", category: "before-after", title: "Smile Makeover (Veneers)", desc: "Full mouth porcelain veneers smile design completed in 2 visits. Corrected bite alignment and tooth discoloration.", span: "Dentistry" }
 ];
+
 
 const GALLERY_CATS = [
   { value: "all", label: "All Photos", icon: FiGrid },
@@ -224,12 +222,32 @@ const TOUR_SCENES = [
 ];
 
 export default function GalleryPage({ onBookAppointment }) {
+  const [gallery, setGallery] = useState(DEFAULT_GALLERY);
   const [galleryCat, setGalleryCat] = useState("all");
   const [lightboxIndex, setLightboxIndex] = useState(null);
   const [tourOpen, setTourOpen] = useState(false);
   const [tourIndex, setTourIndex] = useState(0);
 
-  const filteredGallery = GALLERY_ITEMS.filter((g) => galleryCat === "all" || g.category === galleryCat);
+  useEffect(() => {
+    api.getGallery().then((data) => {
+      if (data && data.length > 0) {
+        setGallery(data.map(g => ({
+          ...g,
+          desc: g.description || g.desc
+        })));
+      }
+    });
+  }, []);
+
+  const filteredGallery = gallery.filter((g) => {
+    if (galleryCat === "all") {
+      return g.category !== "before-after";
+    }
+    if (galleryCat === "results") {
+      return g.category === "before-after";
+    }
+    return g.category === galleryCat;
+  });
 
   return (
     <div className="min-h-screen font-sans" style={{ background: THEME.grad }}>
@@ -290,27 +308,19 @@ export default function GalleryPage({ onBookAppointment }) {
 
         {galleryCat === "results" ? (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <BeforeAfterSlider 
-              tag="Dermatology"
-              title="Acne & Skin Resurfacing"
-              desc="Clinical results after 3 sessions of fractional CO2 laser treatment. Acne scarring and hyperpigmentation reduced by 85% with skin tone and elasticity fully restored."
-              beforeImg="https://images.unsplash.com/photo-1608248597481-496100c8c836?auto=format&fit=crop&w=600&q=80"
-              afterImg="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=600&q=80"
-            />
-            <BeforeAfterSlider 
-              tag="Dentistry"
-              title="Smile Makeover (Veneers)"
-              desc="Full mouth porcelain veneers smile design completed in 2 visits. Corrected bite alignment, severe tooth discoloration, and minor crowding for a natural-looking smile."
-              beforeImg="https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?auto=format&fit=crop&w=600&q=80"
-              afterImg="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80"
-            />
-            <BeforeAfterSlider 
-              tag="Hair Restoration"
-              title="FUE Hair Transplant"
-              desc="Results at 9 months post FUE hair transplant (3,200 grafts). Restored dense natural front hairline and crown coverage with maximum thickness and minimal donor scarring."
-              beforeImg="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=600&q=80"
-              afterImg="https://images.unsplash.com/photo-1605497746444-052d59fc1f6b?auto=format&fit=crop&w=600&q=80"
-            />
+            {filteredGallery.map((item) => {
+              const imgs = item.src ? item.src.split(",") : ["", ""];
+              return (
+                <BeforeAfterSlider 
+                  key={item.id}
+                  tag={item.span || "Treatment"}
+                  title={item.title}
+                  desc={item.desc || item.description}
+                  beforeImg={imgs[0]}
+                  afterImg={imgs[1] || imgs[0]}
+                />
+              );
+            })}
           </div>
         ) : (
           <div className="grid gap-4" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gridAutoRows: "minmax(200px, auto)" }}>

@@ -1,15 +1,24 @@
 const express = require("express");
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
 require("dotenv").config();
 const db = require("./db");
 
 const app = express();
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
 const JWT_SECRET = process.env.JWT_SECRET || "premium_secret_key";
+
+let mockUsers = [
+  { name: "Jane Doe", email: "patient@physiohub.com", password: "$2b$10$7S8QApO5SaPChSuHmXGrNeDB4tG5cqiQ0qw84tmAWjRVdlpSXAXtS", role: "patient" },
+  { name: "Dr. Sarah Ahmed", email: "doctor@physiohub.com", password: "$2b$10$7S8QApO5SaPChSuHmXGrNeDB4tG5cqiQ0qw84tmAWjRVdlpSXAXtS", role: "doctor" },
+  { name: "Director Admin", email: "admin@physiohub.com", password: "$2b$10$7S8QApO5SaPChSuHmXGrNeDB4tG5cqiQ0qw84tmAWjRVdlpSXAXtS", role: "admin" },
+  { name: "Reception Desk", email: "staff@physiohub.com", password: "$2b$10$7S8QApO5SaPChSuHmXGrNeDB4tG5cqiQ0qw84tmAWjRVdlpSXAXtS", role: "receptionist" }
+];
 
 // In-memory fallbacks for appointment, EMR, and prescription storage when MySQL is unconfigured
 let mockAppointments = [
@@ -48,9 +57,163 @@ let mockComments = [
   { id: 2, article_id: 2, author_name: "Alex Smith", comment_text: "Is laser safe for hyperpigmented skin?", status: "Pending" }
 ];
 
+let mockProducts = [
+  { id: 1, name: "Resistance Bands Set", category: "Rehabilitation", price: 1200, description: "Set of 5 high-quality latex resistance bands with different resistance levels. Perfect for physical therapy, strength training, and rehabilitation.", stock: 25, image: "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=400&q=80" },
+  { id: 2, name: "Foam Roller", category: "Recovery", price: 1500, description: "High-density foam roller for muscle massage, trigger point therapy, and physical therapy recovery.", stock: 15, image: "https://images.unsplash.com/photo-1600880292089-90a7e086ee0c?auto=format&fit=crop&w=400&q=80" },
+  { id: 3, name: "Orthopedic Seat Cushion", category: "Supports & Braces", price: 2200, description: "Memory foam seat cushion designed to relieve pressure on the tailbone and improve sitting posture.", stock: 20, image: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=400&q=80" },
+  { id: 4, name: "TENS Unit Muscle Stimulator", category: "Rehabilitation", price: 3500, description: "Dual-channel TENS machine with 8 modes for muscle pain relief, recovery, and electrical muscle stimulation.", stock: 10, image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=400&q=80" },
+  { id: 5, name: "Hot & Cold Gel Compression Pack", category: "Recovery", price: 950, description: "Reusable gel pack for targeted hot or cold therapy, ideal for reducing swelling, muscle spasms, and joint pain.", stock: 30, image: "https://images.unsplash.com/photo-1584017911766-d451b3d0e843?auto=format&fit=crop&w=400&q=80" }
+];
+
+let mockOrders = [];
+let mockOrderItems = [];
+
+let mockFaqs = [
+  { id: 1, category: "appointments", question: "How do I book an appointment at Vital Physio Hub?", answer: "You can book through our website's booking page, call our helpline at +92-300-8786187, or send us a message on WhatsApp. Online bookings are available 24/7 and confirmed instantly." },
+  { id: 2, category: "appointments", question: "Can I choose a specific doctor for my appointment?", answer: "Yes, absolutely. During the booking process you can browse all available doctors, view their profiles, specializations, and available time slots, and select the one that suits you best." },
+  { id: 3, category: "appointments", question: "What is your cancellation and rescheduling policy?", answer: "You can cancel or reschedule up to 4 hours before your appointment at no charge. Cancellations within 4 hours may incur a small processing fee. Emergency cancellations are always waived." },
+  { id: 4, category: "services", question: "What specialties does Vital Physio Hub offer?", answer: "We offer 8 clinical facilities including Physiotherapy, Chiropractic Adjustments, Cupping, Hijama, Electrotherapy, Kinesio Taping, Fitness Training, and Dry Needling." },
+  { id: 5, category: "services", question: "Do you offer online video consultations?", answer: "Yes. Our telemedicine platform supports video, audio, and chat consultations. You can consult with any of our doctors from the comfort of your home via Zoom or our in-app system." },
+  { id: 6, category: "billing", question: "What payment methods do you accept?", answer: "We accept JazzCash, Easypaisa, Visa/Mastercard debit & credit cards, bank transfers, and cash. Online appointments can be partially or fully paid in advance through our secure portal." },
+  { id: 7, category: "billing", question: "Will I receive an invoice or receipt for my visit?", answer: "A detailed digital invoice is automatically sent to your registered email after every consultation and procedure. You can also access all past invoices from your Patient Portal account." },
+  { id: 8, category: "general", question: "What are your clinic timings?", answer: "We are open Monday to Saturday from 09:00 AM to 09:00 PM. Sundays are reserved for emergencies and pre-scheduled sessions only." }
+];
+
+let mockGallery = [
+  { id: 1, src: "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=800&q=80", category: "facility", title: "Main Reception & Waiting Lobby", description: "Premium glassmorphic waiting area with botanical healing aesthetics.", span: "wide" },
+  { id: 2, src: "https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?auto=format&fit=crop&w=800&q=80", category: "equipment", title: "Advanced Diagnostic Wing", description: "German-engineered biomechanical diagnostic terminals.", span: "normal" },
+  { id: 3, src: "https://images.unsplash.com/photo-1551884170-09fb70a3a2ed?auto=format&fit=crop&w=800&q=80", category: "team", title: "Team of Expert Consultants", description: "Board-certified medical and manual therapy practitioners.", span: "normal" },
+  { id: 4, src: "https://images.unsplash.com/photo-1578991624414-276ef23a534f?auto=format&fit=crop&w=800&q=80", category: "treatment", title: "Laser Treatment Suite", description: "Advanced clinical skin laser devices.", span: "normal" },
+  { id: 5, src: "https://images.unsplash.com/photo-1608248597481-496100c8c836?auto=format&fit=crop&w=600&q=80,https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=600&q=80", category: "before-after", title: "Acne & Skin Resurfacing", description: "Clinical results after 3 sessions of fractional CO2 laser treatment. Acne scarring and hyperpigmentation reduced by 85%.", span: "Dermatology" },
+  { id: 6, src: "https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?auto=format&fit=crop&w=600&q=80,https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80", category: "before-after", title: "Smile Makeover (Veneers)", description: "Full mouth porcelain veneers smile design completed in 2 visits. Corrected bite alignment and tooth discoloration.", span: "Dentistry" }
+];
+
+let mockCareers = [
+  { id: 1, title: "Senior Physiotherapist", department: "Physiotherapy", type: "Full-Time", location: "Lahore (Gulberg)", experience: "5+ years", salary: "PKR 1,50,000 - 2,50,000", deadline: "July 25, 2026", description: "We are looking for a senior manual physical therapist to lead our sports rehab and skeletal adjustments wing. Master's degree or equivalent clinical training required.", requirements: '["DPT or equivalent degree", "Demonstrated experience in manual therapy adjustive techniques", "Excellent diagnostic and patient care abilities", "Strong team coordination skills"]' },
+  { id: 2, title: "Chiropractor", department: "Chiropractic", type: "Full-Time", location: "Lahore (DHA)", experience: "3+ years", salary: "PKR 2,00,000 - 3,50,000", deadline: "July 30, 2026", description: "Seeking a certified Chiropractor with hands-on expertise in spinal manipulation, decompression therapy, and posture correction.", requirements: '["Doctor of Chiropractic (DC) or equivalent board certification", "3+ years clinical experience", "Active registration with PMDC", "Familiarity with biomechanical posture mapping"]' }
+];
+
+let mockReviews = [
+  { id: 1, name: "Ayesha Tariq", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=120&q=80", rating: 5, service: "Physiotherapy", doctor: "Dr. Sarah Ahmed", date: "2 days ago", text: "Absolutely phenomenal experience at Vital Physio Hub! The team completely transformed my recovery process after spinal disk decompression.", helpful: 47, verified: 1, tag: "physiotherapy", source: "google", featured: 1 },
+  { id: 2, name: "Bilal Hussain", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80", rating: 5, service: "Chiropractic Adjustments", doctor: "Dr. Haseeb Ur Rehman", date: "1 week ago", text: "I was struggling with chronic lumbar instability and radiating back pain. Dr. Haseeb's adjustments provided instant decompression.", helpful: 63, verified: 1, tag: "chiropractic", source: "google", featured: 1 }
+];
+
+let mockSettings = {
+  clinic_phone: "+92 300 8786187",
+  clinic_email: "info@vitalphysiohub.com",
+  clinic_address: "First Floor, Building 14-B, Main Boulevard, Gulberg, Lahore, Pakistan",
+  clinic_hours: "Mon - Sat: 09:00 AM - 09:00 PM",
+  ambulance_phone: "+92 (51) 111-911-273",
+  why_us_headline: "Why Choose Vital Physio Hub?",
+  why_us_description: "We combine gold-standard physical adjustments with dynamic clinical technologies to ensure faster, safer, and complete muscular rehabilitation."
+};
+
+let mockServices = [
+  {
+    id: "physiotherapy",
+    category: "Physiotherapy",
+    tagline: "Restoring Movement, Improving Quality of Life",
+    shortDesc: "Comprehensive physical rehabilitation to recover mobility, strength, and function after injury.",
+    overview: "Physiotherapy is the core clinical facility at Vital Physio Hub, specializing in dynamic movement restoration. Our certified manual therapists design custom physical rehabilitation programs to target skeletal stiffness, neurological path retraining, and post-surgical functional delays.",
+    symptoms: '["Post-surgical stiffness", "Chronic joint dysfunction", "Arthritis limitations", "Muscle weakness", "Gait & balance instability"]',
+    benefits: '["Custom recovery timeline", "Manual therapy adjustments", "Skilled guidance & home planning", "Safe non-pharmacological pain relief"]',
+    treatments: '["Joint Mobilization", "Therapeutic Exercise", "Postural Correction", "Gait Retraining", "Manual Stretch Therapy"]',
+    procedure_text: "Clinical evaluation → Biomechanical mapping → Custom rehab plan → Supervised session → Independent home regime",
+    duration: "45 – 60 min",
+    recovery: "2 – 12 weeks",
+    fee: "₨ 2,500",
+    popular: 1,
+    type: "therapy",
+    image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=800&q=80",
+    gradient: "from-sky-600 to-cyan-400",
+    solidColor: "#0ea5e9",
+    lightBg: "from-sky-50 to-cyan-50",
+    border: "border-sky-200",
+    accent: "text-sky-600",
+    badgeBg: "bg-sky-100",
+    badgeText: "text-sky-700",
+    tag: "physiotherapy"
+  },
+  {
+    id: "chiropractic",
+    category: "Chiropractic Adjustments",
+    tagline: "Realigning Your Spine, Relieving Your Pain",
+    shortDesc: "Advanced manual adjustments and spinal decompression therapies for optimal skeletal alignment.",
+    overview: "Our chiropractic clinic specializes in safe, hands-on adjustments. We target vertebral subluxation, nerve compressions, and functional pelvic tilts to restore structural homeostasis and eliminate back, neck, and sciatic nerve pain.",
+    symptoms: '["Chronic lumbar back pain", "Cervical stiffness & headaches", "Sciatica & radiating leg pain", "Postural imbalances", "Scoliotic pain management"]',
+    benefits: '["Instant decompression & relief", "Restored range of motion", "Non-surgical, drug-free protocol", "Female chiropractor specialist available"]',
+    treatments: '["Spinal Manipulation", "Lumbar Decompression", "Postural Realignment", "Flexion-Distraction", "Instrument Assisted Adjustments"]',
+    procedure_text: "Posture mapping → Spinal palpation → Motion testing → Targeted adjustments → Soft-tissue release → Ergonomic guidance",
+    duration: "20 – 30 min",
+    recovery: "Immediate recovery",
+    fee: "₨ 3,000",
+    popular: 1,
+    type: "therapy",
+    image: "https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?auto=format&fit=crop&w=800&q=80",
+    gradient: "from-pink-500 to-rose-400",
+    solidColor: "#ec4899",
+    lightBg: "from-pink-50 to-rose-50",
+    border: "border-pink-200",
+    accent: "text-pink-600",
+    badgeBg: "bg-pink-100",
+    badgeText: "text-pink-700",
+    tag: "chiropractic"
+  },
+  {
+    id: "hijama",
+    category: "Hijama Therapy (Wet Cupping)",
+    tagline: "Detoxification According to Prophetic Medicine",
+    shortDesc: "Sterile wet cupping treatments to promote detoxification, blood circulation, and general well-being.",
+    overview: "We provide clinical wet cupping (Hijama) in a certified sterile environment. Practicing strictly under Prophetic medical guidelines combined with modern anatomical mapping, our specialists perform precise micro-incisions to withdraw cellular debris and inflammatory agents.",
+    symptoms: '["Body pain & muscle fatigue", "Poor blood circulation", "Chronic tension headaches", "High blood pressure symptoms", "General lethargy & stress"]',
+    benefits: '["Sterile disposable equipment", "Prophetic sunnah days schedule options", "Natural systemic detoxification", "Boosted immune system performance"]',
+    treatments: '["Wet Cupping (Hijama)", "Dry Cupping", "Moving Massage Cupping", "Detoxification Therapy", "Pain Management Cupping"]',
+    procedure_text: "Skin disinfection → Light dry suction → Sterile micro-scratches → Hijama suction → Antiseptic dressing → Hydration protocol",
+    duration: "30 – 45 min",
+    recovery: "1 – 3 days",
+    fee: "₨ 2,000",
+    popular: 1,
+    type: "therapy",
+    image: "https://images.unsplash.com/photo-1578991624414-276ef23a534f?auto=format&fit=crop&w=800&q=80",
+    gradient: "from-purple-600 to-indigo-400",
+    solidColor: "#8b5cf6",
+    lightBg: "from-purple-50 to-indigo-50",
+    border: "border-purple-200",
+    accent: "text-purple-600",
+    badgeBg: "bg-purple-100",
+    badgeText: "text-purple-700",
+    tag: "hijama"
+  },
+  {
+    id: "electrotherapy",
+    category: "Electrotherapy",
+    tagline: "Accelerating Healing Through Smart Stimulation",
+    shortDesc: "Targeted electrical therapies (TENS, EMS) to manage chronic pain and build muscle function.",
+    overview: "Our electrotherapy suite offers cutting-edge modalities like TENS, Interferential Current (IFT), and Electrical Muscle Stimulation (EMS). We use specific therapeutic frequencies to block pain signals and stimulate healing.",
+    symptoms: '["Severe muscle spasms", "Acute post-injury pain", "Muscle atrophy", "Chronic neuropathic pain", "Joint inflammation"]',
+    benefits: '["Non-addictive pain block", "Rapid swelling reduction", "Complements active rehab", "Adjustable frequency settings"]',
+    treatments: '["TENS Stimulation", "Interferential Therapy (IFT)", "EMS Muscle Retraining", "Ultrasound Therapy", "Combined Laser-Electro Therapy"]',
+    procedure_text: "Electrode mapping → Skin prep → Freq calibration → Active stimulation → Post-stim check",
+    duration: "15 – 30 min",
+    recovery: "Immediate recovery",
+    fee: "₨ 1,800",
+    popular: 0,
+    type: "therapy",
+    image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=400&q=80",
+    gradient: "from-amber-600 to-orange-450",
+    solidColor: "#d97706",
+    lightBg: "from-amber-50 to-orange-50",
+    border: "border-amber-200",
+    accent: "text-amber-600",
+    badgeBg: "bg-amber-100",
+    badgeText: "text-amber-700",
+    tag: "electrotherapy"
+  }
+];
+
 // Root Endpoint
 app.get("/", (req, res) => {
-  res.send("Vital Physio Hub Scale-Optimized Backend Running");
+  res.send("Physiohub Scale-Optimized Backend Running");
 });
 
 // 1. Auth Login Simulation (JWT generation)
@@ -62,32 +225,133 @@ app.post("/api/auth/login", async (req, res) => {
       const results = await db.query("SELECT * FROM users WHERE email = ? AND role = ?", [email, role]);
       if (results.length > 0) {
         const user = results[0];
-        // Allow mock authorization check pass
-        if (password === user.password || password === "••••••••" || password === "password123") {
+        // Secure password check using bcryptjs
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (isMatch) {
+          if (role === "doctor") {
+            const docProfile = await db.query("SELECT status FROM doctors WHERE name = ? OR slug = ?", [user.name, user.name.toLowerCase().replace(/\s+/g, "-")]);
+            if (docProfile.length > 0 && docProfile[0].status === "Suspended") {
+              return res.status(403).json({ error: "Your professional profile is currently pending verification/approval by the administrative desk." });
+            }
+          }
           const token = jwt.sign({ email: user.email, role: user.role, name: user.name }, JWT_SECRET, { expiresIn: "24h" });
           return res.json({
             success: true,
             token,
             user: { email: user.email, role: user.role, name: user.name }
           });
+        } else {
+          return res.status(401).json({ error: "Invalid password. Please try again." });
         }
       }
-      return res.status(401).json({ error: "Invalid credentials or role selected." });
+      return res.status(401).json({ error: "This email is not registered. Please sign up first." });
     } catch (e) {
       return res.status(500).json({ error: e.message });
     }
   } else {
     // Local memory fallback credentials check
-    const token = jwt.sign({ email, role }, JWT_SECRET, { expiresIn: "24h" });
+    const user = mockUsers.find(u => u.email === email && u.role === role);
+    if (!user) {
+      return res.status(401).json({ error: "This email is not registered for the selected role. Please sign up first." });
+    }
+    // Secure password check using bcryptjs
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ error: "Invalid password. Please try again." });
+    }
+    if (role === "doctor") {
+      const docProfile = mockDoctors.find(d => d.name.toLowerCase() === user.name.toLowerCase() || d.slug === user.name.toLowerCase().replace(/\s+/g, "-"));
+      if (docProfile && docProfile.status === "Suspended") {
+        return res.status(403).json({ error: "Your professional profile is currently pending verification/approval by the administrative desk." });
+      }
+    }
+    const token = jwt.sign({ email: user.email, role: user.role, name: user.name }, JWT_SECRET, { expiresIn: "24h" });
     res.json({
       success: true,
       token,
       user: {
-        email,
-        role,
-        name: role === "patient" ? "Jane Doe" : role === "doctor" ? "Dr. Sarah Ahmed" : role === "admin" ? "Director Admin" : "Reception Desk"
+        email: user.email,
+        role: user.role,
+        name: user.name
       }
     });
+  }
+});
+
+// 1b. Signup Endpoint
+app.post("/api/auth/signup", async (req, res) => {
+  const { name, email, password, role, specialty, branch, fee, experience, title, image } = req.body;
+  if (!name || !email || !password || !role) {
+    return res.status(400).json({ error: "All fields are required" });
+  }
+  if (role !== "patient" && role !== "doctor") {
+    return res.status(403).json({ error: "Registration is restricted to Patients and Doctors only. Administrative credentials must be provisioned internally." });
+  }
+
+  if (db.isDbEnabled()) {
+    try {
+      // Check if user already exists
+      const existing = await db.query("SELECT 1 FROM users WHERE email = ?", [email]);
+      if (existing.length > 0) {
+        return res.status(400).json({ error: "Email is already registered" });
+      }
+
+      // Hash the password
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      // Insert into users
+      await db.query(
+        "INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)",
+        [name, email, hashedPassword, role]
+      );
+
+      // If doctor, insert suspended profile into doctors registry
+      if (role === "doctor") {
+        const docName = name.startsWith("Dr.") ? name : `Dr. ${name}`;
+        const docSlug = name.toLowerCase().replace(/\s+/g, "-");
+        const docImg = image || "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=400&q=80";
+        await db.query(
+          "INSERT INTO doctors (name, specialty, fee, branch, status, image, experience, rating, title, slug, available) VALUES (?, ?, ?, ?, 'Suspended', ?, ?, 4.8, ?, ?, 1)",
+          [docName, specialty || "Physical Therapy", `₨ ${fee || "2,500"}`, branch || "Gulberg", docImg, experience || "10 Years", title || "Consultant", docSlug]
+        );
+      }
+
+      return res.json({ success: true, message: "User registered successfully" });
+    } catch (e) {
+      return res.status(500).json({ error: e.message });
+    }
+  } else {
+    // Mock memory simulation fallback
+    const existing = mockUsers.find(u => u.email === email);
+    if (existing) {
+      return res.status(400).json({ error: "Email is already registered" });
+    }
+
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    mockUsers.push({ name, email, password: hashedPassword, role });
+
+    if (role === "doctor") {
+      const docName = name.startsWith("Dr.") ? name : `Dr. ${name}`;
+      const docSlug = name.toLowerCase().replace(/\s+/g, "-");
+      const docImg = image || "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=400&q=80";
+      mockDoctors.push({
+        id: mockDoctors.length + 1,
+        name: docName,
+        specialty: specialty || "Physical Therapy",
+        fee: `₨ ${fee || "2,500"}`,
+        branch: branch || "Gulberg",
+        status: "Suspended", // Needs activation
+        image: docImg,
+        experience: experience || "10 Years",
+        rating: 4.8,
+        title: title || "Consultant",
+        slug: docSlug,
+        available: 1
+      });
+    }
+    return res.json({ success: true, message: "User registered successfully (Mock fallback)" });
   }
 });
 
@@ -198,6 +462,31 @@ app.post("/api/appointments/approve-payment", async (req, res) => {
     mockAppointments = mockAppointments.map(appt => 
       appt.id === id 
         ? { ...appt, payment_status: targetPaymentStatus, status: targetApptStatus, admin_note: admin_note || null } 
+        : appt
+    );
+    res.json({ success: true });
+  }
+});
+
+// 4c. Update Appointment Payment Screenshot Proof
+app.post("/api/appointments/proof", async (req, res) => {
+  const { id, method, screenshot } = req.body;
+  if (!id) return res.status(400).json({ error: "Appointment ID is required" });
+
+  if (db.isDbEnabled()) {
+    try {
+      await db.query(
+        "UPDATE appointments SET payment_status = 'Pending Verification', payment_method = ?, payment_screenshot = ? WHERE id = ?",
+        [method, screenshot, id]
+      );
+      res.json({ success: true });
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  } else {
+    mockAppointments = mockAppointments.map(appt => 
+      appt.id === id 
+        ? { ...appt, payment_status: "Pending Verification", payment_method: method, payment_screenshot: screenshot } 
         : appt
     );
     res.json({ success: true });
@@ -459,8 +748,9 @@ app.get("/api/articles", async (req, res) => {
 });
 
 app.post("/api/articles", async (req, res) => {
-  const { title, excerpt, content, category, author, image } = req.body;
+  const { title, excerpt, content, category, author, image, type } = req.body;
   const artImg = image || "https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=700&q=80";
+  const artType = type || "blog";
   const newArt = {
     id: Date.now(),
     title,
@@ -468,13 +758,14 @@ app.post("/api/articles", async (req, res) => {
     content,
     category: category || "General Health",
     author: author || "Director Admin",
-    image: artImg
+    image: artImg,
+    type: artType
   };
   if (db.isDbEnabled()) {
     try {
       const results = await db.query(
-        "INSERT INTO articles (title, excerpt, content, category, author, image) VALUES (?, ?, ?, ?, ?, ?)",
-        [title, excerpt, content, newArt.category, newArt.author, artImg]
+        "INSERT INTO articles (title, excerpt, content, category, author, image, type) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        [title, excerpt, content, newArt.category, newArt.author, artImg, artType]
       );
       newArt.id = results.insertId;
       res.json({ success: true, article: newArt });
@@ -572,7 +863,693 @@ app.delete("/api/comments/:id", async (req, res) => {
   }
 });
 
+// --- SHOP E-COMMERCE API ENDPOINTS ---
+
+// 17. Fetch Products
+app.get("/api/products", async (req, res) => {
+  if (db.isDbEnabled()) {
+    try {
+      const results = await db.query("SELECT * FROM products ORDER BY id ASC");
+      res.json(results);
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  } else {
+    res.json(mockProducts);
+  }
+});
+
+// 18. Create Product
+app.post("/api/products", async (req, res) => {
+  const { name, category, price, description, stock, image } = req.body;
+  const prodImg = image || "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=400&q=80";
+  const prodStock = stock !== undefined ? parseInt(stock) : 10;
+  const prodPrice = parseInt(price) || 1000;
+
+  if (db.isDbEnabled()) {
+    try {
+      const results = await db.query(
+        "INSERT INTO products (name, category, price, description, stock, image) VALUES (?, ?, ?, ?, ?, ?)",
+        [name, category, prodPrice, description, prodStock, prodImg]
+      );
+      res.json({
+        success: true,
+        product: { id: results.insertId, name, category, price: prodPrice, description, stock: prodStock, image: prodImg }
+      });
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  } else {
+    const newProduct = {
+      id: mockProducts.length > 0 ? Math.max(...mockProducts.map(p => p.id)) + 1 : 1,
+      name,
+      category,
+      price: prodPrice,
+      description,
+      stock: prodStock,
+      image: prodImg
+    };
+    mockProducts.push(newProduct);
+    res.json({ success: true, product: newProduct });
+  }
+});
+
+// 19. Update Product
+app.post("/api/products/update", async (req, res) => {
+  const { id, name, category, price, description, stock, image } = req.body;
+  const prodPrice = parseInt(price);
+  const prodStock = parseInt(stock);
+
+  if (db.isDbEnabled()) {
+    try {
+      await db.query(
+        "UPDATE products SET name = ?, category = ?, price = ?, description = ?, stock = ?, image = ? WHERE id = ?",
+        [name, category, prodPrice, description, prodStock, image, id]
+      );
+      res.json({ success: true });
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  } else {
+    mockProducts = mockProducts.map(p =>
+      p.id === parseInt(id)
+        ? { ...p, name, category, price: prodPrice, description, stock: prodStock, image }
+        : p
+    );
+    res.json({ success: true });
+  }
+});
+
+// 20. Delete Product
+app.delete("/api/products/:id", async (req, res) => {
+  const { id } = req.params;
+  if (db.isDbEnabled()) {
+    try {
+      await db.query("DELETE FROM products WHERE id = ?", [id]);
+      res.json({ success: true });
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  } else {
+    mockProducts = mockProducts.filter(p => p.id !== parseInt(id));
+    res.json({ success: true });
+  }
+});
+
+// 21. Fetch Orders (Admin)
+app.get("/api/orders", async (req, res) => {
+  if (db.isDbEnabled()) {
+    try {
+      const orders = await db.query("SELECT * FROM shop_orders ORDER BY created_at DESC");
+      const items = await db.query("SELECT * FROM order_items");
+      const mapped = orders.map(o => ({
+        id: o.id,
+        patient_name: o.patient_name,
+        patient_email: o.patient_email,
+        shipping_address: o.shipping_address,
+        phone: o.phone,
+        total_amount: o.total_amount,
+        payment_method: o.payment_method,
+        payment_status: o.payment_status,
+        payment_screenshot: o.payment_screenshot,
+        order_status: o.order_status,
+        admin_note: o.admin_note,
+        created_at: o.created_at,
+        items: items.filter(i => i.order_id === o.id).map(i => ({
+          product_id: i.product_id,
+          product_name: i.product_name,
+          price: i.price,
+          quantity: i.quantity
+        }))
+      }));
+      res.json(mapped);
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  } else {
+    const mapped = mockOrders.map(o => ({
+      ...o,
+      items: mockOrderItems.filter(i => i.order_id === o.id)
+    }));
+    res.json(mapped);
+  }
+});
+
+// 22. Submit Order
+app.post("/api/orders", async (req, res) => {
+  const { patient_name, patient_email, shipping_address, phone, total_amount, payment_method, payment_screenshot, items } = req.body;
+  const orderId = `ORD-${Date.now().toString().slice(-5)}`;
+  const initialPaymentStatus = payment_method === "COD" ? "Unpaid" : (payment_screenshot ? "Pending Verification" : "Unpaid");
+  
+  const newOrder = {
+    id: orderId,
+    patient_name,
+    patient_email,
+    shipping_address,
+    phone,
+    total_amount: parseInt(total_amount),
+    payment_method,
+    payment_status: initialPaymentStatus,
+    payment_screenshot: payment_screenshot || null,
+    order_status: "Pending",
+    admin_note: null,
+    created_at: new Date().toISOString()
+  };
+
+  if (db.isDbEnabled()) {
+    try {
+      await db.query(
+        "INSERT INTO shop_orders (id, patient_name, patient_email, shipping_address, phone, total_amount, payment_method, payment_status, payment_screenshot, order_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending')",
+        [orderId, patient_name, patient_email, shipping_address, phone, newOrder.total_amount, payment_method, initialPaymentStatus, newOrder.payment_screenshot]
+      );
+      for (const item of items) {
+        await db.query(
+          "INSERT INTO order_items (order_id, product_id, product_name, price, quantity) VALUES (?, ?, ?, ?, ?)",
+          [orderId, item.product_id, item.product_name, parseInt(item.price), parseInt(item.quantity)]
+        );
+        // Decrease stock
+        await db.query("UPDATE products SET stock = GREATEST(0, stock - ?) WHERE id = ?", [parseInt(item.quantity), item.product_id]);
+      }
+      res.json({ success: true, orderId });
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  } else {
+    mockOrders.unshift(newOrder);
+    for (const item of items) {
+      mockOrderItems.push({
+        order_id: orderId,
+        product_id: parseInt(item.product_id),
+        product_name: item.product_name,
+        price: parseInt(item.price),
+        quantity: parseInt(item.quantity)
+      });
+      // Decrease stock in mock
+      const p = mockProducts.find(prod => prod.id === parseInt(item.product_id));
+      if (p) {
+        p.stock = Math.max(0, p.stock - parseInt(item.quantity));
+      }
+    }
+    res.json({ success: true, orderId });
+  }
+});
+
+// 23. Upload Order Payment Proof
+app.post("/api/orders/proof", async (req, res) => {
+  const { id, method, screenshot } = req.body;
+  if (!id) return res.status(400).json({ error: "Order ID is required" });
+
+  if (db.isDbEnabled()) {
+    try {
+      await db.query(
+        "UPDATE shop_orders SET payment_status = 'Pending Verification', payment_method = ?, payment_screenshot = ? WHERE id = ?",
+        [method, screenshot, id]
+      );
+      res.json({ success: true });
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  } else {
+    mockOrders = mockOrders.map(o => 
+      o.id === id 
+        ? { ...o, payment_status: "Pending Verification", payment_method: method, payment_screenshot: screenshot } 
+        : o
+    );
+    res.json({ success: true });
+  }
+});
+
+// 24. Update Order Shipping Status
+app.post("/api/orders/status", async (req, res) => {
+  const { id, status } = req.body;
+  if (db.isDbEnabled()) {
+    try {
+      await db.query("UPDATE shop_orders SET order_status = ? WHERE id = ?", [status, id]);
+      res.json({ success: true });
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  } else {
+    mockOrders = mockOrders.map(o => o.id === id ? { ...o, order_status: status } : o);
+    res.json({ success: true });
+  }
+});
+
+// 25. Approve/Reject Order Payment
+app.post("/api/orders/approve-payment", async (req, res) => {
+  const { id, status, admin_note } = req.body; // status is Paid / Rejected
+  const targetPaymentStatus = status === "Paid" ? "Paid" : "Rejected";
+  
+  if (db.isDbEnabled()) {
+    try {
+      await db.query(
+        "UPDATE shop_orders SET payment_status = ?, admin_note = ? WHERE id = ?",
+        [targetPaymentStatus, admin_note || null, id]
+      );
+      res.json({ success: true });
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  } else {
+    mockOrders = mockOrders.map(o => 
+      o.id === id 
+        ? { ...o, payment_status: targetPaymentStatus, admin_note: admin_note || null } 
+        : o
+    );
+    res.json({ success: true });
+  }
+});
+
+// 26. Track Order
+app.get("/api/orders/track/:orderId", async (req, res) => {
+  const { orderId } = req.params;
+  if (db.isDbEnabled()) {
+    try {
+      const orders = await db.query("SELECT * FROM shop_orders WHERE id = ?", [orderId]);
+      if (orders.length === 0) return res.status(404).json({ error: "Order not found" });
+      const order = orders[0];
+      const items = await db.query("SELECT * FROM order_items WHERE order_id = ?", [orderId]);
+      res.json({
+        ...order,
+        items: items.map(i => ({
+          product_id: i.product_id,
+          product_name: i.product_name,
+          price: i.price,
+          quantity: i.quantity
+        }))
+      });
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  } else {
+    const order = mockOrders.find(o => o.id.toLowerCase() === orderId.toLowerCase());
+    if (!order) return res.status(404).json({ error: "Order not found" });
+    const items = mockOrderItems.filter(i => i.order_id.toLowerCase() === orderId.toLowerCase());
+    res.json({ ...order, items });
+  }
+});
+
+// 27. CMS FAQs Endpoints
+app.get("/api/faqs", async (req, res) => {
+  if (db.isDbEnabled()) {
+    try {
+      const results = await db.query("SELECT * FROM faqs ORDER BY id ASC");
+      res.json(results);
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  } else {
+    res.json(mockFaqs);
+  }
+});
+
+app.post("/api/faqs", async (req, res) => {
+  const { id, category, question, answer } = req.body;
+  if (db.isDbEnabled()) {
+    try {
+      if (id) {
+        await db.query("UPDATE faqs SET category = ?, question = ?, answer = ? WHERE id = ?", [category, question, answer, id]);
+        res.json({ success: true, faq: { id, category, question, answer } });
+      } else {
+        const result = await db.query("INSERT INTO faqs (category, question, answer) VALUES (?, ?, ?)", [category, question, answer]);
+        res.json({ success: true, faq: { id: result.insertId, category, question, answer } });
+      }
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  } else {
+    if (id) {
+      mockFaqs = mockFaqs.map(f => f.id === parseInt(id) ? { ...f, category, question, answer } : f);
+      res.json({ success: true, faq: { id: parseInt(id), category, question, answer } });
+    } else {
+      const newFaq = { id: mockFaqs.length > 0 ? Math.max(...mockFaqs.map(f => f.id)) + 1 : 1, category, question, answer };
+      mockFaqs.push(newFaq);
+      res.json({ success: true, faq: newFaq });
+    }
+  }
+});
+
+app.delete("/api/faqs/:id", async (req, res) => {
+  const { id } = req.params;
+  if (db.isDbEnabled()) {
+    try {
+      await db.query("DELETE FROM faqs WHERE id = ?", [id]);
+      res.json({ success: true });
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  } else {
+    mockFaqs = mockFaqs.filter(f => f.id !== parseInt(id));
+    res.json({ success: true });
+  }
+});
+
+// 28. CMS Gallery Endpoints
+app.get("/api/gallery", async (req, res) => {
+  if (db.isDbEnabled()) {
+    try {
+      const results = await db.query("SELECT * FROM gallery_items ORDER BY id ASC");
+      res.json(results);
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  } else {
+    res.json(mockGallery);
+  }
+});
+
+app.post("/api/gallery", async (req, res) => {
+  const { id, src, category, title, description, span } = req.body;
+  if (db.isDbEnabled()) {
+    try {
+      if (id) {
+        await db.query("UPDATE gallery_items SET src = ?, category = ?, title = ?, description = ?, span = ? WHERE id = ?", [src, category, title, description, span || 'normal', id]);
+        res.json({ success: true, item: { id, src, category, title, description, span } });
+      } else {
+        const result = await db.query("INSERT INTO gallery_items (src, category, title, description, span) VALUES (?, ?, ?, ?, ?)", [src, category, title, description, span || 'normal']);
+        res.json({ success: true, item: { id: result.insertId, src, category, title, description, span } });
+      }
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  } else {
+    if (id) {
+      mockGallery = mockGallery.map(g => g.id === parseInt(id) ? { ...g, src, category, title, description, span } : g);
+      res.json({ success: true, item: { id: parseInt(id), src, category, title, description, span } });
+    } else {
+      const newImg = { id: mockGallery.length > 0 ? Math.max(...mockGallery.map(g => g.id)) + 1 : 1, src, category, title, description, span: span || 'normal' };
+      mockGallery.push(newImg);
+      res.json({ success: true, item: newImg });
+    }
+  }
+});
+
+app.delete("/api/gallery/:id", async (req, res) => {
+  const { id } = req.params;
+  if (db.isDbEnabled()) {
+    try {
+      await db.query("DELETE FROM gallery_items WHERE id = ?", [id]);
+      res.json({ success: true });
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  } else {
+    mockGallery = mockGallery.filter(g => g.id !== parseInt(id));
+    res.json({ success: true });
+  }
+});
+
+// 29. CMS Careers Endpoints
+app.get("/api/careers", async (req, res) => {
+  if (db.isDbEnabled()) {
+    try {
+      const results = await db.query("SELECT * FROM careers_jobs ORDER BY id ASC");
+      const mapped = results.map(job => {
+        let reqArr = [];
+        try {
+          reqArr = typeof job.requirements === 'string' ? JSON.parse(job.requirements) : job.requirements;
+        } catch(e) {
+          reqArr = [job.requirements];
+        }
+        return {
+          ...job,
+          requirements: reqArr
+        };
+      });
+      res.json(mapped);
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  } else {
+    const mapped = mockCareers.map(job => {
+      let reqArr = [];
+      try {
+        reqArr = typeof job.requirements === 'string' ? JSON.parse(job.requirements) : job.requirements;
+      } catch(e) {
+        reqArr = [job.requirements];
+      }
+      return { ...job, requirements: reqArr };
+    });
+    res.json(mapped);
+  }
+});
+
+app.post("/api/careers", async (req, res) => {
+  const { id, title, department, type, location, experience, salary, deadline, description, requirements } = req.body;
+  const reqStr = Array.isArray(requirements) ? JSON.stringify(requirements) : (requirements || "[]");
+  if (db.isDbEnabled()) {
+    try {
+      if (id) {
+        await db.query("UPDATE careers_jobs SET title = ?, department = ?, type = ?, location = ?, experience = ?, salary = ?, deadline = ?, description = ?, requirements = ? WHERE id = ?", [title, department, type, location, experience, salary, deadline, description, reqStr, id]);
+        res.json({ success: true, job: { id, title, department, type, location, experience, salary, deadline, description, requirements } });
+      } else {
+        const result = await db.query("INSERT INTO careers_jobs (title, department, type, location, experience, salary, deadline, description, requirements) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", [title, department, type, location, experience, salary, deadline, description, reqStr]);
+        res.json({ success: true, job: { id: result.insertId, title, department, type, location, experience, salary, deadline, description, requirements } });
+      }
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  } else {
+    if (id) {
+      mockCareers = mockCareers.map(c => c.id === parseInt(id) ? { ...c, title, department, type, location, experience, salary, deadline, description, requirements: reqStr } : c);
+      res.json({ success: true, job: { id: parseInt(id), title, department, type, location, experience, salary, deadline, description, requirements } });
+    } else {
+      const newJob = { id: mockCareers.length > 0 ? Math.max(...mockCareers.map(c => c.id)) + 1 : 1, title, department, type, location, experience, salary, deadline, description, requirements: reqStr };
+      mockCareers.push(newJob);
+      res.json({ success: true, job: { ...newJob, requirements } });
+    }
+  }
+});
+
+app.delete("/api/careers/:id", async (req, res) => {
+  const { id } = req.params;
+  if (db.isDbEnabled()) {
+    try {
+      await db.query("DELETE FROM careers_jobs WHERE id = ?", [id]);
+      res.json({ success: true });
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  } else {
+    mockCareers = mockCareers.filter(c => c.id !== parseInt(id));
+    res.json({ success: true });
+  }
+});
+
+// 30. CMS Services Endpoints
+app.get("/api/services", async (req, res) => {
+  if (db.isDbEnabled()) {
+    try {
+      const results = await db.query("SELECT * FROM services ORDER BY id ASC");
+      const mapped = results.map(s => {
+        let sym = [];
+        let ben = [];
+        let trt = [];
+        try { sym = typeof s.symptoms === 'string' ? JSON.parse(s.symptoms) : s.symptoms; } catch(e) { sym = [s.symptoms]; }
+        try { ben = typeof s.benefits === 'string' ? JSON.parse(s.benefits) : s.benefits; } catch(e) { ben = [s.benefits]; }
+        try { trt = typeof s.treatments === 'string' ? JSON.parse(s.treatments) : s.treatments; } catch(e) { trt = [s.treatments]; }
+        return {
+          ...s,
+          symptoms: sym,
+          benefits: ben,
+          treatments: trt,
+          popular: s.popular ? 1 : 0
+        };
+      });
+      res.json(mapped);
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  } else {
+    const mapped = mockServices.map(s => {
+      let sym = [];
+      let ben = [];
+      let trt = [];
+      try { sym = typeof s.symptoms === 'string' ? JSON.parse(s.symptoms) : s.symptoms; } catch(e) { sym = s.symptoms; }
+      try { ben = typeof s.benefits === 'string' ? JSON.parse(s.benefits) : s.benefits; } catch(e) { ben = s.benefits; }
+      try { trt = typeof s.treatments === 'string' ? JSON.parse(s.treatments) : s.treatments; } catch(e) { trt = s.treatments; }
+      return {
+        ...s,
+        symptoms: sym,
+        benefits: ben,
+        treatments: trt
+      };
+    });
+    res.json(mapped);
+  }
+});
+
+app.post("/api/services", async (req, res) => {
+  const { id, category, tagline, shortDesc, overview, symptoms, benefits, treatments, procedure_text, duration, recovery, fee, popular, type, image, gradient, solidColor, lightBg, border, accent, badgeBg, badgeText, tag } = req.body;
+  const symStr = Array.isArray(symptoms) ? JSON.stringify(symptoms) : (symptoms || "[]");
+  const benStr = Array.isArray(benefits) ? JSON.stringify(benefits) : (benefits || "[]");
+  const trtStr = Array.isArray(treatments) ? JSON.stringify(treatments) : (treatments || "[]");
+  const isPopular = popular ? 1 : 0;
+  
+  if (db.isDbEnabled()) {
+    try {
+      const existing = await db.query("SELECT 1 FROM services WHERE id = ?", [id]);
+      if (existing.length > 0) {
+        await db.query(
+          "UPDATE services SET category = ?, tagline = ?, shortDesc = ?, overview = ?, symptoms = ?, benefits = ?, treatments = ?, procedure_text = ?, duration = ?, recovery = ?, fee = ?, popular = ?, type = ?, image = ?, gradient = ?, solidColor = ?, lightBg = ?, border = ?, accent = ?, badgeBg = ?, badgeText = ?, tag = ? WHERE id = ?",
+          [category, tagline, shortDesc, overview, symStr, benStr, trtStr, procedure_text, duration, recovery, fee, isPopular, type || 'therapy', image, gradient, solidColor, lightBg, border, accent, badgeBg, badgeText, tag, id]
+        );
+      } else {
+        await db.query(
+          "INSERT INTO services (id, category, tagline, shortDesc, overview, symptoms, benefits, treatments, procedure_text, duration, recovery, fee, popular, type, image, gradient, solidColor, lightBg, border, accent, badgeBg, badgeText, tag) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+          [id, category, tagline, shortDesc, overview, symStr, benStr, trtStr, procedure_text, duration, recovery, fee, isPopular, type || 'therapy', image, gradient, solidColor, lightBg, border, accent, badgeBg, badgeText, tag]
+        );
+      }
+      res.json({ success: true });
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  } else {
+    const existingIndex = mockServices.findIndex(s => s.id === id);
+    const serviceItem = { id, category, tagline, shortDesc, overview, symptoms, benefits, treatments, procedure_text, duration, recovery, fee, popular: isPopular, type: type || 'therapy', image, gradient, solidColor, lightBg, border, accent, badgeBg, badgeText, tag };
+    if (existingIndex > -1) {
+      mockServices[existingIndex] = serviceItem;
+    } else {
+      mockServices.push(serviceItem);
+    }
+    res.json({ success: true, service: serviceItem });
+  }
+});
+
+app.delete("/api/services/:id", async (req, res) => {
+  const { id } = req.params;
+  if (db.isDbEnabled()) {
+    try {
+      await db.query("DELETE FROM services WHERE id = ?", [id]);
+      res.json({ success: true });
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  } else {
+    mockServices = mockServices.filter(s => s.id !== id);
+    res.json({ success: true });
+  }
+});
+
+// 31. CMS Reviews Endpoints
+app.get("/api/reviews", async (req, res) => {
+  if (db.isDbEnabled()) {
+    try {
+      const results = await db.query("SELECT * FROM reviews_list ORDER BY id DESC");
+      res.json(results);
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  } else {
+    res.json(mockReviews);
+  }
+});
+
+app.post("/api/reviews", async (req, res) => {
+  const { id, name, avatar, rating, service, doctor, date, text, helpful, verified, tag, source, featured } = req.body;
+  const isVerified = verified ? 1 : 0;
+  const isFeatured = featured ? 1 : 0;
+  if (db.isDbEnabled()) {
+    try {
+      if (id) {
+        await db.query(
+          "UPDATE reviews_list SET name = ?, avatar = ?, rating = ?, service = ?, doctor = ?, date = ?, text = ?, helpful = ?, verified = ?, tag = ?, source = ?, featured = ? WHERE id = ?",
+          [name, avatar, parseInt(rating), service, doctor, date, text, parseInt(helpful || 0), isVerified, tag, source || 'google', isFeatured, id]
+        );
+        res.json({ success: true });
+      } else {
+        const result = await db.query(
+          "INSERT INTO reviews_list (name, avatar, rating, service, doctor, date, text, helpful, verified, tag, source, featured) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+          [name, avatar, parseInt(rating), service, doctor, date, text, parseInt(helpful || 0), isVerified, tag, source || 'google', isFeatured]
+        );
+        res.json({ success: true, id: result.insertId });
+      }
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  } else {
+    if (id) {
+      mockReviews = mockReviews.map(r => r.id === parseInt(id) ? { ...r, name, avatar, rating: parseInt(rating), service, doctor, date, text, helpful: parseInt(helpful || 0), verified: isVerified, tag, source: source || 'google', featured: isFeatured } : r);
+      res.json({ success: true });
+    } else {
+      const newReview = { id: mockReviews.length > 0 ? Math.max(...mockReviews.map(r => r.id)) + 1 : 1, name, avatar, rating: parseInt(rating), service, doctor, date, text, helpful: parseInt(helpful || 0), verified: isVerified, tag, source: source || 'google', featured: isFeatured };
+      mockReviews.unshift(newReview);
+      res.json({ success: true, review: newReview });
+    }
+  }
+});
+
+app.delete("/api/reviews/:id", async (req, res) => {
+  const { id } = req.params;
+  if (db.isDbEnabled()) {
+    try {
+      await db.query("DELETE FROM reviews_list WHERE id = ?", [id]);
+      res.json({ success: true });
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  } else {
+    mockReviews = mockReviews.filter(r => r.id !== parseInt(id));
+    res.json({ success: true });
+  }
+});
+
+// 32. CMS Clinic Settings Endpoints
+app.get("/api/settings", async (req, res) => {
+  if (db.isDbEnabled()) {
+    try {
+      const results = await db.query("SELECT * FROM clinic_settings");
+      const settingsObj = {};
+      results.forEach(row => {
+        settingsObj[row.setting_key] = row.setting_value;
+      });
+      const finalSettings = { ...mockSettings, ...settingsObj };
+      res.json(finalSettings);
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  } else {
+    res.json(mockSettings);
+  }
+});
+
+app.post("/api/settings", async (req, res) => {
+  const settingsData = req.body;
+  if (db.isDbEnabled()) {
+    try {
+      if (settingsData.settings && typeof settingsData.settings === 'object') {
+        for (const [key, val] of Object.entries(settingsData.settings)) {
+          await db.query(
+            "INSERT INTO clinic_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?",
+            [key, val, val]
+          );
+        }
+      } else if (settingsData.setting_key || settingsData.key) {
+        const key = settingsData.setting_key || settingsData.key;
+        const val = settingsData.setting_value || settingsData.value;
+        await db.query(
+          "INSERT INTO clinic_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?",
+          [key, val, val]
+        );
+      }
+      res.json({ success: true });
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  } else {
+    if (settingsData.settings && typeof settingsData.settings === 'object') {
+      mockSettings = { ...mockSettings, ...settingsData.settings };
+    } else if (settingsData.setting_key || settingsData.key) {
+      const key = settingsData.setting_key || settingsData.key;
+      const val = settingsData.setting_value || settingsData.value;
+      mockSettings[key] = val;
+    }
+    res.json({ success: true, settings: mockSettings });
+  }
+});
+
 const PORT = process.env.PORT || 5000;
+
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

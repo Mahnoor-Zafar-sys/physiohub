@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import {
   FiBriefcase, FiMapPin, FiUser, FiDollarSign, FiCalendar, FiCheck, FiChevronDown, FiX, FiMail,
@@ -8,6 +8,7 @@ import { HiSparkles } from "react-icons/hi";
 import { LuCoins, LuBookOpen, LuHospital, LuClock, LuRocket, LuHandshake, LuBriefcase, LuPartyPopper } from "react-icons/lu";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import { api } from "../services/api";
 
 const THEME = {
   pink:    "#e91e8c",
@@ -16,98 +17,41 @@ const THEME = {
   gradBtn: "linear-gradient(135deg, #0ea5e9, #e91e8c)",
 };
 
-const JOB_OPENINGS = [
+const DEPT_STYLES = {
+  Physiotherapy: { color: "#0ea5e9", bg: "#e0f2fe" },
+  Chiropractic: { color: "#e91e8c", bg: "#fce4ec" },
+  Dermatology: { color: "#e91e8c", bg: "#fce4ec" },
+  Orthopedics: { color: "#0ea5e9", bg: "#e0f2fe" },
+  default: { color: "#a78bfa", bg: "#ede9fe" }
+};
+
+const DEFAULT_JOBS = [
   {
     id: 1,
-    title: "Senior Dermatologist",
-    department: "Dermatology",
+    title: "Senior Physiotherapist",
+    department: "Physiotherapy",
     type: "Full-Time",
-    location: "Lahore (DHA)",
+    location: "Lahore (Gulberg)",
     experience: "5+ years",
-    salary: "PKR 3,50,000 – 5,00,000",
-    deadline: "July 15, 2026",
-    color: "#e91e8c",
-    bg: "#fce4ec",
-    urgent: true,
-    description: "We are looking for a board-certified Dermatologist with expertise in laser procedures, cosmetic dermatology, and skin disease management. FCPS or equivalent required.",
-    requirements: ["FCPS/MCPS in Dermatology", "Experience with laser devices (Fractional CO₂, Q-Switch)", "Excellent patient communication skills", "Willingness to work flexible hours"],
+    salary: "PKR 1,50,000 - 2,50,000",
+    deadline: "July 25, 2026",
+    description: "We are looking for a senior manual physical therapist to lead our sports rehab and skeletal adjustments wing. Master's degree or equivalent clinical training required.",
+    requirements: ["DPT or equivalent degree", "Demonstrated experience in manual therapy adjustive techniques", "Excellent diagnostic and patient care abilities", "Strong team coordination skills"]
   },
   {
     id: 2,
-    title: "Orthopedic Surgeon",
-    department: "Orthopedics",
-    type: "Full-Time",
-    location: "Islamabad",
-    experience: "7+ years",
-    salary: "PKR 4,00,000 – 6,50,000",
-    deadline: "July 20, 2026",
-    color: "#0ea5e9",
-    bg: "#e0f2fe",
-    urgent: true,
-    description: "Seeking an experienced Orthopedic Surgeon specializing in minimally invasive joint surgeries and sports medicine. Fellowship training in arthroscopy is a strong plus.",
-    requirements: ["FCPS Orthopedic Surgery or equivalent", "Proficiency in arthroscopic procedures", "Strong surgical and post-op management skills", "Active medical license from PMDC"],
-  },
-  {
-    id: 3,
-    title: "Dental Officer",
-    department: "Dental Care",
-    type: "Full-Time",
-    location: "Rawalpindi",
-    experience: "2+ years",
-    salary: "PKR 1,20,000 – 1,80,000",
-    deadline: "July 10, 2026",
-    color: "#a78bfa",
-    bg: "#ede9fe",
-    urgent: false,
-    description: "Looking for a passionate Dental Officer with proficiency in routine dental care, minor oral surgeries, and cosmetic procedures including teeth whitening and veneers.",
-    requirements: ["BDS from recognized institution", "PMDC registered", "Experience in cosmetic dentistry preferred", "Friendly chairside manner"],
-  },
-  {
-    id: 4,
-    title: "Registered Nurse – ICU",
-    department: "Nursing",
+    title: "Chiropractor",
+    department: "Chiropractic",
     type: "Full-Time",
     location: "Lahore (DHA)",
     experience: "3+ years",
-    salary: "PKR 80,000 – 1,20,000",
-    deadline: "June 30, 2026",
-    color: "#34d399",
-    bg: "#d1fae5",
-    urgent: true,
-    description: "We need experienced ICU nurses who can handle critical care patients, operate ventilators, and work efficiently under pressure in our expanding inpatient department.",
-    requirements: ["BSN or Post-RN BSN degree", "ICU/CCU experience mandatory", "BLS/ACLS certification", "Ability to work rotating shifts"],
-  },
-  {
-    id: 5,
-    title: "Medical Receptionist",
-    department: "Administration",
-    type: "Full-Time",
-    location: "All Branches",
-    experience: "1+ year",
-    salary: "PKR 50,000 – 70,000",
-    deadline: "July 5, 2026",
-    color: "#ff7f50",
-    bg: "#fff0eb",
-    urgent: false,
-    description: "We are expanding our reception teams across all branches. Ideal candidates are organized, warm, and tech-savvy with experience in a clinical or hospitality environment.",
-    requirements: ["Graduation from recognized university", "Fluent in Urdu & English", "Basic computer proficiency", "Professional appearance and communication"],
-  },
-  {
-    id: 6,
-    title: "Social Media & Content Manager",
-    department: "Marketing",
-    type: "Full-Time",
-    location: "Lahore (DHA)",
-    experience: "2+ years",
-    salary: "PKR 90,000 – 1,30,000",
-    deadline: "July 12, 2026",
-    color: "#f59e0b",
-    bg: "#fef3c7",
-    urgent: false,
-    description: "Looking for a creative content professional who understands the healthcare space and can build an engaging digital presence across Instagram, YouTube, and LinkedIn.",
-    requirements: ["Degree in Marketing/Communications/Media", "Proven social media portfolio", "Video editing skills (Reels, Shorts)", "Healthcare content knowledge a plus"],
-  },
+    salary: "PKR 2,00,000 - 3,50,000",
+    deadline: "July 30, 2026",
+    description: "Seeking a certified Chiropractor with hands-on expertise in spinal manipulation, decompression therapy, and posture correction.",
+    requirements: ["Doctor of Chiropractic (DC) or equivalent board certification", "3+ years clinical experience", "Active registration with PMDC", "Familiarity with biomechanical posture mapping"]
+  }
 ];
+
 
 const CAREER_PERKS = [
   { icon: LuCoins, title: "Competitive Pay", desc: "Above-market salaries reviewed annually with performance bonuses" },
@@ -123,6 +67,10 @@ function JobCard({ job, index, onApply }) {
   const inView = useInView(ref, { once: true, margin: "-40px" });
   const [expanded, setExpanded] = useState(false);
 
+  const style = DEPT_STYLES[job.department] || DEPT_STYLES.default;
+  const color = job.color || style.color;
+  const bg = job.bg || style.bg;
+
   return (
     <motion.div
       ref={ref}
@@ -131,19 +79,19 @@ function JobCard({ job, index, onApply }) {
       transition={{ duration: 0.5, delay: (index % 3) * 0.1 }}
       className="group bg-white rounded-3xl p-6 shadow-sm hover:shadow-xl transition-all duration-500 border border-slate-100 overflow-hidden relative text-left"
     >
-      <div className="absolute top-0 left-0 right-0 h-1 rounded-t-3xl" style={{ background: `linear-gradient(90deg, ${job.color}, #e91e8c)` }} />
+      <div className="absolute top-0 left-0 right-0 h-1 rounded-t-3xl" style={{ background: `linear-gradient(90deg, ${color}, #e91e8c)` }} />
 
       {job.urgent && (
         <span className="absolute top-4 right-4 text-xs font-black px-2.5 py-1 rounded-full text-white" style={{ background: "#ef4444" }}>Urgent</span>
       )}
 
       <div className="flex items-start gap-4 mb-4">
-        <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: job.bg }}>
+        <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: bg }}>
           <LuBriefcase size={22} className="text-white" />
         </div>
         <div className="flex-1 min-w-0">
           <h3 className="font-black text-slate-800 text-base leading-tight">{job.title}</h3>
-          <p className="text-sm font-semibold mt-0.5" style={{ color: job.color }}>{job.department}</p>
+          <p className="text-sm font-semibold mt-0.5" style={{ color: color }}>{job.department}</p>
         </div>
       </div>
 
@@ -155,7 +103,7 @@ function JobCard({ job, index, onApply }) {
           { icon: FiDollarSign, text: job.salary },
         ].map(({ icon: Icon, text }, i) => (
           <div key={i} className="flex items-center gap-1.5 text-xs text-slate-500">
-            <Icon size={11} style={{ color: job.color }} />
+            <Icon size={11} style={{ color: color }} />
             <span className="truncate">{text}</span>
           </div>
         ))}
@@ -176,7 +124,7 @@ function JobCard({ job, index, onApply }) {
             <ul className="space-y-1.5">
               {job.requirements.map((req, i) => (
                 <li key={i} className="flex items-start gap-2 text-xs text-slate-500">
-                  <FiCheck size={12} className="mt-0.5 flex-shrink-0" style={{ color: job.color }} />
+                  <FiCheck size={12} className="mt-0.5 flex-shrink-0" style={{ color }} />
                   {req}
                 </li>
               ))}
@@ -195,14 +143,14 @@ function JobCard({ job, index, onApply }) {
           whileTap={{ scale: 0.97 }}
           onClick={() => onApply(job)}
           className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold text-white shadow-md cursor-pointer"
-          style={{ background: `linear-gradient(135deg, ${job.color}, #e91e8c)` }}
+          style={{ background: `linear-gradient(135deg, ${color}, #e91e8c)` }}
         >
           Apply Now
         </motion.button>
         <button
           onClick={() => setExpanded(!expanded)}
           className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold border transition-all cursor-pointer"
-          style={{ borderColor: job.color + "40", color: job.color, background: job.bg }}
+          style={{ borderColor: color + "40", color: color, background: bg }}
         >
           {expanded ? "Less" : "Details"}
           <motion.span animate={{ rotate: expanded ? 180 : 0 }} transition={{ duration: 0.2 }}>
@@ -215,8 +163,21 @@ function JobCard({ job, index, onApply }) {
 }
 
 export default function Careers({ onBookAppointment }) {
+  const [jobs, setJobs] = useState(DEFAULT_JOBS);
   const [appliedJob, setAppliedJob] = useState(null);
-  const whatsappNumber = "923008786187";
+  const [settings, setSettings] = useState({ clinic_phone: "+92 300 8786187", clinic_email: "info@vitalphysiohub.com" });
+
+  useEffect(() => {
+    api.getCareers().then(data => {
+      if (data && data.length > 0) setJobs(data);
+    });
+    api.getSettings().then(data => {
+      if (data) setSettings(data);
+    });
+  }, []);
+
+  const whatsappNumber = settings.clinic_phone ? settings.clinic_phone.replace(/\D/g, "") : "923008786187";
+  const hrEmail = settings.clinic_email || "hr@physiohub.com";
 
   return (
     <div className="min-h-screen font-sans" style={{ background: THEME.grad }}>
@@ -248,7 +209,7 @@ export default function Careers({ onBookAppointment }) {
               <p className="text-slate-500 text-sm mb-6">Send your CV and cover letter to our HR team. We review applications within 3–5 working days.</p>
               <div className="space-y-3">
                 <a
-                  href={`mailto:hr@vitalphysiohub.com?subject=Application for ${appliedJob.title}`}
+                  href={`mailto:${hrEmail}?subject=Application for ${appliedJob.title}`}
                   className="flex items-center justify-center gap-3 w-full px-5 py-3.5 rounded-2xl font-bold text-sm text-white shadow-lg"
                   style={{ background: THEME.gradBtn, textDecoration: "none" }}
                 >
@@ -266,7 +227,7 @@ export default function Careers({ onBookAppointment }) {
                   Apply via WhatsApp
                 </a>
               </div>
-              <p className="text-xs text-slate-400 mt-4 text-center">hr@vitalphysiohub.com · +92 300 8786187</p>
+              <p className="text-xs text-slate-400 mt-4 text-center">{hrEmail} · {settings.clinic_phone || "+92 300 8786187"}</p>
             </motion.div>
           </motion.div>
         )}
@@ -301,7 +262,7 @@ export default function Careers({ onBookAppointment }) {
               <h2 className="text-2xl font-black text-slate-800">Active Job Openings</h2>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {JOB_OPENINGS.map((job, idx) => (
+              {jobs.map((job, idx) => (
                 <JobCard key={job.id} job={job} index={idx} onApply={setAppliedJob} />
               ))}
             </div>

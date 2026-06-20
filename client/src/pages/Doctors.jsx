@@ -21,6 +21,7 @@ import { HiOutlineArrowRight, HiOutlineBadgeCheck } from "react-icons/hi";
 
 // Shared data
 import { doctors } from "../data/mockData";
+import { api } from "../services/api";
 
 const TAGS = [
   { value: "all",             label: "All Specialists",     color: "#0ea5e9", icon: TbStethoscope },
@@ -794,6 +795,99 @@ function DoctorCard({ doctor: d, onOpen, index }) {
   );
 }
 
+// Specialty tag mapping helper
+const getTagFromSpecialty = (specialty) => {
+  if (!specialty) return "all";
+  const s = specialty.toLowerCase();
+  if (s.includes("physio")) return "physiotherapy";
+  if (s.includes("chiro")) return "chiropractic";
+  if (s.includes("cup")) return "cupping";
+  if (s.includes("hij")) return "hijama";
+  if (s.includes("electro")) return "electrotherapy";
+  if (s.includes("kinesio")) return "kinesio";
+  if (s.includes("fit")) return "fitness";
+  if (s.includes("needl")) return "needling";
+  return "all";
+};
+
+// Specialty styling colors mapping helper
+const getStylesForTag = (tag) => {
+  const stylesMap = {
+    physiotherapy: {
+      solidColor: "#0ea5e9",
+      lightBg: "from-sky-50 to-cyan-50",
+      badgeBg: "bg-sky-100",
+      badgeText: "text-sky-700",
+      accentText: "text-sky-600",
+      IconComp: FiActivity
+    },
+    chiropractic: {
+      solidColor: "#8b5cf6",
+      lightBg: "from-violet-50 to-purple-50",
+      badgeBg: "bg-violet-100",
+      badgeText: "text-violet-700",
+      accentText: "text-violet-600",
+      IconComp: TbBone
+    },
+    cupping: {
+      solidColor: "#0d9488",
+      lightBg: "from-teal-50 to-emerald-50",
+      badgeBg: "bg-teal-100",
+      badgeText: "text-teal-700",
+      accentText: "text-teal-600",
+      IconComp: GiHeartBeats
+    },
+    hijama: {
+      solidColor: "#4f46e5",
+      lightBg: "from-indigo-50 to-blue-50",
+      badgeBg: "bg-indigo-100",
+      badgeText: "text-indigo-700",
+      accentText: "text-indigo-600",
+      IconComp: GiHeartBeats
+    },
+    electrotherapy: {
+      solidColor: "#dc2626",
+      lightBg: "from-red-50 to-orange-50",
+      badgeBg: "bg-red-100",
+      badgeText: "text-red-700",
+      accentText: "text-red-600",
+      IconComp: FiZap
+    },
+    kinesio: {
+      solidColor: "#ec4899",
+      lightBg: "from-pink-50 to-rose-50",
+      badgeBg: "bg-pink-100",
+      badgeText: "text-pink-700",
+      accentText: "text-pink-600",
+      IconComp: FiActivity
+    },
+    fitness: {
+      solidColor: "#d97706",
+      lightBg: "from-amber-50 to-orange-50",
+      badgeBg: "bg-amber-100",
+      badgeText: "text-amber-700",
+      accentText: "text-amber-600",
+      IconComp: FiActivity
+    },
+    needling: {
+      solidColor: "#10b981",
+      lightBg: "from-emerald-50 to-teal-50",
+      badgeBg: "bg-emerald-100",
+      badgeText: "text-emerald-700",
+      accentText: "text-emerald-600",
+      IconComp: TbStethoscope
+    }
+  };
+  return stylesMap[tag] || {
+    solidColor: "#0ea5e9",
+    lightBg: "from-sky-50 to-cyan-50",
+    badgeBg: "bg-sky-100",
+    badgeText: "text-sky-700",
+    accentText: "text-sky-600",
+    IconComp: TbStethoscope
+  };
+};
+
 // ─── MAIN PAGE ────────────────────────────────────────────────────────────────
 export default function DoctorsPage() {
   const navigate = useNavigate();
@@ -803,8 +897,71 @@ export default function DoctorsPage() {
   const [avail,      setAvail]      = useState("all");
   const [search,     setSearch]     = useState("");
   const [selected,   setSelected]   = useState(null);
+  const [doctorsList, setDoctorsList] = useState([]);
 
-  const filtered = doctors.filter(d => {
+  useEffect(() => {
+    const fetchDoctors = async () => {
+      const dbDocs = await api.getDoctors();
+      const mergedDocs = dbDocs.map(dbDoc => {
+        const mockDoc = doctors.find(m => m.name.toLowerCase() === dbDoc.name.toLowerCase());
+        
+        let branches = ["Gulberg", "DHA"];
+        if (typeof dbDoc.branch === "string") {
+          branches = dbDoc.branch.split(",").map(b => b.trim());
+        } else if (Array.isArray(dbDoc.branch)) {
+          branches = dbDoc.branch;
+        }
+
+        const tag = mockDoc?.tag || getTagFromSpecialty(dbDoc.specialty);
+        const styles = getStylesForTag(tag);
+
+        return {
+          id: dbDoc.id,
+          name: dbDoc.name,
+          specialty: dbDoc.specialty,
+          fee: dbDoc.fee,
+          branch: branches,
+          status: dbDoc.status || "Active",
+          slug: dbDoc.slug || mockDoc?.slug || dbDoc.name.toLowerCase().replace(/\s+/g, "-"),
+          title: dbDoc.title || mockDoc?.title || "Consultant Specialist",
+          tag: tag,
+          tags: mockDoc?.tags || [tag],
+          image: dbDoc.image || mockDoc?.image || "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=400&q=80",
+          experience: dbDoc.experience || mockDoc?.experience || "10 Years",
+          patients: mockDoc?.patients || "5,000+",
+          rating: dbDoc.rating || mockDoc?.rating || 4.8,
+          reviews: mockDoc?.reviews || 120,
+          languages: mockDoc?.languages || ["Urdu", "English"],
+          available: dbDoc.status === "Active" ? (mockDoc?.available !== undefined ? mockDoc.available : true) : false,
+          nextSlot: mockDoc?.nextSlot || "Today, 4:00 PM",
+          gender: mockDoc?.gender || "Male",
+          solidColor: mockDoc?.solidColor || styles.solidColor,
+          lightBg: mockDoc?.lightBg || styles.lightBg,
+          badgeBg: mockDoc?.badgeBg || styles.badgeBg,
+          badgeText: mockDoc?.badgeText || styles.badgeText,
+          accentText: mockDoc?.accentText || styles.accentText,
+          IconComp: mockDoc?.IconComp || styles.IconComp,
+          bio: mockDoc?.bio || `Dr. ${dbDoc.name} is a dedicated specialist in ${dbDoc.specialty} committed to delivering top-tier patient rehabilitation at Vital Physio Hub.`,
+          certifications: mockDoc?.certifications || ["Certified Clinical Specialist"],
+          education: mockDoc?.education || [
+            { degree: dbDoc.title || "Specialist", institution: "Authorized Rehabilitation Institute", year: "2016" }
+          ],
+          social: mockDoc?.social || { linkedin: "#", facebook: "#", instagram: "#" },
+          specializations: mockDoc?.specializations || [dbDoc.specialty],
+          services: mockDoc?.services || [dbDoc.specialty],
+          availabilitySchedule: mockDoc?.availabilitySchedule || [
+            { day: "Monday", time: "9:00 AM – 2:00 PM" },
+            { day: "Wednesday", time: "3:00 PM – 7:00 PM" }
+          ],
+          realStats: true
+        };
+      });
+      setDoctorsList(mergedDocs.filter(d => d.status === "Active"));
+    };
+    fetchDoctors();
+  }, []);
+
+  const filtered = doctorsList.filter(d => {
     const matchTag    = activeTag === "all" || d.tag === activeTag || (d.tags && d.tags.includes(activeTag));
     const matchGender = gender === "all"    || d.gender === gender;
     const matchBranch = branch === "all"    || d.branch.includes(branch);

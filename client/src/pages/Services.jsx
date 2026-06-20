@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
@@ -12,6 +12,7 @@ import {
 import { GiTooth, GiHeartBeats, GiBabyFace, GiBrain } from "react-icons/gi";
 import { MdFace, MdContentCut } from "react-icons/md";
 import { TbEar, TbBone, TbStethoscope } from "react-icons/tb";
+import { api } from "../services/api";
 
 
 // // ─────────────────────────────────────────────────────────────────────────────
@@ -832,7 +833,7 @@ import { TbEar, TbBone, TbStethoscope } from "react-icons/tb";
 //       {/* Bottom CTA */}
 //       <section className="relative overflow-hidden py-20 mt-4"
 //         style={{ background:"linear-gradient(135deg,#0ea5e9 0%,#7c3aed 50%,#db2777 100%)" }}>
-const services = [
+const DEFAULT_SERVICES = [
   {
     id: "physiotherapy",
     category: "Physiotherapy",
@@ -1388,9 +1389,31 @@ function ServiceCard({ service, onOpen, index }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// ICON MAPPER
+// ─────────────────────────────────────────────────────────────────────────────
+const ICON_MAP = {
+  physiotherapy: FiActivity,
+  chiropractic: TbBone,
+  cupping: GiHeartBeats,
+  hijama: GiHeartBeats,
+  electrotherapy: FiZap,
+  kinesio: FiActivity,
+  fitness: FiActivity,
+  needling: TbStethoscope,
+  dental: GiTooth,
+  skin: MdFace,
+  hair: MdContentCut,
+  orthopedic: TbBone,
+  ent: TbEar,
+  gynecology: GiBabyFace,
+  cardiology: GiHeartBeats,
+  neurology: GiBrain
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
 // TOP FILTER BAR — sticky below navbar
 // ─────────────────────────────────────────────────────────────────────────────
-function TopFilterBar({ activeTag, setActiveTag, activeType, setActiveType, search, setSearch, filteredCount }) {
+function TopFilterBar({ activeTag, setActiveTag, activeType, setActiveType, search, setSearch, filteredCount, tags, servicesList }) {
   const [typeOpen, setTypeOpen] = useState(false);
 
   const activeTypeLabel = TYPES.find(t => t.value === activeType)?.label ?? "All Types";
@@ -1442,7 +1465,7 @@ function TopFilterBar({ activeTag, setActiveTag, activeType, setActiveType, sear
                       <span>{label}</span>
                       <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
                         activeType === value ? "bg-white/20 text-white" : "bg-slate-100 text-slate-400"
-                      }`}>{value === "all" ? services.length : services.filter(s => s.type === value).length}</span>
+                      }`}>{value === "all" ? servicesList.length : servicesList.filter(s => s.type === value).length}</span>
                     </button>
                   ))}
                 </motion.div>
@@ -1469,7 +1492,7 @@ function TopFilterBar({ activeTag, setActiveTag, activeType, setActiveType, sear
 
         {/* Row 2: Category pill tabs — horizontal scroll */}
         <div className="flex items-center gap-2 py-3 overflow-x-auto scrollbar-none">
-          {TAGS.map(({ value, label, color }) => {
+          {tags.map(({ value, label, color }) => {
             const active = activeTag === value;
             return (
               <motion.button key={value} onClick={() => setActiveTag(value)}
@@ -1575,20 +1598,66 @@ function Banner() {
 // ─────────────────────────────────────────────────────────────────────────────
 export default function ServicesPage() {
   const navigate = useNavigate();
+  const [services, setServices] = useState(DEFAULT_SERVICES);
   const [activeTag,  setActiveTag]  = useState("all");
   const [activeType, setActiveType] = useState("all");
   const [search,     setSearch]     = useState("");
   const [selected,   setSelected]   = useState(null);
 
+  useEffect(() => {
+    async function loadData() {
+      const svcs = await api.getServices();
+      const faqList = await api.getFaqs();
+
+      if (svcs && svcs.length > 0) {
+        const mappedData = svcs.map(s => {
+          const serviceFaqs = (faqList || [])
+            .filter(f => f.category === s.id || f.category === s.tag)
+            .map(f => ({ q: f.question, a: f.answer }));
+
+          return {
+            ...s,
+            icon: ICON_MAP[s.tag || s.id] || FiActivity,
+            procedure: s.procedure_text || s.procedure || "",
+            faqs: serviceFaqs.length > 0 ? serviceFaqs : (DEFAULT_SERVICES.find(ds => ds.id === s.id)?.faqs || [])
+          };
+        });
+        setServices(mappedData);
+      } else {
+        setServices(DEFAULT_SERVICES);
+      }
+    }
+    loadData();
+  }, []);
+
+  // Dynamically build tags from loaded services
+  const seenTags = new Set();
+  const dynamicTags = [{ value: "all", label: "All Services", color: null }];
+  services.forEach(s => {
+    const val = s.tag || s.id;
+    if (val && !seenTags.has(val)) {
+      seenTags.add(val);
+      dynamicTags.push({
+        value: val,
+        label: s.category,
+        color: s.solidColor || "#0ea5e9"
+      });
+    }
+  });
+
   const filtered = services.filter(s => {
-    const matchTag   = activeTag  === "all" || s.tag  === activeTag;
+    const matchTag   = activeTag  === "all" || s.tag  === activeTag || s.id === activeTag;
     const matchType  = activeType === "all" || s.type === activeType;
     const q = search.toLowerCase();
+    
+    const symptomsArr = Array.isArray(s.symptoms) ? s.symptoms : [];
+    const treatmentsArr = Array.isArray(s.treatments) ? s.treatments : [];
+
     const matchSearch = !q
       || s.category.toLowerCase().includes(q)
       || s.shortDesc.toLowerCase().includes(q)
-      || s.treatments.some(t => t.toLowerCase().includes(q))
-      || s.symptoms.some(sym => sym.toLowerCase().includes(q));
+      || treatmentsArr.some(t => t.toLowerCase().includes(q))
+      || symptomsArr.some(sym => sym.toLowerCase().includes(q));
     return matchTag && matchType && matchSearch;
   });
 
@@ -1604,6 +1673,8 @@ export default function ServicesPage() {
         activeType={activeType} setActiveType={setActiveType}
         search={search}         setSearch={setSearch}
         filteredCount={filtered.length}
+        tags={dynamicTags}
+        servicesList={services}
       />
 
       {/* Cards Grid */}
@@ -1611,7 +1682,7 @@ export default function ServicesPage() {
         <div className="flex items-center justify-between mb-7">
           <div>
             <h2 className="text-xl font-extrabold text-slate-900">
-              {activeTag === "all" ? "All Services" : TAGS.find(t => t.value === activeTag)?.label}
+              {activeTag === "all" ? "All Services" : dynamicTags.find(t => t.value === activeTag)?.label}
             </h2>
             <p className="text-sm text-slate-400 mt-0.5">
               {filtered.length} result{filtered.length !== 1 ? "s" : ""} · click any card for full details

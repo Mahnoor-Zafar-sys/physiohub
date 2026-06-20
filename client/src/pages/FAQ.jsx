@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FiCalendar, FiChevronDown, FiHelpCircle, FiPhone, FiVideo,
@@ -9,6 +9,7 @@ import { HiSparkles } from "react-icons/hi";
 import { LuCircleHelp } from "react-icons/lu";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import { api } from "../services/api";
 
 const THEME = {
   pink:    "#e91e8c",
@@ -17,59 +18,13 @@ const THEME = {
   gradBtn: "linear-gradient(135deg, #0ea5e9, #e91e8c)",
 };
 
-const FAQ_CATEGORIES = [
-  {
-    id: "appointments",
-    label: "Appointments",
-    icon: FiCalendar,
-    color: "#0ea5e9",
-    bg: "#e0f2fe",
-    questions: [
-      { q: "How do I book an appointment at Vital Physio Hub?", a: "You can book through our website's booking page, call our helpline at +92-300-8786187, or send us a message on WhatsApp. Online bookings are available 24/7 and confirmed instantly." },
-      { q: "Can I choose a specific doctor for my appointment?", a: "Yes, absolutely. During the booking process you can browse all available doctors, view their profiles, specializations, and available time slots, and select the one that suits you best." },
-      { q: "What is your cancellation and rescheduling policy?", a: "You can cancel or reschedule up to 4 hours before your appointment at no charge. Cancellations within 4 hours may incur a small processing fee. Emergency cancellations are always waived." },
-      { q: "Do you offer same-day or emergency appointments?", a: "Yes. We maintain dedicated emergency slots each day. Call our emergency line or walk in — our triage team will assess and accommodate you as quickly as possible." },
-    ],
-  },
-  {
-    id: "services",
-    label: "Services & Treatments",
-    icon: TbStethoscope,
-    color: "#e91e8c",
-    bg: "#fce4ec",
-    questions: [
-      { q: "What specialties does Vital Physio Hub offer?", a: "We offer 8 clinical facilities including Physiotherapy, Chiropractic Adjustments, Cupping, Hijama, Electrotherapy, Kinesio Taping, Fitness Training, and Dry Needling." },
-      { q: "Do you offer online video consultations?", a: "Yes. Our telemedicine platform supports video, audio, and chat consultations. You can consult with any of our doctors from the comfort of your home via Zoom or our in-app system." },
-      { q: "Are your treatments FDA-approved?", a: "All procedures, devices, and rehabilitation equipment used at Vital Physio Hub are certified by relevant healthcare and regulatory authorities. Patient safety is our highest priority." },
-      { q: "Can I get a second opinion from your specialists?", a: "Of course. We welcome second-opinion consultations and can review previous reports, imaging, and diagnoses from other providers to give you a comprehensive independent assessment." },
-    ],
-  },
-  {
-    id: "billing",
-    label: "Billing & Payments",
-    icon: FiHelpCircle,
-    color: "#34d399",
-    bg: "#d1fae5",
-    questions: [
-      { q: "What payment methods do you accept?", a: "We accept JazzCash, Easypaisa, Visa/Mastercard debit & credit cards, bank transfers, and cash. Online appointments can be partially or fully paid in advance through our secure portal." },
-      { q: "Do you offer installment plans for expensive procedures?", a: "Yes, for procedures above PKR 30,000 we offer easy 3 to 12 month installment plans with zero markup through selected partner banks. Our billing team can assist with the application." },
-      { q: "Will I receive an invoice or receipt for my visit?", a: "A detailed digital invoice is automatically sent to your registered email after every consultation and procedure. You can also access all past invoices from your Patient Portal account." },
-    ],
-  },
-  {
-    id: "general",
-    label: "General Queries",
-    icon: FiHelpCircle,
-    color: "#a78bfa",
-    bg: "#ede9fe",
-    questions: [
-      { q: "What are your clinic opening hours?", a: "Our main branch is open Saturday–Thursday 9:00 AM – 9:00 PM and Friday 2:00 PM – 9:00 PM. Emergency services are available 24/7 at all branches." },
-      { q: "Do you have branches in multiple cities?", a: "Currently we have three branches — Lahore (DHA Phase 5), Islamabad (Blue Area), and Rawalpindi (Saddar). Each branch offers the full range of services with the same Premium standard." },
-      { q: "Is parking available at the clinic?", a: "Yes, all three branches have dedicated free parking for patients. The Lahore branch also has a basement parking level with direct elevator access to the clinic floors." },
-      { q: "How do I access my reports and prescriptions?", a: "All reports, lab results, and prescriptions are uploaded to your Patient Portal within 24 hours of your visit. You'll receive a notification via SMS and email once they're ready." },
-    ],
-  },
-];
+const CATEGORY_META = {
+  appointments: { label: "Appointments", icon: FiCalendar, color: "#0ea5e9", bg: "#e0f2fe" },
+  services: { label: "Services & Treatments", icon: TbStethoscope, color: "#e91e8c", bg: "#fce4ec" },
+  billing: { label: "Billing & Payments", icon: FiHelpCircle, color: "#34d399", bg: "#d1fae5" },
+  general: { label: "General Queries", icon: FiHelpCircle, color: "#a78bfa", bg: "#ede9fe" }
+};
+
 
 function FaqAccordion({ faqs, color, bg, delay = 0 }) {
   const [openIdx, setOpenIdx] = useState(null);
@@ -113,9 +68,51 @@ function FaqAccordion({ faqs, color, bg, delay = 0 }) {
   );
 }
 
+const DEFAULT_FAQS = [
+  { category: "appointments", question: "How do I book an appointment at Vital Physio Hub?", answer: "You can book through our website's booking page, call our helpline at +92-300-8786187, or send us a message on WhatsApp. Online bookings are available 24/7 and confirmed instantly." },
+  { category: "appointments", question: "Can I choose a specific doctor for my appointment?", answer: "Yes, absolutely. During the booking process you can browse all available doctors, view their profiles, specializations, and available time slots, and select the one that suits you best." },
+  { category: "appointments", question: "What is your cancellation and rescheduling policy?", answer: "You can cancel or reschedule up to 4 hours before your appointment at no charge. Cancellations within 4 hours may incur a small processing fee. Emergency cancellations are always waived." },
+  { category: "services", question: "What specialties does Vital Physio Hub offer?", answer: "We offer 8 clinical facilities including Physiotherapy, Chiropractic Adjustments, Cupping, Hijama, Electrotherapy, Kinesio Taping, Fitness Training, and Dry Needling." },
+  { category: "services", question: "Do you offer online video consultations?", answer: "Yes. Our telemedicine platform supports video, audio, and chat consultations. You can consult with any of our doctors from the comfort of your home via Zoom or our in-app system." },
+  { category: "billing", question: "What payment methods do you accept?", answer: "We accept JazzCash, Easypaisa, Visa/Mastercard debit & credit cards, bank transfers, and cash. Online appointments can be partially or fully paid in advance through our secure portal." },
+  { category: "billing", question: "Will I receive an invoice or receipt for my visit?", answer: "A detailed digital invoice is automatically sent to your registered email after every consultation and procedure. You can also access all past invoices from your Patient Portal account." },
+  { category: "general", question: "What are your clinic timings?", answer: "We are open Monday to Saturday from 09:00 AM to 09:00 PM. Sundays are reserved for emergencies and pre-scheduled sessions only." }
+];
+
 export default function FAQ({ onBookAppointment }) {
+  const [faqs, setFaqs] = useState(DEFAULT_FAQS);
   const [activeFaqCat, setActiveFaqCat] = useState("appointments");
-  const whatsappNumber = "923008786187";
+  const [settings, setSettings] = useState({ clinic_phone: "+92 300 8786187" });
+
+  useEffect(() => {
+    api.getFaqs().then(data => {
+      if (data && data.length > 0) setFaqs(data);
+    });
+    api.getSettings().then(data => {
+      if (data) setSettings(data);
+    });
+  }, []);
+
+  const whatsappNumber = settings.clinic_phone ? settings.clinic_phone.replace(/\D/g, "") : "923008786187";
+
+  const uniqueCategories = faqs.length > 0 ? [...new Set(faqs.map(f => f.category))] : ["appointments", "services", "billing", "general"];
+
+  const faqCategories = uniqueCategories.map(catId => {
+    const meta = CATEGORY_META[catId] || {
+      label: catId.charAt(0).toUpperCase() + catId.slice(1),
+      icon: FiHelpCircle,
+      color: "#6366f1",
+      bg: "#e0e7ff"
+    };
+    return {
+      id: catId,
+      label: meta.label,
+      icon: meta.icon,
+      color: meta.color,
+      bg: meta.bg,
+      questions: faqs.filter(f => f.category === catId).map(f => ({ q: f.question, a: f.answer }))
+    };
+  });
 
   return (
     <div className="min-h-screen font-sans" style={{ background: THEME.grad }}>
@@ -150,7 +147,7 @@ export default function FAQ({ onBookAppointment }) {
 
         {/* Category tabs */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-10">
-          {FAQ_CATEGORIES.map((cat) => {
+          {faqCategories.map((cat) => {
             const Icon = cat.icon;
             const isActive = activeFaqCat === cat.id;
             return (
@@ -173,7 +170,7 @@ export default function FAQ({ onBookAppointment }) {
 
         {/* FAQ accordion */}
         <AnimatePresence mode="wait">
-          {FAQ_CATEGORIES.filter((c) => c.id === activeFaqCat).map((cat) => (
+          {faqCategories.filter((c) => c.id === activeFaqCat).map((cat) => (
             <motion.div key={cat.id} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -16 }} transition={{ duration: 0.35 }}>
               <FaqAccordion faqs={cat.questions} color={cat.color} bg={cat.bg} />
             </motion.div>
@@ -198,7 +195,7 @@ export default function FAQ({ onBookAppointment }) {
             <motion.a href={`https://wa.me/${whatsappNumber}`} target="_blank" whileHover={{ scale: 1.04 }} className="flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm text-white shadow-lg" style={{ background: "#25D366", textDecoration: "none" }}>
               <FaWhatsapp size={16} /> WhatsApp Us
             </motion.a>
-            <motion.a href="tel:+923008786187" whileHover={{ scale: 1.04 }} className="flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm text-white shadow-lg" style={{ background: THEME.gradBtn, textDecoration: "none" }}>
+            <motion.a href={`tel:${settings.clinic_phone || '+923008786187'}`} whileHover={{ scale: 1.04 }} className="flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm text-white shadow-lg" style={{ background: THEME.gradBtn, textDecoration: "none" }}>
               <FiPhone size={15} /> Call Us Now
             </motion.a>
           </div>

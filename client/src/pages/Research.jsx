@@ -76,7 +76,7 @@ const researchAreas = [
     bg: "bg-emerald-50/40",
     items: [
       {
-        title: "Vital Physio Hub Institutional Review Board (IRB-VPH)",
+        title: "Vital Physio Hub Institutional Review Board (IRB)",
         investigator: "Chaired by Prof. Dr. Haris Khan",
         status: "Regulatory Accreditation Authority",
         description: "Our Institutional Review Board ensures that all medical experiments, drug trials, clinical audits, and genetic database archiving programs adhere strict compliance protocols with the Declaration of Helsinki. No trials can commence without unanimous ethical clearances.",

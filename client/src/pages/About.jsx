@@ -550,7 +550,7 @@ export default function About() {
                     <div className="pt-2 border-t border-slate-100">
                       <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Registrations & Affiliations</h4>
                       <div className="flex gap-3 flex-wrap">
-                        <span className="text-[9px] font-black uppercase text-slate-600 bg-slate-100 px-2 py-1 rounded-lg border border-slate-200/40">Founder & CEO — Vital Physio Hub (VPH)</span>
+                        <span className="text-[9px] font-black uppercase text-slate-600 bg-slate-100 px-2 py-1 rounded-lg border border-slate-200/40">Founder & CEO — Vital Physio Hub</span>
                         <span className="text-[9px] font-black uppercase text-slate-600 bg-slate-100 px-2 py-1 rounded-lg border border-slate-200/40">Physiotherapy Educator & Content Developer</span>
                         <span className="text-[9px] font-black uppercase text-slate-600 bg-slate-100 px-2 py-1 rounded-lg border border-slate-200/40">Evidence-Based Practice (EBP) Advocate</span>
                       </div>
@@ -568,7 +568,7 @@ export default function About() {
                     className="relative pl-4 border-l border-blue-100 space-y-4"
                   >
                     {[
-                      { year: "Vital Physio Hub (VPH)", title: "Founder & CEO", desc: "Building a global physiotherapy platform integrating educational resources, clinical guidance, and digital rehabilitation standards." },
+                      { year: "Vital Physio Hub", title: "Founder & CEO", desc: "Building a global physiotherapy platform integrating educational resources, clinical guidance, and digital rehabilitation standards." },
                       { year: "Clinical Experience", title: "Physiotherapist — Thrivex Physio Clinic", desc: "Managed clinical assessments, manual therapy sessions, and designed individual programs for musculoskeletal and chronic pain recovery." },
                       { year: "Early Career", title: "Clinical Rotations & DPT Foundation", desc: "Obtained clinical training and hospital placement exposure in orthopedic, neurological, and cardiopulmonary rehabilitation science." }
                     ].map((step, idx) => (
