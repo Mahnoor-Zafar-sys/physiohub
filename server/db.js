@@ -99,6 +99,126 @@ function runMigrations(dbPool) {
       console.log("Database migrations checked: cv_file column already exists in doctors table.");
     }
   });
+
+  // 3. User Logs Table Creation Migration
+  dbPool.query("SHOW TABLES LIKE 'user_logs'", (err, results) => {
+    if (err) {
+      console.warn("Migration warning: user_logs table check failed:", err.message);
+      return;
+    }
+    if (results.length === 0) {
+      console.log("Migrating database: creating user_logs table...");
+      const createTableQuery = `
+        CREATE TABLE IF NOT EXISTS user_logs (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          user_email VARCHAR(255) NOT NULL,
+          action VARCHAR(255) NOT NULL,
+          details TEXT,
+          timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+      `;
+      dbPool.query(createTableQuery, (createErr) => {
+        if (createErr) {
+          console.error("Failed to create user_logs table:", createErr.message);
+        } else {
+          console.log("Successfully created user_logs table.");
+          // Seed initial setup log
+          dbPool.query("INSERT INTO user_logs (user_email, action, details) VALUES ('admin@physiohub.com', 'System Initialization', 'Clinic database and seed schemas deployed successfully.')");
+        }
+      });
+    } else {
+      console.log("Database migrations checked: user_logs table already exists.");
+    }
+  });
+
+  // 4. Clinics Table Creation Migration
+  dbPool.query("SHOW TABLES LIKE 'clinics'", (err, results) => {
+    if (err) {
+      console.warn("Migration warning: clinics table check failed:", err.message);
+      return;
+    }
+    const checkColumnsAndAddClinicId = () => {
+      const tenantTables = [
+        "users", "doctors", "appointments", "emr_records", "prescriptions", 
+        "invoices", "articles", "article_comments", "products", "shop_orders", 
+        "services", "faqs", "gallery_items", "careers_jobs", "reviews_list", 
+        "clinic_settings", "user_logs"
+      ];
+      tenantTables.forEach(tableName => {
+        dbPool.query(`SHOW COLUMNS FROM ${tableName} LIKE 'clinic_id'`, (colErr, colResults) => {
+          if (colErr) {
+            console.warn(`Migration warning: checking columns for ${tableName} failed:`, colErr.message);
+            return;
+          }
+          if (colResults.length === 0) {
+            console.log(`Migrating database: adding clinic_id column to ${tableName} table...`);
+            dbPool.query(`ALTER TABLE ${tableName} ADD COLUMN clinic_id INT DEFAULT 1`, (alterErr) => {
+              if (alterErr) {
+                console.error(`Failed to add clinic_id column to ${tableName}:`, alterErr.message);
+              } else {
+                console.log(`Successfully added clinic_id column to ${tableName}.`);
+              }
+            });
+          }
+        });
+      });
+    };
+
+    if (results.length === 0) {
+      console.log("Migrating database: creating clinics table...");
+      const createClinicsTableQuery = `
+        CREATE TABLE IF NOT EXISTS clinics (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          name VARCHAR(255) NOT NULL,
+          subdomain VARCHAR(100) NOT NULL UNIQUE,
+          address VARCHAR(255) DEFAULT NULL,
+          status ENUM('Active', 'Suspended') DEFAULT 'Active',
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+      `;
+      dbPool.query(createClinicsTableQuery, (createErr) => {
+        if (createErr) {
+          console.error("Failed to create clinics table:", createErr.message);
+        } else {
+          console.log("Successfully created clinics table. Seeding default clinic...");
+          dbPool.query(
+            "INSERT INTO clinics (id, name, subdomain, address, status) VALUES (1, 'Vital Physio Hub', 'vitalphysio', 'Lahore, Pakistan', 'Active') ON DUPLICATE KEY UPDATE id=id",
+            (seedErr) => {
+              if (seedErr) {
+                console.error("Failed to seed default clinic:", seedErr.message);
+              } else {
+                console.log("Successfully seeded default clinic 'Vital Physio Hub'.");
+                checkColumnsAndAddClinicId();
+              }
+            }
+          );
+        }
+      });
+    } else {
+      console.log("Database migrations checked: clinics table already exists.");
+      checkColumnsAndAddClinicId();
+    }
+  });
+
+  // 5. Articles HTML Content Migration
+  dbPool.query("SHOW COLUMNS FROM articles LIKE 'html_content'", (err, results) => {
+    if (err) {
+      console.warn("Migration warning: articles table check failed:", err.message);
+      return;
+    }
+    if (results.length === 0) {
+      console.log("Migrating database: adding html_content column to articles table...");
+      dbPool.query("ALTER TABLE articles ADD COLUMN html_content LONGTEXT DEFAULT NULL", (alterErr) => {
+        if (alterErr) {
+          console.error("Failed to add html_content column to articles:", alterErr.message);
+        } else {
+          console.log("Successfully added html_content column to articles table.");
+        }
+      });
+    } else {
+      console.log("Database migrations checked: html_content column already exists in articles table.");
+    }
+  });
 }
 
 module.exports = {

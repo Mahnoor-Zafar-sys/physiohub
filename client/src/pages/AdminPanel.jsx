@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
-  FiUser, FiCalendar, FiClock, FiFileText, FiDollarSign, 
+  FiUser, FiUsers, FiSearch, FiCalendar, FiClock, FiFileText, FiDollarSign, 
   FiCheckCircle, FiXCircle, FiTrendingUp, FiActivity, 
   FiPlus, FiTrash, FiShield, FiAlertTriangle, FiCheck, FiChevronRight, FiList, FiPackage, FiShoppingCart
 } from "react-icons/fi";
@@ -17,6 +17,8 @@ export default function AdminPanel() {
 
   const userRole = localStorage.getItem("vph_user_role") || "admin";
   const userName = localStorage.getItem("vph_user_name") || "Director Admin";
+  const activeClinicId = localStorage.getItem("vph_clinic_id") || "1";
+  const isSuperAdmin = (userRole === "admin" || userRole === "super_admin") && activeClinicId === "1";
 
   const [activeTab, setActiveTab] = useState(() => {
     if (userRole === "receptionist") return "reception-queue";
@@ -38,6 +40,9 @@ export default function AdminPanel() {
   const [newDoctor, setNewDoctor] = useState({ name: "", specialty: "", fee: "", branch: "Gulberg", image: "", experience: "", title: "" });
   const [editingDoctor, setEditingDoctor] = useState(null);
   const [articleForm, setArticleForm] = useState({ title: "", excerpt: "", content: "", category: "General Health", image: "" });
+  const [articleContentMode, setArticleContentMode] = useState("text"); // "text" | "html"
+  const [articleHtmlContent, setArticleHtmlContent] = useState(""); // raw HTML string from uploaded .html file
+  const [articleHtmlFileName, setArticleHtmlFileName] = useState("");
   
   // Shop states
   const [editingProduct, setEditingProduct] = useState(null);
@@ -58,6 +63,26 @@ export default function AdminPanel() {
   const [selectedScreenshotModal, setSelectedScreenshotModal] = useState(null);
   const [selectedReportModal, setSelectedReportModal] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  // User Management states
+  const [users, setUsers] = useState([]);
+  const [userLogs, setUserLogs] = useState([]);
+  const [searchUserQuery, setSearchUserQuery] = useState("");
+  const [searchLogQuery, setSearchLogQuery] = useState("");
+  const [userRoleFilter, setUserRoleFilter] = useState("all");
+  const [showAddUserModal, setShowAddUserModal] = useState(false);
+  const [showEditUserModal, setShowEditUserModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [addUserForm, setAddUserForm] = useState({ name: "", email: "", password: "", role: "patient" });
+  const [editUserForm, setEditUserForm] = useState({ name: "", email: "", role: "patient" });
+  const [addUserError, setAddUserError] = useState("");
+  const [editUserError, setEditUserError] = useState("");
+
+  // SaaS Clinics states
+  const [clinicsList, setClinicsList] = useState([]);
+  const [showAddClinicModal, setShowAddClinicModal] = useState(false);
+  const [addClinicForm, setAddClinicForm] = useState({ name: "", subdomain: "", address: "", adminName: "", adminEmail: "", adminPassword: "" });
+  const [addClinicError, setAddClinicError] = useState("");
 
   // --- Website CMS States ---
   const [cmsSettings, setCmsSettings] = useState({
@@ -197,6 +222,12 @@ export default function AdminPanel() {
       const ords = await api.getOrders();
       setOrders(ords);
 
+      const fetchedUsers = await api.getUsers();
+      setUsers(fetchedUsers);
+
+      const fetchedLogs = await api.getUserLogs();
+      setUserLogs(fetchedLogs);
+
       const cmsSettingsData = await api.getSettings();
       if (cmsSettingsData) {
         setCmsSettings(cmsSettingsData);
@@ -214,6 +245,11 @@ export default function AdminPanel() {
       const cmsGalleryData = await api.getGallery();
       if (cmsGalleryData) setCmsGallery(cmsGalleryData);
 
+      if (isSuperAdmin) {
+        const clinList = await api.getClinics();
+        if (clinList) setClinicsList(clinList);
+      }
+
       const cmsReviewsData = await api.getReviews();
       if (cmsReviewsData) setCmsReviews(cmsReviewsData);
     } catch (err) {
@@ -226,6 +262,134 @@ export default function AdminPanel() {
   useEffect(() => {
     loadData();
   }, []);
+
+  const handleAddUserSubmit = async (e) => {
+    e.preventDefault();
+    setAddUserError("");
+    if (!addUserForm.name || !addUserForm.email || !addUserForm.password || !addUserForm.role) {
+      setAddUserError("All fields are required.");
+      return;
+    }
+    try {
+      setLoading(true);
+      const res = await api.createUser(addUserForm);
+      if (res && res.success) {
+        setShowAddUserModal(false);
+        setAddUserForm({ name: "", email: "", password: "", role: "patient" });
+        alert("New user created successfully!");
+        loadData();
+      } else {
+        setAddUserError(res?.error || "Failed to create user.");
+      }
+    } catch (err) {
+      setAddUserError(err.message || "An unexpected error occurred.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEditUserSubmit = async (e) => {
+    e.preventDefault();
+    setEditUserError("");
+    if (!editUserForm.name || !editUserForm.email || !editUserForm.role) {
+      setEditUserError("All fields are required.");
+      return;
+    }
+    try {
+      setLoading(true);
+      const res = await api.updateUser({
+        id: selectedUser.id,
+        name: editUserForm.name,
+        email: editUserForm.email,
+        role: editUserForm.role
+      });
+      if (res && res.success) {
+        setShowEditUserModal(false);
+        setSelectedUser(null);
+        alert("User profile updated successfully!");
+        loadData();
+      } else {
+        setEditUserError(res?.error || "Failed to update user profile.");
+      }
+    } catch (err) {
+      setEditUserError(err.message || "An unexpected error occurred.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAddClinicSubmit = async (e) => {
+    e.preventDefault();
+    setAddClinicError("");
+    const { name, subdomain, address, adminName, adminEmail, adminPassword } = addClinicForm;
+    if (!name || !subdomain || !adminName || !adminEmail || !adminPassword) {
+      setAddClinicError("All fields except address are required.");
+      return;
+    }
+    
+    if (!/^[a-zA-Z0-9]+$/.test(subdomain)) {
+      setAddClinicError("Subdomain must contain only letters and numbers (no spaces, dashes, or special characters).");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const res = await api.createClinic(addClinicForm);
+      if (res && res.success) {
+        setShowAddClinicModal(false);
+        setAddClinicForm({ name: "", subdomain: "", address: "", adminName: "", adminEmail: "", adminPassword: "" });
+        alert("New clinic registered and administrator provisioned successfully!");
+        loadData();
+      } else {
+        setAddClinicError(res?.error || "Failed to register clinic.");
+      }
+    } catch (err) {
+      setAddClinicError(err.message || "An unexpected error occurred.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleToggleClinicStatus = async (id, currentStatus) => {
+    const nextStatus = currentStatus === "Active" ? "Suspended" : "Active";
+    const msg = `Are you sure you want to change the status of this clinic to ${nextStatus}? All active users in this clinic will be ${nextStatus === "Suspended" ? "locked out" : "granted access"}.`;
+    if (!window.confirm(msg)) return;
+
+    try {
+      setLoading(true);
+      const res = await api.toggleClinicStatus(id, nextStatus);
+      if (res && res.success) {
+        alert(`Clinic status successfully updated to ${nextStatus}!`);
+        loadData();
+      } else {
+        alert(res?.error || "Failed to update clinic status.");
+      }
+    } catch (err) {
+      alert(err.message || "An unexpected error occurred.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteUser = async (id, email) => {
+    if (!window.confirm(`Are you absolutely sure you want to revoke system access for user ${email}?`)) {
+      return;
+    }
+    try {
+      setLoading(true);
+      const res = await api.deleteUser(id);
+      if (res && res.success) {
+        alert(`User ${email} deleted successfully.`);
+        loadData();
+      } else {
+        alert(res?.error || "Failed to delete user.");
+      }
+    } catch (err) {
+      alert(err.message || "An unexpected error occurred.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleAddDoctor = async (e) => {
     e.preventDefault();
@@ -440,23 +604,29 @@ export default function AdminPanel() {
 
   const handleArticleSubmit = async (e) => {
     e.preventDefault();
-    if (!articleForm.title || !articleForm.content) return;
+    if (!articleForm.title) return;
+    if (articleContentMode === "text" && !articleForm.content) return;
+    if (articleContentMode === "html" && !articleHtmlContent) {
+      alert("Please upload an HTML file before publishing.");
+      return;
+    }
     try {
-      setLoading(true);
-      const art = await api.createArticle({
+      const payload = {
         title: articleForm.title,
         excerpt: articleForm.excerpt || articleForm.content.slice(0, 100) + "...",
-        content: articleForm.content,
+        content: articleContentMode === "html" ? "[HTML Content]" : articleForm.content,
+        html_content: articleContentMode === "html" ? articleHtmlContent : null,
         category: articleForm.category,
-        author: userName,
+        author: user?.name || user?.email || "Director Admin",
         image: articleForm.image
-      });
-      if (art) {
-        addSystemLog(`Clinical Article Published: "${art.title}"`);
-        setArticleForm({ title: "", excerpt: "", content: "", category: "General Health", image: "" });
-        alert("Clinical article published successfully!");
-        loadData();
-      }
+      };
+      await api.createArticle(payload);
+      setArticleForm({ title: "", excerpt: "", content: "", category: "General Health", image: "" });
+      setArticleHtmlContent("");
+      setArticleHtmlFileName("");
+      setArticleContentMode("text");
+      alert("Clinical article published successfully!");
+      loadData();
     } catch (err) {
       alert("Error publishing article.");
     } finally {
@@ -894,6 +1064,8 @@ export default function AdminPanel() {
                   { id: "analytics", label: "Analytical Center", icon: FiTrendingUp },
                   { id: "payments", label: "Payment Verification", icon: FaCreditCard },
                   { id: "doctor-crud", label: "Doctor Registry", icon: FaUserMd },
+                  { id: "users", label: "User Management", icon: FiUsers },
+                  ...(isSuperAdmin ? [{ id: "saas-clinics", label: "Super Admin Center", icon: FiShield }] : []),
                   { id: "articles", label: "Clinical Articles", icon: FiFileText },
                   { id: "comments", label: "Comments Moderation", icon: FiAlertTriangle },
                   { id: "shop-products", label: "Shop Inventory", icon: FiPackage },
@@ -1810,7 +1982,7 @@ export default function AdminPanel() {
                         />
                       </div>
                       <div>
-                        <label className="text-[9px] font-bold text-slate-400 block mb-1">Excerpt</label>
+                        <label className="text-[9px] font-bold text-slate-400 block mb-1">Excerpt (Short Summary)</label>
                         <input 
                           type="text" 
                           value={articleForm.excerpt}
@@ -1819,18 +1991,95 @@ export default function AdminPanel() {
                           className="w-full border border-slate-200 bg-white rounded-xl p-2.5 text-xs outline-none focus:border-pink-400"
                         />
                       </div>
+
+                      {/* Content Mode Toggle */}
                       <div>
-                        <label className="text-[9px] font-bold text-slate-400 block mb-1">Content Text</label>
-                        <textarea 
-                          rows={4}
-                          required
-                          value={articleForm.content}
-                          onChange={e => setArticleForm({...articleForm, content: e.target.value})}
-                          placeholder="Draft details..." 
-                          className="w-full border border-slate-200 bg-white rounded-xl p-2.5 text-xs outline-none focus:border-pink-400 resize-none"
-                        />
+                        <label className="text-[9px] font-bold text-slate-400 block mb-1.5">Article Content Mode</label>
+                        <div className="flex gap-1.5 bg-slate-100 rounded-xl p-1">
+                          <button
+                            type="button"
+                            onClick={() => setArticleContentMode("text")}
+                            className={`flex-1 py-1.5 rounded-lg text-[10px] font-bold border-none cursor-pointer transition-all ${
+                              articleContentMode === "text"
+                                ? "bg-white text-slate-800 shadow-sm"
+                                : "bg-transparent text-slate-500"
+                            }`}
+                          >
+                            ✏️ Write Text
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setArticleContentMode("html")}
+                            className={`flex-1 py-1.5 rounded-lg text-[10px] font-bold border-none cursor-pointer transition-all ${
+                              articleContentMode === "html"
+                                ? "bg-pink-500 text-white shadow-sm"
+                                : "bg-transparent text-slate-500"
+                            }`}
+                          >
+                            🗂️ Upload HTML File
+                          </button>
+                        </div>
                       </div>
-                      <button type="submit" className="w-full py-2.5 bg-slate-900 hover:bg-pink-600 text-white rounded-xl text-xs font-bold border-none cursor-pointer mt-2 shadow-md">
+
+                      {articleContentMode === "text" ? (
+                        <div>
+                          <label className="text-[9px] font-bold text-slate-400 block mb-1">Content Text</label>
+                          <textarea 
+                            rows={4}
+                            required
+                            value={articleForm.content}
+                            onChange={e => setArticleForm({...articleForm, content: e.target.value})}
+                            placeholder="Draft details..." 
+                            className="w-full border border-slate-200 bg-white rounded-xl p-2.5 text-xs outline-none focus:border-pink-400 resize-none"
+                          />
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          <label className="text-[9px] font-bold text-slate-400 block mb-1">Upload HTML File (.html)</label>
+                          <label
+                            className="flex flex-col items-center justify-center gap-2 w-full border-2 border-dashed border-pink-200 bg-pink-50/40 rounded-xl p-5 cursor-pointer hover:bg-pink-50 transition-colors"
+                          >
+                            <span className="text-2xl">📄</span>
+                            <span className="text-[10px] font-bold text-pink-600">
+                              {articleHtmlFileName ? articleHtmlFileName : "Click to select .html file"}
+                            </span>
+                            {articleHtmlContent && (
+                              <span className="text-[9px] text-emerald-600 font-extrabold bg-emerald-50 px-2 py-0.5 rounded-full">
+                                ✓ HTML Loaded — {(articleHtmlContent.length / 1024).toFixed(1)} KB
+                              </span>
+                            )}
+                            <input
+                              type="file"
+                              accept=".html,.htm"
+                              className="hidden"
+                              onChange={e => {
+                                const file = e.target.files[0];
+                                if (!file) return;
+                                setArticleHtmlFileName(file.name);
+                                const reader = new FileReader();
+                                reader.onload = (ev) => {
+                                  setArticleHtmlContent(ev.target.result);
+                                };
+                                reader.readAsText(file);
+                              }}
+                            />
+                          </label>
+                          <p className="text-[9px] text-slate-400 font-semibold leading-relaxed">
+                            The full HTML file will be rendered as-is inside the article page using a secure sandboxed frame. The content exactly matches your file.
+                          </p>
+                          {articleHtmlContent && (
+                            <button
+                              type="button"
+                              onClick={() => { setArticleHtmlContent(""); setArticleHtmlFileName(""); }}
+                              className="text-[9px] text-rose-500 font-bold cursor-pointer bg-transparent border-none hover:underline"
+                            >
+                              ✕ Remove HTML File
+                            </button>
+                          )}
+                        </div>
+                      )}
+
+                      <button type="submit" className="w-full py-2.5 bg-slate-900 hover:bg-pink-600 text-white rounded-xl text-xs font-bold border-none cursor-pointer mt-2 shadow-md transition-colors">
                         Publish Article
                       </button>
                     </form>
@@ -2305,6 +2554,369 @@ export default function AdminPanel() {
                       </div>
                     ))
                   )}
+                </div>
+              </div>
+            )}
+
+            {/* USER MANAGEMENT DASHBOARD */}
+            {activeTab === "users" && (
+              <div className="space-y-6 text-left flex-grow flex flex-col">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                  <div>
+                    <h3 className="text-lg font-black text-slate-800 flex items-center gap-2">
+                      <FiUsers className="text-pink-500" /> User Management & Audits
+                    </h3>
+                    <p className="text-xs text-slate-400 mt-0.5">Manage patients, doctors, receptionist staff, and monitor system-wide activity logs.</p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setAddUserError("");
+                      setAddUserForm({ name: "", email: "", password: "", role: "patient" });
+                      setShowAddUserModal(true);
+                    }}
+                    className="px-4 py-2 bg-pink-500 hover:bg-pink-600 text-white rounded-xl text-xs font-bold border-none cursor-pointer flex items-center gap-1.5 shadow-sm transition-colors shrink-0 animate-pulse"
+                  >
+                    <FiPlus /> Add Validated User
+                  </button>
+                </div>
+
+                {/* Statistics Cards */}
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                  {[
+                    { label: "Total Admins", value: users.filter(u => u.role === "admin").length, desc: "Root access accounts" },
+                    { label: "Staff Members", value: users.filter(u => u.role === "receptionist").length, desc: "Reception desks" },
+                    { label: "Doctors Registered", value: users.filter(u => u.role === "doctor").length, desc: "Medical specialists" },
+                    { label: "Patient Profiles", value: users.filter(u => u.role === "patient").length, desc: "Registered customers" },
+                    { 
+                      label: "Active Actions", 
+                      value: userLogs.filter(l => new Date(l.timestamp) > new Date(Date.now() - 24 * 3600 * 1000)).length, 
+                      desc: "Operations last 24h"
+                    }
+                  ].map((stat, i) => (
+                    <div key={i} className="bg-white/40 border border-slate-100 rounded-3xl p-4 flex flex-col justify-between shadow-xs">
+                      <div>
+                        <span className="text-[10px] text-slate-400 font-bold uppercase block tracking-wider">{stat.label}</span>
+                        <h4 className="text-xl font-black text-slate-800 mt-1">{stat.value}</h4>
+                      </div>
+                      <span className="text-[9px] text-slate-400 font-semibold block mt-1">{stat.desc}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Two-Column Management Layout */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-grow">
+                  {/* Left Column: Users List */}
+                  <div className="lg:col-span-2 bg-white/40 border border-slate-100 rounded-3xl p-5 flex flex-col gap-4 min-h-[500px]">
+                    <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
+                      <h4 className="font-extrabold text-sm text-slate-800">System Accounts Registry</h4>
+                      
+                      {/* Filters */}
+                      <div className="flex flex-wrap gap-2">
+                        <div className="relative">
+                          <FiSearch className="absolute left-3 top-2.5 text-slate-400" size={13} />
+                          <input
+                            type="text"
+                            placeholder="Search users..."
+                            value={searchUserQuery}
+                            onChange={e => setSearchUserQuery(e.target.value)}
+                            className="pl-8 pr-3 py-1.5 border border-slate-200 bg-white rounded-xl text-xs font-semibold outline-none text-slate-650 w-full sm:w-44 focus:border-pink-500 transition-colors"
+                          />
+                        </div>
+                        <select
+                          value={userRoleFilter}
+                          onChange={e => setUserRoleFilter(e.target.value)}
+                          className="px-2 py-1.5 border border-slate-200 bg-white rounded-xl text-xs font-semibold text-slate-700 outline-none"
+                        >
+                          <option value="all">All Roles</option>
+                          <option value="admin">Admins</option>
+                          <option value="doctor">Doctors</option>
+                          <option value="receptionist">Staff / Reception</option>
+                          <option value="patient">Patients</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* Users Table */}
+                    <div className="overflow-x-auto flex-grow max-h-[550px] overflow-y-auto pr-1">
+                      {users.length === 0 ? (
+                        <div className="p-8 text-center text-slate-400 text-xs font-semibold">
+                          Loading accounts list...
+                        </div>
+                      ) : (
+                        (() => {
+                          const filtered = users.filter(u => {
+                            const matchesSearch = u.name.toLowerCase().includes(searchUserQuery.toLowerCase()) || u.email.toLowerCase().includes(searchUserQuery.toLowerCase());
+                            const matchesRole = userRoleFilter === "all" || u.role === userRoleFilter;
+                            return matchesSearch && matchesRole;
+                          });
+
+                          if (filtered.length === 0) {
+                            return (
+                              <div className="p-12 text-center bg-slate-50 border border-dashed rounded-3xl text-slate-400 text-xs font-semibold">
+                                No registered accounts found matching selection.
+                              </div>
+                            );
+                          }
+
+                          return (
+                            <table className="w-full text-left border-collapse text-xs">
+                              <thead>
+                                <tr className="border-b border-slate-100 text-slate-400 font-bold uppercase text-[9px]">
+                                  <th className="py-2.5">User Profile</th>
+                                  <th className="py-2.5">Email Address</th>
+                                  <th className="py-2.5">Status Role</th>
+                                  <th className="py-2.5 text-right">Actions</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {filtered.map(u => (
+                                  <tr key={u.id} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
+                                    <td className="py-3 font-extrabold text-slate-800 flex items-center gap-2">
+                                      <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center font-black text-slate-650">
+                                        {u.name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2)}
+                                      </div>
+                                      <div>
+                                        <p className="font-extrabold">{u.name}</p>
+                                        <span className="text-[10px] text-slate-400 font-semibold block">ID: #{u.id}</span>
+                                      </div>
+                                    </td>
+                                    <td className="py-3 font-semibold text-slate-600">{u.email}</td>
+                                    <td className="py-3">
+                                      <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase ${
+                                        u.role === "admin" ? "bg-red-50 text-red-650" :
+                                        u.role === "doctor" ? "bg-teal-50 text-teal-650" :
+                                        u.role === "receptionist" ? "bg-purple-50 text-purple-650" :
+                                        "bg-blue-50 text-blue-650"
+                                      }`}>
+                                        {u.role === "receptionist" ? "staff desk" : u.role}
+                                      </span>
+                                    </td>
+                                    <td className="py-3 text-right space-x-1.5">
+                                      <button
+                                        onClick={() => {
+                                          setSelectedUser(u);
+                                          setEditUserForm({ name: u.name, email: u.email, role: u.role });
+                                          setEditUserError("");
+                                          setShowEditUserModal(true);
+                                        }}
+                                        className="px-2.5 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-[10px] font-bold border-none cursor-pointer transition-colors shadow-xs"
+                                      >
+                                        Edit
+                                      </button>
+                                      <button
+                                        onClick={() => handleDeleteUser(u.id, u.email)}
+                                        className="px-2.5 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-lg text-[10px] font-bold border-none cursor-pointer transition-colors shadow-xs"
+                                      >
+                                        Revoke
+                                      </button>
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          );
+                        })()
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Right Column: Activity Logs */}
+                  <div className="bg-white/40 border border-slate-100 rounded-3xl p-5 flex flex-col gap-4 max-h-[660px]">
+                    <div className="flex flex-col gap-1">
+                      <h4 className="font-extrabold text-sm text-slate-800">Security & Activity Audit</h4>
+                      <p className="text-[10px] text-slate-400 font-semibold">Real-time log tracing of database operations.</p>
+                    </div>
+
+                    <div className="relative">
+                      <FiSearch className="absolute left-3 top-2.5 text-slate-400" size={13} />
+                      <input
+                        type="text"
+                        placeholder="Search logs..."
+                        value={searchLogQuery}
+                        onChange={e => setSearchLogQuery(e.target.value)}
+                        className="pl-8 pr-3 py-1.5 border border-slate-200 bg-white rounded-xl text-xs font-semibold outline-none text-slate-650 w-full focus:border-pink-500 transition-colors"
+                      />
+                    </div>
+
+                    {/* Timeline */}
+                    <div className="flex-grow overflow-y-auto pr-1 space-y-3.5 scrollbar-none">
+                      {userLogs.length === 0 ? (
+                        <div className="p-6 text-center text-slate-400 text-xs font-semibold">
+                          No recent operations logged.
+                        </div>
+                      ) : (
+                        (() => {
+                          const filtered = userLogs.filter(l => 
+                            l.user_email.toLowerCase().includes(searchLogQuery.toLowerCase()) || 
+                            l.action.toLowerCase().includes(searchLogQuery.toLowerCase()) ||
+                            (l.details && l.details.toLowerCase().includes(searchLogQuery.toLowerCase()))
+                          );
+
+                          if (filtered.length === 0) {
+                            return (
+                              <div className="p-8 text-center text-slate-400 text-xs font-semibold bg-slate-50 border border-dashed rounded-3xl">
+                                No logs found matching query.
+                              </div>
+                            );
+                          }
+
+                          return filtered.map((l, index) => (
+                            <div key={l.id || index} className="flex gap-2.5 text-left border-l-2 border-slate-100 pl-3.5 pb-1 relative ml-1.5">
+                              {/* dot */}
+                              <div className="absolute -left-1.5 top-1 w-2.5 h-2.5 rounded-full bg-slate-200 border-2 border-white shadow-xs" />
+                              
+                              <div className="flex-grow min-w-0 space-y-1">
+                                <div className="flex justify-between items-start gap-1">
+                                  <span className={`px-1.5 py-0.5 rounded text-[8.5px] font-black uppercase tracking-wide ${
+                                    l.action === "User Login" ? "bg-emerald-50 text-emerald-650" :
+                                    l.action === "User Created" ? "bg-blue-50 text-blue-650" :
+                                    l.action === "User Updated" ? "bg-amber-50 text-amber-650" :
+                                    l.action === "User Deleted" ? "bg-red-50 text-red-650" :
+                                    "bg-slate-100 text-slate-650"
+                                  }`}>
+                                    {l.action}
+                                  </span>
+                                  <span className="text-[9px] text-slate-400 font-bold tracking-tight whitespace-nowrap">
+                                    {l.timestamp ? new Date(l.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ""}
+                                  </span>
+                                </div>
+                                <p className="text-[11px] text-slate-700 font-semibold leading-snug">{l.details}</p>
+                                <div className="flex justify-between items-center text-[9px] text-slate-400 font-bold mt-1">
+                                  <span className="truncate">{l.user_email}</span>
+                                  <span>{l.timestamp ? new Date(l.timestamp).toLocaleDateString([], { month: 'short', day: 'numeric' }) : ""}</span>
+                                </div>
+                              </div>
+                            </div>
+                          ));
+                        })()
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* SUPER ADMIN CLINIC NETWORKS MANAGEMENT CENTER */}
+            {activeTab === "saas-clinics" && isSuperAdmin && (
+              <div className="space-y-6 text-left flex-grow flex flex-col animate-fadeIn">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                  <div>
+                    <h3 className="text-lg font-black text-slate-800 flex items-center gap-2">
+                      <FiShield className="text-pink-500" /> Super Admin Center — Clinic Networks
+                    </h3>
+                    <p className="text-xs text-slate-400 mt-0.5 font-medium">Register new healthcare clinics, manage access status, and audit network distributions.</p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setAddClinicError("");
+                      setAddClinicForm({ name: "", subdomain: "", address: "", adminName: "", adminEmail: "", adminPassword: "" });
+                      setShowAddClinicModal(true);
+                    }}
+                    className="px-4 py-2 bg-pink-500 hover:bg-pink-600 text-white rounded-xl text-xs font-bold border-none cursor-pointer flex items-center gap-1.5 shadow-sm transition-colors shrink-0"
+                  >
+                    <FiPlus /> Register Clinic Network
+                  </button>
+                </div>
+
+                {/* SaaS Analytics Row */}
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="bg-white border border-slate-100 rounded-3xl p-5 shadow-xs">
+                    <span className="text-[10px] font-black text-slate-450 uppercase tracking-wider block">Total Networks</span>
+                    <h2 className="text-2xl font-black text-slate-800 mt-1">{clinicsList.length}</h2>
+                    <span className="text-[9px] text-emerald-500 font-extrabold block mt-1">Multi-tenant instances</span>
+                  </div>
+                  <div className="bg-white border border-slate-100 rounded-3xl p-5 shadow-xs">
+                    <span className="text-[10px] font-black text-slate-450 uppercase tracking-wider block">Active Clinics</span>
+                    <h2 className="text-2xl font-black text-emerald-600 mt-1">{clinicsList.filter(c => c.status === "Active").length}</h2>
+                    <span className="text-[9px] text-slate-400 font-extrabold block mt-1">Status: Operational</span>
+                  </div>
+                  <div className="bg-white border border-slate-100 rounded-3xl p-5 shadow-xs">
+                    <span className="text-[10px] font-black text-slate-450 uppercase tracking-wider block">Suspended Clinics</span>
+                    <h2 className="text-2xl font-black text-rose-600 mt-1">{clinicsList.filter(c => c.status === "Suspended").length}</h2>
+                    <span className="text-[9px] text-slate-450 font-extrabold block mt-1 text-rose-500">Awaiting billing or review</span>
+                  </div>
+                  <div className="bg-white border border-slate-100 rounded-3xl p-5 shadow-xs">
+                    <span className="text-[10px] font-black text-slate-450 uppercase tracking-wider block">Base Platform Version</span>
+                    <h2 className="text-2xl font-black text-slate-800 mt-1">v4.2.0</h2>
+                    <span className="text-[9px] text-pink-500 font-extrabold block mt-1">Fully Dynamic Core SaaS</span>
+                  </div>
+                </div>
+
+                {/* Clinics Registry Table */}
+                <div className="bg-white border border-slate-100 rounded-3xl overflow-hidden flex-grow flex flex-col shadow-xs min-h-[400px]">
+                  <div className="p-5 border-b border-slate-50 flex justify-between items-center flex-wrap gap-2">
+                    <h4 className="font-extrabold text-sm text-slate-800">Clinic Networks Registry</h4>
+                    <span className="px-2.5 py-1 bg-slate-100 text-slate-650 rounded-full text-[10px] font-bold">
+                      {clinicsList.length} Tenant(s) Found
+                    </span>
+                  </div>
+
+                  <div className="overflow-x-auto flex-grow">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="bg-slate-50/50 border-b border-slate-100">
+                          <th className="p-4 text-[10px] font-bold text-slate-450 uppercase tracking-wider">Network Details</th>
+                          <th className="p-4 text-[10px] font-bold text-slate-450 uppercase tracking-wider">Subdomain Subdomain</th>
+                          <th className="p-4 text-[10px] font-bold text-slate-450 uppercase tracking-wider">Location Address</th>
+                          <th className="p-4 text-[10px] font-bold text-slate-450 uppercase tracking-wider">Created At</th>
+                          <th className="p-4 text-[10px] font-bold text-slate-450 uppercase tracking-wider">Operational Status</th>
+                          <th className="p-4 text-[10px] font-bold text-slate-450 uppercase tracking-wider text-right">Actions Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {clinicsList.map(clinic => (
+                          <tr key={clinic.id} className="border-b border-slate-50 hover:bg-slate-50/30 transition-colors">
+                            <td className="p-4">
+                              <div>
+                                <h5 className="font-bold text-slate-800 text-xs flex items-center gap-1.5">
+                                  {clinic.name}
+                                  {clinic.id === 1 && (
+                                    <span className="px-1.5 py-0.5 bg-pink-100 text-pink-700 text-[8px] font-bold rounded">MASTER</span>
+                                  )}
+                                </h5>
+                                <span className="text-[10px] text-slate-400 block mt-0.5 font-bold">ID: {clinic.id}</span>
+                              </div>
+                            </td>
+                            <td className="p-4">
+                              <span className="px-2.5 py-1 bg-blue-50 text-blue-600 rounded-lg text-[10px] font-semibold">
+                                {clinic.subdomain}.physiohub.com
+                              </span>
+                            </td>
+                            <td className="p-4 text-xs font-semibold text-slate-650 truncate max-w-[200px]">
+                              {clinic.address || "Online/No address"}
+                            </td>
+                            <td className="p-4 text-[11px] font-semibold text-slate-400">
+                              {clinic.created_at ? new Date(clinic.created_at).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' }) : "System Initial"}
+                            </td>
+                            <td className="p-4">
+                              <span className={`px-2 py-0.5 rounded-full text-[9px] font-extrabold ${
+                                clinic.status === "Active" ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700"
+                              }`}>
+                                {clinic.status}
+                              </span>
+                            </td>
+                            <td className="p-4 text-right">
+                              {clinic.id !== 1 && (
+                                <button
+                                  onClick={() => handleToggleClinicStatus(clinic.id, clinic.status)}
+                                  className={`px-3 py-1.5 rounded-lg text-[10px] font-bold border-none cursor-pointer transition-colors ${
+                                    clinic.status === "Active"
+                                      ? "bg-rose-50 hover:bg-rose-100 text-rose-600"
+                                      : "bg-emerald-50 hover:bg-emerald-100 text-emerald-600"
+                                  }`}
+                                >
+                                  {clinic.status === "Active" ? "Suspend Network" : "Activate Network"}
+                                </button>
+                              )}
+                              {clinic.id === 1 && (
+                                <span className="text-[10px] text-slate-350 italic font-bold">Unmodifiable Master</span>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               </div>
             )}
@@ -3799,6 +4411,321 @@ export default function AdminPanel() {
                   className="px-5 py-2 bg-pink-500 hover:bg-pink-600 text-white rounded-xl text-xs font-bold border-none cursor-pointer shadow-md transition-colors"
                 >
                   Save Settings
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ── Add User Modal ── */}
+      {showAddUserModal && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl shadow-xl w-full max-w-md overflow-hidden flex flex-col max-h-[90vh]">
+            <div className="bg-slate-900 p-5 text-white flex justify-between items-center">
+              <div>
+                <h3 className="font-extrabold text-sm flex items-center gap-2">
+                  <FiUsers className="text-pink-500" /> Register Validated Account
+                </h3>
+                <p className="text-[10px] text-slate-400 mt-0.5">Direct provision of role-based credentials.</p>
+              </div>
+              <button 
+                onClick={() => setShowAddUserModal(false)}
+                className="text-slate-400 hover:text-white bg-transparent border-none text-base cursor-pointer"
+              >
+                ×
+              </button>
+            </div>
+
+            <form onSubmit={handleAddUserSubmit} className="p-6 flex flex-col gap-4 overflow-y-auto">
+              {addUserError && (
+                <div className="p-3 bg-red-50 text-red-650 rounded-xl text-xs font-semibold">
+                  {addUserError}
+                </div>
+              )}
+
+              <div className="space-y-1 text-left">
+                <label className="text-[10px] font-bold text-slate-400 uppercase">User's Full Name</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Jane Doe"
+                  value={addUserForm.name}
+                  onChange={e => setAddUserForm(prev => ({ ...prev, name: e.target.value }))}
+                  className="w-full border border-slate-200 bg-slate-50/50 focus:bg-white rounded-xl p-3 text-xs outline-none font-semibold text-slate-700 focus:border-pink-500 transition-colors"
+                />
+              </div>
+
+              <div className="space-y-1 text-left">
+                <label className="text-[10px] font-bold text-slate-400 uppercase">Email Address</label>
+                <input
+                  type="email"
+                  required
+                  placeholder="name@physiohub.com"
+                  value={addUserForm.email}
+                  onChange={e => setAddUserForm(prev => ({ ...prev, email: e.target.value }))}
+                  className="w-full border border-slate-200 bg-slate-50/50 focus:bg-white rounded-xl p-3 text-xs outline-none font-semibold text-slate-700 focus:border-pink-500 transition-colors"
+                />
+              </div>
+
+              <div className="space-y-1 text-left">
+                <label className="text-[10px] font-bold text-slate-400 uppercase">Password</label>
+                <input
+                  type="password"
+                  required
+                  placeholder="••••••••"
+                  value={addUserForm.password}
+                  onChange={e => setAddUserForm(prev => ({ ...prev, password: e.target.value }))}
+                  className="w-full border border-slate-200 bg-slate-50/50 focus:bg-white rounded-xl p-3 text-xs outline-none font-semibold text-slate-700 focus:border-pink-500 transition-colors"
+                />
+              </div>
+
+              <div className="space-y-1 text-left">
+                <label className="text-[10px] font-bold text-slate-400 uppercase">System Role</label>
+                <select
+                  value={addUserForm.role}
+                  onChange={e => setAddUserForm(prev => ({ ...prev, role: e.target.value }))}
+                  className="w-full border border-slate-200 bg-slate-50/50 focus:bg-white rounded-xl p-3 text-xs outline-none font-semibold text-slate-700 focus:border-pink-500 transition-colors"
+                >
+                  <option value="patient">Patient (Standard)</option>
+                  <option value="doctor">Doctor (Specialist Specialist)</option>
+                  <option value="receptionist">Receptionist (Staff Desk)</option>
+                  <option value="admin">Admin (Full Control Access)</option>
+                </select>
+              </div>
+
+              {addUserForm.role === "doctor" && (
+                <div className="p-3 bg-pink-50/50 border border-pink-100 rounded-xl text-[10px] text-pink-700 font-semibold leading-relaxed">
+                  NOTE: Registering a Doctor automatically initializes their profile card in the active registry.
+                </div>
+              )}
+
+              <div className="flex justify-end gap-2 mt-4 pt-3 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setShowAddUserModal(false)}
+                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-650 rounded-xl text-xs font-bold border-none cursor-pointer transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="px-5 py-2 bg-pink-500 hover:bg-pink-600 text-white rounded-xl text-xs font-bold border-none cursor-pointer shadow-md transition-colors"
+                >
+                  {loading ? "Registering..." : "Add User"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ── Edit User Modal ── */}
+      {showEditUserModal && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl shadow-xl w-full max-w-md overflow-hidden flex flex-col max-h-[90vh]">
+            <div className="bg-slate-900 p-5 text-white flex justify-between items-center">
+              <div>
+                <h3 className="font-extrabold text-sm flex items-center gap-2">
+                  <FiUsers className="text-pink-500" /> Edit System Account
+                </h3>
+                <p className="text-[10px] text-slate-400 mt-0.5">Modify profile and roles for {selectedUser?.email}.</p>
+              </div>
+              <button 
+                onClick={() => setShowEditUserModal(false)}
+                className="text-slate-400 hover:text-white bg-transparent border-none text-base cursor-pointer"
+              >
+                ×
+              </button>
+            </div>
+
+            <form onSubmit={handleEditUserSubmit} className="p-6 flex flex-col gap-4 overflow-y-auto">
+              {editUserError && (
+                <div className="p-3 bg-red-50 text-red-650 rounded-xl text-xs font-semibold">
+                  {editUserError}
+                </div>
+              )}
+
+              <div className="space-y-1 text-left">
+                <label className="text-[10px] font-bold text-slate-400 uppercase">User's Name</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Name"
+                  value={editUserForm.name}
+                  onChange={e => setEditUserForm(prev => ({ ...prev, name: e.target.value }))}
+                  className="w-full border border-slate-200 bg-slate-50/50 focus:bg-white rounded-xl p-3 text-xs outline-none font-semibold text-slate-700 focus:border-pink-500 transition-colors"
+                />
+              </div>
+
+              <div className="space-y-1 text-left">
+                <label className="text-[10px] font-bold text-slate-400 uppercase">Email Address</label>
+                <input
+                  type="email"
+                  required
+                  placeholder="Email"
+                  value={editUserForm.email}
+                  onChange={e => setEditUserForm(prev => ({ ...prev, email: e.target.value }))}
+                  className="w-full border border-slate-200 bg-slate-50/50 focus:bg-white rounded-xl p-3 text-xs outline-none font-semibold text-slate-700 focus:border-pink-500 transition-colors"
+                />
+              </div>
+
+              <div className="space-y-1 text-left">
+                <label className="text-[10px] font-bold text-slate-400 uppercase">System Role</label>
+                <select
+                  value={editUserForm.role}
+                  onChange={e => setEditUserForm(prev => ({ ...prev, role: e.target.value }))}
+                  className="w-full border border-slate-200 bg-slate-50/50 focus:bg-white rounded-xl p-3 text-xs outline-none font-semibold text-slate-700 focus:border-pink-500 transition-colors"
+                >
+                  <option value="patient">Patient (Standard)</option>
+                  <option value="doctor">Doctor (Specialist Specialist)</option>
+                  <option value="receptionist">Receptionist (Staff Desk)</option>
+                  <option value="admin">Admin (Full Control Access)</option>
+                </select>
+              </div>
+
+              <div className="flex justify-end gap-2 mt-4 pt-3 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setShowEditUserModal(false)}
+                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-650 rounded-xl text-xs font-bold border-none cursor-pointer transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="px-5 py-2 bg-pink-500 hover:bg-pink-600 text-white rounded-xl text-xs font-bold border-none cursor-pointer shadow-md transition-colors"
+                >
+                  {loading ? "Saving..." : "Save Changes"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ── Add Clinic Network Modal ── */}
+      {showAddClinicModal && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl shadow-xl w-full max-w-md overflow-hidden flex flex-col max-h-[90vh] animate-fadeIn">
+            <div className="bg-slate-900 p-5 text-white flex justify-between items-center">
+              <div>
+                <h3 className="font-extrabold text-sm flex items-center gap-2">
+                  <FiShield className="text-pink-500" /> Register Clinic Network
+                </h3>
+                <p className="text-[10px] text-slate-400 mt-0.5 font-medium">Spin up a clean, partitioned workspace for a new clinic client.</p>
+              </div>
+              <button 
+                onClick={() => setShowAddClinicModal(false)}
+                className="text-slate-400 hover:text-white bg-transparent border-none text-base cursor-pointer animate-none"
+              >
+                ×
+              </button>
+            </div>
+
+            <form onSubmit={handleAddClinicSubmit} className="p-6 flex flex-col gap-4 overflow-y-auto">
+              {addClinicError && (
+                <div className="p-3 bg-red-50 text-red-655 rounded-xl text-xs font-semibold">
+                  {addClinicError}
+                </div>
+              )}
+
+              <div className="space-y-1 text-left">
+                <label className="text-[10px] font-bold text-slate-400 uppercase">Clinic Name</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Apex Physical Therapy"
+                  value={addClinicForm.name}
+                  onChange={e => setAddClinicForm(prev => ({ ...prev, name: e.target.value }))}
+                  className="w-full border border-slate-200 bg-slate-50/50 focus:bg-white rounded-xl p-3 text-xs outline-none font-semibold text-slate-700 focus:border-pink-500 transition-colors"
+                />
+              </div>
+
+              <div className="space-y-1 text-left">
+                <label className="text-[10px] font-bold text-slate-400 uppercase">Clinic Subdomain Slug</label>
+                <div className="flex items-center">
+                  <input
+                    type="text"
+                    required
+                    placeholder="apexphysio"
+                    value={addClinicForm.subdomain}
+                    onChange={e => setAddClinicForm(prev => ({ ...prev, subdomain: e.target.value.toLowerCase().replace(/[^a-z0-9]/g, '') }))}
+                    className="flex-grow border border-slate-200 bg-slate-50/50 focus:bg-white rounded-l-xl p-3 text-xs outline-none font-semibold text-slate-700 focus:border-pink-500 transition-colors"
+                  />
+                  <span className="bg-slate-100 border border-l-0 border-slate-200 text-slate-500 text-xs px-3 py-3 rounded-r-xl font-bold">
+                    .physiohub.com
+                  </span>
+                </div>
+              </div>
+
+              <div className="space-y-1 text-left">
+                <label className="text-[10px] font-bold text-slate-400 uppercase">Clinic Address</label>
+                <input
+                  type="text"
+                  placeholder="e.g. DHA Phase 5, Lahore, Pakistan"
+                  value={addClinicForm.address}
+                  onChange={e => setAddClinicForm(prev => ({ ...prev, address: e.target.value }))}
+                  className="w-full border border-slate-200 bg-slate-50/50 focus:bg-white rounded-xl p-3 text-xs outline-none font-semibold text-slate-700 focus:border-pink-500 transition-colors"
+                />
+              </div>
+
+              <hr className="border-slate-100 my-1" />
+
+              <h4 className="text-[10px] font-black text-slate-450 uppercase tracking-widest text-left">Initial Administrator Account</h4>
+
+              <div className="space-y-1 text-left">
+                <label className="text-[10px] font-bold text-slate-400 uppercase">Admin Full Name</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Dr. Arthur Pendragon"
+                  value={addClinicForm.adminName}
+                  onChange={e => setAddClinicForm(prev => ({ ...prev, adminName: e.target.value }))}
+                  className="w-full border border-slate-200 bg-slate-50/50 focus:bg-white rounded-xl p-3 text-xs outline-none font-semibold text-slate-700 focus:border-pink-500 transition-colors"
+                />
+              </div>
+
+              <div className="space-y-1 text-left">
+                <label className="text-[10px] font-bold text-slate-400 uppercase">Admin Email Address</label>
+                <input
+                  type="email"
+                  required
+                  placeholder="admin@apexphysio.com"
+                  value={addClinicForm.adminEmail}
+                  onChange={e => setAddClinicForm(prev => ({ ...prev, adminEmail: e.target.value }))}
+                  className="w-full border border-slate-200 bg-slate-50/50 focus:bg-white rounded-xl p-3 text-xs outline-none font-semibold text-slate-700 focus:border-pink-500 transition-colors"
+                />
+              </div>
+
+              <div className="space-y-1 text-left">
+                <label className="text-[10px] font-bold text-slate-400 uppercase">Admin Password</label>
+                <input
+                  type="password"
+                  required
+                  placeholder="••••••••"
+                  value={addClinicForm.adminPassword}
+                  onChange={e => setAddClinicForm(prev => ({ ...prev, adminPassword: e.target.value }))}
+                  className="w-full border border-slate-200 bg-slate-50/50 focus:bg-white rounded-xl p-3 text-xs outline-none font-semibold text-slate-700 focus:border-pink-500 transition-colors"
+                />
+              </div>
+
+              <div className="flex justify-end gap-2 mt-4 pt-3 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setShowAddClinicModal(false)}
+                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-650 rounded-xl text-xs font-bold border-none cursor-pointer transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="px-5 py-2 bg-pink-500 hover:bg-pink-600 text-white rounded-xl text-xs font-bold border-none cursor-pointer shadow-md transition-colors"
+                >
+                  {loading ? "Registering..." : "Add Clinic Network"}
                 </button>
               </div>
             </form>

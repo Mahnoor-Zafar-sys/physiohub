@@ -379,3 +379,32 @@ INSERT INTO clinic_settings (setting_key, setting_value) VALUES
 ('why_us_headline', 'Why Choose Vital Physio Hub?'),
 ('why_us_description', 'We combine gold-standard physical adjustments with dynamic clinical technologies to ensure faster, safer, and complete muscular rehabilitation.');
 
+-- 19. User Activity Logs Table
+CREATE TABLE IF NOT EXISTS user_logs (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_email VARCHAR(255) NOT NULL,
+  action VARCHAR(255) NOT NULL,
+  details TEXT,
+  timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Seed Activity Logs
+INSERT INTO user_logs (user_email, action, details, timestamp) VALUES
+('admin@physiohub.com', 'System Initialization', 'Clinic database and seed schemas deployed successfully.', NOW() - INTERVAL 2 HOUR),
+('doctor@physiohub.com', 'Specialist Synced', 'Doctor profile synced with administrative registry.', NOW() - INTERVAL 1 HOUR);
+
+-- 20. Registered Clinics Table (Multi-Tenancy)
+CREATE TABLE IF NOT EXISTS clinics (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  subdomain VARCHAR(100) NOT NULL UNIQUE,
+  address VARCHAR(255) DEFAULT NULL,
+  status ENUM('Active', 'Suspended') DEFAULT 'Active',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Seed Default Master Clinic
+INSERT INTO clinics (id, name, subdomain, address, status) VALUES
+(1, 'Vital Physio Hub', 'vitalphysio', 'Lahore, Pakistan', 'Active')
+ON DUPLICATE KEY UPDATE id=id;
+

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiShield, FiMail, FiLock, FiPhone, FiUser, FiArrowRight, FiAlertTriangle, FiUpload, FiMapPin, FiAward, FiDollarSign, FiEye, FiEyeOff } from "react-icons/fi";
@@ -44,6 +44,45 @@ export default function SignupPage() {
   const [successMsg, setSuccessMsg] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const [clinics, setClinics] = useState([]);
+  const [selectedClinicId, setSelectedClinicId] = useState(() => {
+    return localStorage.getItem("vph_clinic_id") || "1";
+  });
+
+  useEffect(() => {
+    async function loadClinics() {
+      try {
+        const list = await api.getClinics();
+        if (list && list.length > 0) {
+          setClinics(list);
+          const active = localStorage.getItem("vph_clinic_id");
+          if (!active) {
+            localStorage.setItem("vph_clinic_id", list[0].id);
+            localStorage.setItem("vph_clinic_name", list[0].name);
+            setSelectedClinicId(String(list[0].id));
+          } else {
+            const matched = list.find(c => String(c.id) === String(active));
+            if (matched) {
+              localStorage.setItem("vph_clinic_name", matched.name);
+            }
+          }
+        }
+      } catch (e) {
+        console.warn("Failed to load clinics on signup start:", e);
+      }
+    }
+    loadClinics();
+  }, []);
+
+  const handleClinicChange = (id) => {
+    setSelectedClinicId(id);
+    localStorage.setItem("vph_clinic_id", id);
+    const matched = clinics.find(c => String(c.id) === String(id));
+    if (matched) {
+      localStorage.setItem("vph_clinic_name", matched.name);
+    }
+  };
 
   const getPasswordStrength = (pwd) => {
     let score = 0;
@@ -245,7 +284,28 @@ export default function SignupPage() {
           <FiShield size={28} className="text-white" />
         </div>
         <h1 className="text-2xl font-black text-slate-900 tracking-tight font-sans">Create Account</h1>
-        <p className="text-sm text-slate-500 mt-1 font-medium font-sans">Join Vital Physio Hub clinic portals</p>
+        <p className="text-sm text-slate-500 mt-1 font-medium font-sans">
+          Join {clinics.find(c => String(c.id) === String(selectedClinicId))?.name || "Vital Physio Hub"} clinic portals
+        </p>
+      </div>
+
+      {/* Clinic Selector Dropdown */}
+      <div className="space-y-1.5 text-left">
+        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">Select Clinic Network</label>
+        <select
+          value={selectedClinicId}
+          onChange={e => handleClinicChange(e.target.value)}
+          className="w-full bg-slate-50 border border-slate-200 text-slate-800 rounded-xl p-3 text-xs outline-none font-bold focus:border-pink-500 transition-colors shadow-xs"
+        >
+          {clinics.map(c => (
+            <option key={c.id} value={c.id}>
+              {c.name} {c.status === "Suspended" ? "(Suspended)" : ""}
+            </option>
+          ))}
+          {clinics.length === 0 && (
+            <option value="1">Vital Physio Hub</option>
+          )}
+        </select>
       </div>
 
       {/* Role Toggle */}

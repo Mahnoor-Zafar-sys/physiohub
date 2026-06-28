@@ -47,6 +47,33 @@ let mockDoctors = [
   { id: 3, name: "Dr. Fatima Malik", specialty: "Gynecology & Obstetrics", fee: "₨ 3,500", branch: "DHA", status: "Active", image: "https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&w=400&q=80", experience: "16 Years", rating: 5.00, title: "MBBS, MRCOG (Gynecology)", slug: "dr-fatima-malik", available: 1, email: "doctor-fatima@physiohub.com", social_linkedin: "https://linkedin.com/in/dr-fatima", social_facebook: "https://facebook.com/dr-fatima", social_instagram: "https://instagram.com/dr-fatima", social_twitter: "https://twitter.com/dr-fatima" }
 ];
 
+let mockUserLogs = [
+  { id: 1, user_email: "admin@physiohub.com", action: "System Initialization", details: "Clinic database and seed schemas deployed successfully.", timestamp: new Date(Date.now() - 7200000).toISOString() },
+  { id: 2, user_email: "doctor@physiohub.com", action: "Specialist Synced", details: "Doctor profile synced with administrative registry.", timestamp: new Date(Date.now() - 3600000).toISOString() }
+];
+
+async function logActivity(email, action, details, clinicId = 1) {
+  if (db.isDbEnabled()) {
+    try {
+      await db.query(
+        "INSERT INTO user_logs (user_email, action, details, clinic_id) VALUES (?, ?, ?, ?)",
+        [email, action, details, clinicId]
+      );
+    } catch (e) {
+      console.error("Failed to log activity in MySQL:", e.message);
+    }
+  } else {
+    mockUserLogs.unshift({
+      id: mockUserLogs.length + 1,
+      user_email: email,
+      action: action,
+      details: details,
+      clinic_id: clinicId,
+      timestamp: new Date().toISOString()
+    });
+  }
+}
+
 let mockArticles = [
   { id: 1, title: "10 Warning Signs You Should Never Ignore", excerpt: "Critical symptoms that demand immediate medical attention and could save your life.", content: "Your body sends signals before serious conditions develop. Learn to watch for persistent chest pain, sudden numbness, extreme headaches, or unexplained weight loss. Consult our specialists promptly.", category: "General Health", author: "Dr. Sarah Ahmed", image: "https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=700&q=80" },
   { id: 2, title: "The Complete Guide to Laser Skin Treatments", excerpt: "Understand how lasers address skin concerns and what results to expect.", content: "From fractional CO2 lasers to PicoSure, skin rejuvenation has advanced dramatically. Understand your skin type, recovery times, and expected sessions before choosing cosmetic therapies.", category: "Skin Care", author: "Dr. Sarah Ahmed", image: "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=700&q=80" }
@@ -221,13 +248,39 @@ app.get("/", (req, res) => {
   res.send("Physiohub Scale-Optimized Backend Running");
 });
 
+const getClinicId = (req) => {
+  return parseInt(req.headers["x-clinic-id"] || "1", 10);
+};
+
+let mockClinics = [
+  { id: 1, name: "Vital Physio Hub", subdomain: "vitalphysio", address: "Lahore, Pakistan", status: "Active" }
+];
+
+// Startup mock data mapper
+mockUsers = mockUsers.map((u, idx) => ({ ...u, id: u.id || idx + 1, clinic_id: 1 }));
+mockDoctors = mockDoctors.map((d, idx) => ({ ...d, id: d.id || idx + 1, clinic_id: 1 }));
+mockAppointments = mockAppointments.map(a => ({ ...a, clinic_id: 1 }));
+mockEMR = mockEMR.map(e => ({ ...e, clinic_id: 1 }));
+mockPrescriptions = mockPrescriptions.map(p => ({ ...p, clinic_id: 1 }));
+mockInvoices = mockInvoices.map(i => ({ ...i, clinic_id: 1 }));
+mockArticles = mockArticles.map(a => ({ ...a, clinic_id: 1 }));
+mockUserLogs = mockUserLogs.map(l => ({ ...l, clinic_id: 1 }));
+let mockSettingsList = [{ clinic_id: 1, settings: mockSettings }];
+
 // 1. Auth Login Simulation (JWT generation)
 app.post("/api/auth/login", async (req, res) => {
   const { email, password, role } = req.body;
+  const clinicId = getClinicId(req);
   
   if (db.isDbEnabled()) {
     try {
-      const results = await db.query("SELECT * FROM users WHERE email = ? AND role = ?", [email, role]);
+      // Check clinic status
+      const clinicRes = await db.query("SELECT status FROM clinics WHERE id = ?", [clinicId]);
+      if (clinicRes.length > 0 && clinicRes[0].status === "Suspended") {
+        return res.status(403).json({ error: "This clinic has been suspended by the platform administrator. Please contact billing support." });
+      }
+
+      const results = await db.query("SELECT * FROM users WHERE email = ? AND role = ? AND clinic_id = ?", [email, role, clinicId]);
       if (results.length > 0) {
         const user = results[0];
         // Secure password check using bcryptjs
@@ -236,31 +289,36 @@ app.post("/api/auth/login", async (req, res) => {
           let doctorStatus = "Active";
           let adminNote = null;
           if (role === "doctor") {
-            const docProfile = await db.query("SELECT status, admin_note FROM doctors WHERE email = ?", [email]);
+            const docProfile = await db.query("SELECT status, admin_note FROM doctors WHERE email = ? AND clinic_id = ?", [email, clinicId]);
             if (docProfile.length > 0) {
               doctorStatus = docProfile[0].status;
               adminNote = docProfile[0].admin_note;
             }
           }
-          const token = jwt.sign({ email: user.email, role: user.role, name: user.name, status: doctorStatus, admin_note: adminNote }, JWT_SECRET, { expiresIn: "24h" });
+          await logActivity(user.email, "User Login", `User logged in successfully with role: ${user.role}`, clinicId);
+          const token = jwt.sign({ email: user.email, role: user.role, name: user.name, status: doctorStatus, admin_note: adminNote, clinic_id: clinicId }, JWT_SECRET, { expiresIn: "24h" });
           return res.json({
             success: true,
             token,
-            user: { email: user.email, role: user.role, name: user.name, status: doctorStatus, admin_note: adminNote }
+            user: { email: user.email, role: user.role, name: user.name, status: doctorStatus, admin_note: adminNote, clinic_id: clinicId }
           });
         } else {
           return res.status(401).json({ error: "Invalid password. Please try again." });
         }
       }
-      return res.status(401).json({ error: "This email is not registered. Please sign up first." });
+      return res.status(401).json({ error: "This email is not registered for the selected clinic & role. Please sign up first." });
     } catch (e) {
       return res.status(500).json({ error: e.message });
     }
   } else {
     // Local memory fallback credentials check
-    const user = mockUsers.find(u => u.email === email && u.role === role);
+    const clinic = mockClinics.find(c => c.id === clinicId);
+    if (clinic && clinic.status === "Suspended") {
+      return res.status(403).json({ error: "This clinic has been suspended by the platform administrator. Please contact billing support." });
+    }
+    const user = mockUsers.find(u => u.email === email && u.role === role && (u.clinic_id || 1) === clinicId);
     if (!user) {
-      return res.status(401).json({ error: "This email is not registered for the selected role. Please sign up first." });
+      return res.status(401).json({ error: "This email is not registered for the selected clinic & role. Please sign up first." });
     }
     // Secure password check using bcryptjs
     const isMatch = await bcrypt.compare(password, user.password);
@@ -270,13 +328,14 @@ app.post("/api/auth/login", async (req, res) => {
     let doctorStatus = "Active";
     let adminNote = null;
     if (role === "doctor") {
-      const docProfile = mockDoctors.find(d => d.email?.toLowerCase() === email.toLowerCase());
+      const docProfile = mockDoctors.find(d => d.email?.toLowerCase() === email.toLowerCase() && (d.clinic_id || 1) === clinicId);
       if (docProfile) {
         doctorStatus = docProfile.status;
         adminNote = docProfile.admin_note;
       }
     }
-    const token = jwt.sign({ email: user.email, role: user.role, name: user.name, status: doctorStatus, admin_note: adminNote }, JWT_SECRET, { expiresIn: "24h" });
+    await logActivity(user.email, "User Login", `User logged in successfully with role: ${user.role} (Mock)`, clinicId);
+    const token = jwt.sign({ email: user.email, role: user.role, name: user.name, status: doctorStatus, admin_note: adminNote, clinic_id: clinicId }, JWT_SECRET, { expiresIn: "24h" });
     res.json({
       success: true,
       token,
@@ -285,7 +344,8 @@ app.post("/api/auth/login", async (req, res) => {
         role: user.role,
         name: user.name,
         status: doctorStatus,
-        admin_note: adminNote
+        admin_note: adminNote,
+        clinic_id: clinicId
       }
     });
   }
@@ -341,7 +401,7 @@ app.post("/api/auth/signup", async (req, res) => {
           ]
         );
       }
-
+      await logActivity(email, "User Registered", `Registered new account with role: ${role}`);
       return res.json({ success: true, message: "User registered successfully" });
     } catch (e) {
       return res.status(500).json({ error: e.message });
@@ -391,15 +451,17 @@ app.post("/api/auth/signup", async (req, res) => {
         admin_note: null
       });
     }
+    await logActivity(email, "User Registered", `Registered new account with role: ${role} (Mock)`);
     return res.json({ success: true, message: "User registered successfully (Mock fallback)" });
   }
 });
 
 // 2. Fetch Appointments
 app.get("/api/appointments", async (req, res) => {
+  const clinicId = getClinicId(req);
   if (db.isDbEnabled()) {
     try {
-      const results = await db.query("SELECT * FROM appointments ORDER BY date DESC");
+      const results = await db.query("SELECT * FROM appointments WHERE clinic_id = ? ORDER BY date DESC", [clinicId]);
       // Map columns to match frontend
       const mapped = results.map(row => ({
         id: row.id,
@@ -422,13 +484,14 @@ app.get("/api/appointments", async (req, res) => {
       res.status(500).json({ error: e.message });
     }
   } else {
-    res.json(mockAppointments);
+    res.json(mockAppointments.filter(appt => (appt.clinic_id || 1) === clinicId));
   }
 });
 
 // 3. Create Appointment
 app.post("/api/appointments", async (req, res) => {
   const { doctor, date, time, type, branch, status, patient, payment_status, payment_method, payment_screenshot, patient_report, patient_report_name } = req.body;
+  const clinicId = getClinicId(req);
   const newAppt = {
     id: `PC-${Date.now().toString().slice(-5)}`,
     doctor: doctor,
@@ -443,14 +506,15 @@ app.post("/api/appointments", async (req, res) => {
     payment_screenshot: payment_screenshot || null,
     admin_note: null,
     patient_report: patient_report || null,
-    patient_report_name: patient_report_name || null
+    patient_report_name: patient_report_name || null,
+    clinic_id: clinicId
   };
 
   if (db.isDbEnabled()) {
     try {
       await db.query(
-        "INSERT INTO appointments (id, doctor_name, date, time, type, branch, status, patient_name, payment_status, payment_method, payment_screenshot, patient_report, patient_report_name) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-        [newAppt.id, doctor, date, time, type, branch, newAppt.status, newAppt.patient, newAppt.payment_status, newAppt.payment_method, newAppt.payment_screenshot, newAppt.patient_report, newAppt.patient_report_name]
+        "INSERT INTO appointments (id, doctor_name, date, time, type, branch, status, patient_name, payment_status, payment_method, payment_screenshot, patient_report, patient_report_name, clinic_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        [newAppt.id, doctor, date, time, type, branch, newAppt.status, newAppt.patient, newAppt.payment_status, newAppt.payment_method, newAppt.payment_screenshot, newAppt.patient_report, newAppt.patient_report_name, clinicId]
       );
       res.json({ success: true, appointment: newAppt });
     } catch (e) {
@@ -465,12 +529,13 @@ app.post("/api/appointments", async (req, res) => {
 // 4. Update Appointment status
 app.post("/api/appointments/status", async (req, res) => {
   const { id, status, date, time } = req.body;
+  const clinicId = getClinicId(req);
   if (db.isDbEnabled()) {
     try {
       if (date && time) {
-        await db.query("UPDATE appointments SET status = ?, date = ?, time = ? WHERE id = ?", [status, date, time, id]);
+        await db.query("UPDATE appointments SET status = ?, date = ?, time = ? WHERE id = ? AND clinic_id = ?", [status, date, time, id, clinicId]);
       } else {
-        await db.query("UPDATE appointments SET status = ? WHERE id = ?", [status, id]);
+        await db.query("UPDATE appointments SET status = ? WHERE id = ? AND clinic_id = ?", [status, id, clinicId]);
       }
       res.json({ success: true });
     } catch (e) {
@@ -478,7 +543,7 @@ app.post("/api/appointments/status", async (req, res) => {
     }
   } else {
     mockAppointments = mockAppointments.map(appt => 
-      appt.id === id 
+      appt.id === id && (appt.clinic_id || 1) === clinicId
         ? { ...appt, status, ...(date ? { date } : {}), ...(time ? { time } : {}) } 
         : appt
     );
@@ -489,14 +554,15 @@ app.post("/api/appointments/status", async (req, res) => {
 // 4b. Approve/Reject Appointment Payment (Forward or Cancel)
 app.post("/api/appointments/approve-payment", async (req, res) => {
   const { id, status, admin_note } = req.body;
+  const clinicId = getClinicId(req);
   const targetPaymentStatus = status === "Paid" ? "Paid" : "Rejected";
   const targetApptStatus = status === "Paid" ? "Confirmed" : "Cancelled";
   
   if (db.isDbEnabled()) {
     try {
       await db.query(
-        "UPDATE appointments SET payment_status = ?, status = ?, admin_note = ? WHERE id = ?",
-        [targetPaymentStatus, targetApptStatus, admin_note || null, id]
+        "UPDATE appointments SET payment_status = ?, status = ?, admin_note = ? WHERE id = ? AND clinic_id = ?",
+        [targetPaymentStatus, targetApptStatus, admin_note || null, id, clinicId]
       );
       res.json({ success: true });
     } catch (e) {
@@ -504,7 +570,7 @@ app.post("/api/appointments/approve-payment", async (req, res) => {
     }
   } else {
     mockAppointments = mockAppointments.map(appt => 
-      appt.id === id 
+      appt.id === id && (appt.clinic_id || 1) === clinicId
         ? { ...appt, payment_status: targetPaymentStatus, status: targetApptStatus, admin_note: admin_note || null } 
         : appt
     );
@@ -516,12 +582,13 @@ app.post("/api/appointments/approve-payment", async (req, res) => {
 app.post("/api/appointments/proof", async (req, res) => {
   const { id, method, screenshot } = req.body;
   if (!id) return res.status(400).json({ error: "Appointment ID is required" });
+  const clinicId = getClinicId(req);
 
   if (db.isDbEnabled()) {
     try {
       await db.query(
-        "UPDATE appointments SET payment_status = 'Pending Verification', payment_method = ?, payment_screenshot = ? WHERE id = ?",
-        [method, screenshot, id]
+        "UPDATE appointments SET payment_status = 'Pending Verification', payment_method = ?, payment_screenshot = ? WHERE id = ? AND clinic_id = ?",
+        [method, screenshot, id, clinicId]
       );
       res.json({ success: true });
     } catch (e) {
@@ -529,7 +596,7 @@ app.post("/api/appointments/proof", async (req, res) => {
     }
   } else {
     mockAppointments = mockAppointments.map(appt => 
-      appt.id === id 
+      appt.id === id && (appt.clinic_id || 1) === clinicId
         ? { ...appt, payment_status: "Pending Verification", payment_method: method, payment_screenshot: screenshot } 
         : appt
     );
@@ -540,11 +607,12 @@ app.post("/api/appointments/proof", async (req, res) => {
 // 5. Fetch EMR clinical records
 app.get("/api/emr/:patientName", async (req, res) => {
   const { patientName } = req.params;
+  const clinicId = getClinicId(req);
   if (db.isDbEnabled()) {
     try {
       const results = await db.query(
-        "SELECT * FROM emr_records WHERE patient_name = ? ORDER BY date DESC",
-        [patientName]
+        "SELECT * FROM emr_records WHERE patient_name = ? AND clinic_id = ? ORDER BY date DESC",
+        [patientName, clinicId]
       );
       const mapped = results.map(row => ({
         id: row.id,
@@ -560,7 +628,7 @@ app.get("/api/emr/:patientName", async (req, res) => {
     }
   } else {
     const filtered = mockEMR.filter(
-      (rec) => rec.patientId.toLowerCase() === patientName.toLowerCase() || patientName === "me" || patientName === "all"
+      (rec) => ((rec.patientId.toLowerCase() === patientName.toLowerCase() || patientName === "me" || patientName === "all") && (rec.clinic_id || 1) === clinicId)
     );
     res.json(filtered);
   }
@@ -569,20 +637,22 @@ app.get("/api/emr/:patientName", async (req, res) => {
 // 6. Append Doctor EMR Record
 app.post("/api/emr", async (req, res) => {
   const { patientName, doctor, diagnosis, vitals, assessment } = req.body;
+  const clinicId = getClinicId(req);
   const newRec = {
     id: `EMR-${Date.now().toString().slice(-3)}`,
     date: new Date().toISOString().split("T")[0],
     doctor: doctor,
     diagnosis,
     vitals: vitals || "BP: 120/80, Temp: 98.6°F",
-    assessment
+    assessment,
+    clinic_id: clinicId
   };
 
   if (db.isDbEnabled()) {
     try {
       await db.query(
-        "INSERT INTO emr_records (id, patient_name, doctor_name, date, diagnosis, vitals, assessment) VALUES (?, ?, ?, ?, ?, ?, ?)",
-        [newRec.id, patientName || "Jane Doe", doctor, newRec.date, diagnosis, newRec.vitals, assessment]
+        "INSERT INTO emr_records (id, patient_name, doctor_name, date, diagnosis, vitals, assessment, clinic_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        [newRec.id, patientName || "Jane Doe", doctor, newRec.date, diagnosis, newRec.vitals, assessment, clinicId]
       );
       res.json({ success: true, record: newRec });
     } catch (e) {
@@ -598,11 +668,12 @@ app.post("/api/emr", async (req, res) => {
 // 7. Fetch Prescriptions (Rx)
 app.get("/api/prescriptions/:patientName", async (req, res) => {
   const { patientName } = req.params;
+  const clinicId = getClinicId(req);
   if (db.isDbEnabled()) {
     try {
       const results = await db.query(
-        "SELECT * FROM prescriptions WHERE patient_name = ? ORDER BY date DESC",
-        [patientName]
+        "SELECT * FROM prescriptions WHERE patient_name = ? AND clinic_id = ? ORDER BY date DESC",
+        [patientName, clinicId]
       );
       const mapped = results.map(row => ({
         id: row.id,
@@ -619,13 +690,14 @@ app.get("/api/prescriptions/:patientName", async (req, res) => {
       res.status(500).json({ error: e.message });
     }
   } else {
-    res.json(mockPrescriptions);
+    res.json(mockPrescriptions.filter(rx => (rx.clinic_id || 1) === clinicId));
   }
 });
 
 // 8. Create Prescription
 app.post("/api/prescriptions", async (req, res) => {
   const { patientName, doctor, medicine, dosage, duration, instructions } = req.body;
+  const clinicId = getClinicId(req);
   const newRx = {
     id: `RX-${Date.now().toString().slice(-4)}`,
     date: new Date().toISOString().split("T")[0],
@@ -634,14 +706,15 @@ app.post("/api/prescriptions", async (req, res) => {
     dosage,
     duration: duration || "7 Days",
     instructions: instructions || "After meals",
-    status: "Active"
+    status: "Active",
+    clinic_id: clinicId
   };
 
   if (db.isDbEnabled()) {
     try {
       await db.query(
-        "INSERT INTO prescriptions (id, patient_name, doctor_name, date, medicine, dosage, duration, instructions, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-        [newRx.id, patientName || "Jane Doe", doctor, newRx.date, medicine, dosage, newRx.duration, newRx.instructions, newRx.status]
+        "INSERT INTO prescriptions (id, patient_name, doctor_name, date, medicine, dosage, duration, instructions, status, clinic_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        [newRx.id, patientName || "Jane Doe", doctor, newRx.date, medicine, dosage, newRx.duration, newRx.instructions, newRx.status, clinicId]
       );
       res.json({ success: true, prescription: newRx });
     } catch (e) {
@@ -656,11 +729,12 @@ app.post("/api/prescriptions", async (req, res) => {
 // 9. Fetch Invoices
 app.get("/api/invoices/:patientName", async (req, res) => {
   const { patientName } = req.params;
+  const clinicId = getClinicId(req);
   if (db.isDbEnabled()) {
     try {
       const results = await db.query(
-        "SELECT * FROM invoices WHERE patient_name = ? ORDER BY date DESC",
-        [patientName]
+        "SELECT * FROM invoices WHERE patient_name = ? AND clinic_id = ? ORDER BY date DESC",
+        [patientName, clinicId]
       );
       const mapped = results.map(row => ({
         id: row.id,
@@ -674,26 +748,28 @@ app.get("/api/invoices/:patientName", async (req, res) => {
       res.status(500).json({ error: e.message });
     }
   } else {
-    res.json(mockInvoices);
+    res.json(mockInvoices.filter(inv => (inv.clinic_id || 1) === clinicId));
   }
 });
 
 // 10. Create Invoice
 app.post("/api/invoices", async (req, res) => {
   const { patientName, description, amount, status } = req.body;
+  const clinicId = getClinicId(req);
   const newInv = {
     id: `INV-${Date.now().toString().slice(-4)}`,
     description,
     amount,
     status: status || "Unpaid",
-    date: new Date().toISOString().split("T")[0]
+    date: new Date().toISOString().split("T")[0],
+    clinic_id: clinicId
   };
 
   if (db.isDbEnabled()) {
     try {
       await db.query(
-        "INSERT INTO invoices (id, patient_name, description, amount, status, date) VALUES (?, ?, ?, ?, ?, ?)",
-        [newInv.id, patientName || "Jane Doe", description, amount, newInv.status, newInv.date]
+        "INSERT INTO invoices (id, patient_name, description, amount, status, date, clinic_id) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        [newInv.id, patientName || "Jane Doe", description, amount, newInv.status, newInv.date, clinicId]
       );
       res.json({ success: true, invoice: newInv });
     } catch (e) {
@@ -708,36 +784,39 @@ app.post("/api/invoices", async (req, res) => {
 // 11. Pay Invoice (Mark paid)
 app.post("/api/invoices/pay", async (req, res) => {
   const { id } = req.body;
+  const clinicId = getClinicId(req);
   if (db.isDbEnabled()) {
     try {
-      await db.query("UPDATE invoices SET status = 'Paid' WHERE id = ?", [id]);
+      await db.query("UPDATE invoices SET status = 'Paid' WHERE id = ? AND clinic_id = ?", [id, clinicId]);
       res.json({ success: true });
     } catch (e) {
       res.status(500).json({ error: e.message });
     }
   } else {
-    mockInvoices = mockInvoices.map(inv => inv.id === id ? { ...inv, status: "Paid" } : inv);
+    mockInvoices = mockInvoices.map(inv => (inv.id === id && (inv.clinic_id || 1) === clinicId) ? { ...inv, status: "Paid" } : inv);
     res.json({ success: true });
   }
 });
 
 // 12. Fetch Doctors
 app.get("/api/doctors", async (req, res) => {
+  const clinicId = getClinicId(req);
   if (db.isDbEnabled()) {
     try {
-      const results = await db.query("SELECT * FROM doctors ORDER BY id ASC");
+      const results = await db.query("SELECT * FROM doctors WHERE clinic_id = ? ORDER BY id ASC", [clinicId]);
       res.json(results);
     } catch (e) {
       res.status(500).json({ error: e.message });
     }
   } else {
-    res.json(mockDoctors);
+    res.json(mockDoctors.filter(d => (d.clinic_id || 1) === clinicId));
   }
 });
 
 // 13. Create Doctor CRUD
 app.post("/api/doctors", async (req, res) => {
   const { name, specialty, fee, branch, image, experience, rating, title, slug } = req.body;
+  const clinicId = getClinicId(req);
   const docImg = image || "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=400&q=80";
   const docExp = experience || "10 Years";
   const docTitle = title || "Consultant Specialist";
@@ -747,15 +826,15 @@ app.post("/api/doctors", async (req, res) => {
   if (db.isDbEnabled()) {
     try {
       const results = await db.query(
-        "INSERT INTO doctors (name, specialty, fee, branch, status, image, experience, rating, title, slug, available) VALUES (?, ?, ?, ?, 'Active', ?, ?, ?, ?, ?, 1)",
-        [name, specialty, fee, branch, docImg, docExp, docRating, docTitle, docSlug]
+        "INSERT INTO doctors (name, specialty, fee, branch, status, image, experience, rating, title, slug, available, clinic_id) VALUES (?, ?, ?, ?, 'Active', ?, ?, ?, ?, ?, 1, ?)",
+        [name, specialty, fee, branch, docImg, docExp, docRating, docTitle, docSlug, clinicId]
       );
-      res.json({ success: true, doctor: { id: results.insertId, name, specialty, fee, branch, status: "Active", image: docImg, experience: docExp, rating: docRating, title: docTitle, slug: docSlug, available: 1 } });
+      res.json({ success: true, doctor: { id: results.insertId, name, specialty, fee, branch, status: "Active", image: docImg, experience: docExp, rating: docRating, title: docTitle, slug: docSlug, available: 1, clinic_id: clinicId } });
     } catch (e) {
       res.status(500).json({ error: e.message });
     }
   } else {
-    const newDoc = { id: mockDoctors.length + 1, name, specialty, fee, branch, status: "Active", image: docImg, experience: docExp, rating: docRating, title: docTitle, slug: docSlug, available: 1 };
+    const newDoc = { id: mockDoctors.length + 1, name, specialty, fee, branch, status: "Active", image: docImg, experience: docExp, rating: docRating, title: docTitle, slug: docSlug, available: 1, clinic_id: clinicId };
     mockDoctors.push(newDoc);
     res.json({ success: true, doctor: newDoc });
   }
@@ -946,7 +1025,7 @@ app.get("/api/articles", async (req, res) => {
 });
 
 app.post("/api/articles", async (req, res) => {
-  const { title, excerpt, content, category, author, image, type } = req.body;
+  const { title, excerpt, content, category, author, image, type, html_content } = req.body;
   const artImg = image || "https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=700&q=80";
   const artType = type || "blog";
   const newArt = {
@@ -954,6 +1033,7 @@ app.post("/api/articles", async (req, res) => {
     title,
     excerpt,
     content,
+    html_content: html_content || null,
     category: category || "General Health",
     author: author || "Director Admin",
     image: artImg,
@@ -962,8 +1042,8 @@ app.post("/api/articles", async (req, res) => {
   if (db.isDbEnabled()) {
     try {
       const results = await db.query(
-        "INSERT INTO articles (title, excerpt, content, category, author, image, type) VALUES (?, ?, ?, ?, ?, ?, ?)",
-        [title, excerpt, content, newArt.category, newArt.author, artImg, artType]
+        "INSERT INTO articles (title, excerpt, content, html_content, category, author, image, type) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        [title, excerpt, content, html_content || null, newArt.category, newArt.author, artImg, artType]
       );
       newArt.id = results.insertId;
       res.json({ success: true, article: newArt });
@@ -1694,9 +1774,10 @@ app.delete("/api/reviews/:id", async (req, res) => {
 
 // 32. CMS Clinic Settings Endpoints
 app.get("/api/settings", async (req, res) => {
+  const clinicId = getClinicId(req);
   if (db.isDbEnabled()) {
     try {
-      const results = await db.query("SELECT * FROM clinic_settings");
+      const results = await db.query("SELECT * FROM clinic_settings WHERE clinic_id = ?", [clinicId]);
       const settingsObj = {};
       results.forEach(row => {
         settingsObj[row.setting_key] = row.setting_value;
@@ -1713,21 +1794,22 @@ app.get("/api/settings", async (req, res) => {
 
 app.post("/api/settings", async (req, res) => {
   const settingsData = req.body;
+  const clinicId = getClinicId(req);
   if (db.isDbEnabled()) {
     try {
       if (settingsData.settings && typeof settingsData.settings === 'object') {
         for (const [key, val] of Object.entries(settingsData.settings)) {
           await db.query(
-            "INSERT INTO clinic_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?",
-            [key, val, val]
+            "INSERT INTO clinic_settings (setting_key, setting_value, clinic_id) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE setting_value = ?",
+            [key, val, clinicId, val]
           );
         }
       } else if (settingsData.setting_key || settingsData.key) {
         const key = settingsData.setting_key || settingsData.key;
         const val = settingsData.setting_value || settingsData.value;
         await db.query(
-          "INSERT INTO clinic_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?",
-          [key, val, val]
+          "INSERT INTO clinic_settings (setting_key, setting_value, clinic_id) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE setting_value = ?",
+          [key, val, clinicId, val]
         );
       }
       res.json({ success: true });
@@ -1743,6 +1825,299 @@ app.post("/api/settings", async (req, res) => {
       mockSettings[key] = val;
     }
     res.json({ success: true, settings: mockSettings });
+  }
+});
+
+// 17. User Management CRUD & Logs Endpoints
+app.get("/api/users", async (req, res) => {
+  const clinicId = getClinicId(req);
+  if (db.isDbEnabled()) {
+    try {
+      const results = await db.query("SELECT id, name, email, role FROM users WHERE clinic_id = ? ORDER BY id ASC", [clinicId]);
+      res.json(results);
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  } else {
+    const sanitized = mockUsers.filter(u => (u.clinic_id || 1) === clinicId).map((u, index) => ({ id: u.id || index + 1, name: u.name, email: u.email, role: u.role }));
+    res.json(sanitized);
+  }
+});
+
+app.post("/api/users", async (req, res) => {
+  const { name, email, password, role } = req.body;
+  if (!name || !email || !password || !role) {
+    return res.status(400).json({ error: "All fields are required" });
+  }
+  const adminEmail = req.headers["x-admin-email"] || "admin@physiohub.com";
+  const clinicId = getClinicId(req);
+  
+  if (db.isDbEnabled()) {
+    try {
+      const existing = await db.query("SELECT 1 FROM users WHERE email = ? AND clinic_id = ?", [email, clinicId]);
+      if (existing.length > 0) {
+        return res.status(400).json({ error: "Email is already registered" });
+      }
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const results = await db.query(
+        "INSERT INTO users (name, email, password, role, clinic_id) VALUES (?, ?, ?, ?, ?)",
+        [name, email, hashedPassword, role, clinicId]
+      );
+      
+      if (role === "doctor") {
+        const docName = name.startsWith("Dr.") ? name : `Dr. ${name}`;
+        const docSlug = name.toLowerCase().replace(/\s+/g, "-");
+        await db.query(
+          "INSERT INTO doctors (name, specialty, fee, branch, status, image, experience, rating, title, slug, available, email, clinic_id) VALUES (?, 'Physical Therapy', '₨ 2,500', 'Gulberg', 'Active', 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=400&q=80', '10 Years', 4.8, 'Consultant Specialist', ?, 1, ?, ?)",
+          [docName, docSlug, email, clinicId]
+        );
+      }
+      
+      await logActivity(adminEmail, "User Created", `Registered new ${role}: ${email}`);
+      res.json({ success: true, user: { id: results.insertId, name, email, role } });
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  } else {
+    const existing = mockUsers.find(u => u.email.toLowerCase() === email.toLowerCase() && (u.clinic_id || 1) === clinicId);
+    if (existing) {
+      return res.status(400).json({ error: "Email is already registered" });
+    }
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = { id: mockUsers.length + 1, name, email, password: hashedPassword, role, clinic_id: clinicId };
+    mockUsers.push(newUser);
+    
+    if (role === "doctor") {
+      const docName = name.startsWith("Dr.") ? name : `Dr. ${name}`;
+      const docSlug = name.toLowerCase().replace(/\s+/g, "-");
+      mockDoctors.push({
+        id: mockDoctors.length + 1,
+        name: docName,
+        specialty: "Physical Therapy",
+        fee: "₨ 2,500",
+        branch: "Gulberg",
+        status: "Active",
+        image: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=400&q=80",
+        experience: "10 Years",
+        rating: 4.8,
+        title: "Consultant Specialist",
+        slug: docSlug,
+        available: 1,
+        email: email,
+        clinic_id: clinicId
+      });
+    }
+    
+    await logActivity(adminEmail, "User Created", `Registered new ${role}: ${email} (Mock)`);
+    res.json({ success: true, user: { id: newUser.id, name, email, role } });
+  }
+});
+
+app.post("/api/users/update", async (req, res) => {
+  const { id, name, email, role } = req.body;
+  if (!id || !name || !email || !role) {
+    return res.status(400).json({ error: "All fields are required" });
+  }
+  const adminEmail = req.headers["x-admin-email"] || "admin@physiohub.com";
+  
+  if (db.isDbEnabled()) {
+    try {
+      await db.query(
+        "UPDATE users SET name = ?, email = ?, role = ? WHERE id = ?",
+        [name, email, role, id]
+      );
+      if (role === "doctor") {
+        await db.query("UPDATE doctors SET name = ? WHERE email = ?", [name, email]);
+      }
+      await logActivity(adminEmail, "User Updated", `Modified profile of ${email} (${role})`);
+      res.json({ success: true });
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  } else {
+    const user = mockUsers.find((u, index) => u.id === id || index + 1 === id);
+    if (user) {
+      user.name = name;
+      user.email = email;
+      user.role = role;
+      if (role === "doctor") {
+        const doc = mockDoctors.find(d => d.email?.toLowerCase() === email.toLowerCase());
+        if (doc) doc.name = name;
+      }
+      await logActivity(adminEmail, "User Updated", `Modified profile of ${email} (${role}) (Mock)`);
+      res.json({ success: true });
+    } else {
+      res.status(404).json({ error: "User not found" });
+    }
+  }
+});
+
+app.delete("/api/users/:id", async (req, res) => {
+  const { id } = req.params;
+  const adminEmail = req.headers["x-admin-email"] || "admin@physiohub.com";
+  
+  if (db.isDbEnabled()) {
+    try {
+      const results = await db.query("SELECT email FROM users WHERE id = ?", [id]);
+      if (results.length > 0) {
+        const targetEmail = results[0].email;
+        await db.query("DELETE FROM users WHERE id = ?", [id]);
+        await db.query("DELETE FROM doctors WHERE email = ?", [targetEmail]);
+        await logActivity(adminEmail, "User Deleted", `Revoked access for user ${targetEmail}`);
+      }
+      res.json({ success: true });
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  } else {
+    const idx = mockUsers.findIndex((u, index) => u.id == id || index + 1 == id);
+    if (idx !== -1) {
+      const targetEmail = mockUsers[idx].email;
+      mockUsers.splice(idx, 1);
+      const docIdx = mockDoctors.findIndex(d => d.email?.toLowerCase() === targetEmail.toLowerCase());
+      if (docIdx !== -1) {
+        mockDoctors.splice(docIdx, 1);
+      }
+      await logActivity(adminEmail, "User Deleted", `Revoked access for user ${targetEmail} (Mock)`);
+      res.json({ success: true });
+    } else {
+      res.status(404).json({ error: "User not found" });
+    }
+  }
+});
+
+app.get("/api/users/logs", async (req, res) => {
+  const clinicId = getClinicId(req);
+  if (db.isDbEnabled()) {
+    try {
+      const results = await db.query("SELECT * FROM user_logs WHERE clinic_id = ? ORDER BY id DESC LIMIT 200", [clinicId]);
+      res.json(results);
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  } else {
+    res.json(mockUserLogs.filter(l => (l.clinic_id || 1) === clinicId));
+  }
+});
+
+// 18. SaaS Clinics Endpoints (Multi-Tenancy)
+app.get("/api/clinics", async (req, res) => {
+  if (db.isDbEnabled()) {
+    try {
+      const results = await db.query("SELECT * FROM clinics ORDER BY id ASC");
+      res.json(results);
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  } else {
+    res.json(mockClinics);
+  }
+});
+
+app.post("/api/clinics", async (req, res) => {
+  const { name, subdomain, address, adminName, adminEmail, adminPassword } = req.body;
+  if (!name || !subdomain || !adminName || !adminEmail || !adminPassword) {
+    return res.status(400).json({ error: "Clinic name, subdomain, admin details are required" });
+  }
+  
+  if (db.isDbEnabled()) {
+    try {
+      const existing = await db.query("SELECT 1 FROM clinics WHERE subdomain = ?", [subdomain]);
+      if (existing.length > 0) {
+        return res.status(400).json({ error: "Clinic subdomain is already registered" });
+      }
+      
+      const clinicResult = await db.query(
+        "INSERT INTO clinics (name, subdomain, address, status) VALUES (?, ?, ?, 'Active')",
+        [name, subdomain, address || ""]
+      );
+      const newClinicId = clinicResult.insertId;
+      
+      const defaultSettings = [
+        ['clinic_phone', '+92 300 0000000'],
+        ['clinic_email', adminEmail],
+        ['clinic_address', address || 'Clinic Address'],
+        ['clinic_hours', 'Mon - Sat: 09:00 AM - 09:00 PM'],
+        ['ambulance_phone', '+92 (51) 111-911-273'],
+        ['why_us_headline', 'Why Choose Our Clinic?'],
+        ['why_us_description', 'We combine gold-standard clinical practices with dynamic rehabilitation technologies to ensure faster, safer, and complete rehabilitation.']
+      ];
+      for (const [key, val] of defaultSettings) {
+        await db.query("INSERT INTO clinic_settings (setting_key, setting_value, clinic_id) VALUES (?, ?, ?)", [key, val, newClinicId]);
+      }
+      
+      const hashedPassword = await bcrypt.hash(adminPassword, 10);
+      await db.query(
+        "INSERT INTO users (name, email, password, role, clinic_id) VALUES (?, ?, ?, 'admin', ?)",
+        [adminName, adminEmail, hashedPassword, newClinicId]
+      );
+      
+      await logActivity(adminEmail, "Clinic Registered", `SaaS registered new clinic network: ${name} (ID: ${newClinicId})`, 1);
+      res.json({ success: true, clinicId: newClinicId });
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  } else {
+    const existing = mockClinics.find(c => c.subdomain.toLowerCase() === subdomain.toLowerCase());
+    if (existing) {
+      return res.status(400).json({ error: "Clinic subdomain is already registered" });
+    }
+    const newClinicId = mockClinics.length + 1;
+    const newClinic = { id: newClinicId, name, subdomain, address: address || "", status: "Active" };
+    mockClinics.push(newClinic);
+    
+    mockSettingsList.push({
+      clinic_id: newClinicId,
+      settings: {
+        clinic_phone: "+92 300 0000000",
+        clinic_email: adminEmail,
+        clinic_address: address || "Clinic Address",
+        clinic_hours: "Mon - Sat: 09:00 AM - 09:00 PM",
+        ambulance_phone: "+92 (51) 111-911-273",
+        why_us_headline: "Why Choose Our Clinic?",
+        why_us_description: "We combine gold-standard clinical practices with dynamic rehabilitation technologies to ensure faster, safer, and complete rehabilitation."
+      }
+    });
+    
+    const hashedPassword = await bcrypt.hash(adminPassword, 10);
+    mockUsers.push({
+      id: mockUsers.length + 1,
+      name: adminName,
+      email: adminEmail,
+      password: hashedPassword,
+      role: "admin",
+      clinic_id: newClinicId
+    });
+    
+    await logActivity(adminEmail, "Clinic Registered", `SaaS registered new clinic network: ${name} (ID: ${newClinicId}) (Mock)`, 1);
+    res.json({ success: true, clinicId: newClinicId });
+  }
+});
+
+app.post("/api/clinics/status", async (req, res) => {
+  const { id, status } = req.body;
+  if (!id || !status) {
+    return res.status(400).json({ error: "Clinic ID and status are required" });
+  }
+  const adminEmail = req.headers["x-admin-email"] || "admin@physiohub.com";
+  
+  if (db.isDbEnabled()) {
+    try {
+      await db.query("UPDATE clinics SET status = ? WHERE id = ?", [status, id]);
+      await logActivity(adminEmail, "Clinic Status Modified", `Modified status of clinic ID ${id} to ${status}`, 1);
+      res.json({ success: true });
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  } else {
+    const clinic = mockClinics.find(c => c.id == id);
+    if (clinic) {
+      clinic.status = status;
+      await logActivity(adminEmail, "Clinic Status Modified", `Modified status of clinic ID ${id} to ${status} (Mock)`, 1);
+      res.json({ success: true });
+    } else {
+      res.status(404).json({ error: "Clinic not found" });
+    }
   }
 });
 

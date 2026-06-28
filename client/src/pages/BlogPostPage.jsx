@@ -647,50 +647,76 @@ export default function BlogPostPage() {
           {/* LEFT: Read Content */}
           <div className="lg:col-span-8 bg-white rounded-3xl p-6 sm:p-10 border border-slate-100 shadow-sm space-y-6 text-left">
             
-            {/* Dynamic Content Mapping */}
-            {post.content.map((item, index) => {
-              if (item.type === "p") {
-                return (
-                  <p key={index} className="text-slate-600 text-sm sm:text-base leading-relaxed">
-                    {item.text}
-                  </p>
-                );
-              }
-              if (item.type === "h2") {
-                return (
-                  <h2 key={index} className="text-lg sm:text-xl font-extrabold text-slate-800 pt-4 flex items-center gap-2">
-                    <span className="w-1.5 h-5 rounded-full inline-block" style={{ background: post.categoryColor }} />
-                    {item.text}
-                  </h2>
-                );
-              }
-              if (item.type === "callout") {
-                return (
-                  <div 
-                    key={index} 
-                    className="p-5 rounded-2xl bg-sky-50 border border-sky-100 flex items-start gap-3 my-4"
-                  >
-                    <HiSparkles size={18} className="text-sky-500 shrink-0 mt-0.5" />
-                    <div>
-                      <p className="text-xs font-bold text-sky-800 uppercase tracking-widest mb-1">Clinical Insight</p>
-                      <p className="text-xs sm:text-sm text-sky-700 leading-relaxed font-semibold">{item.text}</p>
+            {/* Dynamic Content — HTML file render OR structured content map */}
+            {post.html_content ? (
+              <div className="rounded-2xl overflow-hidden border border-slate-100 shadow-sm" style={{ minHeight: "600px" }}>
+                <div className="bg-slate-50 border-b border-slate-100 px-4 py-2 flex items-center gap-2">
+                  <span className="w-3 h-3 rounded-full bg-rose-400" />
+                  <span className="w-3 h-3 rounded-full bg-yellow-400" />
+                  <span className="w-3 h-3 rounded-full bg-emerald-400" />
+                  <span className="text-[10px] font-bold text-slate-400 ml-2">Full HTML Article — Uploaded Document</span>
+                </div>
+                <iframe
+                  srcDoc={post.html_content}
+                  title={post.title}
+                  sandbox="allow-same-origin allow-scripts"
+                  className="w-full border-none"
+                  style={{ minHeight: "70vh", height: "auto", display: "block" }}
+                  onLoad={e => {
+                    try {
+                      const doc = e.target.contentDocument || e.target.contentWindow?.document;
+                      if (doc && doc.body) {
+                        e.target.style.height = (doc.body.scrollHeight + 40) + "px";
+                      }
+                    } catch(err) {}
+                  }}
+                />
+              </div>
+            ) : (
+              post.content.map((item, index) => {
+                if (item.type === "p") {
+                  return (
+                    <p key={index} className="text-slate-600 text-sm sm:text-base leading-relaxed">
+                      {item.text}
+                    </p>
+                  );
+                }
+                if (item.type === "h2") {
+                  return (
+                    <h2 key={index} className="text-lg sm:text-xl font-extrabold text-slate-800 pt-4 flex items-center gap-2">
+                      <span className="w-1.5 h-5 rounded-full inline-block" style={{ background: post.categoryColor }} />
+                      {item.text}
+                    </h2>
+                  );
+                }
+                if (item.type === "callout") {
+                  return (
+                    <div 
+                      key={index} 
+                      className="p-5 rounded-2xl bg-sky-50 border border-sky-100 flex items-start gap-3 my-4"
+                    >
+                      <HiSparkles size={18} className="text-sky-500 shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-xs font-bold text-sky-800 uppercase tracking-widest mb-1">Clinical Insight</p>
+                        <p className="text-xs sm:text-sm text-sky-700 leading-relaxed font-semibold">{item.text}</p>
+                      </div>
                     </div>
-                  </div>
-                );
-              }
-              if (item.type === "quote") {
-                return (
-                  <blockquote 
-                    key={index} 
-                    className="pl-5 border-l-4 border-pink-500 py-2.5 my-6 italic text-slate-700 font-serif text-sm sm:text-base leading-relaxed bg-slate-50/50 pr-4 rounded-r-xl"
-                  >
-                    "{item.text}"
-                    <cite className="block text-xs font-bold text-slate-500 mt-2 font-sans not-italic">— {post.author}</cite>
-                  </blockquote>
-                );
-              }
-              return null;
-            })}
+                  );
+                }
+                if (item.type === "quote") {
+                  return (
+                    <blockquote 
+                      key={index} 
+                      className="pl-5 border-l-4 border-pink-500 py-2.5 my-6 italic text-slate-700 font-serif text-sm sm:text-base leading-relaxed bg-slate-50/50 pr-4 rounded-r-xl"
+                    >
+                      "{item.text}"
+                      <cite className="block text-xs font-bold text-slate-500 mt-2 font-sans not-italic">— {post.author}</cite>
+                    </blockquote>
+                  );
+                }
+                return null;
+              })
+            )}
 
             {/* Like and Share Interaction Row */}
             <div className="flex items-center justify-between pt-6 border-t border-slate-100 mt-8">

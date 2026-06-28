@@ -1,11 +1,16 @@
 const API_BASE_URL = "http://localhost:5000/api";
 
 // Base helper for handling fetch connections with local storage fallback
-async function apiCall(endpoint, method = "GET", body = null) {
+async function apiCall(endpoint, method = "GET", body = null, customHeaders = {}) {
   let res;
   try {
     const token = localStorage.getItem("vph_token");
-    const headers = { "Content-Type": "application/json" };
+    const clinicId = localStorage.getItem("vph_clinic_id") || "1";
+    const headers = { 
+      "Content-Type": "application/json",
+      "x-clinic-id": clinicId,
+      ...customHeaders
+    };
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
     }
@@ -433,6 +438,7 @@ export const api = {
       title: artData.title,
       excerpt: artData.excerpt,
       content: artData.content,
+      html_content: artData.html_content || null,
       category: artData.category || "General Health",
       author: artData.author || "Director Admin",
       image: artData.image || "https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=700&q=80"
@@ -945,6 +951,89 @@ export const api = {
     const updated = { ...current, ...settings };
     localStorage.setItem("pc_settings", JSON.stringify(updated));
     return updated;
+  },
+
+  // User Management CRUD & Activity Logs
+  getUsers: async () => {
+    const res = await apiCall("/users");
+    if (res) {
+      localStorage.setItem("pc_users", JSON.stringify(res));
+      return res;
+    }
+    const local = localStorage.getItem("pc_users");
+    return local ? JSON.parse(local) : [];
+  },
+
+  createUser: async (userData) => {
+    const activeEmail = localStorage.getItem("vph_user_email") || "admin@physiohub.com";
+    const headers = { "x-admin-email": activeEmail };
+    const res = await apiCall("/users", "POST", userData, headers);
+    if (res && res.success) {
+      const allUsers = await apiCall("/users");
+      if (allUsers) localStorage.setItem("pc_users", JSON.stringify(allUsers));
+      return res;
+    }
+    return res;
+  },
+
+  updateUser: async (userData) => {
+    const activeEmail = localStorage.getItem("vph_user_email") || "admin@physiohub.com";
+    const headers = { "x-admin-email": activeEmail };
+    const res = await apiCall("/users/update", "POST", userData, headers);
+    if (res && res.success) {
+      const allUsers = await apiCall("/users");
+      if (allUsers) localStorage.setItem("pc_users", JSON.stringify(allUsers));
+      return res;
+    }
+    return res;
+  },
+
+  deleteUser: async (id) => {
+    const activeEmail = localStorage.getItem("vph_user_email") || "admin@physiohub.com";
+    const headers = { "x-admin-email": activeEmail };
+    const res = await apiCall(`/users/${id}`, "DELETE", null, headers);
+    if (res && res.success) {
+      const allUsers = await apiCall("/users");
+      if (allUsers) localStorage.setItem("pc_users", JSON.stringify(allUsers));
+      return res;
+    }
+    return res;
+  },
+
+  getUserLogs: async () => {
+    const res = await apiCall("/users/logs");
+    if (res) {
+      localStorage.setItem("pc_user_logs", JSON.stringify(res));
+      return res;
+    }
+    const local = localStorage.getItem("pc_user_logs");
+    return local ? JSON.parse(local) : [];
+  },
+
+  getClinics: async () => {
+    const res = await apiCall("/clinics");
+    if (res) {
+      localStorage.setItem("pc_clinics", JSON.stringify(res));
+      return res;
+    }
+    const local = localStorage.getItem("pc_clinics");
+    return local ? JSON.parse(local) : [
+      { id: 1, name: "Vital Physio Hub", subdomain: "vitalphysio", address: "Lahore, Pakistan", status: "Active" }
+    ];
+  },
+
+  createClinic: async (clinicData) => {
+    const activeEmail = localStorage.getItem("vph_user_email") || "admin@physiohub.com";
+    const headers = { "x-admin-email": activeEmail };
+    const res = await apiCall("/clinics", "POST", clinicData, headers);
+    return res;
+  },
+
+  toggleClinicStatus: async (id, status) => {
+    const activeEmail = localStorage.getItem("vph_user_email") || "admin@physiohub.com";
+    const headers = { "x-admin-email": activeEmail };
+    const res = await apiCall("/clinics/status", "POST", { id, status }, headers);
+    return res;
   }
 };
 
