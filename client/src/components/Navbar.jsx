@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { FiMenu, FiX, FiCalendar, FiPhoneCall, FiChevronDown } from "react-icons/fi";
+import { FiMenu, FiX, FiCalendar, FiPhoneCall, FiChevronDown, FiUser } from "react-icons/fi";
 import { MdLocalHospital } from "react-icons/md";
 
 export default function Navbar({ onBookAppointment }) {
@@ -10,7 +10,12 @@ export default function Navbar({ onBookAppointment }) {
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [mobileActiveDrop, setMobileActiveDrop] = useState(null);
   const [userRole,       setUserRole]       = useState(() => localStorage.getItem("vph_user_role"));
+  const [userMenuOpen,   setUserMenuOpen]   = useState(false);
   const navigate = useNavigate();
+  const isPortal = window.location.pathname.startsWith("/admin") || 
+                   window.location.pathname.startsWith("/doctor-portal") || 
+                   window.location.pathname.startsWith("/staff") || 
+                   window.location.pathname.startsWith("/patient-portal");
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -48,46 +53,60 @@ export default function Navbar({ onBookAppointment }) {
     navigate("/book-appointment");
   };
 
-  const dynamicLinks = [
-    { name: "Home",                path: "/" },
-    { name: "About",               path: "/about" },
-    { name: "Doctors",             path: "/doctors" },
-    { name: "Services",            path: "/services" },
-    { name: "Shop",                path: "/shop" },
-    {
-      name: "Resources",
-      isDropdown: true,
-      dropdownItems: [
-        { name: "Patient Reviews",        path: "/reviews" },
-        { name: "Gallery",                path: "/gallery" },
-        { name: "Blog & Health Articles", path: "/blog" },
-        { name: "FAQ",                    path: "/faq" },
-        { name: "Insurance Information",  path: "/insurance" },
-        { name: "Careers / Jobs",         path: "/careers" },
-      ],
-    },
-    { name: "Online Consult",      path: "/online-consultation" },
-    { name: "Contact Us",          path: "/contact" },
-  ];
-
-  if (userRole) {
-    if (userRole === "patient") {
-      dynamicLinks.push({ name: "Patient Portal", path: "/patient-portal" });
-    } else if (userRole === "doctor") {
-      dynamicLinks.push({ name: "Doctor Portal", path: "/doctor-portal" });
-    } else if (userRole === "admin" || userRole === "receptionist") {
-      dynamicLinks.push({ name: "Admin Panel", path: "/admin" });
-    }
-    dynamicLinks.push({ name: "Logout", path: "/login", isLogout: true });
+  let dynamicLinks = [];
+  if (isPortal) {
+    dynamicLinks = [
+      { name: "Public Website", path: "/" },
+      ...(userRole === "admin" ? [{ name: "Admin Dashboard", path: "/admin" }] : []),
+      ...(userRole === "doctor" ? [{ name: "Doctor Portal", path: "/doctor-portal" }] : []),
+      ...(userRole === "receptionist" ? [{ name: "Staff Desk", path: "/staff" }] : []),
+      ...(userRole === "patient" ? [{ name: "Patient Portal", path: "/patient-portal" }] : []),
+      { name: "Logout", path: "/login", isLogout: true }
+    ];
   } else {
-    dynamicLinks.push({
-      name: "Login / Signup",
-      isDropdown: true,
-      dropdownItems: [
-        { name: "Patient Login", path: "/login" },
-        { name: "Join as Doctor", path: "/signup" }
-      ]
-    });
+    dynamicLinks = [
+      { name: "Home",                path: "/" },
+      { name: "About",               path: "/about" },
+      { name: "Doctors",             path: "/doctors" },
+      { name: "Services",            path: "/services" },
+      ...(userRole !== "doctor" ? [{ name: "Shop", path: "/shop" }] : []),
+      {
+        name: "Resources",
+        isDropdown: true,
+        dropdownItems: [
+          { name: "Patient Reviews",        path: "/reviews" },
+          { name: "Gallery",                path: "/gallery" },
+          { name: "Blog & Health Articles", path: "/blog" },
+          { name: "FAQ",                    path: "/faq" },
+          { name: "Insurance Information",  path: "/insurance" },
+          { name: "Careers / Jobs",         path: "/careers" },
+        ],
+      },
+      { name: "Online Consult",      path: "/online-consultation" },
+      { name: "Contact Us",          path: "/contact" },
+    ];
+
+    if (userRole) {
+      if (userRole === "patient") {
+        dynamicLinks.push({ name: "Patient Portal", path: "/patient-portal" });
+      } else if (userRole === "doctor") {
+        dynamicLinks.push({ name: "Doctor Portal", path: "/doctor-portal" });
+      } else if (userRole === "admin") {
+        dynamicLinks.push({ name: "Admin Panel", path: "/admin" });
+      } else if (userRole === "receptionist") {
+        dynamicLinks.push({ name: "Staff Desk", path: "/staff" });
+      }
+      dynamicLinks.push({ name: "Logout", path: "/login", isLogout: true });
+    } else {
+      dynamicLinks.push({
+        name: "Login / Signup",
+        isDropdown: true,
+        dropdownItems: [
+          { name: "Patient Login", path: "/login" },
+          { name: "Join as Doctor", path: "/signup" }
+        ]
+      });
+    }
   }
 
   return (
@@ -165,33 +184,33 @@ export default function Navbar({ onBookAppointment }) {
               style={{ background:"radial-gradient(circle at 15% 50%,rgba(59,130,246,0.15),transparent 40%),radial-gradient(circle at 85% 50%,rgba(236,72,153,0.12),transparent 40%)" }} />
           )}
  
-          <div className="relative z-10 flex items-center h-[60px] sm:h-[68px] px-4 sm:px-5 lg:px-6 gap-4">
+          <div className="relative z-10 flex items-center h-[60px] sm:h-[68px] px-3 sm:px-4 lg:px-5 gap-2 lg:gap-2.5 xl:gap-4">
  
             {/* ── Logo ── */}
             <motion.div
               whileHover={{ scale: 1.02 }}
               onClick={() => handlePageNav("/", false)}
-              className="flex items-center gap-2.5 cursor-pointer shrink-0"
+              className="flex items-center gap-2 cursor-pointer shrink-0"
             >
               <div className="relative shrink-0">
                 <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 to-emerald-500 flex items-center justify-center shadow-md border border-white/30">
-                  <MdLocalHospital className="text-white text-lg" />
+                  <MdLocalHospital className="text-white text-base" />
                 </div>
-                <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-400 rounded-full animate-pulse border-2 border-white" />
+                <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-emerald-400 rounded-full animate-pulse border-2 border-white" />
               </div>
               <div className="hidden sm:block leading-none text-left">
-                <p className="text-slate-900 font-extrabold text-[1.15rem] tracking-tight leading-tight">
+                <p className="text-slate-900 font-extrabold text-[1.08rem] tracking-tight leading-tight">
                   Vital Physio<span className="text-blue-600"> Hub</span>
                 </p>
-                <p className="text-slate-400 text-[9px] font-bold tracking-widest uppercase mt-0.5">
+                <p className="text-slate-400 text-[8.5px] font-bold tracking-widest uppercase mt-0.5">
                   Physical Therapy & Rehab
                 </p>
               </div>
             </motion.div>
  
             {/* ── Desktop Nav Links — centered, shrinkable ── */}
-            <div className="hidden lg:flex flex-1 items-center justify-center min-w-0 px-2">
-              <div className="flex items-center gap-0.5 xl:gap-1">
+            <div className="hidden lg:flex flex-1 items-center justify-center min-w-0 px-1">
+              <div className="flex items-center gap-0.5 lg:gap-1 xl:gap-1.5">
                 {dynamicLinks.map((link, idx) => (
                   <div
                     key={link.name}
@@ -202,11 +221,11 @@ export default function Navbar({ onBookAppointment }) {
                     {link.isDropdown ? (
                       <>
                         <button
-                          className="nav-link-underline relative px-1.5 xl:px-2 py-2 text-slate-800 hover:text-blue-600 font-bold transition-colors duration-200 whitespace-nowrap flex items-center gap-1 bg-transparent border-none cursor-pointer"
-                          style={{ fontSize: "clamp(0.68rem, 0.85vw, 0.82rem)" }}
+                          className="nav-link-underline relative px-1.2 lg:px-1.5 py-2 text-slate-800 hover:text-blue-600 font-bold transition-colors duration-200 whitespace-nowrap flex items-center gap-0.5 bg-transparent border-none cursor-pointer"
+                          style={{ fontSize: "clamp(0.66rem, 0.8vw, 0.8rem)" }}
                         >
                           {link.name}
-                          <FiChevronDown size={12} className={`transition-transform duration-200 ${activeDropdown === idx ? "rotate-180" : ""}`} />
+                          <FiChevronDown size={11} className={`transition-transform duration-200 ${activeDropdown === idx ? "rotate-180" : ""}`} />
                         </button>
                         <AnimatePresence>
                           {activeDropdown === idx && (
@@ -235,16 +254,16 @@ export default function Navbar({ onBookAppointment }) {
                       link.isLogout ? (
                         <button
                           onClick={() => handlePageNav(link.path, true)}
-                          className="nav-link-underline relative px-1.5 xl:px-2 py-2 text-slate-800 hover:text-blue-600 font-bold transition-colors duration-200 whitespace-nowrap block bg-transparent border-none cursor-pointer"
-                          style={{ fontSize: "clamp(0.68rem, 0.85vw, 0.82rem)" }}
+                          className="nav-link-underline relative px-1.2 lg:px-1.5 py-2 text-slate-800 hover:text-blue-600 font-bold transition-colors duration-200 whitespace-nowrap block bg-transparent border-none cursor-pointer"
+                          style={{ fontSize: "clamp(0.66rem, 0.8vw, 0.8rem)" }}
                         >
                           {link.name}
                         </button>
                       ) : (
                         <Link
                           to={link.path}
-                          className="nav-link-underline relative px-1.5 xl:px-2 py-2 text-slate-800 hover:text-blue-600 font-bold transition-colors duration-200 whitespace-nowrap block no-underline"
-                          style={{ fontSize: "clamp(0.68rem, 0.85vw, 0.82rem)" }}
+                          className="nav-link-underline relative px-1.2 lg:px-1.5 py-2 text-slate-800 hover:text-blue-600 font-bold transition-colors duration-200 whitespace-nowrap block no-underline"
+                          style={{ fontSize: "clamp(0.66rem, 0.8vw, 0.8rem)" }}
                         >
                           {link.name}
                         </Link>
@@ -256,27 +275,29 @@ export default function Navbar({ onBookAppointment }) {
             </div>
  
             {/* ── Desktop CTAs ── */}
-            <div className="hidden lg:flex items-center gap-2 shrink-0 ml-auto">
-              <motion.button
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
-                onClick={() => navigate("/emergency")}
-                className="btn-sos flex items-center gap-1.5 px-3 py-2 rounded-xl text-white text-[11px] xl:text-xs font-bold uppercase tracking-wide whitespace-nowrap border-none cursor-pointer"
-              >
-                <FiPhoneCall className="animate-bounce shrink-0" size={13} />
-                SOS Emergency
-              </motion.button>
+            {!isPortal && (
+              <div className="hidden lg:flex items-center gap-2 shrink-0 ml-auto">
+                <motion.button
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => navigate("/emergency")}
+                  className="btn-sos flex items-center gap-1.5 px-3 py-2 rounded-xl text-white text-[11px] xl:text-xs font-bold uppercase tracking-wide whitespace-nowrap border-none cursor-pointer"
+                >
+                  <FiPhoneCall className="animate-bounce shrink-0" size={13} />
+                  SOS EMERGENCY
+                </motion.button>
  
-              <motion.button
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
-                onClick={handleBookClick}
-                className="btn-book flex items-center gap-1.5 px-3 xl:px-4 py-2.5 rounded-xl text-white text-xs xl:text-sm font-bold whitespace-nowrap cursor-pointer"
-              >
-                <FiCalendar size={14} className="shrink-0" />
-                Book Appointment
-              </motion.button>
-            </div>
+                <motion.button
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                  onClick={handleBookClick}
+                  className="btn-book flex items-center gap-1.5 px-3 xl:px-4 py-2.5 rounded-xl text-white text-xs xl:text-sm font-bold whitespace-nowrap cursor-pointer"
+                >
+                  <FiCalendar size={14} className="shrink-0" />
+                  Book Appointment
+                </motion.button>
+              </div>
+            )}
  
             {/* ── Mobile Hamburger ── */}
             <button

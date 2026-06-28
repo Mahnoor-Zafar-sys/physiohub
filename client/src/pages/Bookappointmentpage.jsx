@@ -7,6 +7,7 @@ import {
   FiCalendar, FiClock, FiUser, FiPhone, FiMail,
   FiChevronRight, FiChevronLeft, FiCheck, FiMapPin,
   FiVideo, FiSearch, FiStar, FiAlertCircle, FiShield,
+  FiUpload, FiFileText, FiTrash2
 } from "react-icons/fi";
 import { FaWhatsapp } from "react-icons/fa";
 import { LuCalendar, LuClock, LuCreditCard, LuMapPin } from "react-icons/lu";
@@ -297,8 +298,35 @@ function Step1({ doctors, selectedDoctor, setSelectedDoctor, searchQ, setSearchQ
 }
 
 // ─── STEP 2: Schedule ────────────────────────────────────────────────────────
-function Step2({ doctor, days, selectedDay, setSelectedDay, selectedTime, setSelectedTime,
-  consultType, setConsultType, selectedBranch, setSelectedBranch }) {
+function Step2({ doctor, selectedCustomDate, setSelectedCustomDate, selectedTime, setSelectedTime,
+  consultType, setConsultType, selectedBranch, setSelectedBranch, appointments }) {
+
+  const [currentMonthDate, setCurrentMonthDate] = useState(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
+
+  const handleMonthChange = (direction) => {
+    setCurrentMonthDate(prev => new Date(prev.getFullYear(), prev.getMonth() + direction, 1));
+  };
+  
+  const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  const shortMonthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const dayNamesShort = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+  const year = currentMonthDate.getFullYear();
+  const month = currentMonthDate.getMonth();
+  
+  const firstDayOfMonth = new Date(year, month, 1);
+  const startDayOfWeek = firstDayOfMonth.getDay();
+  const totalDays = new Date(year, month + 1, 0).getDate();
+  
+  const dayCells = [];
+  for (let i = 0; i < startDayOfWeek; i++) {
+    dayCells.push(null);
+  }
+  for (let d = 1; d <= totalDays; d++) {
+    dayCells.push(d);
+  }
+
   return (
     <motion.div
       key="step2"
@@ -363,45 +391,155 @@ function Step2({ doctor, days, selectedDay, setSelectedDay, selectedTime, setSel
         </div>
       )}
 
-      {/* Date picker */}
-      <div className="mb-6">
-        <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Select Date</p>
-        <div className="flex sm:grid sm:grid-cols-7 gap-2 overflow-x-auto sm:overflow-visible pb-2 sm:pb-0 scrollbar-none snap-x">
-          {days.map((d, i) => (
-            <motion.button
-              key={i}
-              whileTap={{ scale: 0.93 }}
-              onClick={() => { setSelectedDay(i); setSelectedTime(null); }}
-              className={`flex-shrink-0 w-[72px] sm:w-auto snap-start flex flex-col items-center gap-1 py-3 rounded-2xl border-2 transition-all ${
-                selectedDay === i
-                  ? "border-transparent text-white shadow-md"
-                  : "border-slate-100 bg-white text-slate-600 hover:border-slate-200"
-              }`}
-              style={selectedDay === i ? { background: "linear-gradient(135deg,#0ea5e9,#db2777)" } : {}}
-            >
-              <span className="text-[9px] font-bold opacity-80">{d.label}</span>
-              <span className="text-sm font-extrabold leading-tight">{d.date.split(" ")[0]}</span>
-              <span className="text-[9px] opacity-70">{d.date.split(" ")[1]}</span>
-            </motion.button>
-          ))}
+      {/* Doctor Availability / Duty Hours */}
+      <div className="mb-6 p-4 rounded-2xl bg-sky-50/40 border border-sky-100/60 text-left">
+        <div className="flex items-center gap-2 mb-2">
+          <FiClock className="text-sky-500 flex-shrink-0" size={14} />
+          <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">Doctor Duty Time & Availability</span>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {doctor.schedule ? (
+            doctor.schedule.map((s, idx) => (
+              <span key={idx} className="px-2.5 py-1 rounded-xl bg-white border border-slate-100 text-[10px] font-bold text-slate-600 shadow-sm">
+                {s}
+              </span>
+            ))
+          ) : (
+            <span className="text-[10px] text-slate-500 italic">Available daily by pre-booking</span>
+          )}
         </div>
       </div>
 
+      {/* Select Date Input & Calendar popover */}
+      <div className="relative mb-6 text-left">
+        <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 block">Select Date</label>
+        
+        <div 
+          onClick={() => setShowDatePicker(!showDatePicker)}
+          className="flex bg-slate-50 border-2 border-slate-100 hover:border-sky-200 rounded-2xl p-3.5 text-xs text-slate-700 font-bold cursor-pointer items-center justify-between transition-all bg-white/70"
+        >
+          <span>{selectedCustomDate ? selectedCustomDate.full : "Select appointment date..."}</span>
+          <FiCalendar className="text-slate-500" size={16} />
+        </div>
+
+        {showDatePicker && (
+          <div className="absolute top-full left-0 right-0 mt-2 z-50 bg-white rounded-3xl border border-slate-200/60 shadow-2xl p-5 text-slate-700">
+            {/* Calendar popover header */}
+            <div className="flex justify-between items-center mb-4">
+              <button
+                type="button"
+                onClick={() => handleMonthChange(-1)}
+                className="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center border-none text-slate-650 transition-colors cursor-pointer font-bold text-xs"
+              >
+                ◀
+              </button>
+              <h4 className="font-extrabold text-xs text-slate-800 uppercase tracking-wider">
+                {monthNames[month]} {year}
+              </h4>
+              <button
+                type="button"
+                onClick={() => handleMonthChange(1)}
+                className="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center border-none text-slate-650 transition-colors cursor-pointer font-bold text-xs"
+              >
+                ▶
+              </button>
+            </div>
+
+            {/* Weekdays header */}
+            <div className="grid grid-cols-7 gap-1 text-center mb-2">
+              {dayNamesShort.map(name => (
+                <span key={name} className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                  {name.slice(0, 2)}
+                </span>
+              ))}
+            </div>
+
+            {/* Days grid */}
+            <div className="grid grid-cols-7 gap-1 text-center">
+              {dayCells.map((dayNum, idx) => {
+                if (dayNum === null) {
+                  return <div key={`empty-${idx}`} />;
+                }
+                
+                const dateObj = new Date(year, month, dayNum);
+                const isPast = dateObj < new Date(new Date().setHours(0,0,0,0));
+                
+                const shortMonth = shortMonthNames[month];
+                const dateStr = `${dayNum} ${shortMonth}`;
+                const fullStr = dateObj.toLocaleDateString("en-PK", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+                
+                // check if date is booked for this doctor
+                const isBooked = appointments.some(appt => 
+                  appt.doctor === doctor.name && 
+                  appt.date.toLowerCase().includes(dateStr.toLowerCase()) && 
+                  appt.status !== "Cancelled"
+                );
+                
+                const isSelected = selectedCustomDate && selectedCustomDate.date === dateStr;
+
+                return (
+                  <button
+                    key={`day-${dayNum}`}
+                    type="button"
+                    disabled={isPast}
+                    onClick={() => {
+                      setSelectedCustomDate({
+                        date: dateStr,
+                        full: fullStr,
+                        label: dateStr
+                      });
+                      setSelectedTime(null);
+                      setShowDatePicker(false);
+                    }}
+                    className={`h-9 rounded-xl text-[11px] font-bold transition-all relative flex flex-col items-center justify-center cursor-pointer border-none ${
+                      isPast ? "bg-transparent text-slate-200 cursor-not-allowed" :
+                      isSelected ? "text-white shadow-md font-black" :
+                      "bg-slate-50 hover:bg-sky-50 text-slate-700"
+                    }`}
+                    style={isSelected ? { background: "linear-gradient(135deg,#0ea5e9,#db2777)" } : {}}
+                  >
+                    <span>{dayNum}</span>
+                    {isBooked && !isPast && (
+                      <span className={`absolute bottom-0.5 w-3 h-3 rounded-full flex items-center justify-center text-[7px] font-bold ${isSelected ? "bg-white text-emerald-600" : "bg-emerald-500 text-white"} shadow-sm`}>
+                        ✓
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
+
       {/* Time slots */}
-      <div>
+      <div className="text-left">
         <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Available Time Slots</p>
         <div className="grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-6 gap-2">
           {TIME_SLOTS.map(slot => {
             const busy = UNAVAILABLE_SLOTS.includes(slot);
+            
+            // Check if this slot is already booked for this doctor on the selected date
+            const booked = appointments.some(appt => 
+              appt.doctor === doctor.name && 
+              appt.date.toLowerCase().includes(selectedCustomDate.date.toLowerCase()) && 
+              appt.time === slot && 
+              appt.status !== "Cancelled"
+            );
+            
+            const disabled = busy || booked;
             const active = selectedTime === slot;
+            
             return (
               <motion.button
                 key={slot}
-                whileTap={{ scale: 0.93 }}
-                disabled={busy}
+                whileTap={{ scale: disabled ? 1 : 0.93 }}
+                disabled={disabled}
                 onClick={() => setSelectedTime(slot)}
-                className={`py-2.5 rounded-xl text-[11px] font-bold border-2 transition-all ${
-                  busy
+                className={`py-2.5 rounded-xl text-[11px] font-bold border-2 transition-all relative flex items-center justify-center gap-1 ${
+                  booked
+                    ? "border-emerald-100 text-emerald-800 bg-emerald-50/50 cursor-not-allowed opacity-90 shadow-sm"
+                    : busy
                     ? "border-slate-100 text-slate-300 bg-slate-50 cursor-not-allowed line-through"
                     : active
                     ? "border-transparent text-white shadow-md"
@@ -409,7 +547,14 @@ function Step2({ doctor, days, selectedDay, setSelectedDay, selectedTime, setSel
                 }`}
                 style={active ? { background: "linear-gradient(135deg,#0ea5e9,#db2777)" } : {}}
               >
-                {slot}
+                {booked ? (
+                  <>
+                    <span>{slot}</span>
+                    <span className="text-emerald-500 text-[10px] font-black">✓</span>
+                  </>
+                ) : (
+                  slot
+                )}
               </motion.button>
             );
           })}
@@ -830,7 +975,7 @@ function SuccessView({ doctor, day, time, consultType, form }) {
           </div>
           <div className="grid grid-cols-2 gap-2">
             {[
-              { icon: LuCalendar, label: "Date", value: `${day.label}, ${day.date}` },
+              { icon: LuCalendar, label: "Date", value: day.label === day.date ? day.date : `${day.label}, ${day.date}` },
               { icon: LuClock, label: "Time", value: time },
               { icon: LuCreditCard, label: "Fee", value: doctor.fee },
               { icon: LuMapPin, label: "Mode", value: CONSULTATION_TYPES.find(c => c.value === consultType)?.label },
@@ -1035,19 +1180,18 @@ export default function BookAppointmentPage() {
     );
   }
   const preselectedDoctor = location.state?.doctor || null;
-  const [step, setStep] = useState(preselectedDoctor ? 2 : 1);
   const [searchQ, setSearchQ] = useState("");
   const [specFilter, setSpecFilter] = useState("all");
   const [selectedDoctor, setSelectedDoctor] = useState(preselectedDoctor);
   const [consultType, setConsultType] = useState("in-person");
   const [selectedBranch, setSelectedBranch] = useState("Gulberg");
-  const [selectedDay, setSelectedDay] = useState(0);
+  const days = getNext7Days();
+  const [selectedCustomDate, setSelectedCustomDate] = useState(() => days[0]);
   const [selectedTime, setSelectedTime] = useState(null);
   const [form, setForm] = useState({ name: "", phone: "", email: "", age: "", gender: "", notes: "", isNew: "new" });
   const [submitted, setSubmitted] = useState(false);
   const [errors, setErrors] = useState({});
   const contentRef = useRef(null);
-  const days = getNext7Days();
 
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [cardDetails, setCardDetails] = useState({ number: "", expiry: "", cvc: "" });
@@ -1057,6 +1201,11 @@ export default function BookAppointmentPage() {
   const [txnRef, setTxnRef] = useState("");
   const [screenshotPreview, setScreenshotPreview] = useState(null);
   const [screenshotBase64, setScreenshotBase64] = useState("");
+
+  // Patient report upload states
+  const [reportBase64, setReportBase64] = useState("");
+  const [reportName, setReportName] = useState("");
+  const [appointments, setAppointments] = useState([]);
 
   const handleScreenshotChange = (e) => {
     const file = e.target.files[0];
@@ -1073,6 +1222,33 @@ export default function BookAppointmentPage() {
       reader.readAsDataURL(file);
     }
   };
+
+  const handleReportChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setReportBase64(reader.result);
+        setReportName(file.name);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveReport = () => {
+    setReportBase64("");
+    setReportName("");
+  };
+
+  useEffect(() => {
+    const fetchAppointments = async () => {
+      const res = await api.getAppointments();
+      if (res) {
+        setAppointments(res);
+      }
+    };
+    fetchAppointments();
+  }, []);
 
   useEffect(() => {
     const fetchDoctors = async () => {
@@ -1123,7 +1299,7 @@ export default function BookAppointmentPage() {
     // 1. Create Appointment
     await api.createAppointment({
       doctor: selectedDoctor.name,
-      date: days[selectedDay].date,
+      date: selectedCustomDate.date,
       time: selectedTime,
       type: consultType === "in-person" ? "In-Person Visit" : consultType === "video" ? "Video Consultation" : "WhatsApp Consult",
       branch: selectedBranch + " Branch",
@@ -1131,7 +1307,9 @@ export default function BookAppointmentPage() {
       payment_status: "Pending Verification",
       patient: patientName,
       payment_method: selectedMethod,
-      payment_screenshot: screenshotBase64 || txnRef
+      payment_screenshot: screenshotBase64 || txnRef,
+      patient_report: reportBase64 || null,
+      patient_report_name: reportName || null
     });
 
     // 2. Create Invoice
@@ -1146,10 +1324,6 @@ export default function BookAppointmentPage() {
     setSubmitted(true);
   };
 
-  useEffect(() => {
-    contentRef.current?.scrollTo({ top: 0, behavior: "smooth" });
-  }, [step]);
-
   const filteredDoctors = doctors.filter(d => {
     const q = searchQ.toLowerCase();
     const matchSpec = specFilter === "all" || d.tag === specFilter;
@@ -1157,35 +1331,31 @@ export default function BookAppointmentPage() {
     return matchSpec && matchQ;
   });
 
-  function validateStep3() {
+  function validateForm() {
     const e = {};
-    if (!form.name.trim()) e.name = "Name is required";
-    if (!form.phone.trim()) e.phone = "Phone number is required";
-    else if (!/^(\+92|0)3[0-9]{9}$/.test(form.phone.replace(/\s/g, ""))) e.phone = "Enter a valid Pakistani number";
-    if (form.email && !/\S+@\S+\.\S+/.test(form.email)) e.email = "Enter a valid email address";
+    if (!selectedDoctor) e.doctor = "Please choose a doctor.";
+    if (!selectedTime) e.time = "Please select an available time slot.";
+    if (!form.name.trim()) e.name = "Patient full name is required.";
+    if (!form.phone.trim()) e.phone = "Phone number is required.";
+    else if (!/^(\+92|0)3[0-9]{9}$/.test(form.phone.replace(/\s/g, ""))) e.phone = "Enter a valid Pakistani phone number.";
+    if (form.email && !/\S+@\S+\.\S+/.test(form.email)) e.email = "Enter a valid email address.";
     setErrors(e);
-    return Object.keys(e).length === 0;
+    
+    if (Object.keys(e).length > 0) {
+      const firstError = Object.keys(e)[0];
+      const targetId = firstError === "doctor" ? "section-doctor" :
+                       firstError === "time" ? "section-schedule" : "section-details";
+      document.getElementById(targetId)?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return false;
+    }
+    return true;
   }
 
-  function handleNext() {
-    if (step === 1 && selectedDoctor) setStep(2);
-    else if (step === 2 && selectedTime) setStep(3);
-    else if (step === 3 && validateStep3()) setStep(4);
-    else if (step === 4) setShowPaymentModal(true);
-  }
-
-  function handleBack() {
-    if (step > 1) setStep(s => s - 1);
-    else navigate("/");
-  }
-
-  const canNext =
-    (step === 1 && !!selectedDoctor) ||
-    (step === 2 && !!selectedTime) ||
-    step === 3 ||
-    step === 4;
-
-  const stepLabels = ["Doctor", "Schedule", "Details", "Confirm"];
+  const handleFormSubmitClick = () => {
+    if (validateForm()) {
+      setShowPaymentModal(true);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-sky-50 via-white to-pink-50">
@@ -1216,42 +1386,6 @@ export default function BookAppointmentPage() {
               </div>
             </div>
           </div>
-
-          {/* Step progress bar (mobile only) */}
-          {!submitted && (
-            <div className="mt-6 flex items-center gap-2 lg:hidden">
-              {stepLabels.map((label, i) => (
-                <div key={i} className="flex items-center gap-2 flex-1">
-                  <div className="flex flex-col items-center">
-                    <div
-                      className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-extrabold"
-                      style={{
-                        background: step > i + 1 ? "linear-gradient(135deg,#0ea5e9,#db2777)"
-                          : step === i + 1 ? "linear-gradient(135deg,#0ea5e9,#db2777)"
-                          : "#e2e8f0",
-                        color: step >= i + 1 ? "white" : "#94a3b8",
-                      }}
-                    >
-                      {step > i + 1 ? <FiCheck size={11} /> : i + 1}
-                    </div>
-                    <span className={`text-[9px] font-bold mt-1 ${step === i + 1 ? "text-pink-600" : step > i + 1 ? "text-sky-500" : "text-slate-300"}`}>
-                      {label}
-                    </span>
-                  </div>
-                  {i < 3 && (
-                    <div className="flex-1 h-0.5 mb-3 rounded-full overflow-hidden bg-slate-200">
-                      <motion.div
-                        className="h-full rounded-full"
-                        style={{ background: "linear-gradient(90deg,#0ea5e9,#db2777)" }}
-                        animate={{ width: step > i + 1 ? "100%" : "0%" }}
-                        transition={{ duration: 0.4 }}
-                      />
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
         </div>
       </div>
 
@@ -1261,39 +1395,30 @@ export default function BookAppointmentPage() {
           /* Success — full width centered */
           <SuccessView
             doctor={selectedDoctor}
-            day={days[selectedDay]}
+            day={selectedCustomDate}
             time={selectedTime}
             consultType={consultType}
             form={form}
           />
         ) : (
-          <div className="flex gap-8 items-start">
-            {/* ── Left Sidebar (desktop only) ── */}
-            <div className="hidden lg:block w-72 flex-shrink-0">
-              <div className="sticky top-8">
-                <StepSidebar
-                  step={step}
-                  selectedDoctor={selectedDoctor}
-                  selectedDay={selectedDay}
-                  selectedTime={selectedTime}
-                  consultType={consultType}
-                  days={days}
-                />
-              </div>
-            </div>
-
+          <div className="flex flex-col lg:flex-row gap-8 items-start">
             {/* ── Main Form Area ── */}
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0 w-full">
               <div
                 ref={contentRef}
                 className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden"
               >
-                {/* Form content */}
                 <div className="p-6 sm:p-8">
-                  <AnimatePresence mode="wait">
-                    {step === 1 && (
+                  <div className="space-y-10">
+                    {/* Section 1: Choose Doctor */}
+                    <div id="section-doctor" className="scroll-mt-24">
+                      {errors.doctor && (
+                        <div id="err-doctor" className="p-3.5 bg-rose-50 border border-rose-100 rounded-xl text-rose-600 text-xs font-semibold flex items-center gap-2 mb-4">
+                          <FiAlertCircle className="text-rose-500 shrink-0" />
+                          {errors.doctor}
+                        </div>
+                      )}
                       <Step1
-                        key="s1"
                         doctors={filteredDoctors}
                         selectedDoctor={selectedDoctor}
                         setSelectedDoctor={setSelectedDoctor}
@@ -1302,83 +1427,143 @@ export default function BookAppointmentPage() {
                         specFilter={specFilter}
                         setSpecFilter={setSpecFilter}
                       />
-                    )}
-                    {step === 2 && (
-                      <Step2
-                        key="s2"
-                        doctor={selectedDoctor}
-                        days={days}
-                        selectedDay={selectedDay}
-                        setSelectedDay={setSelectedDay}
-                        selectedTime={selectedTime}
-                        setSelectedTime={setSelectedTime}
-                        consultType={consultType}
-                        setConsultType={setConsultType}
-                        selectedBranch={selectedBranch}
-                        setSelectedBranch={setSelectedBranch}
-                      />
-                    )}
-                    {step === 3 && (
+                    </div>
+
+                    <div className="border-t border-slate-100 my-8" />
+
+                    {/* Section 2: Choose Schedule */}
+                    <div id="section-schedule" className="scroll-mt-24">
+                      {errors.time && (
+                        <div id="err-time" className="p-3.5 bg-rose-50 border border-rose-100 rounded-xl text-rose-600 text-xs font-semibold flex items-center gap-2 mb-4">
+                          <FiAlertCircle className="text-rose-500 shrink-0" />
+                          {errors.time}
+                        </div>
+                      )}
+                      {selectedDoctor ? (
+                        <Step2
+                          doctor={selectedDoctor}
+                          selectedCustomDate={selectedCustomDate}
+                          setSelectedCustomDate={setSelectedCustomDate}
+                          selectedTime={selectedTime}
+                          setSelectedTime={setSelectedTime}
+                          consultType={consultType}
+                          setConsultType={setConsultType}
+                          selectedBranch={selectedBranch}
+                          setSelectedBranch={setSelectedBranch}
+                          appointments={appointments}
+                        />
+                      ) : (
+                        <div className="text-center py-10 text-slate-400 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                          <FiUser size={24} className="mx-auto mb-2 opacity-50 text-slate-400" />
+                          <p className="text-sm font-semibold">Please select a doctor above to check schedule</p>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="border-t border-slate-100 my-8" />
+
+                    {/* Section 3: Patient Information */}
+                    <div id="section-details" className="scroll-mt-24">
                       <Step3
-                        key="s3"
                         form={form}
                         setForm={setForm}
                         errors={errors}
                         setErrors={setErrors}
                       />
-                    )}
-                    {step === 4 && (
-                      <Step4
-                        key="s4"
-                        doctor={selectedDoctor}
-                        day={days[selectedDay]}
-                        time={selectedTime}
-                        consultType={consultType}
-                        branch={selectedBranch}
-                        form={form}
-                      />
-                    )}
-                  </AnimatePresence>
-                </div>
+                    </div>
 
-                {/* Footer nav */}
-                <div className="px-6 sm:px-8 py-5 border-t border-slate-100 bg-slate-50/60 flex items-center justify-between gap-4">
-                  <motion.button
-                    whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
-                    onClick={handleBack}
-                    className="flex items-center gap-2 px-6 py-3 rounded-2xl border-2 border-slate-200 text-slate-600 text-sm font-bold hover:border-slate-300 hover:bg-white transition-all bg-white"
-                  >
-                    <FiChevronLeft size={15} />
-                    {step === 1 ? "Cancel" : "Back"}
-                  </motion.button>
+                    <div className="border-t border-slate-100 my-8" />
 
-                  {/* Dots */}
-                  <div className="flex items-center gap-1.5">
-                    {[1, 2, 3, 4].map(i => (
-                      <div
-                        key={i}
-                        className={`h-1.5 rounded-full transition-all duration-300 ${
-                          i === step ? "w-7 bg-pink-500" : i < step ? "w-3 bg-sky-400" : "w-3 bg-slate-200"
-                        }`}
-                      />
-                    ))}
+                    {/* Section 4: Patient Medical Report */}
+                    <div id="section-reports" className="scroll-mt-24">
+                      <div className="mb-6">
+                        <h2 className="text-xl font-extrabold text-slate-800">Upload Patient Reports</h2>
+                        <p className="text-sm text-slate-400 mt-1">Attach medical records, prescriptions, or photos (optional)</p>
+                      </div>
+                      
+                      <div className="space-y-4">
+                        <div className="relative">
+                          <input
+                            type="file"
+                            onChange={handleReportChange}
+                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                          />
+                          <div className="border-2 border-dashed border-slate-200 hover:border-pink-300 rounded-2xl p-6 text-center transition-colors bg-slate-50/50 flex flex-col items-center justify-center gap-2">
+                            <FiUpload size={24} className="text-slate-400" />
+                            <div>
+                              <span className="text-sm font-bold text-slate-600">Choose files or drag & drop</span>
+                              <p className="text-xs text-slate-400 mt-1">PDFs, Word documents, images, or test reports (No size limits)</p>
+                            </div>
+                          </div>
+                        </div>
+
+                        {reportName && (
+                          <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between gap-4">
+                            <div className="flex items-center gap-3 min-w-0">
+                              {reportBase64.startsWith("data:image/") ? (
+                                <img
+                                  src={reportBase64}
+                                  alt="Report thumbnail"
+                                  className="w-12 h-12 rounded-xl object-cover border border-slate-200"
+                                />
+                              ) : (
+                                <div className="w-12 h-12 rounded-xl bg-sky-100 text-sky-600 flex items-center justify-center flex-shrink-0">
+                                  <FiFileText size={20} />
+                                </div>
+                              )}
+                              <div className="min-w-0">
+                                <p className="text-xs font-bold text-slate-800 truncate">{reportName}</p>
+                                <p className="text-[10px] text-slate-400 mt-0.5">Attached medical file</p>
+                              </div>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={handleRemoveReport}
+                              className="p-2 hover:bg-rose-50 text-slate-400 hover:text-rose-600 rounded-xl transition-all border-none cursor-pointer"
+                            >
+                              <FiTrash2 size={16} />
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </div>
 
-                  <motion.button
-                    whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
-                    disabled={!canNext && step !== 3}
-                    onClick={handleNext}
-                    className="flex items-center gap-2 px-8 py-3 rounded-2xl text-white text-sm font-extrabold shadow-md disabled:opacity-40 disabled:cursor-not-allowed transition-all"
-                    style={{ background: "linear-gradient(135deg,#0ea5e9,#db2777)" }}
-                  >
-                    {step < 4 ? (
-                      <>Continue <FiChevronRight size={15} /></>
-                    ) : (
-                      <><FiCheck size={15} /> Confirm Booking</>
-                    )}
-                  </motion.button>
+                  {/* Submit Button (visible on mobile / bottom of form) */}
+                  <div className="mt-8 pt-6 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div className="text-left">
+                      {selectedDoctor && (
+                        <>
+                          <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">Total Consultation Fee</p>
+                          <p className="text-xl font-black text-slate-800 mt-0.5">{selectedDoctor.fee}</p>
+                        </>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleFormSubmitClick}
+                      className="w-full sm:w-auto px-10 py-4 bg-gradient-to-r from-sky-500 to-pink-500 hover:from-sky-600 hover:to-pink-600 text-white rounded-2xl font-black text-sm shadow-lg transition-all border-none cursor-pointer flex items-center justify-center gap-2"
+                    >
+                      <FiShield size={16} /> Book Appointment & Proceed to Payment
+                    </button>
+                  </div>
                 </div>
               </div>
+            </div>
+
+            {/* ── Right Sidebar Summary (desktop only) ── */}
+            <div className="hidden lg:block w-80 flex-shrink-0">
+              <BookingSummarySidebar
+                selectedDoctor={selectedDoctor}
+                selectedCustomDate={selectedCustomDate}
+                selectedTime={selectedTime}
+                consultType={consultType}
+                selectedBranch={selectedBranch}
+                form={form}
+                reportName={reportName}
+                reportBase64={reportBase64}
+                onBook={handleFormSubmitClick}
+              />
             </div>
           </div>
         )}
@@ -1569,6 +1754,105 @@ export default function BookAppointmentPage() {
         )}
       </AnimatePresence>
       <Footer />
+    </div>
+  );
+}
+
+// ─── BOOKING SUMMARY SIDEBAR ──────────────────────────────────────────────────
+function BookingSummarySidebar({ selectedDoctor, selectedCustomDate, selectedTime, consultType, selectedBranch, form, reportName, reportBase64, onBook }) {
+  const ctLabel = CONSULTATION_TYPES.find(c => c.value === consultType)?.label;
+  
+  return (
+    <div className="flex flex-col gap-4 sticky top-8">
+      <div className="bg-white rounded-3xl p-5 border border-slate-100 shadow-sm space-y-4 text-left">
+        <h3 className="font-extrabold text-slate-800 text-sm tracking-tight border-b border-slate-100 pb-3">
+          Booking Summary
+        </h3>
+        
+        {/* Doctor Summary */}
+        {selectedDoctor ? (
+          <div className="flex items-center gap-3">
+            <img 
+              src={selectedDoctor.image} 
+              alt={selectedDoctor.name}
+              className="w-10 h-10 rounded-xl object-cover object-top"
+            />
+            <div className="min-w-0">
+              <p className="text-xs font-bold text-slate-800 truncate">{selectedDoctor.name}</p>
+              <p className="text-[10px] text-slate-400 truncate">{selectedDoctor.specialty}</p>
+            </div>
+          </div>
+        ) : (
+          <p className="text-xs text-slate-400 italic">No doctor selected yet.</p>
+        )}
+        
+        {/* Schedule Summary */}
+        {selectedTime ? (
+          <div className="space-y-1 pt-2 border-t border-slate-50 text-[11px] text-slate-500">
+            <div className="flex items-center gap-1.5">
+              <FiCalendar size={12} className="text-sky-500" />
+              <span>
+                {selectedCustomDate?.label === selectedCustomDate?.date 
+                  ? selectedCustomDate?.date 
+                  : `${selectedCustomDate?.label}, ${selectedCustomDate?.date}`}
+              </span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <FiClock size={12} className="text-pink-500" />
+              <span>{selectedTime} ({ctLabel})</span>
+            </div>
+            {consultType === "in-person" && (
+              <div className="flex items-center gap-1.5">
+                <FiMapPin size={12} className="text-indigo-500" />
+                <span>{selectedBranch} Branch</span>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="pt-2 border-t border-slate-50">
+            <p className="text-xs text-slate-400 italic">No schedule selected yet.</p>
+          </div>
+        )}
+        
+        {/* Patient Details Summary */}
+        {(form.name || form.phone) ? (
+          <div className="pt-2 border-t border-slate-50 text-[11px] text-slate-500 space-y-1">
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Patient</p>
+            {form.name && <p className="font-semibold text-slate-700 truncate">{form.name}</p>}
+            {form.phone && <p className="text-slate-500 font-mono">{form.phone}</p>}
+          </div>
+        ) : null}
+
+        {/* Report File Summary */}
+        {reportName ? (
+          <div className="pt-2 border-t border-slate-50 text-[11px] text-slate-500">
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Reports Attached</p>
+            <div className="flex items-center gap-1 text-xs text-slate-700">
+              <FiFileText size={12} className="text-sky-500" />
+              <span className="truncate font-semibold max-w-[150px]">{reportName}</span>
+            </div>
+          </div>
+        ) : null}
+        
+        {/* Fee Section */}
+        {selectedDoctor && (
+          <div className="pt-3 border-t border-slate-100 flex justify-between items-center bg-slate-50 -mx-5 -mb-5 p-4 rounded-b-3xl">
+            <span className="text-xs font-bold text-slate-500">Consultation Fee</span>
+            <span className="text-sm font-extrabold text-slate-800">{selectedDoctor.fee}</span>
+          </div>
+        )}
+      </div>
+
+      {selectedDoctor && (
+        <button
+          type="button"
+          onClick={onBook}
+          className="w-full py-4 bg-gradient-to-r from-sky-500 to-pink-500 hover:from-sky-600 hover:to-pink-600 text-white rounded-2xl font-black text-sm shadow-md transition-all border-none cursor-pointer flex items-center justify-center gap-2"
+        >
+          <FiShield size={16} />
+          Book & Proceed
+        </button>
+      )}
     </div>
   );
 }

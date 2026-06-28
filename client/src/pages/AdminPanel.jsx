@@ -36,6 +36,7 @@ export default function AdminPanel() {
 
   // Form states
   const [newDoctor, setNewDoctor] = useState({ name: "", specialty: "", fee: "", branch: "Gulberg", image: "", experience: "", title: "" });
+  const [editingDoctor, setEditingDoctor] = useState(null);
   const [articleForm, setArticleForm] = useState({ title: "", excerpt: "", content: "", category: "General Health", image: "" });
   
   // Shop states
@@ -45,7 +46,17 @@ export default function AdminPanel() {
   const [adminOrderNotes, setAdminOrderNotes] = useState({});
 
   const [adminNotes, setAdminNotes] = useState({});
+  const [doctorSubTab, setDoctorSubTab] = useState("registry");
+  const [actioningDoctor, setActioningDoctor] = useState(null);
+  const [actionNote, setActionNote] = useState("");
+  const [analyticsFilter, setAnalyticsFilter] = useState("month");
+  const [customStartDate, setCustomStartDate] = useState("");
+  const [customEndDate, setCustomEndDate] = useState("");
+  const [managingDoctor, setManagingDoctor] = useState(null);
+  const [mgmtForm, setMgmtForm] = useState(null);
+  const [mgmtTab, setMgmtTab] = useState("general");
   const [selectedScreenshotModal, setSelectedScreenshotModal] = useState(null);
+  const [selectedReportModal, setSelectedReportModal] = useState(null);
   const [loading, setLoading] = useState(false);
 
   // --- Website CMS States ---
@@ -56,7 +67,12 @@ export default function AdminPanel() {
     clinic_hours: "",
     ambulance_phone: "",
     why_us_headline: "",
-    why_us_description: ""
+    why_us_description: "",
+    hero_title: "",
+    hero_subtitle: "",
+    about_title: "",
+    about_description: "",
+    about_ceo_vision: ""
   });
   const [cmsServices, setCmsServices] = useState([]);
   const [cmsFaqs, setCmsFaqs] = useState([]);
@@ -75,7 +91,12 @@ export default function AdminPanel() {
     clinic_hours: "",
     ambulance_phone: "",
     why_us_headline: "",
-    why_us_description: ""
+    why_us_description: "",
+    hero_title: "",
+    hero_subtitle: "",
+    about_title: "",
+    about_description: "",
+    about_ceo_vision: ""
   });
 
   // Services form
@@ -212,23 +233,92 @@ export default function AdminPanel() {
     try {
       setLoading(true);
       const docName = newDoctor.name.startsWith("Dr.") ? newDoctor.name : `Dr. ${newDoctor.name}`;
-      const doc = await api.createDoctor({
-        name: docName,
-        specialty: newDoctor.specialty,
-        fee: `₨ ${newDoctor.fee || "2,500"}`,
-        branch: newDoctor.branch,
-        image: newDoctor.image,
-        experience: newDoctor.experience,
-        title: newDoctor.title
-      });
-      if (doc) {
-        addSystemLog(`New specialist ${docName} registered under ${newDoctor.specialty}.`);
-        setNewDoctor({ name: "", specialty: "", fee: "", branch: "Gulberg", image: "", experience: "", title: "" });
-        alert("New specialist added to registry!");
+      const feeFormatted = newDoctor.fee.toString().startsWith("₨") ? newDoctor.fee : `₨ ${newDoctor.fee || "2,500"}`;
+      
+      if (editingDoctor) {
+        const success = await api.updateDoctor(editingDoctor.id, {
+          name: docName,
+          specialty: newDoctor.specialty,
+          fee: feeFormatted,
+          branch: newDoctor.branch,
+          image: newDoctor.image,
+          experience: newDoctor.experience,
+          title: newDoctor.title
+        });
+        if (success) {
+          addSystemLog(`Doctor profile updated for ${docName}.`);
+          alert("Doctor profile updated successfully!");
+          setEditingDoctor(null);
+          setNewDoctor({ name: "", specialty: "", fee: "", branch: "Gulberg", image: "", experience: "", title: "" });
+          loadData();
+        }
+      } else {
+        const doc = await api.createDoctor({
+          name: docName,
+          specialty: newDoctor.specialty,
+          fee: feeFormatted,
+          branch: newDoctor.branch,
+          image: newDoctor.image,
+          experience: newDoctor.experience,
+          title: newDoctor.title
+        });
+        if (doc) {
+          addSystemLog(`New specialist ${docName} registered under ${newDoctor.specialty}.`);
+          setNewDoctor({ name: "", specialty: "", fee: "", branch: "Gulberg", image: "", experience: "", title: "" });
+          alert("New specialist added to registry!");
+          loadData();
+        }
+      }
+    } catch (err) {
+      alert("Error saving doctor.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteDoctor = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this doctor profile?")) return;
+    try {
+      setLoading(true);
+      const success = await api.deleteDoctor(id);
+      if (success) {
+        addSystemLog(`Doctor ID ${id} deleted.`);
+        alert("Doctor deleted successfully!");
         loadData();
       }
     } catch (err) {
-      alert("Error adding doctor.");
+      alert("Error deleting doctor.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSaveManagedDoctor = async (e) => {
+    e.preventDefault();
+    if (!mgmtForm) return;
+    setLoading(true);
+    try {
+      // Ensure numeric fee
+      const cleanFee = String(mgmtForm.fee).replace("PKR", "").replace("₨", "").replace(/,/g, "").trim();
+      const feeFormatted = cleanFee ? `₨ ${parseInt(cleanFee).toLocaleString()}` : "₨ 2,500";
+
+      const success = await api.updateDoctor(mgmtForm.id, {
+        ...mgmtForm,
+        fee: feeFormatted
+      });
+
+      if (success) {
+        addSystemLog(`Doctor registry settings updated for ${mgmtForm.name}.`);
+        loadData();
+        setManagingDoctor(null);
+        setMgmtForm(null);
+        alert("Doctor settings updated successfully!");
+      } else {
+        alert("Failed to update doctor settings.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error updating doctor: " + err.message);
     } finally {
       setLoading(false);
     }
@@ -248,6 +338,87 @@ export default function AdminPanel() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setNewDoctor(prev => ({ ...prev, image: reader.result }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleFileToBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = (err) => reject(err);
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleApproveDoctor = async (id, name) => {
+    if (!window.confirm(`Are you sure you want to approve and activate the doctor profile for ${name}?`)) return;
+    try {
+      setLoading(true);
+      const success = await api.toggleDoctorStatus(id, "Active");
+      if (success) {
+        addSystemLog(`Doctor application approved and activated for ${name}.`);
+        alert("Doctor approved successfully!");
+        loadData();
+      }
+    } catch (err) {
+      alert("Error approving doctor.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleActionSubmit = async () => {
+    if (!actioningDoctor || !actionNote.trim()) return;
+    try {
+      setLoading(true);
+      const { id, nextStatus } = actioningDoctor;
+      const success = await api.toggleDoctorStatus(id, nextStatus, actionNote);
+      if (success) {
+        addSystemLog(`Doctor application status updated to ${nextStatus} for ID ${id}. Feedback: ${actionNote}`);
+        alert(`Application status updated to ${nextStatus}.`);
+        setActioningDoctor(null);
+        setActionNote("");
+        loadData();
+      }
+    } catch (err) {
+      alert("Error updating doctor application status.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const renderDocAttachmentLink = (label, fileData, fileName) => {
+    if (!fileData) return <span className="text-[10px] text-slate-400">Not Uploaded</span>;
+    return (
+      <div className="flex items-center gap-2">
+        <span className="text-[10px] text-slate-500 font-semibold">{label}:</span>
+        <button 
+          type="button"
+          onClick={() => setSelectedReportModal({ report: fileData, name: fileName || label })}
+          className="px-2 py-1 bg-sky-50 hover:bg-sky-100 text-sky-600 border border-sky-200/50 rounded-lg text-[9px] font-bold cursor-pointer transition-all flex items-center gap-1"
+        >
+          👁️ Preview
+        </button>
+        <a 
+          href={fileData} 
+          download={fileName || label}
+          className="px-2 py-1 bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200 rounded-lg text-[9px] font-bold cursor-pointer transition-all flex items-center gap-1"
+          style={{ textDecoration: 'none' }}
+        >
+          📥 Download
+        </a>
+      </div>
+    );
   };
 
   const handleProcessPayment = async (id, status) => {
@@ -711,7 +882,9 @@ export default function AdminPanel() {
                 </div>
                 <div>
                   <h4 className="font-extrabold text-sm text-slate-900 leading-none">{userName}</h4>
-                  <span className="text-[9px] font-black text-pink-500 uppercase tracking-widest block mt-1">{userRole} Portal</span>
+                  <span className="text-[9px] font-black text-pink-500 uppercase tracking-widest block mt-1">
+                    {userRole === "receptionist" ? "Staff Desk" : `${userRole} Portal`}
+                  </span>
                 </div>
               </div>
 
@@ -782,63 +955,371 @@ export default function AdminPanel() {
             )}
 
             {/* ANALYTICS */}
-            {activeTab === "analytics" && (
-              <div className="space-y-6 text-left flex-grow">
-                <div>
-                  <h3 className="text-lg font-black text-slate-800 flex items-center gap-2">
-                    <FiTrendingUp className="text-pink-500" /> Administrative Analytical Center
-                  </h3>
-                  <p className="text-xs text-slate-400 mt-0.5">Real-time indicators mapping clinical operations.</p>
-                </div>
+            {activeTab === "analytics" && (() => {
+              // Helper to parse dates
+              const parseRecordDate = (dateVal) => {
+                if (!dateVal) return new Date();
+                if (dateVal instanceof Date) return dateVal;
+                
+                const dateStr = String(dateVal);
+                if (dateStr.includes("T")) {
+                  const parsed = new Date(dateStr);
+                  if (!isNaN(parsed.getTime())) return parsed;
+                }
+                
+                if (dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
+                  const parsed = new Date(dateStr);
+                  if (!isNaN(parsed.getTime())) return parsed;
+                }
+                
+                const cleaned = dateStr.replace(/,/g, "").trim();
+                const parts = cleaned.split(" ");
+                if (parts.length === 3) {
+                  const day = parseInt(parts[0]);
+                  const monthName = parts[1];
+                  const year = parseInt(parts[2]);
+                  const months = {
+                    Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5,
+                    Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11,
+                    January: 0, February: 1, March: 2, April: 3, May: 4, June: 5,
+                    July: 6, August: 7, September: 8, October: 9, November: 10, December: 11
+                  };
+                  const month = months[monthName] !== undefined ? months[monthName] : 0;
+                  const parsed = new Date(year, month, day);
+                  if (!isNaN(parsed.getTime())) return parsed;
+                }
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {[
-                    { label: "Total Operations Revenue", val: "₨ 890,200", change: "+14.5% this mo." },
-                    { label: "Active Registrations", val: "2,400+", change: "+8% growth index" },
-                    { label: "Satisfaction Index", val: "98.2%", change: "Based on 1.2k surveys" },
-                  ].map((metric, idx) => (
-                    <div key={idx} className="bg-slate-50 border border-slate-100 rounded-2xl p-4 font-semibold shadow-sm">
-                      <p className="text-[9px] text-slate-400 uppercase tracking-wider mb-1">{metric.label}</p>
-                      <p className="text-lg font-extrabold text-slate-800">{metric.val}</p>
-                      <p className="text-[9px] text-emerald-600 mt-0.5">{metric.change}</p>
+                const fallback = new Date(dateStr);
+                return isNaN(fallback.getTime()) ? new Date() : fallback;
+              };
+
+              // Get date range limits
+              const now = new Date();
+              let startDate = new Date();
+              let isCustom = false;
+
+              if (analyticsFilter === "day") {
+                startDate.setDate(now.getDate() - 6); // Last 7 days
+              } else if (analyticsFilter === "week") {
+                startDate.setDate(now.getDate() - 28); // Last 4 weeks
+              } else if (analyticsFilter === "month") {
+                startDate.setMonth(now.getMonth() - 5); // Last 6 months
+              } else if (analyticsFilter === "custom") {
+                isCustom = true;
+              }
+
+              const start = isCustom && customStartDate ? new Date(customStartDate) : startDate;
+              const end = isCustom && customEndDate ? new Date(customEndDate) : now;
+              
+              if (!isCustom) {
+                start.setHours(0, 0, 0, 0);
+              }
+              end.setHours(23, 59, 59, 999);
+
+              // Filter paid appointments within the date range
+              const filteredAppts = appointments.filter(a => {
+                if (a.payment_status !== "Paid" && a.status !== "Confirmed") return false;
+                const rDate = parseRecordDate(a.date);
+                return rDate >= start && rDate <= end;
+              });
+
+              // Filter paid orders within the date range
+              const filteredOrders = orders.filter(o => {
+                if (o.payment_status !== "Paid") return false;
+                const rDate = parseRecordDate(o.created_at || o.date);
+                return rDate >= start && rDate <= end;
+              });
+
+              // Calculate revenue values
+              const shopRevenue = filteredOrders.reduce((sum, o) => sum + o.total_amount, 0);
+
+              const clinicRevenue = filteredAppts.reduce((sum, a) => {
+                const doc = doctorsList.find(d => d.name === a.doctor);
+                let feeNum = 2500;
+                if (doc && doc.fee) {
+                  const parsed = parseInt(doc.fee.replace(/[^\d]/g, ""));
+                  if (!isNaN(parsed)) feeNum = parsed;
+                }
+                return sum + feeNum;
+              }, 0);
+
+              const revenueVal = shopRevenue + clinicRevenue;
+
+              const uniquePatients = new Set([
+                ...appointments.map(a => a.patient || a.patient_name || ""),
+                ...orders.map(o => o.patient_name || "")
+              ].filter(name => name.trim() !== ""));
+              const registrationsVal = uniquePatients.size + doctorsList.length;
+
+              const reviewsCount = cmsReviews.length;
+              const avgStars = reviewsCount > 0 
+                ? (cmsReviews.reduce((sum, r) => sum + r.rating, 0) / reviewsCount).toFixed(1)
+                : "4.9";
+              const satisfactionVal = reviewsCount > 0 
+                ? ((cmsReviews.reduce((sum, r) => sum + r.rating, 0) / (reviewsCount * 5)) * 100).toFixed(1) + "%"
+                : "98.2%";
+
+              // Dynamic data aggregation for line-area trend chart (exactly 6 labels/segments)
+              const dataPoints = [];
+              const segmentCount = 6;
+              const rangeDiffMs = end.getTime() - start.getTime();
+              const segmentMs = rangeDiffMs / (segmentCount - 1);
+
+              for (let i = 0; i < segmentCount; i++) {
+                const segTime = start.getTime() + i * segmentMs;
+                const segStart = new Date(segTime - (i === 0 ? 0 : segmentMs / 2));
+                const segEnd = new Date(segTime + (i === segmentCount - 1 ? 0 : segmentMs / 2));
+                
+                // Aggregate segment revenue
+                const segApptRev = filteredAppts
+                  .filter(a => {
+                    const rDate = parseRecordDate(a.date);
+                    return rDate >= segStart && rDate <= segEnd;
+                  })
+                  .reduce((sum, a) => {
+                    const doc = doctorsList.find(d => d.name === a.doctor);
+                    let feeNum = 2500;
+                    if (doc && doc.fee) {
+                      const parsed = parseInt(doc.fee.replace(/[^\d]/g, ""));
+                      if (!isNaN(parsed)) feeNum = parsed;
+                    }
+                    return sum + feeNum;
+                  }, 0);
+
+                const segOrderRev = filteredOrders
+                  .filter(o => {
+                    const rDate = parseRecordDate(o.created_at || o.date);
+                    return rDate >= segStart && rDate <= segEnd;
+                  })
+                  .reduce((sum, o) => sum + o.total_amount, 0);
+
+                const segRevenue = segApptRev + segOrderRev;
+
+                // Label format
+                const dObj = new Date(segTime);
+                let label = "";
+                if (analyticsFilter === "day") {
+                  label = dObj.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+                } else if (analyticsFilter === "week") {
+                  label = `Wk ${i + 1}`;
+                } else if (analyticsFilter === "month") {
+                  label = dObj.toLocaleDateString("en-US", { month: "short" });
+                } else {
+                  label = dObj.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+                }
+
+                dataPoints.push({ label, revenue: segRevenue });
+              }
+
+              // Compute Y-coordinates for SVG
+              const maxRevenue = Math.max(...dataPoints.map(d => d.revenue), 1000);
+              const svgPoints = dataPoints.map((dp, idx) => {
+                const x = (idx / (segmentCount - 1)) * 460 + 20;
+                const y = 130 - (dp.revenue / maxRevenue) * 100;
+                return { x, y, label: dp.label, revenue: dp.revenue };
+              });
+
+              // Generate path strings
+              const linePath = svgPoints.map((p, idx) => `${idx === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(" ");
+              const fillPath = `${linePath} L ${svgPoints[segmentCount-1].x} 130 L ${svgPoints[0].x} 130 Z`;
+
+              // Aggregate branch comparisons (Gulberg, DHA, Online Consultations, Shop Sales)
+              const branchRevenue = {
+                Gulberg: 0,
+                DHA: 0,
+                Online: 0,
+                ShopSales: shopRevenue
+              };
+
+              filteredAppts.forEach(a => {
+                const doc = doctorsList.find(d => d.name === a.doctor);
+                let feeNum = 2500;
+                if (doc && doc.fee) {
+                  const parsed = parseInt(doc.fee.replace(/[^\d]/g, ""));
+                  if (!isNaN(parsed)) feeNum = parsed;
+                }
+                
+                const bStr = String(a.branch || "").toLowerCase();
+                if (bStr.includes("gulberg")) {
+                  branchRevenue.Gulberg += feeNum;
+                } else if (bStr.includes("dha")) {
+                  branchRevenue.DHA += feeNum;
+                } else if (bStr.includes("online") || bStr.includes("virtual")) {
+                  branchRevenue.Online += feeNum;
+                } else {
+                  branchRevenue.Gulberg += feeNum;
+                }
+              });
+
+              const branchData = [
+                { name: "Gulberg Branch", revenue: branchRevenue.Gulberg, color: "#0ea5e9" },
+                { name: "DHA Branch", revenue: branchRevenue.DHA, color: "#a855f7" },
+                { name: "Online Clinic", revenue: branchRevenue.Online, color: "#10b981" },
+                { name: "Shop Sales", revenue: branchRevenue.ShopSales, color: "#ec4899" }
+              ];
+
+              const maxBranchRevenue = Math.max(...branchData.map(b => b.revenue), 1000);
+
+              return (
+                <div className="space-y-6 text-left flex-grow">
+                  <div className="flex justify-between items-center flex-wrap gap-4">
+                    <div>
+                      <h3 className="text-lg font-black text-slate-800 flex items-center gap-2">
+                        <FiTrendingUp className="text-pink-500" /> Administrative Analytical Center
+                      </h3>
+                      <p className="text-xs text-slate-400 mt-0.5">Real-time indicators mapping clinical operations.</p>
                     </div>
-                  ))}
-                </div>
 
-                <div className="border border-slate-100 rounded-3xl p-5 space-y-4 bg-white/30">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Monthly Revenue & Case Inflow Curve</p>
-                  <div className="relative w-full h-44 bg-slate-50 rounded-xl overflow-hidden p-2 flex items-end">
-                    <svg className="w-full h-full" viewBox="0 0 500 100" preserveAspectRatio="none">
-                      <line x1="0" y1="20" x2="500" y2="20" stroke="#f1f5f9" strokeWidth="1" />
-                      <line x1="0" y1="50" x2="500" y2="50" stroke="#f1f5f9" strokeWidth="1" />
-                      <line x1="0" y1="80" x2="500" y2="80" stroke="#f1f5f9" strokeWidth="1" />
-                      <path d="M0,80 Q70,40 140,65 T280,30 T420,50 T500,10" fill="none" stroke="url(#chartGrad)" strokeWidth="3" strokeLinecap="round" />
-                      <defs>
-                        <linearGradient id="chartGrad" x1="0" y1="0" x2="1" y2="0">
-                          <stop offset="0%" stopColor="#0ea5e9" />
-                          <stop offset="100%" stopColor="#e91e8c" />
-                        </linearGradient>
-                      </defs>
-                    </svg>
-                    <div className="absolute bottom-1 left-0 right-0 px-2 flex justify-between text-[8px] font-black text-slate-400 uppercase">
-                      <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span>
+                    {/* Duration Switches */}
+                    <div className="flex gap-1.5 bg-slate-100 p-1.5 rounded-2xl">
+                      {["day", "week", "month", "custom"].map((filter) => (
+                        <button
+                          key={filter}
+                          onClick={() => setAnalyticsFilter(filter)}
+                          className={`px-3 py-1.5 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all border-none cursor-pointer ${
+                            analyticsFilter === filter 
+                              ? "bg-white text-slate-900 shadow-sm" 
+                              : "text-slate-500 hover:text-slate-800"
+                          }`}
+                        >
+                          {filter}
+                        </button>
+                      ))}
                     </div>
                   </div>
-                </div>
 
-                <div className="border border-slate-100 rounded-3xl p-5 space-y-3 bg-white/30">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Recent System Logs (Live Audit)</p>
-                  <div className="space-y-2 max-h-[140px] overflow-y-auto scrollbar-none text-xs">
-                    {logs.map((log, idx) => (
-                      <div key={idx} className="flex gap-3 text-slate-550 py-1.5 border-b last:border-0">
-                        <span className="font-bold text-slate-400 flex-shrink-0">{log.time}</span>
-                        <span className="font-semibold text-slate-600 truncate">{log.event}</span>
+                  {/* Custom Duration Date Inputs */}
+                  {analyticsFilter === "custom" && (
+                    <div className="p-4 bg-slate-50 border border-slate-100 rounded-2xl flex items-center gap-4 flex-wrap text-xs">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-slate-500">From:</span>
+                        <input 
+                          type="date" 
+                          value={customStartDate}
+                          onChange={e => setCustomStartDate(e.target.value)}
+                          className="border border-slate-200 bg-white rounded-xl p-2 text-xs outline-none focus:border-pink-400"
+                        />
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-slate-500">To:</span>
+                        <input 
+                          type="date" 
+                          value={customEndDate}
+                          onChange={e => setCustomEndDate(e.target.value)}
+                          className="border border-slate-200 bg-white rounded-xl p-2 text-xs outline-none focus:border-pink-400"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {[
+                      { label: "Total Operations Revenue", val: `₨ ${revenueVal.toLocaleString()}`, change: "Real-time billing index" },
+                      { label: "Active Registrations", val: `${registrationsVal.toLocaleString()} Accounts`, change: "Patients & Specialists" },
+                      { label: "Satisfaction Index", val: satisfactionVal, change: `Average rating: ${avgStars} / 5.0` },
+                    ].map((metric, idx) => (
+                      <div key={idx} className="bg-slate-50 border border-slate-100 rounded-2xl p-4 font-semibold shadow-sm">
+                        <p className="text-[9px] text-slate-400 uppercase tracking-wider mb-1">{metric.label}</p>
+                        <p className="text-lg font-extrabold text-slate-800">{metric.val}</p>
+                        <p className="text-[9px] text-emerald-600 mt-0.5">{metric.change}</p>
                       </div>
                     ))}
                   </div>
+
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    {/* Line Chart */}
+                    <div className="lg:col-span-2 border border-slate-100 rounded-3xl p-5 space-y-4 bg-white/40 backdrop-blur-sm shadow-sm flex flex-col justify-between">
+                      <div className="flex justify-between items-center flex-wrap gap-2">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Operations Revenue Flow</p>
+                        <span className="text-xs font-bold text-slate-800 bg-pink-50 text-pink-600 px-2 py-0.5 rounded-lg">Peak: ₨ {maxRevenue.toLocaleString()}</span>
+                      </div>
+                      <div className="relative w-full h-48 bg-slate-50/50 rounded-2xl overflow-hidden p-3 flex flex-col justify-between border border-slate-100/50">
+                        <svg className="w-full h-full" viewBox="0 0 500 150" preserveAspectRatio="none">
+                          <defs>
+                            <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="0%" stopColor="#0ea5e9" stopOpacity="0.4" />
+                              <stop offset="100%" stopColor="#e91e8c" stopOpacity="0.0" />
+                            </linearGradient>
+                            <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0">
+                              <stop offset="0%" stopColor="#0ea5e9" />
+                              <stop offset="100%" stopColor="#e91e8c" />
+                            </linearGradient>
+                          </defs>
+                          {/* Grid Lines */}
+                          <line x1="20" y1="30" x2="480" y2="30" stroke="#e2e8f0" strokeDasharray="3" strokeWidth="1" />
+                          <line x1="20" y1="80" x2="480" y2="80" stroke="#e2e8f0" strokeDasharray="3" strokeWidth="1" />
+                          <line x1="20" y1="130" x2="480" y2="130" stroke="#cbd5e1" strokeWidth="1.2" />
+
+                          {/* Gradient Fill Path */}
+                          <path d={fillPath} fill="url(#chartGrad)" />
+
+                          {/* Smooth Line Path */}
+                          <path d={linePath} fill="none" stroke="url(#lineGrad)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+
+                          {/* Interactive data dots */}
+                          {svgPoints.map((p, idx) => (
+                            <g key={idx} className="group cursor-pointer">
+                              <circle cx={p.x} cy={p.y} r="5" fill="#ffffff" stroke="url(#lineGrad)" strokeWidth="2.5" />
+                              {/* Dynamic Text Tooltip visible on hover */}
+                              <text x={p.x} y={p.y - 12} textAnchor="middle" className="text-[9px] font-black fill-slate-800 bg-white px-1.5 py-0.5 rounded shadow-sm opacity-0 group-hover:opacity-100 transition-opacity" style={{ transition: 'opacity 0.2s' }}>
+                                ₨ {p.revenue.toLocaleString()}
+                              </text>
+                            </g>
+                          ))}
+                        </svg>
+                        <div className="flex justify-between text-[8px] font-black text-slate-400 uppercase px-2 pt-1 border-t border-slate-100/50">
+                          {dataPoints.map((dp, idx) => (
+                            <span key={idx}>{dp.label}</span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Bar Chart */}
+                    <div className="lg:col-span-1 border border-slate-100 rounded-3xl p-5 space-y-4 bg-white/40 backdrop-blur-sm shadow-sm flex flex-col justify-between">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Branch Earnings Comparison</p>
+                      <div className="relative w-full h-48 bg-slate-50/50 rounded-2xl overflow-hidden p-3 flex flex-col justify-between border border-slate-100/50">
+                        <div className="flex-grow flex items-end justify-around pb-2">
+                          {branchData.map((b, idx) => {
+                            const percent = (b.revenue / maxBranchRevenue) * 100;
+                            const barHeight = Math.max((percent / 100) * 95, 4); // scaled to fit 95px container
+                            return (
+                              <div key={idx} className="flex flex-col items-center group w-1/4 max-w-[45px]">
+                                <span className="text-[8px] font-black text-slate-700 opacity-0 group-hover:opacity-100 transition-opacity mb-1">
+                                  ₨ {b.revenue >= 1000 ? `${(b.revenue/1000).toFixed(0)}k` : b.revenue}
+                                </span>
+                                <div 
+                                  className="w-full rounded-t-lg transition-all duration-500 hover:brightness-95 shadow-xs" 
+                                  style={{ 
+                                    height: `${barHeight}px`,
+                                    background: `linear-gradient(to top, ${b.color}, ${b.color}cc)`
+                                  }} 
+                                />
+                                <span className="text-[8px] font-bold text-slate-400 uppercase mt-2 text-center truncate w-full" title={b.name}>
+                                  {b.name.split(" ")[0]}
+                                </span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="border border-slate-100 rounded-3xl p-5 space-y-3 bg-white/30">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Recent System Logs (Live Audit)</p>
+                    <div className="space-y-2 max-h-[140px] overflow-y-auto scrollbar-none text-xs">
+                      {logs.map((log, idx) => (
+                        <div key={idx} className="flex gap-3 text-slate-550 py-1.5 border-b last:border-0">
+                          <span className="font-bold text-slate-400 flex-shrink-0">{log.time}</span>
+                          <span className="font-semibold text-slate-600 truncate">{log.event}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            )}
+              );
+            })()}
 
             {/* PAYMENT VERIFICATION */}
             {activeTab === "payments" && (
@@ -873,6 +1354,15 @@ export default function AdminPanel() {
                                 <span className="w-1.5 h-1.5 bg-amber-550 rounded-full animate-pulse" /> Awaiting Verification
                               </span>
                             </div>
+                            {appt.patient_report && (
+                              <button
+                                type="button"
+                                onClick={() => setSelectedReportModal({ report: appt.patient_report, name: appt.patient_report_name || "medical_report" })}
+                                className="px-3 py-1.5 bg-sky-50 hover:bg-sky-100 text-sky-600 hover:text-sky-700 rounded-xl text-[10px] font-bold border border-sky-200 flex items-center gap-1 cursor-pointer transition-all shrink-0"
+                              >
+                                <FiFileText size={12} /> View Report
+                              </button>
+                            )}
                             {appt.payment_screenshot && (
                               <div className="relative w-12 h-12 rounded-xl overflow-hidden border border-slate-200 flex-shrink-0 cursor-zoom-in group animate-pulse" onClick={() => setSelectedScreenshotModal(appt.payment_screenshot)}>
                                 <img src={appt.payment_screenshot} alt="Receipt proof" className="w-full h-full object-cover" />
@@ -910,132 +1400,365 @@ export default function AdminPanel() {
                 </div>
               </div>
             )}
-
             {/* DOCTOR REGISTRY CRUD */}
             {activeTab === "doctor-crud" && (
               <div className="space-y-6 text-left flex-grow">
-                <div>
-                  <h3 className="text-lg font-black text-slate-800 flex items-center gap-2">
-                    <FaUserMd className="text-pink-500" /> Specialist Doctor Registry & Applications
-                  </h3>
-                  <p className="text-xs text-slate-400 mt-0.5">Manage doctor profile status, approve sign-up applications or register new specialists.</p>
+                <div className="flex justify-between items-center flex-wrap gap-4">
+                  <div>
+                    <h3 className="text-lg font-black text-slate-800 flex items-center gap-2">
+                      <FaUserMd className="text-pink-500" /> Specialist Doctor Registry & Applications
+                    </h3>
+                    <p className="text-xs text-slate-400 mt-0.5">Manage doctor profile status, approve sign-up applications or register new specialists.</p>
+                  </div>
+                  
+                  {/* Sub-tabs navigation */}
+                  <div className="flex gap-2 bg-slate-100 p-1.5 rounded-2xl">
+                    <button
+                      onClick={() => setDoctorSubTab("registry")}
+                      className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border-none cursor-pointer ${
+                        doctorSubTab === "registry" 
+                          ? "bg-white text-slate-900 shadow-sm" 
+                          : "text-slate-500 hover:text-slate-800"
+                      }`}
+                    >
+                      Active Registry
+                    </button>
+                    <button
+                      onClick={() => setDoctorSubTab("applications")}
+                      className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border-none cursor-pointer ${
+                        doctorSubTab === "applications" 
+                          ? "bg-white text-slate-900 shadow-sm" 
+                          : "text-slate-500 hover:text-slate-800"
+                      }`}
+                    >
+                      Applications Review ({doctorsList.filter(d => d.status !== 'Active' && d.status !== 'Suspended').length})
+                    </button>
+                  </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {/* Add Doctor Form */}
-                  <div className="md:col-span-1 border border-slate-100 rounded-3xl p-5 bg-slate-50/50">
-                    <h4 className="font-black text-slate-800 text-sm mb-4">Register Doctor</h4>
-                    <form onSubmit={handleAddDoctor} className="space-y-3">
-                      <div>
-                        <label className="text-[9px] font-bold text-slate-400 uppercase block mb-1">Full Name</label>
-                        <input 
-                          type="text" 
-                          required
-                          value={newDoctor.name}
-                          onChange={e => setNewDoctor({...newDoctor, name: e.target.value})}
-                          placeholder="Dr. Sarah Ahmed" 
-                          className="w-full border border-slate-200 bg-white rounded-xl p-2.5 text-xs outline-none focus:border-pink-400"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-[9px] font-bold text-slate-400 uppercase block mb-1">Credentials</label>
-                        <input 
-                          type="text" 
-                          required
-                          value={newDoctor.title}
-                          onChange={e => setNewDoctor({...newDoctor, title: e.target.value})}
-                          placeholder="MBBS, FCPS" 
-                          className="w-full border border-slate-200 bg-white rounded-xl p-2.5 text-xs outline-none focus:border-pink-400"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-[9px] font-bold text-slate-400 uppercase block mb-1">Specialty</label>
-                        <input 
-                          type="text" 
-                          required
-                          value={newDoctor.specialty}
-                          onChange={e => setNewDoctor({...newDoctor, specialty: e.target.value})}
-                          placeholder="Physical Therapy" 
-                          className="w-full border border-slate-200 bg-white rounded-xl p-2.5 text-xs outline-none focus:border-pink-400"
-                        />
-                      </div>
-                      <div className="grid grid-cols-2 gap-2">
+                {doctorSubTab === "registry" ? (
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {/* Add Doctor Form */}
+                    <div className="md:col-span-1 border border-slate-100 rounded-3xl p-5 bg-slate-50/50">
+                      <h4 className="font-black text-slate-800 text-sm mb-4">
+                        {editingDoctor ? "Edit Doctor Profile" : "Register Doctor"}
+                      </h4>
+                      <form onSubmit={handleAddDoctor} className="space-y-3">
                         <div>
-                          <label className="text-[9px] font-bold text-slate-400 uppercase block mb-1">Fee</label>
-                          <input 
-                            type="number" 
-                            required
-                            value={newDoctor.fee}
-                            onChange={e => setNewDoctor({...newDoctor, fee: e.target.value})}
-                            placeholder="2500" 
-                            className="w-full border border-slate-200 bg-white rounded-xl p-2.5 text-xs outline-none focus:border-pink-400"
-                          />
-                        </div>
-                        <div>
-                          <label className="text-[9px] font-bold text-slate-400 uppercase block mb-1">Experience</label>
+                          <label className="text-[9px] font-bold text-slate-400 uppercase block mb-1">Full Name</label>
                           <input 
                             type="text" 
                             required
-                            value={newDoctor.experience}
-                            onChange={e => setNewDoctor({...newDoctor, experience: e.target.value})}
-                            placeholder="10 Years" 
+                            value={newDoctor.name}
+                            onChange={e => setNewDoctor({...newDoctor, name: e.target.value})}
+                            placeholder="Dr. Sarah Ahmed" 
                             className="w-full border border-slate-200 bg-white rounded-xl p-2.5 text-xs outline-none focus:border-pink-400"
                           />
                         </div>
-                      </div>
-                      <div>
-                        <label className="text-[9px] font-bold text-slate-400 uppercase block mb-1">Branch</label>
-                        <input 
-                          type="text" 
-                          required
-                          value={newDoctor.branch}
-                          onChange={e => setNewDoctor({...newDoctor, branch: e.target.value})}
-                          placeholder="Gulberg, DHA" 
-                          className="w-full border border-slate-200 bg-white rounded-xl p-2.5 text-xs outline-none focus:border-pink-400"
-                        />
-                      </div>
-                      <button type="submit" className="w-full py-3 bg-slate-900 hover:bg-pink-600 text-white rounded-xl text-xs font-bold border-none cursor-pointer mt-2 shadow-md">
-                        Add Specialist
-                      </button>
-                    </form>
-                  </div>
-
-                  {/* Doctor registry listings */}
-                  <div className="md:col-span-2 space-y-3 max-h-[500px] overflow-y-auto pr-1 scrollbar-none">
-                    {doctorsList.map(doc => (
-                      <div key={doc.id} className="border border-slate-100 bg-white/40 backdrop-blur-sm rounded-2xl p-4 flex justify-between items-center shadow-sm">
-                        <div className="flex items-center gap-3">
-                          <img 
-                            src={doc.image || "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=100&q=80"} 
-                            alt={doc.name} 
-                            className="w-12 h-12 rounded-xl object-cover border border-slate-100 shrink-0" 
+                        <div>
+                          <label className="text-[9px] font-bold text-slate-400 uppercase block mb-1">Credentials</label>
+                          <input 
+                            type="text" 
+                            required
+                            value={newDoctor.title}
+                            onChange={e => setNewDoctor({...newDoctor, title: e.target.value})}
+                            placeholder="MBBS, FCPS" 
+                            className="w-full border border-slate-200 bg-white rounded-xl p-2.5 text-xs outline-none focus:border-pink-400"
                           />
-                          <div className="text-left">
-                            <div className="flex items-center gap-1.5 flex-wrap">
-                              <h4 className="font-extrabold text-xs text-slate-800">{doc.name}</h4>
-                              <span className="text-[9px] text-pink-500 font-bold bg-pink-50 px-1.5 py-0.5 rounded">{doc.title}</span>
-                            </div>
-                            <p className="text-[10px] text-slate-400 mt-0.5">{doc.specialty} · {doc.experience}</p>
-                            <span className="text-[9px] text-slate-500 font-semibold block">Branches: {doc.branch} · Fee: {doc.fee}</span>
+                        </div>
+                        <div>
+                          <label className="text-[9px] font-bold text-slate-400 uppercase block mb-1">Specialty</label>
+                          <input 
+                            type="text" 
+                            required
+                            value={newDoctor.specialty}
+                            onChange={e => setNewDoctor({...newDoctor, specialty: e.target.value})}
+                            placeholder="Physical Therapy" 
+                            className="w-full border border-slate-200 bg-white rounded-xl p-2.5 text-xs outline-none focus:border-pink-400"
+                          />
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <label className="text-[9px] font-bold text-slate-400 uppercase block mb-1">Fee</label>
+                            <input 
+                              type="number" 
+                              required
+                              value={newDoctor.fee}
+                              onChange={e => setNewDoctor({...newDoctor, fee: e.target.value})}
+                              placeholder="2500" 
+                              className="w-full border border-slate-200 bg-white rounded-xl p-2.5 text-xs outline-none focus:border-pink-400"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-[9px] font-bold text-slate-400 uppercase block mb-1">Experience</label>
+                            <input 
+                              type="text" 
+                              required
+                              value={newDoctor.experience}
+                              onChange={e => setNewDoctor({...newDoctor, experience: e.target.value})}
+                              placeholder="10 Years" 
+                              className="w-full border border-slate-200 bg-white rounded-xl p-2.5 text-xs outline-none focus:border-pink-400"
+                            />
                           </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${
-                            doc.status === "Active" ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"
-                          }`}>
-                            {doc.status}
-                          </span>
+                        <div>
+                          <label className="text-[9px] font-bold text-slate-400 uppercase block mb-1">Branch</label>
+                          <input 
+                            type="text" 
+                            required
+                            value={newDoctor.branch}
+                            onChange={e => setNewDoctor({...newDoctor, branch: e.target.value})}
+                            placeholder="Gulberg, DHA" 
+                            className="w-full border border-slate-200 bg-white rounded-xl p-2.5 text-xs outline-none focus:border-pink-400"
+                          />
+                        </div>
+
+                        {/* Profile Image Uploader */}
+                        <div>
+                          <label className="text-[9px] font-bold text-slate-400 uppercase block mb-1">Profile Photo</label>
+                          <div className="flex items-center gap-3">
+                            {newDoctor.image ? (
+                              <img 
+                                src={newDoctor.image} 
+                                alt="Preview" 
+                                className="w-12 h-12 rounded-xl object-cover border border-slate-200" 
+                              />
+                            ) : (
+                              <div className="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400 border border-slate-200 border-dashed">
+                                <FaUserMd size={20} />
+                              </div>
+                            )}
+                            <label className="flex-grow flex items-center justify-center px-4 py-2.5 border border-slate-200 rounded-xl bg-white text-[11px] font-semibold text-slate-600 cursor-pointer hover:bg-slate-50 transition-colors">
+                              <span>Choose Photo</span>
+                              <input 
+                                type="file" 
+                                accept="image/*" 
+                                onChange={handleImageUpload} 
+                                className="hidden" 
+                              />
+                            </label>
+                          </div>
+                        </div>
+
+                        <button type="submit" className="w-full py-3 bg-slate-900 hover:bg-pink-600 text-white rounded-xl text-xs font-bold border-none cursor-pointer mt-2 shadow-md">
+                          {editingDoctor ? "Save Changes" : "Add Specialist"}
+                        </button>
+                        {editingDoctor && (
                           <button 
-                            onClick={() => handleToggleDocStatus(doc.id, doc.status)}
-                            className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-[9px] font-bold border-none cursor-pointer"
+                            type="button" 
+                            onClick={() => {
+                              setEditingDoctor(null);
+                              setNewDoctor({ name: "", specialty: "", fee: "", branch: "Gulberg", image: "", experience: "", title: "" });
+                            }}
+                            className="w-full py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl text-xs font-bold border-none cursor-pointer mt-2"
                           >
-                            Toggle Status
+                            Cancel Edit
                           </button>
+                        )}
+                      </form>
+                    </div>
+
+                    {/* Doctor registry listings */}
+                    <div className="md:col-span-2 space-y-3 max-h-[600px] overflow-y-auto pr-1 scrollbar-none">
+                      {doctorsList.filter(d => d.status === "Active" || d.status === "Suspended").map(doc => (
+                        <div key={doc.id} className="border border-slate-100 bg-white/40 backdrop-blur-sm rounded-2xl p-4 flex justify-between items-center shadow-sm">
+                          <div className="flex items-center gap-3">
+                            <img 
+                              src={doc.image || "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=100&q=80"} 
+                              alt={doc.name} 
+                              className="w-12 h-12 rounded-xl object-cover border border-slate-100 shrink-0" 
+                            />
+                            <div className="text-left">
+                              <div className="flex items-center gap-1.5 flex-wrap">
+                                <h4 className="font-extrabold text-xs text-slate-800">{doc.name}</h4>
+                                <span className="text-[9px] text-pink-500 font-bold bg-pink-50 px-1.5 py-0.5 rounded">{doc.title}</span>
+                              </div>
+                              <p className="text-[10px] text-slate-400 mt-0.5">{doc.specialty} · {doc.experience}</p>
+                              <span className="text-[9px] text-slate-500 font-semibold block">Branches: {doc.branch} · Fee: {doc.fee}</span>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${
+                              doc.status === "Active" ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"
+                            }`}>
+                              {doc.status}
+                            </span>
+                            <button 
+                              onClick={() => handleToggleDocStatus(doc.id, doc.status)}
+                              className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-[9px] font-bold border-none cursor-pointer"
+                            >
+                              Toggle Status
+                            </button>
+                            <button 
+                              onClick={() => {
+                                setManagingDoctor(doc);
+                                setMgmtForm({ ...doc });
+                                setMgmtTab("general");
+                              }}
+                              className="px-2.5 py-1.5 bg-purple-50 hover:bg-purple-100 text-purple-600 rounded-lg text-[9px] font-bold border-none cursor-pointer"
+                            >
+                              Manage settings
+                            </button>
+                            <button 
+                              onClick={() => {
+                                setEditingDoctor(doc);
+                                const numericFee = doc.fee ? doc.fee.replace("₨ ", "").trim() : "";
+                                setNewDoctor({
+                                  name: doc.name,
+                                  specialty: doc.specialty,
+                                  fee: numericFee,
+                                  branch: doc.branch,
+                                  image: doc.image || "",
+                                  experience: doc.experience,
+                                  title: doc.title
+                                });
+                              }}
+                              className="px-2.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg text-[9px] font-bold border-none cursor-pointer"
+                            >
+                              Edit
+                            </button>
+                            <button 
+                              onClick={() => handleDeleteDoctor(doc.id)}
+                              className="px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg text-[9px] font-bold border-none cursor-pointer"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                      {doctorsList.filter(d => d.status === "Active" || d.status === "Suspended").length === 0 && (
+                        <div className="text-center py-12 text-slate-400">
+                          <p className="font-semibold text-xs">No doctors in the active registry.</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  /* Applications Review Tab */
+                  <div className="space-y-4">
+                    {doctorsList.filter(d => d.status !== "Active" && d.status !== "Suspended").map(doc => (
+                      <div key={doc.id} className="border border-slate-100 bg-white/40 backdrop-blur-sm rounded-2xl p-5 shadow-sm space-y-4">
+                        <div className="flex justify-between items-start flex-wrap gap-3">
+                          <div className="flex items-center gap-3">
+                            <img 
+                              src={doc.image || "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=100&q=80"} 
+                              alt={doc.name} 
+                              className="w-14 h-14 rounded-xl object-cover border border-slate-100 shrink-0" 
+                            />
+                            <div className="text-left">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <h4 className="font-extrabold text-sm text-slate-800">{doc.name}</h4>
+                                <span className="text-[9px] text-pink-500 font-bold bg-pink-50 px-1.5 py-0.5 rounded">{doc.title}</span>
+                                <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${
+                                  doc.status === "Pending" ? "bg-amber-50 text-amber-700 border border-amber-200" :
+                                  doc.status === "Need More Details" ? "bg-indigo-50 text-indigo-700 border border-indigo-200" :
+                                  "bg-rose-50 text-rose-700 border border-rose-200"
+                                }`}>
+                                  {doc.status}
+                                </span>
+                              </div>
+                              <p className="text-xs text-slate-400 mt-0.5">{doc.specialty} · {doc.experience} · {doc.branch} branch</p>
+                              {doc.email && (
+                                <p className="text-[10px] text-slate-500 mt-1">
+                                  📧 Email: <a href={`mailto:${doc.email}`} className="text-pink-500 font-semibold hover:underline">{doc.email}</a>
+                                </p>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => {
+                                setManagingDoctor(doc);
+                                setMgmtForm({ ...doc });
+                                setMgmtTab("general");
+                              }}
+                              className="px-3 py-2 bg-purple-55 text-purple-600 hover:bg-purple-100 border border-purple-200 rounded-xl text-xs font-bold cursor-pointer transition-all"
+                            >
+                              Manage settings
+                            </button>
+                            <button
+                              onClick={() => handleApproveDoctor(doc.id, doc.name)}
+                              className="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold border-none cursor-pointer transition-all shadow-sm"
+                            >
+                              Approve & Activate
+                            </button>
+                            <button
+                              onClick={() => setActioningDoctor({ id: doc.id, nextStatus: "Need More Details" })}
+                              className="px-3 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-xl text-xs font-bold cursor-pointer transition-all"
+                            >
+                              Request Details
+                            </button>
+                            <button
+                              onClick={() => setActioningDoctor({ id: doc.id, nextStatus: "Rejected" })}
+                              className="px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 rounded-xl text-xs font-bold cursor-pointer transition-all"
+                            >
+                              Reject
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Admin note feedback if there's any */}
+                        {doc.admin_note && (
+                          <div className="p-3 bg-amber-50/50 border border-amber-100 rounded-xl text-[11px] text-amber-800 text-left">
+                            <strong>Current Feedback Note:</strong> {doc.admin_note}
+                          </div>
+                        )}
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-slate-100 pt-4">
+                          {/* File Attachments */}
+                          <div className="space-y-2 text-left">
+                            <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Submitted Credentials</h5>
+                            <div className="space-y-2.5">
+                              {renderDocAttachmentLink("Curriculum Vitae (CV)", doc.cv_file, doc.cv_name)}
+                              {renderDocAttachmentLink("Medical Degree", doc.degrees_file, doc.degrees_name)}
+                              {renderDocAttachmentLink("Approved Certification", doc.certificates_file, doc.certificates_name)}
+                              {renderDocAttachmentLink("Rewards & Awards", doc.rewards_file, doc.rewards_name)}
+                            </div>
+                          </div>
+
+                          {/* Social Profiles */}
+                          <div className="space-y-2 text-left">
+                            <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Professional Social Handles</h5>
+                            <div className="grid grid-cols-2 gap-2 mt-1.5">
+                              <div className="text-[11px]">
+                                <span className="text-slate-400">LinkedIn: </span>
+                                {doc.social_linkedin ? (
+                                  <a href={doc.social_linkedin} target="_blank" rel="noreferrer" className="text-pink-500 hover:underline break-all font-medium">{doc.social_linkedin}</a>
+                                ) : <span className="text-slate-300">Not provided</span>}
+                              </div>
+                              <div className="text-[11px]">
+                                <span className="text-slate-400">Facebook: </span>
+                                {doc.social_facebook ? (
+                                  <a href={doc.social_facebook} target="_blank" rel="noreferrer" className="text-pink-500 hover:underline break-all font-medium">{doc.social_facebook}</a>
+                                ) : <span className="text-slate-300">Not provided</span>}
+                              </div>
+                              <div className="text-[11px]">
+                                <span className="text-slate-400">Instagram: </span>
+                                {doc.social_instagram ? (
+                                  <a href={doc.social_instagram} target="_blank" rel="noreferrer" className="text-pink-500 hover:underline break-all font-medium">{doc.social_instagram}</a>
+                                ) : <span className="text-slate-300">Not provided</span>}
+                              </div>
+                              <div className="text-[11px]">
+                                <span className="text-slate-400">Twitter: </span>
+                                {doc.social_twitter ? (
+                                  <a href={doc.social_twitter} target="_blank" rel="noreferrer" className="text-pink-500 hover:underline break-all font-medium">{doc.social_twitter}</a>
+                                ) : <span className="text-slate-300">Not provided</span>}
+                              </div>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     ))}
+
+                    {doctorsList.filter(d => d.status !== "Active" && d.status !== "Suspended").length === 0 && (
+                      <div className="text-center py-12 bg-slate-50/50 rounded-3xl border border-dashed border-slate-200">
+                        <FaUserMd className="text-3xl text-slate-300 mx-auto mb-2" />
+                        <p className="font-bold text-xs text-slate-400">No applications pending review.</p>
+                      </div>
+                    )}
                   </div>
-                </div>
+                )}
               </div>
             )}
 
@@ -1234,6 +1957,15 @@ export default function AdminPanel() {
                           <p className="text-xs text-slate-500 mt-0.5">Slot: {appt.date} at {appt.time} ({appt.branch})</p>
                         </div>
                         <div className="flex items-center gap-3.5 self-end sm:self-auto">
+                          {appt.patient_report && (
+                            <button
+                              type="button"
+                              onClick={() => setSelectedReportModal({ report: appt.patient_report, name: appt.patient_report_name || "medical_report" })}
+                              className="px-3 py-1.5 bg-sky-50 hover:bg-sky-100 text-sky-600 hover:text-sky-700 rounded-xl text-[10px] font-bold border border-sky-200 flex items-center gap-1 cursor-pointer transition-all shrink-0"
+                            >
+                              <FiFileText size={12} /> View Report
+                            </button>
+                          )}
                           <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full uppercase ${
                             appt.status === "Confirmed" ? "bg-slate-100 text-slate-600" :
                             appt.status === "Checked In" ? "bg-amber-50 text-amber-700" :
@@ -1688,6 +2420,67 @@ export default function AdminPanel() {
                             required
                             value={settingsForm.why_us_description}
                             onChange={e => setSettingsForm({ ...settingsForm, why_us_description: e.target.value })}
+                            className="w-full border border-slate-200 bg-white rounded-xl p-2.5 outline-none focus:border-pink-400 font-semibold resize-none"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="border-t border-slate-100 pt-4 mt-4 space-y-4">
+                        <h5 className="font-extrabold text-slate-700 text-xs uppercase tracking-wider">Dynamic Pages CMS Controls</h5>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <label className="text-[10px] font-bold text-slate-500 uppercase block mb-1">Home Hero Section Title</label>
+                            <input
+                              type="text"
+                              required
+                              value={settingsForm.hero_title || ""}
+                              onChange={e => setSettingsForm({ ...settingsForm, hero_title: e.target.value })}
+                              className="w-full border border-slate-200 bg-white rounded-xl p-2.5 outline-none focus:border-pink-400 font-semibold"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-[10px] font-bold text-slate-500 uppercase block mb-1">Home Hero Description</label>
+                            <input
+                              type="text"
+                              required
+                              value={settingsForm.hero_subtitle || ""}
+                              onChange={e => setSettingsForm({ ...settingsForm, hero_subtitle: e.target.value })}
+                              className="w-full border border-slate-200 bg-white rounded-xl p-2.5 outline-none focus:border-pink-400 font-semibold"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <label className="text-[10px] font-bold text-slate-500 uppercase block mb-1">About Page Heading</label>
+                            <input
+                              type="text"
+                              required
+                              value={settingsForm.about_title || ""}
+                              onChange={e => setSettingsForm({ ...settingsForm, about_title: e.target.value })}
+                              className="w-full border border-slate-200 bg-white rounded-xl p-2.5 outline-none focus:border-pink-400 font-semibold"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-[10px] font-bold text-slate-500 uppercase block mb-1">CEO Vision Statement</label>
+                            <input
+                              type="text"
+                              required
+                              value={settingsForm.about_ceo_vision || ""}
+                              onChange={e => setSettingsForm({ ...settingsForm, about_ceo_vision: e.target.value })}
+                              className="w-full border border-slate-200 bg-white rounded-xl p-2.5 outline-none focus:border-pink-400 font-semibold"
+                            />
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="text-[10px] font-bold text-slate-500 uppercase block mb-1">About Page Description Paragraph</label>
+                          <textarea
+                            rows={3}
+                            required
+                            value={settingsForm.about_description || ""}
+                            onChange={e => setSettingsForm({ ...settingsForm, about_description: e.target.value })}
                             className="w-full border border-slate-200 bg-white rounded-xl p-2.5 outline-none focus:border-pink-400 font-semibold resize-none"
                           />
                         </div>
@@ -2505,6 +3298,513 @@ export default function AdminPanel() {
           </div>
         )}
       </AnimatePresence>
+
+      {/* Medical Report Viewer Modal */}
+      <AnimatePresence>
+        {selectedReportModal && (
+          <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white rounded-3xl p-6 max-w-4xl w-full text-slate-800 shadow-2xl relative border border-white/50 flex flex-col"
+            >
+              <button 
+                onClick={() => setSelectedReportModal(null)}
+                className="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 hover:bg-rose-100 hover:text-rose-600 flex items-center justify-center text-slate-500 transition-colors border-none cursor-pointer font-bold z-10"
+              >
+                ✕
+              </button>
+              <h3 className="font-extrabold text-slate-900 text-sm mb-4 text-center flex items-center gap-1.5 justify-center">
+                <FiFileText className="text-sky-500" /> Medical Report: {selectedReportModal.name}
+              </h3>
+              <div className="w-full overflow-auto max-h-[75vh] border border-slate-100 rounded-xl bg-slate-50 flex items-center justify-center p-2 min-h-[300px]">
+                {selectedReportModal.report.startsWith("data:image/") ? (
+                  <img 
+                    src={selectedReportModal.report} 
+                    alt="Patient Medical Report" 
+                    className="max-w-full max-h-[70vh] object-contain"
+                  />
+                ) : selectedReportModal.report.startsWith("data:application/pdf") ? (
+                  <iframe 
+                    src={selectedReportModal.report} 
+                    className="w-full h-[65vh] rounded-xl border-none"
+                    title="Patient Medical Report PDF"
+                  />
+                ) : (
+                  <div className="text-center py-10 flex flex-col items-center gap-4">
+                    <FiFileText size={48} className="text-slate-400" />
+                    <p className="text-sm font-semibold text-slate-600">This file type ({selectedReportModal.name}) cannot be previewed directly.</p>
+                    <a 
+                      href={selectedReportModal.report} 
+                      download={selectedReportModal.name}
+                      className="px-6 py-3 bg-slate-900 hover:bg-pink-600 text-white rounded-xl text-xs font-bold transition-all"
+                      style={{ textDecoration: "none" }}
+                    >
+                      📥 Download Attached File
+                    </a>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Doctor Application Reject/Request Details Modal */}
+      {actioningDoctor && (
+        <div className="fixed inset-0 z-[310] flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+          <div className="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl relative border border-slate-100">
+            <button 
+              onClick={() => {
+                setActioningDoctor(null);
+                setActionNote("");
+              }}
+              className="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-50 hover:bg-rose-50 hover:text-rose-600 flex items-center justify-center text-slate-400 border-none cursor-pointer font-bold"
+            >
+              ✕
+            </button>
+            <h3 className="font-extrabold text-slate-800 text-sm mb-2 text-left">
+              {actioningDoctor.nextStatus === "Need More Details" ? "Request Additional Details" : "Reject Application"}
+            </h3>
+            <p className="text-xs text-slate-400 mb-4 text-left">
+              Please enter the details/reasons that will be sent as feedback to the applicant:
+            </p>
+            <textarea
+              required
+              rows={4}
+              value={actionNote}
+              onChange={e => setActionNote(e.target.value)}
+              placeholder={actioningDoctor.nextStatus === "Need More Details" 
+                ? "Specify what files or details are missing (e.g., CV copy needs to be clear)..." 
+                : "Reason for rejection..."}
+              className="w-full border border-slate-200 rounded-xl p-3 text-xs outline-none focus:border-pink-400 bg-slate-50"
+            />
+            <div className="flex justify-end gap-2 mt-4">
+              <button
+                onClick={() => {
+                  setActioningDoctor(null);
+                  setActionNote("");
+                }}
+                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-bold border-none cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleActionSubmit}
+                disabled={!actionNote.trim()}
+                className="px-4 py-2 bg-pink-500 hover:bg-pink-600 text-white rounded-xl text-xs font-bold border-none cursor-pointer shadow-md disabled:bg-slate-300"
+              >
+                Submit Feedback
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Doctor settings control panel modal */}
+      {managingDoctor && mgmtForm && (
+        <div className="fixed inset-0 z-[280] flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs overflow-y-auto">
+          <div className="bg-white rounded-3xl p-6 max-w-2xl w-full shadow-2xl relative border border-slate-100 flex flex-col my-8">
+            <button 
+              onClick={() => {
+                setManagingDoctor(null);
+                setMgmtForm(null);
+              }}
+              className="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-50 hover:bg-rose-50 hover:text-rose-600 flex items-center justify-center text-slate-405 border-none cursor-pointer font-bold"
+            >
+              ✕
+            </button>
+            
+            <div className="text-left mb-4">
+              <h3 className="font-extrabold text-slate-900 text-base">
+                Doctor Profile Control Panel
+              </h3>
+              <p className="text-[11px] text-slate-400 mt-0.5">
+                Configure profile, credentials, and verification status for <span className="font-bold text-slate-800">{mgmtForm.name}</span>
+              </p>
+            </div>
+
+            {/* Modal Internal Tabs */}
+            <div className="flex gap-1.5 border-b border-slate-100 pb-3 mb-4 text-left">
+              {[
+                { id: "general", label: "General details" },
+                { id: "social", label: "Contact & Socials" },
+                { id: "verification", label: "Credentials & Status" }
+              ].map(tab => (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setMgmtTab(tab.id)}
+                  className={`px-3 py-1.5 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all border-none cursor-pointer ${
+                    mgmtTab === tab.id 
+                      ? "bg-slate-900 text-white shadow-sm" 
+                      : "bg-slate-55 text-slate-500 hover:text-slate-800"
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Form */}
+            <form onSubmit={handleSaveManagedDoctor} className="space-y-4 flex-grow flex flex-col justify-between text-left">
+              <div className="space-y-4 max-h-[55vh] overflow-y-auto pr-1">
+                {mgmtTab === "general" && (
+                  <div className="space-y-4">
+                    {/* Image override row */}
+                    <div className="flex gap-4 items-center p-3 bg-slate-50 rounded-2xl border border-slate-100">
+                      <img
+                        src={mgmtForm.image || "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=100&q=80"}
+                        alt="Preview"
+                        className="w-16 h-16 rounded-xl object-cover border border-slate-200 shadow-sm shrink-0"
+                      />
+                      <div className="space-y-1">
+                        <span className="text-[10px] font-black text-slate-400 uppercase block">Override Photo</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={async (e) => {
+                            const file = e.target.files[0];
+                            if (file) {
+                              const b64 = await handleFileToBase64(file);
+                              setMgmtForm(prev => ({ ...prev, image: b64 }));
+                            }
+                          }}
+                          className="text-xs text-slate-500"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <label className="text-[10px] text-slate-400 font-bold uppercase">Name</label>
+                        <input
+                          type="text"
+                          required
+                          value={mgmtForm.name || ""}
+                          onChange={e => setMgmtForm(prev => ({ ...prev, name: e.target.value }))}
+                          className="w-full border border-slate-200 rounded-xl p-2.5 text-xs bg-slate-50 outline-none focus:border-pink-400"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-[10px] text-slate-400 font-bold uppercase">Professional Title</label>
+                        <input
+                          type="text"
+                          required
+                          value={mgmtForm.title || ""}
+                          onChange={e => setMgmtForm(prev => ({ ...prev, title: e.target.value }))}
+                          className="w-full border border-slate-200 rounded-xl p-2.5 text-xs bg-slate-50 outline-none focus:border-pink-400"
+                          placeholder="e.g. Classified Chiropractor & Consultant"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-[10px] text-slate-400 font-bold uppercase">Specialty</label>
+                        <input
+                          type="text"
+                          required
+                          value={mgmtForm.specialty || ""}
+                          onChange={e => setMgmtForm(prev => ({ ...prev, specialty: e.target.value }))}
+                          className="w-full border border-slate-200 rounded-xl p-2.5 text-xs bg-slate-50 outline-none focus:border-pink-400"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-[10px] text-slate-400 font-bold uppercase">Consultation Fee (PKR)</label>
+                        <input
+                          type="text"
+                          required
+                          value={mgmtForm.fee ? String(mgmtForm.fee).replace(/[^\d]/g, "") : ""}
+                          onChange={e => setMgmtForm(prev => ({ ...prev, fee: e.target.value }))}
+                          className="w-full border border-slate-200 rounded-xl p-2.5 text-xs bg-slate-50 outline-none focus:border-pink-400"
+                          placeholder="e.g. 3000"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-[10px] text-slate-400 font-bold uppercase">Experience (Years)</label>
+                        <input
+                          type="text"
+                          required
+                          value={mgmtForm.experience || ""}
+                          onChange={e => setMgmtForm(prev => ({ ...prev, experience: e.target.value }))}
+                          className="w-full border border-slate-200 rounded-xl p-2.5 text-xs bg-slate-50 outline-none focus:border-pink-400"
+                          placeholder="e.g. 10 Years"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-[10px] text-slate-400 font-bold uppercase">Branch</label>
+                        <select
+                          value={Array.isArray(mgmtForm.branch) ? mgmtForm.branch[0] : (mgmtForm.branch || "Gulberg")}
+                          onChange={e => setMgmtForm(prev => ({ ...prev, branch: [e.target.value] }))}
+                          className="w-full border border-slate-200 rounded-xl p-2.5 text-xs bg-slate-50 outline-none focus:border-pink-400"
+                        >
+                          <option value="Gulberg">Gulberg</option>
+                          <option value="DHA">DHA</option>
+                          <option value="Gulberg, DHA">Both (Gulberg & DHA)</option>
+                          <option value="Online">Online / Virtual</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {mgmtTab === "social" && (
+                  <div className="space-y-3">
+                    <div className="space-y-1">
+                      <label className="text-[10px] text-slate-400 font-bold uppercase">Contact Email</label>
+                      <input
+                        type="email"
+                        value={mgmtForm.email || ""}
+                        onChange={e => setMgmtForm(prev => ({ ...prev, email: e.target.value }))}
+                        className="w-full border border-slate-200 rounded-xl p-2.5 text-xs bg-slate-50 outline-none focus:border-pink-400"
+                        placeholder="doctor@physiohub.com"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-[10px] text-slate-400 font-bold uppercase">LinkedIn URL</label>
+                      <input
+                        type="url"
+                        value={mgmtForm.social_linkedin || ""}
+                        onChange={e => setMgmtForm(prev => ({ ...prev, social_linkedin: e.target.value }))}
+                        className="w-full border border-slate-200 rounded-xl p-2.5 text-xs bg-slate-50 outline-none focus:border-pink-400"
+                        placeholder="https://linkedin.com/in/username"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-[10px] text-slate-400 font-bold uppercase">Facebook URL</label>
+                      <input
+                        type="url"
+                        value={mgmtForm.social_facebook || ""}
+                        onChange={e => setMgmtForm(prev => ({ ...prev, social_facebook: e.target.value }))}
+                        className="w-full border border-slate-200 rounded-xl p-2.5 text-xs bg-slate-50 outline-none focus:border-pink-400"
+                        placeholder="https://facebook.com/username"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-[10px] text-slate-400 font-bold uppercase">Instagram URL</label>
+                      <input
+                        type="url"
+                        value={mgmtForm.social_instagram || ""}
+                        onChange={e => setMgmtForm(prev => ({ ...prev, social_instagram: e.target.value }))}
+                        className="w-full border border-slate-200 rounded-xl p-2.5 text-xs bg-slate-50 outline-none focus:border-pink-400"
+                        placeholder="https://instagram.com/username"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-[10px] text-slate-400 font-bold uppercase">Twitter URL</label>
+                      <input
+                        type="url"
+                        value={mgmtForm.social_twitter || ""}
+                        onChange={e => setMgmtForm(prev => ({ ...prev, social_twitter: e.target.value }))}
+                        className="w-full border border-slate-200 rounded-xl p-2.5 text-xs bg-slate-50 outline-none focus:border-pink-400"
+                        placeholder="https://twitter.com/username"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {mgmtTab === "verification" && (
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <label className="text-[10px] text-slate-400 font-bold uppercase">Administrative Status</label>
+                        <select
+                          value={mgmtForm.status || "Pending"}
+                          onChange={e => setMgmtForm(prev => ({ ...prev, status: e.target.value }))}
+                          className="w-full border border-slate-200 rounded-xl p-2.5 text-xs bg-slate-50 outline-none focus:border-pink-400 font-bold"
+                        >
+                          <option value="Active">Approved / Active</option>
+                          <option value="Pending">Pending Review</option>
+                          <option value="Need More Details">Need More Details</option>
+                          <option value="Rejected">Rejected</option>
+                          <option value="Suspended">Suspended</option>
+                        </select>
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-[10px] text-slate-400 font-bold uppercase">Feedback Note / Reason</label>
+                        <textarea
+                          rows={2}
+                          value={mgmtForm.admin_note || ""}
+                          onChange={e => setMgmtForm(prev => ({ ...prev, admin_note: e.target.value }))}
+                          className="w-full border border-slate-200 rounded-xl p-2 text-xs bg-slate-50 outline-none focus:border-pink-400"
+                          placeholder="Feedback message shown to the specialist regarding their application..."
+                        />
+                      </div>
+                    </div>
+
+                    <div className="border-t border-slate-100 pt-4">
+                      <p className="font-extrabold text-xs text-slate-800 mb-3 uppercase tracking-wider">Verification Documents</p>
+                      
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {/* CV */}
+                        <div className="p-3 bg-slate-50 rounded-2xl border border-slate-100 space-y-1">
+                          <p className="text-[10px] text-slate-400 font-bold uppercase">CV Document</p>
+                          {mgmtForm.cv_file ? (
+                            <div className="flex gap-2 items-center">
+                              <span className="text-[11px] text-slate-700 font-bold truncate max-w-[150px]">
+                                {mgmtForm.cv_name || "cv_document.pdf"}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => setSelectedReportModal({ report: mgmtForm.cv_file, name: mgmtForm.cv_name || "cv_document.pdf" })}
+                                className="text-[10px] text-blue-600 hover:underline bg-transparent border-none cursor-pointer font-bold animate-pulse"
+                              >
+                                Preview
+                              </button>
+                            </div>
+                          ) : (
+                            <span className="text-[11px] text-slate-400 block font-medium">No CV uploaded.</span>
+                          )}
+                          <input
+                            type="file"
+                            accept=".pdf,image/*"
+                            onChange={async (e) => {
+                              const file = e.target.files[0];
+                              if (file) {
+                                const b64 = await handleFileToBase64(file);
+                                setMgmtForm(prev => ({ ...prev, cv_file: b64, cv_name: file.name }));
+                              }
+                            }}
+                            className="block w-full text-[10px] text-slate-500 mt-1"
+                          />
+                        </div>
+
+                        {/* Degrees */}
+                        <div className="p-3 bg-slate-50 rounded-2xl border border-slate-100 space-y-1">
+                          <p className="text-[10px] text-slate-400 font-bold uppercase">Degrees / Education</p>
+                          {mgmtForm.degrees_file ? (
+                            <div className="flex gap-2 items-center">
+                              <span className="text-[11px] text-slate-700 font-bold truncate max-w-[150px]">
+                                {mgmtForm.degrees_name || "degrees_cert.pdf"}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => setSelectedReportModal({ report: mgmtForm.degrees_file, name: mgmtForm.degrees_name || "degrees_cert.pdf" })}
+                                className="text-[10px] text-blue-600 hover:underline bg-transparent border-none cursor-pointer font-bold animate-pulse"
+                              >
+                                Preview
+                              </button>
+                            </div>
+                          ) : (
+                            <span className="text-[11px] text-slate-400 block font-medium">No Degree uploaded.</span>
+                          )}
+                          <input
+                            type="file"
+                            accept=".pdf,image/*"
+                            onChange={async (e) => {
+                              const file = e.target.files[0];
+                              if (file) {
+                                const b64 = await handleFileToBase64(file);
+                                setMgmtForm(prev => ({ ...prev, degrees_file: b64, degrees_name: file.name }));
+                              }
+                            }}
+                            className="block w-full text-[10px] text-slate-500 mt-1"
+                          />
+                        </div>
+
+                        {/* Certificates */}
+                        <div className="p-3 bg-slate-50 rounded-2xl border border-slate-100 space-y-1">
+                          <p className="text-[10px] text-slate-400 font-bold uppercase">Approved Certificates</p>
+                          {mgmtForm.certificates_file ? (
+                            <div className="flex gap-2 items-center">
+                              <span className="text-[11px] text-slate-700 font-bold truncate max-w-[150px]">
+                                {mgmtForm.certificates_name || "certificate.pdf"}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => setSelectedReportModal({ report: mgmtForm.certificates_file, name: mgmtForm.certificates_name || "certificate.pdf" })}
+                                className="text-[10px] text-blue-600 hover:underline bg-transparent border-none cursor-pointer font-bold animate-pulse"
+                              >
+                                Preview
+                              </button>
+                            </div>
+                          ) : (
+                            <span className="text-[11px] text-slate-400 block font-medium">No Certificate uploaded.</span>
+                          )}
+                          <input
+                            type="file"
+                            accept=".pdf,image/*"
+                            onChange={async (e) => {
+                              const file = e.target.files[0];
+                              if (file) {
+                                const b64 = await handleFileToBase64(file);
+                                setMgmtForm(prev => ({ ...prev, certificates_file: b64, certificates_name: file.name }));
+                              }
+                            }}
+                            className="block w-full text-[10px] text-slate-500 mt-1"
+                          />
+                        </div>
+
+                        {/* Rewards */}
+                        <div className="p-3 bg-slate-50 rounded-2xl border border-slate-100 space-y-1">
+                          <p className="text-[10px] text-slate-400 font-bold uppercase">Approved Rewards</p>
+                          {mgmtForm.rewards_file ? (
+                            <div className="flex gap-2 items-center">
+                              <span className="text-[11px] text-slate-700 font-bold truncate max-w-[150px]">
+                                {mgmtForm.rewards_name || "reward.pdf"}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => setSelectedReportModal({ report: mgmtForm.rewards_file, name: mgmtForm.rewards_name || "reward.pdf" })}
+                                className="text-[10px] text-blue-600 hover:underline bg-transparent border-none cursor-pointer font-bold animate-pulse"
+                              >
+                                Preview
+                              </button>
+                            </div>
+                          ) : (
+                            <span className="text-[11px] text-slate-400 block font-medium">No Rewards uploaded.</span>
+                          )}
+                          <input
+                            type="file"
+                            accept=".pdf,image/*"
+                            onChange={async (e) => {
+                              const file = e.target.files[0];
+                              if (file) {
+                                const b64 = await handleFileToBase64(file);
+                                setMgmtForm(prev => ({ ...prev, rewards_file: b64, rewards_name: file.name }));
+                              }
+                            }}
+                            className="block w-full text-[10px] text-slate-500 mt-1"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Save footer */}
+              <div className="flex justify-end gap-2 mt-4 pt-3 border-t border-slate-100 flex-shrink-0">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setManagingDoctor(null);
+                    setMgmtForm(null);
+                  }}
+                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-650 rounded-xl text-xs font-bold border-none cursor-pointer transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 bg-pink-500 hover:bg-pink-600 text-white rounded-xl text-xs font-bold border-none cursor-pointer shadow-md transition-colors"
+                >
+                  Save Settings
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

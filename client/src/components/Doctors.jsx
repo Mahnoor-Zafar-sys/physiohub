@@ -35,6 +35,13 @@ export default function Doctors() {
           available: dbDoc.status === "Active" ? (mockDoc?.available !== undefined ? mockDoc.available : true) : false,
           realStats: true, // Show experience, ratings
           reviews: mockDoc?.reviews || 120,
+          email: dbDoc.email || mockDoc?.email || `${dbDoc.name.toLowerCase().replace(/[^a-z0-9]/g, "")}@physiohub.com`,
+          social: {
+            linkedin: dbDoc.social_linkedin || mockDoc?.social?.linkedin || "https://linkedin.com",
+            facebook: dbDoc.social_facebook || mockDoc?.social?.facebook || "https://facebook.com",
+            instagram: dbDoc.social_instagram || mockDoc?.social?.instagram || "https://instagram.com",
+            twitter: dbDoc.social_twitter || mockDoc?.social?.twitter || "https://twitter.com"
+          }
         };
       });
       setDoctorsList(mergedDocs.filter(d => d.status === "Active"));

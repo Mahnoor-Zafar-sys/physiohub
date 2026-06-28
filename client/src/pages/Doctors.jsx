@@ -398,7 +398,7 @@ function DoctorModal({ doctor: d, onClose }) {
                 <h2 className="text-2xl font-extrabold text-slate-900 font-serif mb-0.5">{d.name}</h2>
                 <p className={`text-sm font-semibold ${d.accentText} mb-3`}>{d.title}</p>
 
-                <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-slate-500 mb-4">
+                <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-slate-500 mb-3">
                   {d.realStats && <span className="flex items-center gap-1.5"><FiAward size={13} style={{color:d.solidColor}} /> {d.experience} Experience</span>}
                   {d.realStats && <span className="flex items-center gap-1.5"><FiHeart size={13} style={{color:d.solidColor}} /> {d.patients} Patients</span>}
                   <span className="flex items-center gap-1.5"><FiMapPin size={13} style={{color:d.solidColor}} /> {d.branch.join(", ")}</span>
@@ -414,27 +414,33 @@ function DoctorModal({ doctor: d, onClose }) {
                 )}
 
                 {/* Social Links */}
-                {d.social && (
+                {(d.social || d.email) && (
                   <div className="flex items-center gap-2">
-                    {d.social.linkedin && (
+                    {d.email && (
+                      <a href={`mailto:${d.email}`} title={`Email: ${d.email}`}
+                        className="w-8 h-8 rounded-lg flex items-center justify-center bg-rose-55/10 hover:bg-rose-55/20 transition-colors">
+                        <FiMail size={14} className="text-rose-500" />
+                      </a>
+                    )}
+                    {d.social && d.social.linkedin && (
                       <a href={d.social.linkedin} target="_blank" rel="noopener noreferrer"
                         className="w-8 h-8 rounded-lg flex items-center justify-center bg-[#0077b5]/10 hover:bg-[#0077b5]/20 transition-colors">
                         <FaLinkedinIn size={13} style={{color:"#0077b5"}} />
                       </a>
                     )}
-                    {d.social.facebook && (
+                    {d.social && d.social.facebook && (
                       <a href={d.social.facebook} target="_blank" rel="noopener noreferrer"
                         className="w-8 h-8 rounded-lg flex items-center justify-center bg-[#1877f2]/10 hover:bg-[#1877f2]/20 transition-colors">
                         <FaFacebook size={13} style={{color:"#1877f2"}} />
                       </a>
                     )}
-                    {d.social.instagram && (
+                    {d.social && d.social.instagram && (
                       <a href={d.social.instagram} target="_blank" rel="noopener noreferrer"
                         className="w-8 h-8 rounded-lg flex items-center justify-center bg-[#e1306c]/10 hover:bg-[#e1306c]/20 transition-colors">
                         <FaInstagram size={13} style={{color:"#e1306c"}} />
                       </a>
                     )}
-                    {d.social.twitter && (
+                    {d.social && d.social.twitter && (
                       <a href={d.social.twitter} target="_blank" rel="noopener noreferrer"
                         className="w-8 h-8 rounded-lg flex items-center justify-center bg-slate-100 hover:bg-slate-200 transition-colors">
                         <FaTwitter size={13} className="text-slate-600" />
@@ -946,7 +952,22 @@ export default function DoctorsPage() {
           education: mockDoc?.education || [
             { degree: dbDoc.title || "Specialist", institution: "Authorized Rehabilitation Institute", year: "2016" }
           ],
-          social: mockDoc?.social || { linkedin: "#", facebook: "#", instagram: "#" },
+          email: dbDoc.email || mockDoc?.email || `${dbDoc.name.toLowerCase().replace(/[^a-z0-9]/g, "")}@physiohub.com`,
+          social: {
+            linkedin: dbDoc.social_linkedin || mockDoc?.social?.linkedin || "https://linkedin.com",
+            facebook: dbDoc.social_facebook || mockDoc?.social?.facebook || "https://facebook.com",
+            instagram: dbDoc.social_instagram || mockDoc?.social?.instagram || "https://instagram.com",
+            twitter: dbDoc.social_twitter || mockDoc?.social?.twitter || "https://twitter.com"
+          },
+          cv_file: dbDoc.cv_file || null,
+          cv_name: dbDoc.cv_name || null,
+          certificates_file: dbDoc.certificates_file || null,
+          certificates_name: dbDoc.certificates_name || null,
+          degrees_file: dbDoc.degrees_file || null,
+          degrees_name: dbDoc.degrees_name || null,
+          rewards_file: dbDoc.rewards_file || null,
+          rewards_name: dbDoc.rewards_name || null,
+          admin_note: dbDoc.admin_note || null,
           specializations: mockDoc?.specializations || [dbDoc.specialty],
           services: mockDoc?.services || [dbDoc.specialty],
           availabilitySchedule: mockDoc?.availabilitySchedule || [

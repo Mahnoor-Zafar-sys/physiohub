@@ -18,6 +18,7 @@ export default function Shop() {
   const isLoggedIn = !!localStorage.getItem("vph_token");
   const defaultName = localStorage.getItem("vph_user_name") || "";
   const defaultEmail = localStorage.getItem("vph_user_email") || "";
+  const userRole = localStorage.getItem("vph_user_role");
 
   // Component states
   const [products, setProducts] = useState([]);
@@ -84,6 +85,10 @@ export default function Shop() {
   };
 
   const handleAddToCart = (product) => {
+    if (userRole === "doctor") {
+      alert("Professional accounts (Doctors) cannot place product orders.");
+      return;
+    }
     if (product.stock <= 0) {
       alert("This item is currently out of stock.");
       return;
@@ -226,10 +231,10 @@ export default function Shop() {
     setTrackedOrder(null);
     try {
       const res = await api.trackOrder(trackOrderId.trim());
-      if (res) {
+      if (res && !res.isHttpError && res.id) {
         setTrackedOrder(res);
       } else {
-        setTrackingError("No order found matching this Order ID.");
+        setTrackingError(res && res.error ? res.error : "This Order ID does not exist in our systems.");
       }
     } catch (err) {
       setTrackingError("Failed to track order details.");
@@ -296,6 +301,19 @@ export default function Shop() {
       <div className="flex-grow pt-28 pb-16 px-4 print:hidden">
         <div className="max-w-7xl mx-auto space-y-8">
           
+          {/* Doctor Warning Banner */}
+          {userRole === "doctor" && (
+            <div className="bg-amber-50 border border-amber-200 text-amber-800 rounded-2xl p-4 text-xs font-bold text-left flex items-start gap-2.5 shadow-sm">
+              <FiInfo className="text-amber-500 shrink-0 mt-0.5" size={16} />
+              <div>
+                <p className="font-extrabold text-amber-900">Doctor Profile Shopping Restriction</p>
+                <p className="font-semibold text-amber-800 mt-1 leading-relaxed">
+                  Professional doctor profiles are restricted from placing product orders or making purchases. To purchase clinical rehab items, please sign out and sign in with a patient account.
+                </p>
+              </div>
+            </div>
+          )}
+
           {/* Header Banner */}
           <div className="glass-panel rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row justify-between items-center gap-6 text-left relative overflow-hidden">
             <div className="relative z-10 space-y-2">
@@ -423,10 +441,10 @@ export default function Shop() {
                         <div className="flex justify-between items-center pt-2 border-t border-slate-100">
                           <span className="text-sm font-black text-slate-900">₨ {product.price.toLocaleString()}</span>
                           <button
-                            disabled={product.stock <= 0}
+                            disabled={product.stock <= 0 || userRole === "doctor"}
                             onClick={() => handleAddToCart(product)}
                             className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase border-none tracking-wider transition-colors cursor-pointer ${
-                              product.stock <= 0 
+                              (product.stock <= 0 || userRole === "doctor")
                                 ? "bg-slate-100 text-slate-400 cursor-not-allowed" 
                                 : "bg-slate-900 hover:bg-blue-600 text-white"
                             }`}
@@ -517,6 +535,10 @@ export default function Shop() {
                   </div>
                   <button 
                     onClick={() => {
+                      if (userRole === "doctor") {
+                        alert("Professional accounts (Doctors) cannot place product orders.");
+                        return;
+                      }
                       setCheckoutOpen(true);
                       setCartOpen(false);
                     }}

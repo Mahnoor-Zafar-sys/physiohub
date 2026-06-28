@@ -28,6 +28,7 @@ export default function PatientPortal() {
   const [uploadProofAppt, setUploadProofAppt] = useState(null);
   const [uploadProofOrder, setUploadProofOrder] = useState(null);
   const [proofImage, setProofImage] = useState("");
+  const [selectedReportModal, setSelectedReportModal] = useState(null);
 
   const patientName = localStorage.getItem("vph_user_name") || "Jane Doe";
   const patientEmail = localStorage.getItem("vph_user_email") || "";
@@ -531,6 +532,15 @@ export default function PatientPortal() {
                               {appt.status}
                             </span>
                             
+                            {appt.patient_report && (
+                              <button
+                                onClick={() => setSelectedReportModal({ report: appt.patient_report, name: appt.patient_report_name || "medical_report" })}
+                                className="px-3 py-1.5 bg-sky-50 hover:bg-sky-100 text-sky-600 rounded-lg text-[10px] font-bold border border-sky-100 cursor-pointer flex items-center gap-1 transition-all"
+                              >
+                                <FiFileText size={12} /> Preview Report
+                              </button>
+                            )}
+                            
                             {appt.status !== "Cancelled" && appt.status !== "Completed" && (
                               <>
                                 <button 
@@ -841,6 +851,58 @@ export default function PatientPortal() {
       </div>
 
       <Footer />
+      
+      {/* Medical Report Viewer Modal */}
+      <AnimatePresence>
+        {selectedReportModal && (
+          <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white rounded-3xl p-6 max-w-4xl w-full text-slate-800 shadow-2xl relative border border-white/50 flex flex-col"
+            >
+              <button 
+                onClick={() => setSelectedReportModal(null)}
+                className="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 hover:bg-rose-100 hover:text-rose-600 flex items-center justify-center text-slate-500 transition-colors border-none cursor-pointer font-bold z-10"
+              >
+                ✕
+              </button>
+              <h3 className="font-extrabold text-slate-900 text-sm mb-4 text-center flex items-center gap-1.5 justify-center">
+                <FiFileText className="text-sky-500" /> Medical Report: {selectedReportModal.name}
+              </h3>
+              <div className="w-full overflow-auto max-h-[75vh] border border-slate-100 rounded-xl bg-slate-50 flex items-center justify-center p-2 min-h-[300px]">
+                {selectedReportModal.report.startsWith("data:image/") ? (
+                  <img 
+                    src={selectedReportModal.report} 
+                    alt="Patient Medical Report" 
+                    className="max-w-full max-h-[70vh] object-contain"
+                  />
+                ) : selectedReportModal.report.startsWith("data:application/pdf") ? (
+                  <iframe 
+                    src={selectedReportModal.report} 
+                    className="w-full h-[65vh] rounded-xl border-none"
+                    title="Patient Medical Report PDF"
+                  />
+                ) : (
+                  <div className="text-center py-10 flex flex-col items-center gap-4">
+                    <FiFileText size={48} className="text-slate-400" />
+                    <p className="text-sm font-semibold text-slate-600">This file type ({selectedReportModal.name}) cannot be previewed directly.</p>
+                    <a 
+                      href={selectedReportModal.report} 
+                      download={selectedReportModal.name}
+                      className="px-6 py-3 bg-slate-900 hover:bg-pink-600 text-white rounded-xl text-xs font-bold transition-all"
+                      style={{ textDecoration: "none" }}
+                    >
+                      📥 Download Attached File
+                    </a>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

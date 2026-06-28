@@ -42,9 +42,9 @@ let mockInvoices = [
 ];
 
 let mockDoctors = [
-  { id: 1, name: "Dr. Sarah Ahmed", specialty: "Skin & Dermatology", fee: "₨ 3,000", branch: "Gulberg, DHA", status: "Active", image: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=400&q=80", experience: "14 Years", rating: 4.90, title: "MBBS, FCPS (Dermatology)", slug: "dr-sarah-ahmed", available: 1 },
-  { id: 2, name: "Dr. Omar Farooq", specialty: "Dental Care", fee: "₨ 2,500", branch: "Gulberg", status: "Active", image: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=400&q=80", experience: "11 Years", rating: 4.80, title: "BDS, FCPS (Oral Surgery)", slug: "dr-omar-farooq", available: 1 },
-  { id: 3, name: "Dr. Fatima Malik", specialty: "Gynecology & Obstetrics", fee: "₨ 3,500", branch: "DHA", status: "Active", image: "https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&w=400&q=80", experience: "16 Years", rating: 5.00, title: "MBBS, MRCOG (Gynecology)", slug: "dr-fatima-malik", available: 1 }
+  { id: 1, name: "Dr. Sarah Ahmed", specialty: "Skin & Dermatology", fee: "₨ 3,000", branch: "Gulberg, DHA", status: "Active", image: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=400&q=80", experience: "14 Years", rating: 4.90, title: "MBBS, FCPS (Dermatology)", slug: "dr-sarah-ahmed", available: 1, email: "doctor@physiohub.com", social_linkedin: "https://linkedin.com/in/dr-sarah", social_facebook: "https://facebook.com/dr-sarah", social_instagram: "https://instagram.com/dr-sarah", social_twitter: "https://twitter.com/dr-sarah" },
+  { id: 2, name: "Dr. Omar Farooq", specialty: "Dental Care", fee: "₨ 2,500", branch: "Gulberg", status: "Active", image: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=400&q=80", experience: "11 Years", rating: 4.80, title: "BDS, FCPS (Oral Surgery)", slug: "dr-omar-farooq", available: 1, email: "doctor-omar@physiohub.com", social_linkedin: "https://linkedin.com/in/dr-omar", social_facebook: "https://facebook.com/dr-omar", social_instagram: "https://instagram.com/dr-omar", social_twitter: "https://twitter.com/dr-omar" },
+  { id: 3, name: "Dr. Fatima Malik", specialty: "Gynecology & Obstetrics", fee: "₨ 3,500", branch: "DHA", status: "Active", image: "https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&w=400&q=80", experience: "16 Years", rating: 5.00, title: "MBBS, MRCOG (Gynecology)", slug: "dr-fatima-malik", available: 1, email: "doctor-fatima@physiohub.com", social_linkedin: "https://linkedin.com/in/dr-fatima", social_facebook: "https://facebook.com/dr-fatima", social_instagram: "https://instagram.com/dr-fatima", social_twitter: "https://twitter.com/dr-fatima" }
 ];
 
 let mockArticles = [
@@ -105,7 +105,12 @@ let mockSettings = {
   clinic_hours: "Mon - Sat: 09:00 AM - 09:00 PM",
   ambulance_phone: "+92 (51) 111-911-273",
   why_us_headline: "Why Choose Vital Physio Hub?",
-  why_us_description: "We combine gold-standard physical adjustments with dynamic clinical technologies to ensure faster, safer, and complete muscular rehabilitation."
+  why_us_description: "We combine gold-standard physical adjustments with dynamic clinical technologies to ensure faster, safer, and complete muscular rehabilitation.",
+  hero_title: "Premium Healthcare, Powered by Innovation",
+  hero_subtitle: "Book appointments, consult top doctors, and manage your health digitally — all in one beautifully designed platform.",
+  about_title: "ABOUT OUR CLINIC",
+  about_description: "For over 13 years, we have built a legacy of professional medical care in Karachi — through world-class specialists, modern infrastructure, and a genuinely patient-first culture.",
+  about_ceo_vision: "My dream is to create a platform that inspires trust, promotes evidence-based physiotherapy, and positively impacts lives across the world."
 };
 
 let mockServices = [
@@ -228,17 +233,20 @@ app.post("/api/auth/login", async (req, res) => {
         // Secure password check using bcryptjs
         const isMatch = await bcrypt.compare(password, user.password);
         if (isMatch) {
+          let doctorStatus = "Active";
+          let adminNote = null;
           if (role === "doctor") {
-            const docProfile = await db.query("SELECT status FROM doctors WHERE name = ? OR slug = ?", [user.name, user.name.toLowerCase().replace(/\s+/g, "-")]);
-            if (docProfile.length > 0 && docProfile[0].status === "Suspended") {
-              return res.status(403).json({ error: "Your professional profile is currently pending verification/approval by the administrative desk." });
+            const docProfile = await db.query("SELECT status, admin_note FROM doctors WHERE email = ?", [email]);
+            if (docProfile.length > 0) {
+              doctorStatus = docProfile[0].status;
+              adminNote = docProfile[0].admin_note;
             }
           }
-          const token = jwt.sign({ email: user.email, role: user.role, name: user.name }, JWT_SECRET, { expiresIn: "24h" });
+          const token = jwt.sign({ email: user.email, role: user.role, name: user.name, status: doctorStatus, admin_note: adminNote }, JWT_SECRET, { expiresIn: "24h" });
           return res.json({
             success: true,
             token,
-            user: { email: user.email, role: user.role, name: user.name }
+            user: { email: user.email, role: user.role, name: user.name, status: doctorStatus, admin_note: adminNote }
           });
         } else {
           return res.status(401).json({ error: "Invalid password. Please try again." });
@@ -259,20 +267,25 @@ app.post("/api/auth/login", async (req, res) => {
     if (!isMatch) {
       return res.status(401).json({ error: "Invalid password. Please try again." });
     }
+    let doctorStatus = "Active";
+    let adminNote = null;
     if (role === "doctor") {
-      const docProfile = mockDoctors.find(d => d.name.toLowerCase() === user.name.toLowerCase() || d.slug === user.name.toLowerCase().replace(/\s+/g, "-"));
-      if (docProfile && docProfile.status === "Suspended") {
-        return res.status(403).json({ error: "Your professional profile is currently pending verification/approval by the administrative desk." });
+      const docProfile = mockDoctors.find(d => d.email?.toLowerCase() === email.toLowerCase());
+      if (docProfile) {
+        doctorStatus = docProfile.status;
+        adminNote = docProfile.admin_note;
       }
     }
-    const token = jwt.sign({ email: user.email, role: user.role, name: user.name }, JWT_SECRET, { expiresIn: "24h" });
+    const token = jwt.sign({ email: user.email, role: user.role, name: user.name, status: doctorStatus, admin_note: adminNote }, JWT_SECRET, { expiresIn: "24h" });
     res.json({
       success: true,
       token,
       user: {
         email: user.email,
         role: user.role,
-        name: user.name
+        name: user.name,
+        status: doctorStatus,
+        admin_note: adminNote
       }
     });
   }
@@ -280,7 +293,12 @@ app.post("/api/auth/login", async (req, res) => {
 
 // 1b. Signup Endpoint
 app.post("/api/auth/signup", async (req, res) => {
-  const { name, email, password, role, specialty, branch, fee, experience, title, image } = req.body;
+  const { 
+    name, email, password, role, specialty, branch, fee, experience, title, image,
+    cv_file, cv_name, certificates_file, certificates_name, degrees_file, degrees_name, rewards_file, rewards_name,
+    social_linkedin, social_facebook, social_instagram, social_twitter
+  } = req.body;
+  
   if (!name || !email || !password || !role) {
     return res.status(400).json({ error: "All fields are required" });
   }
@@ -305,14 +323,22 @@ app.post("/api/auth/signup", async (req, res) => {
         [name, email, hashedPassword, role]
       );
 
-      // If doctor, insert suspended profile into doctors registry
+      // If doctor, insert pending profile into doctors registry
       if (role === "doctor") {
         const docName = name.startsWith("Dr.") ? name : `Dr. ${name}`;
         const docSlug = name.toLowerCase().replace(/\s+/g, "-");
         const docImg = image || "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=400&q=80";
         await db.query(
-          "INSERT INTO doctors (name, specialty, fee, branch, status, image, experience, rating, title, slug, available) VALUES (?, ?, ?, ?, 'Suspended', ?, ?, 4.8, ?, ?, 1)",
-          [docName, specialty || "Physical Therapy", `₨ ${fee || "2,500"}`, branch || "Gulberg", docImg, experience || "10 Years", title || "Consultant", docSlug]
+          `INSERT INTO doctors (
+            name, specialty, fee, branch, status, image, experience, rating, title, slug, available, email,
+            cv_file, cv_name, certificates_file, certificates_name, degrees_file, degrees_name, rewards_file, rewards_name,
+            social_linkedin, social_facebook, social_instagram, social_twitter
+          ) VALUES (?, ?, ?, ?, 'Pending', ?, ?, 4.8, ?, ?, 1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          [
+            docName, specialty || "Physical Therapy", `₨ ${fee || "2,500"}`, branch || "Gulberg", docImg, experience || "10 Years", title || "Consultant", docSlug, email,
+            cv_file || null, cv_name || null, certificates_file || null, certificates_name || null, degrees_file || null, degrees_name || null, rewards_file || null, rewards_name || null,
+            social_linkedin || null, social_facebook || null, social_instagram || null, social_twitter || null
+          ]
         );
       }
 
@@ -342,13 +368,27 @@ app.post("/api/auth/signup", async (req, res) => {
         specialty: specialty || "Physical Therapy",
         fee: `₨ ${fee || "2,500"}`,
         branch: branch || "Gulberg",
-        status: "Suspended", // Needs activation
+        status: "Pending", // Needs activation
         image: docImg,
         experience: experience || "10 Years",
         rating: 4.8,
         title: title || "Consultant",
         slug: docSlug,
-        available: 1
+        available: 1,
+        email,
+        cv_file: cv_file || null,
+        cv_name: cv_name || null,
+        certificates_file: certificates_file || null,
+        certificates_name: certificates_name || null,
+        degrees_file: degrees_file || null,
+        degrees_name: degrees_name || null,
+        rewards_file: rewards_file || null,
+        rewards_name: rewards_name || null,
+        social_linkedin: social_linkedin || null,
+        social_facebook: social_facebook || null,
+        social_instagram: social_instagram || null,
+        social_twitter: social_twitter || null,
+        admin_note: null
       });
     }
     return res.json({ success: true, message: "User registered successfully (Mock fallback)" });
@@ -373,7 +413,9 @@ app.get("/api/appointments", async (req, res) => {
         payment_status: row.payment_status,
         payment_method: row.payment_method,
         payment_screenshot: row.payment_screenshot,
-        admin_note: row.admin_note
+        admin_note: row.admin_note,
+        patient_report: row.patient_report,
+        patient_report_name: row.patient_report_name
       }));
       res.json(mapped);
     } catch (e) {
@@ -386,7 +428,7 @@ app.get("/api/appointments", async (req, res) => {
 
 // 3. Create Appointment
 app.post("/api/appointments", async (req, res) => {
-  const { doctor, date, time, type, branch, status, patient, payment_status, payment_method, payment_screenshot } = req.body;
+  const { doctor, date, time, type, branch, status, patient, payment_status, payment_method, payment_screenshot, patient_report, patient_report_name } = req.body;
   const newAppt = {
     id: `PC-${Date.now().toString().slice(-5)}`,
     doctor: doctor,
@@ -399,14 +441,16 @@ app.post("/api/appointments", async (req, res) => {
     payment_status: payment_status || "Pending Verification",
     payment_method: payment_method || null,
     payment_screenshot: payment_screenshot || null,
-    admin_note: null
+    admin_note: null,
+    patient_report: patient_report || null,
+    patient_report_name: patient_report_name || null
   };
 
   if (db.isDbEnabled()) {
     try {
       await db.query(
-        "INSERT INTO appointments (id, doctor_name, date, time, type, branch, status, patient_name, payment_status, payment_method, payment_screenshot) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-        [newAppt.id, doctor, date, time, type, branch, newAppt.status, newAppt.patient, newAppt.payment_status, newAppt.payment_method, newAppt.payment_screenshot]
+        "INSERT INTO appointments (id, doctor_name, date, time, type, branch, status, patient_name, payment_status, payment_method, payment_screenshot, patient_report, patient_report_name) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        [newAppt.id, doctor, date, time, type, branch, newAppt.status, newAppt.patient, newAppt.payment_status, newAppt.payment_method, newAppt.payment_screenshot, newAppt.patient_report, newAppt.patient_report_name]
       );
       res.json({ success: true, appointment: newAppt });
     } catch (e) {
@@ -719,16 +763,170 @@ app.post("/api/doctors", async (req, res) => {
 
 // 14. Toggle Doctor Status
 app.post("/api/doctors/status", async (req, res) => {
-  const { id, status } = req.body;
+  const { id, status, admin_note } = req.body;
   if (db.isDbEnabled()) {
     try {
-      await db.query("UPDATE doctors SET status = ? WHERE id = ?", [status, id]);
+      await db.query("UPDATE doctors SET status = ?, admin_note = ? WHERE id = ?", [status, admin_note || null, id]);
       res.json({ success: true });
     } catch (e) {
       res.status(500).json({ error: e.message });
     }
   } else {
-    mockDoctors = mockDoctors.map(doc => doc.id === parseInt(id) ? { ...doc, status } : doc);
+    mockDoctors = mockDoctors.map(doc => doc.id === parseInt(id) ? { ...doc, status, admin_note: admin_note || null } : doc);
+    res.json({ success: true });
+  }
+});
+
+// 14a. Resubmit Doctor Application
+app.post("/api/doctors/resubmit", async (req, res) => {
+  const {
+    id, email,
+    cv_file, cv_name,
+    certificates_file, certificates_name,
+    degrees_file, degrees_name,
+    rewards_file, rewards_name
+  } = req.body;
+
+  if (db.isDbEnabled()) {
+    try {
+      let queryStr = "UPDATE doctors SET status = 'Pending', admin_note = NULL";
+      const params = [];
+      
+      if (cv_file !== undefined) {
+        queryStr += ", cv_file = ?, cv_name = ?";
+        params.push(cv_file, cv_name || null);
+      }
+      if (certificates_file !== undefined) {
+        queryStr += ", certificates_file = ?, certificates_name = ?";
+        params.push(certificates_file, certificates_name || null);
+      }
+      if (degrees_file !== undefined) {
+        queryStr += ", degrees_file = ?, degrees_name = ?";
+        params.push(degrees_file, degrees_name || null);
+      }
+      if (rewards_file !== undefined) {
+        queryStr += ", rewards_file = ?, rewards_name = ?";
+        params.push(rewards_file, rewards_name || null);
+      }
+
+      if (id) {
+        queryStr += " WHERE id = ?";
+        params.push(id);
+      } else if (email) {
+        queryStr += " WHERE email = ?";
+        params.push(email);
+      } else {
+        return res.status(400).json({ error: "Doctor ID or Email is required for resubmission." });
+      }
+
+      await db.query(queryStr, params);
+      res.json({ success: true, message: "Application resubmitted successfully" });
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  } else {
+    // Mock
+    mockDoctors = mockDoctors.map(doc => {
+      const match = (id && doc.id === parseInt(id)) || (email && doc.email?.toLowerCase() === email.toLowerCase());
+      if (match) {
+        const updated = {
+          ...doc,
+          status: "Pending",
+          admin_note: null
+        };
+        if (cv_file !== undefined) {
+          updated.cv_file = cv_file;
+          updated.cv_name = cv_name || null;
+        }
+        if (certificates_file !== undefined) {
+          updated.certificates_file = certificates_file;
+          updated.certificates_name = certificates_name || null;
+        }
+        if (degrees_file !== undefined) {
+          updated.degrees_file = degrees_file;
+          updated.degrees_name = degrees_name || null;
+        }
+        if (rewards_file !== undefined) {
+          updated.rewards_file = rewards_file;
+          updated.rewards_name = rewards_name || null;
+        }
+        return updated;
+      }
+      return doc;
+    });
+    res.json({ success: true, message: "Application resubmitted successfully (Mock fallback)" });
+  }
+});
+
+// 14b. Update Doctor profile details
+app.post("/api/doctors/update", async (req, res) => {
+  const { 
+    id, name, specialty, fee, branch, image, experience, rating, title, slug,
+    email, social_linkedin, social_facebook, social_instagram, social_twitter,
+    cv_file, cv_name, certificates_file, certificates_name, degrees_file, degrees_name, rewards_file, rewards_name,
+    status, admin_note
+  } = req.body;
+  if (db.isDbEnabled()) {
+    try {
+      await db.query(
+        `UPDATE doctors SET 
+          name = ?, specialty = ?, fee = ?, branch = ?, image = ?, experience = ?, rating = ?, title = ?, slug = ?,
+          email = ?, social_linkedin = ?, social_facebook = ?, social_instagram = ?, social_twitter = ?,
+          cv_file = ?, cv_name = ?, certificates_file = ?, certificates_name = ?, degrees_file = ?, degrees_name = ?, rewards_file = ?, rewards_name = ?,
+          status = ?, admin_note = ?
+         WHERE id = ?`,
+        [
+          name, specialty, fee, branch, image, experience, rating || null, title, slug,
+          email || null, social_linkedin || null, social_facebook || null, social_instagram || null, social_twitter || null,
+          cv_file || null, cv_name || null, certificates_file || null, certificates_name || null, degrees_file || null, degrees_name || null, rewards_file || null, rewards_name || null,
+          status || 'Active', admin_note || null,
+          id
+        ]
+      );
+      res.json({ success: true });
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  } else {
+    mockDoctors = mockDoctors.map(doc => 
+      doc.id === parseInt(id) 
+        ? { 
+            ...doc, 
+            name, specialty, fee, branch, image, experience, rating: parseFloat(rating) || doc.rating, title, slug,
+            email: email !== undefined ? email : doc.email,
+            social_linkedin: social_linkedin !== undefined ? social_linkedin : doc.social_linkedin,
+            social_facebook: social_facebook !== undefined ? social_facebook : doc.social_facebook,
+            social_instagram: social_instagram !== undefined ? social_instagram : doc.social_instagram,
+            social_twitter: social_twitter !== undefined ? social_twitter : doc.social_twitter,
+            cv_file: cv_file !== undefined ? cv_file : doc.cv_file,
+            cv_name: cv_name !== undefined ? cv_name : doc.cv_name,
+            certificates_file: certificates_file !== undefined ? certificates_file : doc.certificates_file,
+            certificates_name: certificates_name !== undefined ? certificates_name : doc.certificates_name,
+            degrees_file: degrees_file !== undefined ? degrees_file : doc.degrees_file,
+            degrees_name: degrees_name !== undefined ? degrees_name : doc.degrees_name,
+            rewards_file: rewards_file !== undefined ? rewards_file : doc.rewards_file,
+            rewards_name: rewards_name !== undefined ? rewards_name : doc.rewards_name,
+            status: status !== undefined ? status : doc.status,
+            admin_note: admin_note !== undefined ? admin_note : doc.admin_note
+          } 
+        : doc
+    );
+    res.json({ success: true });
+  }
+});
+
+// 14c. Delete Doctor profile
+app.delete("/api/doctors/:id", async (req, res) => {
+  const { id } = req.params;
+  if (db.isDbEnabled()) {
+    try {
+      await db.query("DELETE FROM doctors WHERE id = ?", [id]);
+      res.json({ success: true });
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  } else {
+    mockDoctors = mockDoctors.filter(doc => doc.id !== parseInt(id));
     res.json({ success: true });
   }
 });

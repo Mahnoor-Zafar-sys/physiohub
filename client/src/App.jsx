@@ -42,7 +42,7 @@ function DashboardRedirect() {
     patient: "/patient-portal",
     doctor: "/doctor-portal",
     admin: "/admin",
-    receptionist: "/admin"
+    receptionist: "/staff"
   };
   return <Navigate to={portalMap[role] || "/login"} replace />;
 }
@@ -100,7 +100,12 @@ export default function App() {
           </AuthGuard>
         } />
         <Route path="/admin" element={
-          <AuthGuard allowedRoles={["admin", "receptionist"]}>
+          <AuthGuard allowedRoles={["admin"]}>
+            <AdminPanel />
+          </AuthGuard>
+        } />
+        <Route path="/staff" element={
+          <AuthGuard allowedRoles={["receptionist"]}>
             <AdminPanel />
           </AuthGuard>
         } />

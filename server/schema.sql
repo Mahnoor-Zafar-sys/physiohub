@@ -20,13 +20,29 @@ CREATE TABLE IF NOT EXISTS doctors (
   specialty VARCHAR(255) NOT NULL,
   fee VARCHAR(100) NOT NULL,
   branch VARCHAR(255) NOT NULL,
-  status ENUM('Active', 'Suspended') DEFAULT 'Active',
+  status ENUM('Active', 'Suspended', 'Pending', 'Rejected', 'Need More Details') DEFAULT 'Pending',
   image LONGTEXT NOT NULL,
   experience VARCHAR(100) NOT NULL,
   rating DECIMAL(3, 2) DEFAULT 4.8,
   title VARCHAR(255) NOT NULL,
   slug VARCHAR(255) NOT NULL,
   available TINYINT DEFAULT 1,
+  email VARCHAR(255) DEFAULT NULL,
+  cv_file LONGTEXT DEFAULT NULL,
+  cv_name VARCHAR(255) DEFAULT NULL,
+  certificates_file LONGTEXT DEFAULT NULL,
+  certificates_name VARCHAR(255) DEFAULT NULL,
+  degrees_file LONGTEXT DEFAULT NULL,
+  degrees_name VARCHAR(255) DEFAULT NULL,
+  rewards_file LONGTEXT DEFAULT NULL,
+  rewards_name VARCHAR(255) DEFAULT NULL,
+  other_files LONGTEXT DEFAULT NULL,
+  other_files_name VARCHAR(255) DEFAULT NULL,
+  social_linkedin VARCHAR(255) DEFAULT NULL,
+  social_facebook VARCHAR(255) DEFAULT NULL,
+  social_instagram VARCHAR(255) DEFAULT NULL,
+  social_twitter VARCHAR(255) DEFAULT NULL,
+  admin_note TEXT DEFAULT NULL,
   INDEX idx_status (status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -44,6 +60,8 @@ CREATE TABLE IF NOT EXISTS appointments (
   payment_method VARCHAR(100) DEFAULT NULL,
   payment_screenshot LONGTEXT DEFAULT NULL,
   admin_note TEXT DEFAULT NULL,
+  patient_report LONGTEXT DEFAULT NULL,
+  patient_report_name VARCHAR(255) DEFAULT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   INDEX idx_patient (patient_name),
   INDEX idx_date (date)
@@ -123,10 +141,10 @@ INSERT INTO users (name, email, password, role) VALUES
 ON DUPLICATE KEY UPDATE id=id;
 
 -- Seed Doctors List with extended attributes
-INSERT INTO doctors (name, specialty, fee, branch, status, image, experience, rating, title, slug, available) VALUES
-('Dr. Sarah Ahmed', 'Skin & Dermatology', '₨ 3,000', 'Gulberg, DHA', 'Active', 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=400&q=80', '14 Years', 4.90, 'MBBS, FCPS (Dermatology)', 'dr-sarah-ahmed', 1),
-('Dr. Omar Farooq', 'Dental Care', '₨ 2,500', 'Gulberg', 'Active', 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=400&q=80', '11 Years', 4.80, 'BDS, FCPS (Oral Surgery)', 'dr-omar-farooq', 1),
-('Dr. Fatima Malik', 'Gynecology & Obstetrics', '₨ 3,500', 'DHA', 'Active', 'https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&w=400&q=80', '16 Years', 5.00, 'MBBS, MRCOG (Gynecology)', 'dr-fatima-malik', 1)
+INSERT INTO doctors (name, specialty, fee, branch, status, image, experience, rating, title, slug, available, email, social_linkedin, social_facebook, social_instagram) VALUES
+('Dr. Sarah Ahmed', 'Skin & Dermatology', '₨ 3,000', 'Gulberg, DHA', 'Active', 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=400&q=80', '14 Years', 4.90, 'MBBS, FCPS (Dermatology)', 'dr-sarah-ahmed', 1, 'doctor@physiohub.com', 'https://linkedin.com/in/dr-sarah', 'https://facebook.com/dr-sarah', 'https://instagram.com/dr-sarah'),
+('Dr. Omar Farooq', 'Dental Care', '₨ 2,500', 'Gulberg', 'Active', 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=400&q=80', '11 Years', 4.80, 'BDS, FCPS (Oral Surgery)', 'dr-omar-farooq', 1, 'doctor-omar@physiohub.com', 'https://linkedin.com/in/dr-omar', 'https://facebook.com/dr-omar', 'https://instagram.com/dr-omar'),
+('Dr. Fatima Malik', 'Gynecology & Obstetrics', '₨ 3,500', 'DHA', 'Active', 'https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&w=400&q=80', '16 Years', 5.00, 'MBBS, MRCOG (Gynecology)', 'dr-fatima-malik', 1, 'doctor-fatima@physiohub.com', 'https://linkedin.com/in/dr-fatima', 'https://facebook.com/dr-fatima', 'https://instagram.com/dr-fatima')
 ON DUPLICATE KEY UPDATE id=id;
 
 -- Seed EMR records

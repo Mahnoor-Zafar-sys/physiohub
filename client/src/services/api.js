@@ -140,7 +140,9 @@ export const api = {
       payment_status: apptData.payment_status || "Pending Verification",
       payment_method: apptData.payment_method || null,
       payment_screenshot: apptData.payment_screenshot || null,
-      admin_note: null
+      admin_note: null,
+      patient_report: apptData.patient_report || null,
+      patient_report_name: apptData.patient_report_name || null
     };
     const updated = [newAppt, ...current];
     localStorage.setItem("pc_appts", JSON.stringify(updated));
@@ -308,14 +310,81 @@ export const api = {
     return newDoc;
   },
 
-  toggleDoctorStatus: async (id, status) => {
-    const res = await apiCall("/doctors/status", "POST", { id, status });
+  toggleDoctorStatus: async (id, status, admin_note = null) => {
+    const res = await apiCall("/doctors/status", "POST", { id, status, admin_note });
     if (res && res.success) return true;
     
     const local = localStorage.getItem("pc_doctors");
     if (local) {
       const current = JSON.parse(local);
-      const updated = current.map(doc => doc.id === id ? { ...doc, status } : doc);
+      const updated = current.map(doc => doc.id === id ? { ...doc, status, admin_note } : doc);
+      localStorage.setItem("pc_doctors", JSON.stringify(updated));
+    }
+    return true;
+  },
+
+  resubmitDoctorApplication: async (resubmitData) => {
+    const res = await apiCall("/doctors/resubmit", "POST", resubmitData);
+    if (res && res.success) return res;
+    
+    const local = localStorage.getItem("pc_doctors");
+    if (local) {
+      const current = JSON.parse(local);
+      const updated = current.map(doc => {
+        const match = (resubmitData.id && doc.id === resubmitData.id) || 
+                      (resubmitData.email && doc.email?.toLowerCase() === resubmitData.email.toLowerCase());
+        if (match) {
+          const docUpdated = {
+            ...doc,
+            status: "Pending",
+            admin_note: null
+          };
+          if (resubmitData.cv_file !== undefined) {
+            docUpdated.cv_file = resubmitData.cv_file;
+            docUpdated.cv_name = resubmitData.cv_name || null;
+          }
+          if (resubmitData.certificates_file !== undefined) {
+            docUpdated.certificates_file = resubmitData.certificates_file;
+            docUpdated.certificates_name = resubmitData.certificates_name || null;
+          }
+          if (resubmitData.degrees_file !== undefined) {
+            docUpdated.degrees_file = resubmitData.degrees_file;
+            docUpdated.degrees_name = resubmitData.degrees_name || null;
+          }
+          if (resubmitData.rewards_file !== undefined) {
+            docUpdated.rewards_file = resubmitData.rewards_file;
+            docUpdated.rewards_name = resubmitData.rewards_name || null;
+          }
+          return docUpdated;
+        }
+        return doc;
+      });
+      localStorage.setItem("pc_doctors", JSON.stringify(updated));
+    }
+    return { success: true };
+  },
+
+  updateDoctor: async (id, docData) => {
+    const res = await apiCall("/doctors/update", "POST", { id, ...docData });
+    if (res && res.success) return true;
+    
+    const local = localStorage.getItem("pc_doctors");
+    if (local) {
+      const current = JSON.parse(local);
+      const updated = current.map(doc => doc.id === id ? { ...doc, ...docData } : doc);
+      localStorage.setItem("pc_doctors", JSON.stringify(updated));
+    }
+    return true;
+  },
+
+  deleteDoctor: async (id) => {
+    const res = await apiCall(`/doctors/${id}`, "DELETE");
+    if (res && res.success) return true;
+    
+    const local = localStorage.getItem("pc_doctors");
+    if (local) {
+      const current = JSON.parse(local);
+      const updated = current.filter(doc => doc.id !== id);
       localStorage.setItem("pc_doctors", JSON.stringify(updated));
     }
     return true;

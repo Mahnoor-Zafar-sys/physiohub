@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import { api } from "../services/api";
 import { 
   FiAward, FiShield, FiActivity, FiDollarSign, FiVideo, 
   FiCheckCircle, FiStar, FiArrowRight, FiUserCheck, FiCpu
@@ -101,6 +102,17 @@ export default function WhyUsPage() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState(0);
 
+  const [settings, setSettings] = useState(() => {
+    const local = localStorage.getItem("pc_settings");
+    return local ? JSON.parse(local) : {};
+  });
+
+  useEffect(() => {
+    api.getSettings().then(res => {
+      if (res) setSettings(res);
+    });
+  }, []);
+
   return (
     <div className="min-h-screen bg-slate-50 font-body select-none">
       <Navbar />
@@ -132,10 +144,22 @@ export default function WhyUsPage() {
               Our Core Strengths
             </div>
             <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight font-serif mb-6 leading-tight text-slate-900">
-              Why Patients Trust <span style={{ background: "linear-gradient(135deg,#0ea5e9,#db2777)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Vital Physio Hub</span>
+              {settings.why_us_headline ? (
+                settings.why_us_headline.includes("Vital Physio Hub") ? (
+                  <>
+                    {settings.why_us_headline.split("Vital Physio Hub")[0]}
+                    <span style={{ background: "linear-gradient(135deg,#0ea5e9,#db2777)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Vital Physio Hub</span>
+                    {settings.why_us_headline.split("Vital Physio Hub")[1]}
+                  </>
+                ) : (
+                  settings.why_us_headline
+                )
+              ) : (
+                <>Why Patients Trust <span style={{ background: "linear-gradient(135deg,#0ea5e9,#db2777)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Vital Physio Hub</span></>
+              )}
             </h1>
             <p className="text-slate-500 text-base sm:text-lg max-w-3xl mx-auto leading-relaxed font-normal">
-              We coordinate elite medical specialists, modern clinical diagnostics, and a patient-first support ecosystem to deliver optimal healthcare outcomes with maximum care.
+              {settings.why_us_description || "We coordinate elite medical specialists, modern clinical diagnostics, and a patient-first support ecosystem to deliver optimal healthcare outcomes with maximum care."}
             </p>
           </motion.div>
         </div>

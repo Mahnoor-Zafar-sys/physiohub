@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FiCalendar, FiMonitor, FiPhoneCall } from "react-icons/fi";
@@ -6,6 +6,7 @@ import { FaWhatsapp } from "react-icons/fa";
 import { MdFavorite, MdLocalHospital } from "react-icons/md";
 import { GiHeartBeats, GiMicroscope } from "react-icons/gi";
 import { TbStethoscope, TbAmbulance, TbActivity } from "react-icons/tb";
+import { api } from "../services/api";
 
 const floatingIcons = [
   { Icon: MdFavorite,      color: "#3b82f6", pos: { top: "22%", left: "6%" },   dur: 7,   delay: 0,   size: "1.9rem" },
@@ -31,6 +32,17 @@ export default function Hero() {
   const navigate = useNavigate();
   const wrapRef  = useRef(null);
   const imageRef = useRef(null);
+
+  const [settings, setSettings] = useState(() => {
+    const local = localStorage.getItem("pc_settings");
+    return local ? JSON.parse(local) : {};
+  });
+
+  useEffect(() => {
+    api.getSettings().then(res => {
+      if (res) setSettings(res);
+    });
+  }, []);
 
   useEffect(() => {
     const wrap = wrapRef.current;
@@ -154,15 +166,25 @@ export default function Hero() {
               lineHeight: 1.15, color: "#0f172a", letterSpacing: "-0.012em", margin: 0,
               textShadow: "0 2px 12px rgba(255,255,255,0.5)",
             }}>
-              Premium Healthcare, <span style={{ color: "#2563eb" }}>Powered by Innovation</span>
+              {settings.hero_title ? (
+                settings.hero_title.includes("Powered by") ? (
+                  <>
+                    {settings.hero_title.split("Powered by")[0]}
+                    <span style={{ color: "#2563eb" }}>Powered by {settings.hero_title.split("Powered by")[1]}</span>
+                  </>
+                ) : (
+                  settings.hero_title
+                )
+              ) : (
+                <>Premium Healthcare, <span style={{ color: "#2563eb" }}>Powered by Innovation</span></>
+              )}
             </motion.h1>
 
             <motion.p variants={fadeUpVariant} style={{
               maxWidth: 620, color: "#1e293b", fontSize: "1.18rem",
               fontWeight: 500, lineHeight: 1.65, margin: 0,
             }}>
-              Book appointments, consult top doctors, and manage your health
-              digitally — all in one beautifully designed platform.
+              {settings.hero_subtitle || "Book appointments, consult top doctors, and manage your health digitally — all in one beautifully designed platform."}
             </motion.p>
 
             <div style={{ display: "flex", gap: 16, flexWrap: "wrap", justifyContent: "center", marginTop: "8px" }}>

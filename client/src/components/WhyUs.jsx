@@ -190,6 +190,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiUserCheck, FiActivity, FiShield, FiDollarSign, FiVideo } from "react-icons/fi";
+import { api } from "../services/api";
 
 const featuresData = [
   {
@@ -247,6 +248,17 @@ const featuresData = [
 export default function WhyUs() {
   const navigate = useNavigate();
   const [activeIndex, setActiveIndex] = useState(0);
+
+  const [settings, setSettings] = useState(() => {
+    const local = localStorage.getItem("pc_settings");
+    return local ? JSON.parse(local) : {};
+  });
+
+  useEffect(() => {
+    api.getSettings().then(res => {
+      if (res) setSettings(res);
+    });
+  }, []);
 
   // 2.5 seconds switch interval for live feed preview
   useEffect(() => {
@@ -319,7 +331,25 @@ export default function WhyUs() {
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
             className="text-4xl sm:text-5xl font-extrabold text-slate-950 tracking-tight font-serif"
           >
-            Why Patients <span className="glitter-text">Choose Us</span>
+            {settings.why_us_headline ? (
+              settings.why_us_headline.includes("Choose Us") ? (
+                <>
+                  {settings.why_us_headline.split("Choose Us")[0]}
+                  <span className="glitter-text">Choose Us</span>
+                  {settings.why_us_headline.split("Choose Us")[1]}
+                </>
+              ) : settings.why_us_headline.includes("Vital Physio Hub") ? (
+                <>
+                  {settings.why_us_headline.split("Vital Physio Hub")[0]}
+                  <span className="glitter-text">Vital Physio Hub</span>
+                  {settings.why_us_headline.split("Vital Physio Hub")[1]}
+                </>
+              ) : (
+                settings.why_us_headline
+              )
+            ) : (
+              <>Why Patients <span className="glitter-text">Choose Us</span></>
+            )}
           </motion.h2>
           
           <motion.p 
@@ -329,9 +359,7 @@ export default function WhyUs() {
             transition={{ duration: 0.6, delay: 0.15, ease: "easeOut" }}
             className="mt-4 text-slate-500 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed font-normal"
           >
-            Combining experienced medical professionals, modern clinical facilities,
-            and patient-focused treatment to deliver reliable healthcare services with
-            comfort, precision, and care.
+            {settings.why_us_description || "Combining experienced medical professionals, modern clinical facilities, and patient-focused treatment to deliver reliable healthcare services with comfort, precision, and care."}
           </motion.p>
         </div>
 

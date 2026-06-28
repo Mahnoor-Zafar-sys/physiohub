@@ -3,6 +3,7 @@ import { useRef, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import { api } from "../services/api";
 import {
   FiArrowRight, FiCheckCircle, FiChevronRight,
   FiMapPin, FiPhone, FiAward, FiShield, FiStar
@@ -201,6 +202,17 @@ export default function About() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [ceoActiveTab, setCeoActiveTab] = useState("vision");
 
+  const [settings, setSettings] = useState(() => {
+    const local = localStorage.getItem("pc_settings");
+    return local ? JSON.parse(local) : {};
+  });
+
+  useEffect(() => {
+    api.getSettings().then(res => {
+      if (res) setSettings(res);
+    });
+  }, []);
+
   useEffect(() => {
     const timer = setInterval(() => {
       setActiveIndex((prev) => (prev + 1) % storySlides.length);
@@ -319,11 +331,15 @@ export default function About() {
       className="lg:col-span-6 text-left space-y-6 z-10"
     >
       <div className="space-y-1">
-        <h1 className="text-6xl lg:text-8xl font-black tracking-tight text-slate-950 leading-none">ABOUT</h1>
-        <h2 className="text-5xl lg:text-7xl font-bold tracking-tight text-blue-600 leading-none">OUR CLINIC</h2>
+        <h1 className="text-6xl lg:text-8xl font-black tracking-tight text-slate-950 leading-none">
+          {settings.about_title ? settings.about_title.split(" ")[0] : "ABOUT"}
+        </h1>
+        <h2 className="text-5xl lg:text-7xl font-bold tracking-tight text-blue-600 leading-none">
+          {settings.about_title ? settings.about_title.split(" ").slice(1).join(" ") : "OUR CLINIC"}
+        </h2>
       </div>
       <p className="text-slate-500 text-base max-w-lg font-normal leading-relaxed pt-4 border-t border-slate-100">
-        For over 13 years, we have built a legacy of professional medical care in Karachi — through world-class specialists, modern infrastructure, and a genuinely patient-first culture.
+        {settings.about_description || "For over 13 years, we have built a legacy of professional medical care in Karachi — through world-class specialists, modern infrastructure, and a genuinely patient-first culture."}
       </p>
       <div className="flex gap-3 flex-wrap pt-2">
         <button onClick={() => navigate("/book-appointment")} className="px-5 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 transition-colors flex items-center gap-2 shadow-md shadow-blue-200">
@@ -506,7 +522,7 @@ export default function About() {
                     className="space-y-4"
                   >
                     <h3 className="text-lg lg:text-xl font-bold text-slate-800 tracking-tight leading-snug italic">
-                      "My dream is to create a platform that inspires trust, promotes evidence-based physiotherapy, and positively impacts lives across the world."
+                      "{settings.about_ceo_vision || "My dream is to create a platform that inspires trust, promotes evidence-based physiotherapy, and positively impacts lives across the world."}"
                     </h3>
                     <div className="space-y-3 text-slate-600 text-[13.5px] leading-relaxed font-medium">
                       <p>
