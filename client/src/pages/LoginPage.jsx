@@ -85,7 +85,7 @@ export default function LoginPage() {
     const token = localStorage.getItem("vph_token");
     const role = localStorage.getItem("vph_user_role");
     if (token && role) {
-      const portalMap = { patient: "/patient-portal", doctor: "/doctor-portal", admin: "/admin", receptionist: "/staff" };
+      const portalMap = { patient: "/patient-portal", doctor: "/doctor-portal", admin: "/admin-secure-portal-gate-x99", receptionist: "/staff-reception-terminal-y77" };
       navigate(portalMap[role] || "/", { replace: true });
     }
   }, [navigate]);
@@ -120,7 +120,7 @@ export default function LoginPage() {
     try {
       const res = await api.login(form.email, form.password, activeRole);
       if (res && res.success) {
-        const portalMap = { patient: "/patient-portal", doctor: "/doctor-portal", admin: "/admin", receptionist: "/staff" };
+        const portalMap = { patient: "/patient-portal", doctor: "/doctor-portal", admin: "/admin-secure-portal-gate-x99", receptionist: "/staff-reception-terminal-y77" };
         navigate(returnTo || portalMap[res.user.role] || "/", { replace: true });
       } else {
         setError(res?.error || "Invalid credentials. Please try again.");

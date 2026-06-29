@@ -20,8 +20,8 @@ export default function AuthGuard({ allowedRoles, children }) {
     const portalMap = {
       patient: "/patient-portal",
       doctor: "/doctor-portal",
-      admin: "/admin",
-      receptionist: "/admin",
+      admin: "/admin-secure-portal-gate-x99",
+      receptionist: "/staff-reception-terminal-y77",
     };
     return <Navigate to={portalMap[role] || "/"} replace />;
   }

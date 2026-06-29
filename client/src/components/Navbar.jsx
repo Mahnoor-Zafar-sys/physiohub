@@ -12,9 +12,9 @@ export default function Navbar({ onBookAppointment }) {
   const [userRole,       setUserRole]       = useState(() => localStorage.getItem("vph_user_role"));
   const [userMenuOpen,   setUserMenuOpen]   = useState(false);
   const navigate = useNavigate();
-  const isPortal = window.location.pathname.startsWith("/admin") || 
+  const isPortal = window.location.pathname.startsWith("/admin-secure-portal-gate-x99") || 
                    window.location.pathname.startsWith("/doctor-portal") || 
-                   window.location.pathname.startsWith("/staff") || 
+                   window.location.pathname.startsWith("/staff-reception-terminal-y77") || 
                    window.location.pathname.startsWith("/patient-portal");
 
   useEffect(() => {
@@ -57,9 +57,9 @@ export default function Navbar({ onBookAppointment }) {
   if (isPortal) {
     dynamicLinks = [
       { name: "Public Website", path: "/" },
-      ...(userRole === "admin" ? [{ name: "Admin Dashboard", path: "/admin" }] : []),
+      ...(userRole === "admin" ? [{ name: "Admin Dashboard", path: "/admin-secure-portal-gate-x99" }] : []),
       ...(userRole === "doctor" ? [{ name: "Doctor Portal", path: "/doctor-portal" }] : []),
-      ...(userRole === "receptionist" ? [{ name: "Staff Desk", path: "/staff" }] : []),
+      ...(userRole === "receptionist" ? [{ name: "Staff Desk", path: "/staff-reception-terminal-y77" }] : []),
       ...(userRole === "patient" ? [{ name: "Patient Portal", path: "/patient-portal" }] : []),
       { name: "Logout", path: "/login", isLogout: true }
     ];
@@ -92,9 +92,9 @@ export default function Navbar({ onBookAppointment }) {
       } else if (userRole === "doctor") {
         dynamicLinks.push({ name: "Doctor Portal", path: "/doctor-portal" });
       } else if (userRole === "admin") {
-        dynamicLinks.push({ name: "Admin Panel", path: "/admin" });
+        dynamicLinks.push({ name: "Admin Panel", path: "/admin-secure-portal-gate-x99" });
       } else if (userRole === "receptionist") {
-        dynamicLinks.push({ name: "Staff Desk", path: "/staff" });
+        dynamicLinks.push({ name: "Staff Desk", path: "/staff-reception-terminal-y77" });
       }
       dynamicLinks.push({ name: "Logout", path: "/login", isLogout: true });
     } else {
