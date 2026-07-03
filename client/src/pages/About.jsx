@@ -464,10 +464,6 @@ export default function About() {
             className="lg:col-span-7 text-left space-y-6 flex flex-col justify-between"
           >
             <div>
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-6 h-px bg-blue-500" />
-                <span className="text-[10px] font-bold text-blue-600 tracking-[0.3em] uppercase">Professional Profile</span>
-              </div>
               <h2 className="text-3xl lg:text-4xl font-black text-slate-900 tracking-tight leading-tight">
                 Dr. Ghulam Jellani, DPT
               </h2>
@@ -914,7 +910,6 @@ export default function About() {
           <div className="space-y-28">
             {facilities.map((f, i) => (
               <AlternatingRow key={f.name} img={f.img} imgAlt={f.name} reverse={i % 2 === 1}>
-                <span className="text-[10px] font-bold text-slate-400 tracking-[0.3em] uppercase">{f.short}</span>
                 <h3 className="text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">{f.name}</h3>
                 <div className="w-8 h-0.5 bg-blue-200" />
                 <p className="text-slate-500 leading-relaxed text-[15px]">{f.desc}</p>

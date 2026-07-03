@@ -277,26 +277,6 @@ export default function OnlineConsultation() {
         </div>
       </div>
 
-      {/* ── TRUST BAR ── */}
-      <div style={{ background: "linear-gradient(135deg, #1e3a5f 0%, #1e1b4b 100%)", padding: "20px 24px" }}>
-        <div className="max-w-6xl mx-auto flex flex-wrap justify-around items-center gap-6">
-          {[
-            { icon: FiShield, label: "100% HIPAA Compliant", color: "#38bdf8" },
-            { icon: FiLock, label: "End-to-End Encryption", color: "#a78bfa" },
-            { icon: TbActivity, label: "Digital Prescriptions", color: "#34d399" },
-            { icon: FiCalendar, label: "Direct WhatsApp Follow-up", color: "#f472b6" },
-          ].map((item, i) => {
-            const Icon = item.icon;
-            return (
-              <div key={i} className="flex items-center gap-2.5">
-                <Icon size={16} style={{ color: item.color }} />
-                <span style={{ color: "#cbd5e1", fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>{item.label}</span>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
       {/* ── HOW IT WORKS ── */}
       <section style={{ background: "linear-gradient(135deg, #f0f9ff 0%, #fdf4ff 50%, #fff7ed 100%)", padding: "80px 24px" }}>
         <div className="max-w-5xl mx-auto">
