@@ -18,9 +18,9 @@ const IMAGES = {
   panel3:    "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=800&q=80",
   icu:       "https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&w=1400&q=80",
   surgery:   "https://images.unsplash.com/photo-1551601651-2a8555f1a136?auto=format&fit=crop&w=1400&q=80",
-  lab:       "https://images.unsplash.com/photo-1614850523459-c2f4c699c52e?auto=format&fit=crop&w=1400&q=80",
+  lab:       "https://images.unsplash.com/photo-1579165466520-48a896616857?auto=format&fit=crop&w=1400&q=80",
   pharmacy:  "https://images.unsplash.com/photo-1586015555751-63bb77f4322a?auto=format&fit=crop&w=1400&q=80",
-  lounge:    "https://images.unsplash.com/photo-1606811971618-4486d14f3f99?auto=format&fit=crop&w=1400&q=80",
+  lounge:    "https://images.unsplash.com/photo-1629909615184-74f495363b67?auto=format&fit=crop&w=1400&q=80",
   parking:   "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1400&q=80",
   mission:   "https://images.unsplash.com/photo-1584515933487-779824d29309?auto=format&fit=crop&w=900&q=80",
   vision:    "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=900&q=80",
@@ -88,10 +88,6 @@ const SectionLabel = ({ label, heading }) => (
     viewport={{ once: true, amount: 0.2 }}
     className="mb-16"
   >
-    <div className="flex items-center gap-3 mb-4">
-      <div className="w-6 h-px bg-blue-400" />
-      <span className="text-[10px] font-bold text-blue-500 tracking-[0.3em] uppercase">{label}</span>
-    </div>
     {heading && (
       <h2 className="text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-none">
         {heading}
@@ -222,7 +218,6 @@ export default function About() {
 
   const facilities = [
     { name: "Intensive Care Suite", short: "ICU", desc: "24/7 continuous monitoring with dedicated specialist teams. Every critical patient receives immediate, personalized attention in our fully equipped critical care environment.", features: ["24/7 Specialist Coverage", "Real-Time Monitoring", "Ventilator Support"], img: IMAGES.icu },
-    { name: "Operation Theater",    short: "OT",  desc: "State-of-the-art sterile surgical suites designed to international safety standards. Laminar airflow systems and advanced intra-operative imaging ensure precision.", features: ["Laminar Airflow", "Advanced Intra-Op Imaging", "Sterile Architecture"], img: IMAGES.surgery },
     { name: "Diagnostic Laboratory",short: "LAB", desc: "Fully automated diagnostic lab delivering precise results with rapid turnaround. ISO-certified processes covering the complete diagnostic spectrum with same-day reporting.", features: ["Automated Analysis", "Same-Day Results", "ISO QA Certified"], img: IMAGES.lab },
     { name: "In-House Pharmacy",    short: "RX",  desc: "Round-the-clock pharmacy stocked with an extensive range of branded and generic medications. Accurate dispensing, cold-chain storage, and thorough patient counseling at every visit.", features: ["Open 24/7", "Prescription Verification", "Cold Chain Storage"], img: IMAGES.pharmacy },
     { name: "Patient Lounge",       short: "VIP", desc: "Thoughtfully designed comfort spaces with premium seating, ambient lighting, free Wi-Fi, and a dedicated concierge — creating a calm, reassuring atmosphere for patients and families.", features: ["Wi-Fi Enabled", "Dedicated Concierge", "Family Seating"], img: IMAGES.lounge },
@@ -641,10 +636,7 @@ export default function About() {
         </div>
       </section>
 
-      {/* ══ MARQUEE STRIP ═════════════════════════════════════════════════════ */}
-      <div className="py-5 border-y border-slate-100 bg-white overflow-hidden">
-        <Marquee items={marqueeItems} speed={40} />
-      </div>
+
 
       {/* ══ OUR STORY ════════════════════════════════════════════════════════ */}
       <section className="py-28 px-6 lg:px-16 overflow-hidden relative select-none" style={{
@@ -661,10 +653,6 @@ export default function About() {
             viewport={{ once: true, amount: 0.2 }}
             className="mb-16 md:mb-20 text-center lg:text-left"
           >
-            <div className="flex items-center justify-center lg:justify-start gap-3 mb-4">
-              <div className="w-6 h-px bg-blue-600/50" />
-              <span className="text-[11px] font-bold text-blue-600 tracking-[0.3em] uppercase">Our Journey</span>
-            </div>
             <h2 className="text-4xl lg:text-6xl font-black text-slate-900 tracking-tight leading-tight">
               A promise made in 2011.<br />
               <span className="text-[#2165f4]">Kept every single day.</span>
@@ -779,7 +767,6 @@ export default function About() {
           <SectionLabel label="Who We Are" heading="Mission & Vision" />
           <div className="space-y-24">
             <AlternatingRow img={IMAGES.mission} imgAlt="Our Mission" reverse={false}>
-              <span className="text-[10px] font-bold text-blue-500 tracking-[0.3em] uppercase">Our Mission</span>
               <h3 className="text-3xl lg:text-4xl font-black text-slate-900 tracking-tight leading-tight">
                 Healthcare that heals<br />the whole person
               </h3>
@@ -797,7 +784,6 @@ export default function About() {
             </AlternatingRow>
 
             <AlternatingRow img={IMAGES.vision} imgAlt="Our Vision" reverse={true}>
-              <span className="text-[10px] font-bold text-blue-500 tracking-[0.3em] uppercase">Our Vision</span>
               <h3 className="text-3xl lg:text-4xl font-black text-slate-900 tracking-tight leading-tight">
                 The standard others<br />aspire to reach
               </h3>
@@ -835,7 +821,7 @@ export default function About() {
 
       {/* ══ PHILOSOPHY BANNER ════════════════════════════════════════════════ */}
       <section className="py-28 px-6 lg:px-16 overflow-hidden relative" style={{
-        background: "linear-gradient(135deg, #f1f5f9 0%, #e0f2fe 35%, #fae8ff 75%, #f1f5f9 100%)"
+        background: "linear-gradient(135deg, #e0f2fe 0%, #fdf2f8 100%)"
       }}>
         <div className="absolute inset-0 opacity-[0.25]" style={{
           backgroundImage: `linear-gradient(#cbd5e1 1px, transparent 1px), linear-gradient(90deg, #cbd5e1 1px, transparent 1px)`,
@@ -852,11 +838,6 @@ export default function About() {
             viewport={{ once: true, amount: 0.3 }}
             className="text-center space-y-8"
           >
-            <div className="flex items-center justify-center gap-3">
-              <div className="w-6 h-px bg-blue-600/40" />
-              <span className="text-[11px] font-bold text-blue-700 tracking-[0.3em] uppercase">Our Philosophy</span>
-              <div className="w-6 h-px bg-blue-600/40" />
-            </div>
             <h2 className="text-4xl lg:text-6xl font-black tracking-tight leading-tight">
               <span className="text-slate-900">Technology supports care.</span>
               <br />
@@ -870,22 +851,22 @@ export default function About() {
             </p>
             <div className="grid sm:grid-cols-3 gap-5 pt-6">
               {[
-                { icon: LuStethoscope, label: "Patient First", sub: "Every decision centers the patient's wellbeing, dignity, and comfort.", color: "text-blue-600" },
-                { icon: LuZap, label: "Precision Tech", sub: "Advanced tools amplify what our specialists can achieve — not replace them.", color: "text-amber-500" },
-                { icon: LuHandshake, label: "Human Touch", sub: "Warmth and genuine connection are as vital as clinical accuracy.", color: "text-rose-500" },
-              ].map(({ icon: Icon, label, sub, color }) => (
+                { icon: LuStethoscope, label: "Patient First", sub: "Every decision centers the patient's wellbeing, dignity, and comfort.", grad: "from-blue-600 to-sky-500", text: "text-white", subText: "text-blue-50", iconBg: "bg-white/20", iconColor: "text-white" },
+                { icon: LuZap, label: "Precision Tech", sub: "Advanced tools amplify what our specialists can achieve — not replace them.", grad: "from-amber-500 to-orange-400", text: "text-white", subText: "text-amber-50", iconBg: "bg-white/20", iconColor: "text-white" },
+                { icon: LuHandshake, label: "Human Touch", sub: "Warmth and genuine connection are as vital as clinical accuracy.", grad: "from-rose-500 to-pink-400", text: "text-white", subText: "text-rose-50", iconBg: "bg-white/20", iconColor: "text-white" },
+              ].map(({ icon: Icon, label, sub, grad, text, subText, iconBg, iconColor }) => (
                 <motion.div
                   key={label}
                   variants={fadeUp} initial="hidden" whileInView="visible"
                   viewport={{ once: true, amount: 0.2 }}
-                  className="rounded-2xl border border-slate-300/70 p-6 text-left hover:border-blue-600 hover:shadow-xl transition-all duration-300"
-                  style={{ background: "#ffffff", boxShadow: "0 4px 20px rgba(15, 23, 42, 0.05)" }}
+                  className={`rounded-2xl p-6 text-left hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 bg-gradient-to-br ${grad}`}
+                  style={{ boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1)" }}
                 >
-                  <div className="mb-4 bg-slate-100 w-12 h-12 rounded-xl flex items-center justify-center border border-slate-200 shadow-sm">
-                    <Icon size={24} className={color} />
+                  <div className={`mb-4 w-12 h-12 rounded-xl flex items-center justify-center shadow-sm ${iconBg}`}>
+                    <Icon size={24} className={iconColor} />
                   </div>
-                  <p className="text-slate-900 text-base font-extrabold tracking-tight mb-2">{label}</p>
-                  <p className="text-slate-600 text-xs sm:text-[13px] leading-relaxed font-medium">{sub}</p>
+                  <p className={`text-base font-extrabold tracking-tight mb-2 ${text}`}>{label}</p>
+                  <p className={`text-xs sm:text-[13px] leading-relaxed font-medium ${subText}`}>{sub}</p>
                 </motion.div>
               ))}
             </div>
@@ -923,26 +904,6 @@ export default function About() {
               </motion.div>
             ))}
           </div>
-
-          <motion.div
-            variants={fadeUp} initial="hidden" whileInView="visible" custom={1}
-            viewport={{ once: true, amount: 0.2 }}
-            className="mt-12 p-7 bg-blue-50/60 rounded-2xl border border-blue-100"
-          >
-            <p className="text-[10px] font-bold text-blue-500 tracking-[0.25em] uppercase mb-5">Professional Memberships</p>
-            <div className="grid sm:grid-cols-3 gap-4 text-sm text-slate-600 font-medium">
-              {[
-                "Pakistan Medical & Dental Council (PMDC)",
-                "Pakistan Society of Internal Medicine (PSIM)",
-                "World Health Organization Partner Network",
-              ].map(m => (
-                <div key={m} className="flex items-start gap-2.5">
-                  <FiCheckCircle className="text-blue-500 mt-0.5 flex-shrink-0" size={13} />
-                  {m}
-                </div>
-              ))}
-            </div>
-          </motion.div>
         </div>
       </section>
 
@@ -970,16 +931,7 @@ export default function About() {
         </div>
       </section>
 
-      {/* ══ STATISTICS ════════════════════════════════════════════════════════ */}
-      <section ref={statsRef} className="py-20 bg-white border-y border-slate-100 px-6">
-        <div className="max-w-5xl mx-auto">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-12 text-center">
-            {stats.map(s => (
-              <StatItem key={s.label} {...s} start={statsInView} />
-            ))}
-          </div>
-        </div>
-      </section>
+
 
       {/* ══ CLOSING CTA ═══════════════════════════════════════════════════════ */}
       <section className="relative overflow-hidden py-36 px-6">
@@ -987,7 +939,6 @@ export default function About() {
         <div className="absolute inset-0 bg-white/85" />
         <div className="relative max-w-3xl mx-auto text-center space-y-8">
           <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.3 }}>
-            <span className="text-[10px] font-bold text-blue-600 tracking-[0.3em] uppercase block mb-4">Get Started</span>
             <h2 className="text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight mb-4">
               Ready to experience<br />modern healthcare?
             </h2>
@@ -1000,36 +951,19 @@ export default function About() {
             viewport={{ once: true, amount: 0.3 }}
             className="flex flex-col sm:flex-row gap-4 justify-center pt-2"
           >
-            <button onClick={() => navigate("/book-appointment")} className="px-7 py-3.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 transition-colors flex items-center gap-2 justify-center shadow-lg shadow-blue-200">
+            <button onClick={() => navigate("/book-appointment")} className="px-7 py-3.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 transition-colors flex items-center gap-2 justify-center shadow-lg shadow-blue-200 cursor-pointer border-none">
               Book Appointment <FiArrowRight size={15} />
             </button>
-            <button onClick={() => navigate("/online-consultation")} className="px-7 py-3.5 bg-white text-slate-800 text-sm font-semibold rounded-xl border border-slate-200 hover:border-blue-300 hover:text-blue-600 transition-all flex items-center gap-2 justify-center">
+            <button onClick={() => navigate("/online-consultation")} className="px-7 py-3.5 bg-gradient-to-r from-pink-500 to-rose-500 text-white text-sm font-semibold rounded-xl hover:opacity-95 shadow-md shadow-pink-100 transition-all flex items-center gap-2 justify-center border-none cursor-pointer">
               Online Consultation <FiChevronRight size={15} />
             </button>
-            <button onClick={() => navigate("/doctors")} className="px-7 py-3.5 bg-slate-50 text-slate-700 text-sm font-semibold rounded-xl border border-slate-100 hover:border-slate-300 transition-all flex items-center gap-2 justify-center">
+            <button onClick={() => navigate("/doctors")} className="px-7 py-3.5 bg-gradient-to-r from-green-500 to-emerald-600 text-white text-sm font-semibold rounded-xl border border-slate-100 hover:opacity-95 transition-all flex items-center gap-2 justify-center border-none cursor-pointer shadow-md shadow-green-100">
               Meet Our Doctors <FiChevronRight size={15} />
             </button>
           </motion.div>
         </div>
       </section>
 
-      {/* ══ FOOTER CONTACT BAR ════════════════════════════════════════════════ */}
-      <section className="py-10 border-t border-blue-50 bg-slate-50/50 px-6">
-        <div className="max-w-3xl mx-auto flex flex-col sm:flex-row justify-center gap-8 text-xs font-semibold text-slate-500">
-          <div className="flex items-center justify-center gap-2">
-            <FiMapPin className="text-blue-500" />
-            <span>Phase 6, DHA, Karachi, PK</span>
-          </div>
-          <div className="flex items-center justify-center gap-2">
-            <FiPhone className="text-blue-500" />
-            <span>+92 21 111 254 642</span>
-          </div>
-          <div className="flex items-center justify-center gap-2">
-            <FaAmbulance className="text-blue-500" />
-            <span>Emergency Hotline Active</span>
-          </div>
-        </div>
-      </section>
       <Footer />
     </div>
   );

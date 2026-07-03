@@ -1,41 +1,22 @@
-
 import { useState, useRef, useEffect } from "react";
-import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import Footer from "./Footer";
 import Navbar from "./Navbar";
 import {
-  FiVideo, FiPhone, FiMessageCircle, FiSearch, FiX,
-  FiCalendar, FiCheck, FiUpload, FiSend,
-  FiPaperclip, FiDownload, FiShield,
-  FiGlobe, FiUser, FiFileText, FiActivity, FiArrowLeft, FiZap
+  FiVideo, FiPhone, FiMessageCircle, FiX,
+  FiCalendar, FiCheck, FiUpload, FiShield,
+  FiUser, FiActivity, FiArrowRight, FiInfo,
+  FiChevronLeft, FiClock, FiLock
 } from "react-icons/fi";
 import { FaWhatsapp, FaStar } from "react-icons/fa";
-import { GiTooth, GiBrain, GiBabyFace, GiHeartBeats } from "react-icons/gi";
-import { TbStethoscope, TbBone, TbEar } from "react-icons/tb";
-import { MdFace, MdOutlineContentCut } from "react-icons/md";
-import { LuLock, LuUsers } from "react-icons/lu";
-
-// ─── ALL 24 DOCTORS ───────────────────────────────────────────────────────────
+import { TbStethoscope, TbActivity } from "react-icons/tb";
 import { doctors } from "../data/mockData";
 
-const TAGS = [
-  { value: "all", label: "All Specialists", icon: TbStethoscope, color: "#0ea5e9" },
-  { value: "physiotherapy", label: "Physiotherapy", icon: FiActivity, color: "#0ea5e9" },
-  { value: "chiropractic", label: "Chiropractic Adjustments", icon: TbBone, color: "#8b5cf6" },
-  { value: "cupping", label: "Cupping Therapy", icon: GiHeartBeats, color: "#0d9488" },
-  { value: "hijama", label: "Hijama Therapy", icon: GiHeartBeats, color: "#4f46e5" },
-  { value: "electrotherapy", label: "Electrotherapy", icon: FiZap, color: "#dc2626" },
-  { value: "kinesio", label: "Kinesio Taping", icon: FiActivity, color: "#ec4899" },
-  { value: "fitness", label: "Fitness Training", icon: FiActivity, color: "#d97706" },
-  { value: "needling", label: "Dry Needling", icon: TbStethoscope, color: "#10b981" },
-];
-
 const CONSULT_TYPES = [
-  { id: "video", label: "Video Consultation", icon: FiVideo, desc: "Face-to-face via HD video", color: "#0ea5e9" },
-  { id: "audio", label: "Audio Call", icon: FiPhone, desc: "Voice-only consultation", color: "#10b981" },
-  { id: "chat", label: "Chat Consultation", icon: FiMessageCircle, desc: "Text-based messaging", color: "#8b5cf6" },
-  { id: "whatsapp", label: "WhatsApp", icon: FaWhatsapp, desc: "Consult via WhatsApp", color: "#25d366" },
+  { id: "video", label: "Video Consultation", icon: FiVideo, desc: "Face-to-face clinical video consultation with HD feed.", color: "#0ea5e9", lightColor: "rgba(14,165,233,0.08)" },
+  { id: "audio", label: "Audio Call", icon: FiPhone, desc: "Voice consultation for quick check-ups and discussions.", color: "#10b981", lightColor: "rgba(16,185,129,0.08)" },
+  { id: "chat", label: "Chat Consultation", icon: FiMessageCircle, desc: "Direct messaging to send texts and exchange diagnostic reports.", color: "#8b5cf6", lightColor: "rgba(139,92,246,0.08)" },
+  { id: "whatsapp", label: "WhatsApp", icon: FaWhatsapp, desc: "Fast-track consultation routed directly on your mobile device.", color: "#25d366", lightColor: "rgba(37,211,102,0.08)" },
 ];
 
 const TIME_SLOTS = ["09:00 AM", "10:00 AM", "11:00 AM", "12:00 PM", "02:00 PM", "03:00 PM", "04:00 PM", "05:00 PM", "06:00 PM", "07:00 PM"];
@@ -43,614 +24,515 @@ const TIME_SLOTS = ["09:00 AM", "10:00 AM", "11:00 AM", "12:00 PM", "02:00 PM", 
 function StarRating({ rating }) {
   return (
     <div className="flex items-center gap-0.5">
-      {[1,2,3,4,5].map(s => (
+      {[1, 2, 3, 4, 5].map(s => (
         <FaStar key={s} size={11} color={s <= Math.floor(rating) ? "#f59e0b" : "#e5e7eb"} />
       ))}
-      <span className="ml-1 text-xs font-semibold text-gray-600">{rating}</span>
+      <span className="ml-1.5 text-xs font-bold text-slate-600">{rating}</span>
     </div>
   );
 }
 
-// ─── BOOKING MODAL ────────────────────────────────────────────────────────────
-function BookingModal({ doctor, onClose }) {
+export default function OnlineConsultation() {
+  const [wizardOpen, setWizardOpen] = useState(false);
   const [step, setStep] = useState(1);
-  const [consultType, setConsultType] = useState(null);
+  const [channel, setChannel] = useState(null);
+  const [selectedDoc, setSelectedDoc] = useState(null);
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedSlot, setSelectedSlot] = useState(null);
   const [uploadedFile, setUploadedFile] = useState(null);
-  const [symptoms, setSymptoms] = useState("");
-  const [form, setForm] = useState({ name: "", phone: "", email: "", age: "" });
+  const [form, setForm] = useState({ name: "", phone: "", email: "", age: "", symptoms: "" });
   const [booked, setBooked] = useState(false);
   const fileRef = useRef();
 
   const today = new Date();
   const dates = Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(today); d.setDate(today.getDate() + i); return d;
+    const d = new Date(today);
+    d.setDate(today.getDate() + i);
+    return d;
   });
-  const dayNames = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
-  const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-  const canProceed1 = consultType, canProceed2 = selectedDate && selectedSlot, canProceed3 = form.name && form.phone;
+  const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-  if (booked) return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(8px)" }}>
-      <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-white rounded-3xl p-10 max-w-md w-full text-center shadow-2xl">
-        <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-5" style={{ background: "linear-gradient(135deg,#10b981,#059669)" }}>
-          <FiCheck size={36} color="white" />
-        </div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Consultation Booked!</h2>
-        <p className="text-gray-500 mb-1">Your {consultType} consultation with</p>
-        <p className="font-bold text-gray-900 mb-1">{doctor.name}</p>
-        <p className="text-gray-500 mb-6">confirmed for <span className="font-semibold text-gray-800">{selectedDate && `${dayNames[selectedDate.getDay()]}, ${selectedDate.getDate()} ${monthNames[selectedDate.getMonth()]}`}</span> at <span className="font-semibold text-gray-800">{selectedSlot}</span></p>
-        <div className="bg-gray-50 rounded-2xl p-4 mb-6 text-sm text-left space-y-2">
-          <div className="flex items-center gap-2 text-gray-600"><FiPhone size={14} /> Confirmation sent to {form.phone}</div>
-          <div className="flex items-center gap-2 text-gray-600"><FaWhatsapp size={14} color="#25d366" /> WhatsApp reminder 30 min before</div>
-          <div className="flex items-center gap-2 text-gray-600"><FiShield size={14} color="#10b981" /> Data encrypted & secure</div>
-        </div>
-        <button onClick={onClose} className="w-full py-3 rounded-2xl text-white font-bold text-sm" style={{ background: "linear-gradient(135deg,#10b981,#059669)" }}>Done</button>
-      </motion.div>
-    </div>
-  );
+  const handleNextStep = () => {
+    if (step === 1 && !channel) return;
+    if (step === 2 && !selectedDoc) return;
+    if (step === 3 && (!selectedDate || !selectedSlot)) return;
+    setStep(prev => prev + 1);
+  };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(8px)" }}>
-      <motion.div initial={{ y: 40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="bg-white rounded-3xl w-full max-w-2xl shadow-2xl overflow-hidden" style={{ maxHeight: "90vh", overflowY: "auto" }}>
-        <div className="p-6 pb-4 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white z-10">
-          <div className="flex items-center gap-3">
-            <img src={doctor.image} alt={doctor.name} className="w-12 h-12 rounded-2xl object-cover" />
-            <div><p className="font-bold text-gray-900 text-sm">{doctor.name}</p><p className="text-xs text-gray-500">{doctor.specialty}</p></div>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-1.5">
-              {[1,2,3].map(s => (<div key={s} className="h-2 rounded-full transition-all duration-300" style={{ width: step === s ? 24 : 8, background: step >= s ? doctor.solidColor : "#e5e7eb" }} />))}
-            </div>
-            <button onClick={onClose} className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors"><FiX size={16} /></button>
-          </div>
-        </div>
-        <div className="p-6">
-          {step === 1 && (
-            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
-              <h3 className="text-lg font-bold text-gray-900 mb-1">Choose Consultation Type</h3>
-              <p className="text-sm text-gray-500 mb-5">How would you like to consult with {doctor.name}?</p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
-                {CONSULT_TYPES.map(ct => {
-                  const Icon = ct.icon; const sel = consultType === ct.id;
-                  return (
-                    <button key={ct.id} onClick={() => setConsultType(ct.id)} className="p-4 rounded-2xl border-2 text-left transition-all duration-200" style={{ borderColor: sel ? ct.color : "#e5e7eb", background: sel ? `${ct.color}10` : "white" }}>
-                      <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-3" style={{ background: sel ? ct.color : "#f3f4f6" }}><Icon size={20} color={sel ? "white" : ct.color} /></div>
-                      <p className="font-bold text-sm text-gray-900">{ct.label}</p>
-                      <p className="text-xs text-gray-500 mt-0.5">{ct.desc}</p>
-                    </button>
-                  );
-                })}
-              </div>
-              <div className="mb-4">
-                <label className="text-sm font-semibold text-gray-700 mb-2 block">Describe Symptoms <span className="text-gray-400 font-normal">(optional)</span></label>
-                <textarea value={symptoms} onChange={e => setSymptoms(e.target.value)} placeholder="e.g. headaches for 3 days, skin rash..." className="w-full border border-gray-200 rounded-2xl p-3 text-sm resize-none focus:outline-none focus:border-blue-400 transition-colors" rows={3} />
-              </div>
-              <div className="mb-6">
-                <label className="text-sm font-semibold text-gray-700 mb-2 block">Upload Reports / X-rays <span className="text-gray-400 font-normal">(optional)</span></label>
-                <button onClick={() => fileRef.current.click()} className="w-full border-2 border-dashed border-gray-200 rounded-2xl p-4 flex items-center justify-center gap-2 text-sm text-gray-500 hover:border-blue-400 hover:text-blue-500 transition-colors">
-                  <FiUpload size={16} />
-                  {uploadedFile ? <span className="text-green-600 font-medium">{uploadedFile.name}</span> : "Click to upload (PDF, JPG, PNG)"}
-                </button>
-                <input ref={fileRef} type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png" onChange={e => setUploadedFile(e.target.files[0])} />
-              </div>
-              <button onClick={() => canProceed1 && setStep(2)} className="w-full py-3.5 rounded-2xl font-bold text-sm transition-all duration-200" style={{ background: canProceed1 ? `linear-gradient(135deg,${doctor.solidColor},${doctor.solidColor}cc)` : "#e5e7eb", cursor: canProceed1 ? "pointer" : "not-allowed", color: canProceed1 ? "white" : "#9ca3af" }}>Continue to Schedule →</button>
-            </motion.div>
-          )}
-          {step === 2 && (
-            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
-              <h3 className="text-lg font-bold text-gray-900 mb-1">Pick Date & Time</h3>
-              <p className="text-sm text-gray-500 mb-5">Available slots for {doctor.name}</p>
-              <div className="flex gap-2 mb-5 overflow-x-auto pb-2">
-                {dates.map((d, i) => {
-                  const sel = selectedDate && d.toDateString() === selectedDate.toDateString();
-                  return (
-                    <button key={i} onClick={() => setSelectedDate(d)} className="flex-shrink-0 flex flex-col items-center py-3 px-4 rounded-2xl border-2 transition-all duration-200 min-w-[60px]" style={{ borderColor: sel ? doctor.solidColor : "#e5e7eb", background: sel ? doctor.solidColor : "white" }}>
-                      <span className="text-xs font-medium" style={{ color: sel ? "rgba(255,255,255,0.8)" : "#9ca3af" }}>{dayNames[d.getDay()]}</span>
-                      <span className="text-lg font-black" style={{ color: sel ? "white" : "#1f2937" }}>{d.getDate()}</span>
-                      <span className="text-xs" style={{ color: sel ? "rgba(255,255,255,0.8)" : "#9ca3af" }}>{monthNames[d.getMonth()]}</span>
-                    </button>
-                  );
-                })}
-              </div>
-              <div className="grid grid-cols-3 gap-2 mb-5">
-                {TIME_SLOTS.map((slot, i) => {
-                  const sel = selectedSlot === slot; const avail = i % 3 !== 1;
-                  return (
-                    <button key={slot} onClick={() => avail && setSelectedSlot(slot)} disabled={!avail} className="py-2.5 px-3 rounded-xl text-xs font-bold border-2 transition-all duration-200" style={{ borderColor: sel ? doctor.solidColor : avail ? "#e5e7eb" : "#f3f4f6", background: sel ? doctor.solidColor : avail ? "white" : "#f9fafb", color: sel ? "white" : avail ? "#1f2937" : "#d1d5db", cursor: avail ? "pointer" : "not-allowed" }}>
-                      {slot}{!avail && <span className="block text-[9px] mt-0.5" style={{ color: "#d1d5db" }}>Booked</span>}
-                    </button>
-                  );
-                })}
-              </div>
-              <div className="bg-gray-50 rounded-2xl p-4 mb-6">
-                <p className="text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">Regular Schedule</p>
-                <div className="space-y-1.5">
-                  {doctor.availabilitySchedule.map((s, i) => (
-                    <div key={i} className="flex items-center justify-between text-xs"><span className="font-medium text-gray-700">{s.day}</span><span className="text-gray-500">{s.time}</span></div>
-                  ))}
-                </div>
-              </div>
-              <div className="flex gap-3">
-                <button onClick={() => setStep(1)} className="flex-1 py-3.5 rounded-2xl border-2 border-gray-200 text-sm font-bold text-gray-600 hover:bg-gray-50 transition-colors">← Back</button>
-                <button onClick={() => canProceed2 && setStep(3)} className="flex-1 py-3.5 rounded-2xl font-bold text-sm transition-all duration-200" style={{ background: canProceed2 ? `linear-gradient(135deg,${doctor.solidColor},${doctor.solidColor}cc)` : "#e5e7eb", cursor: canProceed2 ? "pointer" : "not-allowed", color: canProceed2 ? "white" : "#9ca3af" }}>Continue →</button>
-              </div>
-            </motion.div>
-          )}
-          {step === 3 && (
-            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
-              <h3 className="text-lg font-bold text-gray-900 mb-1">Your Details</h3>
-              <p className="text-sm text-gray-500 mb-5">We'll send confirmation here</p>
-              <div className="space-y-3 mb-5">
-                {[{ k: "name", label: "Full Name *", placeholder: "Enter your full name", type: "text" }, { k: "phone", label: "Phone / WhatsApp *", placeholder: "+92 300 1234567", type: "tel" }, { k: "email", label: "Email Address", placeholder: "your@email.com", type: "email" }, { k: "age", label: "Age", placeholder: "e.g. 32", type: "number" }].map(f => (
-                  <div key={f.k}><label className="text-xs font-bold text-gray-700 mb-1 block">{f.label}</label><input value={form[f.k]} onChange={e => setForm(p => ({ ...p, [f.k]: e.target.value }))} type={f.type} placeholder={f.placeholder} className="w-full border border-gray-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-blue-400 transition-colors" /></div>
-                ))}
-              </div>
-              <div className="rounded-2xl p-4 mb-5 border-2" style={{ borderColor: `${doctor.solidColor}40`, background: `${doctor.solidColor}08` }}>
-                <p className="text-xs font-bold text-gray-600 mb-3 uppercase tracking-wide">Booking Summary</p>
-                <div className="space-y-2 text-sm">
-                  {[["Doctor", doctor.name], ["Type", `${consultType} Consultation`], ["Date", selectedDate ? `${dayNames[selectedDate.getDay()]}, ${selectedDate.getDate()} ${monthNames[selectedDate.getMonth()]}` : "—"], ["Time", selectedSlot || "—"]].map(([k, v]) => (
-                    <div key={k} className="flex justify-between"><span className="text-gray-500">{k}</span><span className="font-semibold text-gray-900 capitalize">{v}</span></div>
-                  ))}
-                  <div className="flex justify-between border-t border-gray-200 pt-2 mt-2"><span className="font-bold text-gray-700">Fee</span><span className="font-black" style={{ color: doctor.solidColor }}>{doctor.fee}</span></div>
-                </div>
-              </div>
-              <div className="flex gap-3">
-                <button onClick={() => setStep(2)} className="flex-1 py-3.5 rounded-2xl border-2 border-gray-200 text-sm font-bold text-gray-600 hover:bg-gray-50 transition-colors">← Back</button>
-                <button onClick={() => canProceed3 && setBooked(true)} className="flex-1 py-3.5 rounded-2xl font-bold text-sm transition-all duration-200" style={{ background: canProceed3 ? `linear-gradient(135deg,${doctor.solidColor},${doctor.solidColor}cc)` : "#e5e7eb", cursor: canProceed3 ? "pointer" : "not-allowed", color: canProceed3 ? "white" : "#9ca3af" }}>Confirm Booking</button>
-              </div>
-            </motion.div>
-          )}
-        </div>
-      </motion.div>
-    </div>
-  );
-}
+  const handlePrevStep = () => {
+    setStep(prev => Math.max(1, prev - 1));
+  };
 
-// ─── CHAT WIDGET ──────────────────────────────────────────────────────────────
-function ChatWidget({ doctor, onClose }) {
-  const [messages, setMessages] = useState([{ from: "doc", text: `Hello! I'm ${doctor.name}. How can I help you today?` }]);
-  const [input, setInput] = useState("");
-  const bottomRef = useRef();
-  useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
+  const handleBook = () => {
+    if (!form.name || !form.phone) {
+      alert("Please fill in your name and phone number.");
+      return;
+    }
+    setBooked(true);
+  };
 
-  function send() {
-    if (!input.trim()) return;
-    setMessages(p => [...p, { from: "user", text: input }]);
-    setInput("");
-    setTimeout(() => setMessages(p => [...p, { from: "doc", text: "Thank you for sharing. Please book a formal consultation for a detailed evaluation. I'll ensure you receive the best care." }]), 1200);
-  }
+  const resetWizard = () => {
+    setWizardOpen(false);
+    setStep(1);
+    setChannel(null);
+    setSelectedDoc(null);
+    setSelectedDate(null);
+    setSelectedSlot(null);
+    setUploadedFile(null);
+    setForm({ name: "", phone: "", email: "", age: "", symptoms: "" });
+    setBooked(false);
+  };
+
+  const handleSelectChannel = (chId) => {
+    setChannel(chId);
+    // Auto-advance to doctor selection
+    setStep(2);
+  };
+
+  const handleSelectDoc = (doc) => {
+    setSelectedDoc(doc);
+    // Auto-advance to scheduling
+    setStep(3);
+  };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-end p-6" style={{ pointerEvents: "none" }}>
-      <motion.div initial={{ y: 40, opacity: 0, scale: 0.95 }} animate={{ y: 0, opacity: 1, scale: 1 }} className="bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col" style={{ width: 360, height: 520, pointerEvents: "all" }}>
-        <div className="p-4 flex items-center gap-3" style={{ background: `linear-gradient(135deg,${doctor.solidColor},${doctor.solidColor}cc)` }}>
-          <div className="relative"><img src={doctor.image} alt="" className="w-10 h-10 rounded-xl object-cover" /><div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-400 rounded-full border-2 border-white" /></div>
-          <div className="flex-1"><p className="font-bold text-white text-sm">{doctor.name}</p><p className="text-xs text-white/70">Online • Replies in 5 min</p></div>
-          <button onClick={onClose} className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors"><FiX size={14} color="white" /></button>
-        </div>
-        <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50">
-          {messages.map((m, i) => (
-            <div key={i} className={`flex ${m.from === "user" ? "justify-end" : "justify-start"}`}>
-              {m.from === "doc" && <img src={doctor.image} alt="" className="w-6 h-6 rounded-lg object-cover mr-2 mt-1 flex-shrink-0" />}
-              <div className="max-w-[75%] px-3 py-2 rounded-2xl text-sm" style={{ background: m.from === "user" ? doctor.solidColor : "white", color: m.from === "user" ? "white" : "#1f2937", borderRadius: m.from === "user" ? "18px 18px 4px 18px" : "18px 18px 18px 4px", boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }}>{m.text}</div>
-            </div>
-          ))}
-          <div ref={bottomRef} />
-        </div>
-        <div className="p-3 bg-white border-t border-gray-100 flex items-center gap-2">
-          <button className="w-8 h-8 rounded-xl bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors flex-shrink-0"><FiPaperclip size={14} color="#6b7280" /></button>
-          <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === "Enter" && send()} placeholder="Type a message..." className="flex-1 text-sm bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:border-blue-400 transition-colors" />
-          <button onClick={send} className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 transition-all duration-200" style={{ background: input.trim() ? doctor.solidColor : "#e5e7eb" }}><FiSend size={14} color={input.trim() ? "white" : "#9ca3af"} /></button>
-        </div>
-      </motion.div>
-    </div>
-  );
-}
-
-// ─── DOCTOR CARD ──────────────────────────────────────────────────────────────
-function DoctorCard({ doc, onBook, onChat }) {
-  const [flipped, setFlipped] = useState(false);
-  const Icon = doc.IconComp;
-  return (
-    <div className="relative" style={{ perspective: 1000, height: 380 }}>
-      <motion.div animate={{ rotateY: flipped ? 180 : 0 }} transition={{ duration: 0.5, type: "spring", stiffness: 70 }} style={{ width: "100%", height: "100%", transformStyle: "preserve-3d", position: "relative" }}>
-        {/* Front */}
-        <div className="absolute inset-0 rounded-3xl overflow-hidden bg-white shadow-md border border-gray-100 hover:shadow-xl transition-shadow duration-300" style={{ backfaceVisibility: "hidden" }}>
-          <div className="h-2 w-full" style={{ background: `linear-gradient(90deg,${doc.solidColor},${doc.solidColor}80)` }} />
-          <div className="p-5">
-            <div className="flex items-start gap-3 mb-4">
-              <div className="relative flex-shrink-0">
-                <img src={doc.image} alt={doc.name} className="w-16 h-16 rounded-2xl object-cover" />
-                {doc.available && <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-400 rounded-full border-2 border-white" />}
-              </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="font-black text-gray-900 text-sm leading-tight">{doc.name}</h3>
-                <p className="text-xs text-gray-500 mt-0.5 leading-tight">{doc.title}</p>
-                <div className="flex items-center gap-1.5 mt-1.5">
-                  <div className="w-5 h-5 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: `${doc.solidColor}20` }}><Icon size={11} color={doc.solidColor} /></div>
-                  <span className="text-xs font-semibold" style={{ color: doc.solidColor }}>{doc.specialty}</span>
-                </div>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-2 mb-4">
-              {[{ label: "Experience", value: doc.experience }, { label: "Fee", value: doc.fee }, { label: "Reviews", value: doc.reviews + " reviews" }, { label: "Languages", value: doc.languages.slice(0, 2).join(", ") }].map(item => (
-                <div key={item.label} className="bg-gray-50 rounded-xl p-2.5"><p className="text-[10px] text-gray-400 uppercase tracking-wide font-semibold">{item.label}</p><p className="text-xs font-bold text-gray-800 mt-0.5 truncate">{item.value}</p></div>
-              ))}
-            </div>
-            <div className="flex items-center justify-between mb-4">
-              <StarRating rating={doc.rating} />
-              <span className="text-xs px-2.5 py-1 rounded-full font-bold" style={{ background: doc.available ? "#dcfce7" : "#fef3c7", color: doc.available ? "#16a34a" : "#d97706" }}>
-                {doc.available ? "● Available Now" : `Next: ${doc.nextSlot}`}
-              </span>
-            </div>
-            <div className="flex gap-2">
-              <button onClick={() => onBook(doc)} className="flex-1 py-2.5 rounded-xl text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-all duration-200 hover:opacity-90 active:scale-95" style={{ background: `linear-gradient(135deg,${doc.solidColor},${doc.solidColor}cc)` }}>
-                <FiCalendar size={12} /> Book Consultation
-              </button>
-              <button onClick={() => setFlipped(true)} className="w-9 h-9 rounded-xl border-2 flex items-center justify-center flex-shrink-0 hover:bg-gray-50 transition-colors" style={{ borderColor: doc.solidColor }}><FiUser size={14} color={doc.solidColor} /></button>
-              <button onClick={() => onChat(doc)} className="w-9 h-9 rounded-xl border-2 flex items-center justify-center flex-shrink-0 hover:bg-gray-50 transition-colors" style={{ borderColor: "#25d366" }}><FaWhatsapp size={14} color="#25d366" /></button>
-            </div>
-          </div>
-        </div>
-        {/* Back */}
-        <div className="absolute inset-0 rounded-3xl overflow-hidden bg-white shadow-md border border-gray-100" style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}>
-          <div className="h-2 w-full" style={{ background: `linear-gradient(90deg,${doc.solidColor},${doc.solidColor}80)` }} />
-          <div className="p-5 h-full flex flex-col">
-            <div className="flex items-center justify-between mb-3">
-              <p className="font-black text-gray-900 text-sm">{doc.name}</p>
-              <button onClick={() => setFlipped(false)} className="text-xs text-gray-400 hover:text-gray-600 transition-colors flex items-center gap-1"><FiX size={12} /> Close</button>
-            </div>
-            <p className="text-xs text-gray-600 leading-relaxed mb-4">{doc.bio}</p>
-            <p className="text-xs font-black text-gray-700 uppercase tracking-wide mb-2">Weekly Schedule</p>
-            <div className="space-y-1.5 flex-1">
-              {doc.availabilitySchedule.map((s, i) => (
-                <div key={i} className="flex items-center justify-between text-xs bg-gray-50 rounded-xl px-3 py-2">
-                  <span className="font-bold text-gray-700">{s.day}</span><span className="text-gray-500">{s.time}</span>
-                </div>
-              ))}
-            </div>
-            <div className="mt-3 flex gap-2">
-              <button onClick={() => { setFlipped(false); onBook(doc); }} className="flex-1 py-2.5 rounded-xl text-white text-xs font-bold transition-all hover:opacity-90 active:scale-95" style={{ background: `linear-gradient(135deg,${doc.solidColor},${doc.solidColor}cc)` }}>Book Now</button>
-              <button onClick={() => onChat(doc)} className="flex-1 py-2.5 rounded-xl text-xs font-bold border-2 transition-colors hover:bg-gray-50" style={{ borderColor: "#25d366", color: "#25d366" }}>Chat</button>
-            </div>
-          </div>
-        </div>
-      </motion.div>
-    </div>
-  );
-}
-
-// ─── SYMPTOM CHECKER ──────────────────────────────────────────────────────────
-const SYMPTOM_MAP = {
-  "back pain": { issue: "Low Back Pain / Lumbar Instability", specialist: "Chiropractic Adjustments", urgency: "medium", doctor: 1 },
-  "neck pain": { issue: "Cervical Dysfunction / Neck Stiffness", specialist: "Chiropractic Adjustments", urgency: "medium", doctor: 1 },
-  "joint pain": { issue: "Arthritis / Joint Stiffness", specialist: "Physiotherapy", urgency: "medium", doctor: 2 },
-  "sports injury": { issue: "Sprain, Strain, or Ligament Injury", specialist: "Physiotherapy / Fitness", urgency: "high", doctor: 1 },
-  "pelvic pain": { issue: "Pelvic Floor Muscle Dysfunction", specialist: "Women's Health PT", urgency: "medium", doctor: 2 },
-  "pregnancy backache": { issue: "Pregnancy-related back pain", specialist: "Women's Health PT", urgency: "medium", doctor: 2 },
-  "muscle knot": { issue: "Myofascial Trigger Points", specialist: "Dry Needling", urgency: "medium", doctor: 3 },
-  "hijama detox": { issue: "Systemic Inflammatory Load", specialist: "Hijama Therapy", urgency: "medium", doctor: 3 },
-  "muscle spasm": { issue: "Myofascial Spasms & Pain", specialist: "Cupping Therapy", urgency: "medium", doctor: 3 },
-  "fitness training": { issue: "Physical Deconditioning / Strength", specialist: "Fitness Training", urgency: "low", doctor: 1 },
-  "post-op rehab": { issue: "Post-Surgical Joint Stiffness", specialist: "Physiotherapy", urgency: "medium", doctor: 2 },
-  "nerve pain": { issue: "Sciatica or Pinched Nerve", specialist: "Chiropractic Adjustments", urgency: "high", doctor: 1 },
-};
-const URGENCY_COLOR = {
-  low: { bg: "#dcfce7", text: "#16a34a", label: "Not Urgent" },
-  medium: { bg: "#fef3c7", text: "#d97706", label: "See Doctor Soon" },
-  high: { bg: "#fee2e2", text: "#dc2626", label: "Urgent Care Needed" },
-};
-
-function SymptomChecker({ onBook }) {
-  const [symptom, setSymptom] = useState("");
-  const [result, setResult] = useState(null);
-  const [checked, setChecked] = useState(false);
-
-  function check() {
-    const key = Object.keys(SYMPTOM_MAP).find(k => symptom.toLowerCase().includes(k));
-    setResult(key ? SYMPTOM_MAP[key] : { issue: "Symptom not recognized. Please consult a specialist for a detailed evaluation.", specialist: "Physiotherapy", urgency: "low", doctor: 3 });
-    setChecked(true);
-  }
-  const resultDoc = result ? doctors.find(d => d.id === result.doctor) : null;
-
-  return (
-    <div className="bg-white rounded-3xl p-6 shadow-md border border-gray-100">
-      <div className="flex items-center gap-3 mb-4">
-        <div className="w-10 h-10 rounded-2xl flex items-center justify-center" style={{ background: "linear-gradient(135deg,#6366f1,#8b5cf6)" }}><FiActivity size={18} color="white" /></div>
-        <div><h3 className="font-black text-gray-900">AI Symptom Checker</h3><p className="text-xs text-gray-500">Enter symptoms for doctor recommendation</p></div>
-      </div>
-      <div className="flex gap-2 mb-4">
-        <input value={symptom} onChange={e => setSymptom(e.target.value)} onKeyDown={e => e.key === "Enter" && check()} placeholder="e.g. back pain, sports injury, neck stiffness, stroke rehab..." className="flex-1 border border-gray-200 rounded-2xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-400 transition-colors" />
-        <button onClick={check} className="px-5 py-2.5 rounded-2xl text-white text-sm font-bold transition-all hover:opacity-90 active:scale-95" style={{ background: "linear-gradient(135deg,#6366f1,#8b5cf6)" }}>Check</button>
-      </div>
-      <div className="flex flex-wrap gap-1.5 mb-4">
-        {["Back Pain", "Neck Pain", "Joint Pain", "Sports Injury", "Stroke Rehab", "Shortness of Breath", "Balance Issue", "Pelvic Pain"].map(s => (
-          <button key={s} onClick={() => { setSymptom(s.toLowerCase()); setChecked(false); setResult(null); }} className="text-xs px-3 py-1.5 rounded-full border border-gray-200 text-gray-600 hover:border-indigo-400 hover:text-indigo-600 transition-colors font-medium">{s}</button>
-        ))}
-      </div>
-      <AnimatePresence>
-        {checked && result && (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-3">
-            <div className="rounded-2xl p-4 border" style={{ background: `${URGENCY_COLOR[result.urgency].bg}50`, borderColor: `${URGENCY_COLOR[result.urgency].text}40` }}>
-              <div className="flex items-start justify-between gap-3">
-                <div><p className="text-xs font-bold text-gray-600 mb-1">Possible Condition</p><p className="font-black text-gray-900 text-sm">{result.issue}</p><p className="text-xs text-gray-600 mt-1">Recommended: <span className="font-bold">{result.specialist}</span></p></div>
-                <span className="text-xs font-bold px-3 py-1.5 rounded-full flex-shrink-0" style={{ background: URGENCY_COLOR[result.urgency].bg, color: URGENCY_COLOR[result.urgency].text }}>{URGENCY_COLOR[result.urgency].label}</span>
-              </div>
-            </div>
-            {resultDoc && (
-              <div className="flex items-center gap-3 p-3 rounded-2xl bg-gray-50 border border-gray-100">
-                <img src={resultDoc.image} alt="" className="w-10 h-10 rounded-xl object-cover" />
-                <div className="flex-1 min-w-0"><p className="font-bold text-sm text-gray-900 truncate">{resultDoc.name}</p><p className="text-xs text-gray-500">{resultDoc.specialty} • {resultDoc.fee}</p></div>
-                <button onClick={() => onBook(resultDoc)} className="text-xs font-bold px-4 py-2 rounded-xl text-white transition-all hover:opacity-90 active:scale-95 flex-shrink-0" style={{ background: resultDoc.solidColor }}>Book</button>
-              </div>
-            )}
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}
-
-const HOW_STEPS = [
-  { step: "01", title: "Choose Your Doctor", desc: "Browse specialists, read profiles, and pick your preferred doctor.", icon: FiSearch, color: "#0ea5e9" },
-  { step: "02", title: "Select Consult Type", desc: "Pick from Video, Audio, Chat, or WhatsApp consultation.", icon: FiVideo, color: "#8b5cf6" },
-  { step: "03", title: "Book a Slot", desc: "Choose a convenient date and time from available slots.", icon: FiCalendar, color: "#10b981" },
-  { step: "04", title: "Join & Consult", desc: "Get a secure link and consult from anywhere in the world.", icon: FiShield, color: "#f59e0b" },
-];
-
-// ─── FLOATING HERO ILLUSTRATION ───────────────────────────────────────────────
-function HeroIllustration() {
-  return (
-    <motion.div
-      animate={{ y: [0, -14, 0] }}
-      transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
-      className="relative w-full max-w-sm mx-auto"
-    >
-      {/* Glow ring */}
-      <div className="absolute inset-0 rounded-full" style={{ background: "radial-gradient(circle, rgba(14,165,233,0.15) 0%, transparent 70%)", transform: "scale(1.3)" }} />
-
-      {/* Main card */}
-      <div className="relative bg-white rounded-3xl p-5 border border-slate-100 shadow-2xl">
-        {/* Doctor row */}
-        <div className="flex items-center gap-3 mb-4">
-          <div className="relative">
-            <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=120&q=80" alt="Doctor" className="w-14 h-14 rounded-2xl object-cover border-2 border-slate-100" />
-            <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-400 rounded-full border-2 border-white" />
-          </div>
-          <div>
-            <p className="text-slate-800 font-bold text-sm">Dr. Sarah Ahmed</p>
-            <p className="text-slate-400 text-xs mt-0.5">Dermatologist • 14 Yrs</p>
-            <div className="flex items-center gap-1 mt-1">
-              {[1,2,3,4,5].map(i => <FaStar key={i} size={9} color="#fbbf24" />)}
-              <span className="text-slate-500 text-[10px] ml-1 font-bold">4.9</span>
-            </div>
-          </div>
-          <div className="ml-auto text-right">
-            <div className="bg-emerald-50 text-emerald-600 text-[10px] font-extrabold px-2.5 py-1 rounded-full border border-emerald-100 flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Live
-            </div>
-          </div>
-        </div>
-
-        {/* Consult type pills */}
-        <div className="flex gap-2 mb-4 flex-wrap">
-          {[{ label: "Video", color: "#0ea5e9", icon: FiVideo }, { label: "Audio", color: "#10b981", icon: FiPhone }, { label: "Chat", color: "#8b5cf6", icon: FiMessageCircle }].map(t => {
-            const Icon = t.icon;
-            return (
-              <div key={t.label} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-slate-700 text-[11px] font-bold shadow-sm" style={{ background: `${t.color}12`, border: `1px solid ${t.color}30` }}>
-                <Icon size={12} style={{ color: t.color }} /> {t.label}
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Time slot row */}
-        <div className="bg-slate-50 border border-slate-100 rounded-2xl p-3 mb-3">
-          <p className="text-slate-400 text-[10px] uppercase tracking-wider mb-2 font-extrabold">Next Available</p>
-          <div className="flex gap-2">
-            {["3:00 PM", "4:00 PM", "5:30 PM"].map((t, i) => (
-              <div key={t} className="flex-1 text-center py-1.5 rounded-xl text-xs font-black shadow-sm transition-all" style={{ background: i === 0 ? "linear-gradient(135deg,#0ea5e9,#0284c7)" : "#ffffff", color: i === 0 ? "white" : "#64748b", border: i === 0 ? "none" : "1px solid #e2e8f0" }}>{t}</div>
-            ))}
-          </div>
-        </div>
-
-        {/* Book button */}
-        <div className="w-full py-2.5 rounded-xl text-center text-white text-sm font-black shadow-md cursor-pointer hover:opacity-95 transition-opacity" style={{ background: "linear-gradient(135deg,#0ea5e9,#db2777)" }}>
-          Book Consultation →
-        </div>
-      </div>
-
-      {/* Floating badge: Secure */}
-      <motion.div animate={{ y: [0, -6, 0] }} transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-        className="absolute -top-4 -right-4 bg-white rounded-2xl px-3 py-2 shadow-xl flex items-center gap-2">
-        <div className="w-6 h-6 rounded-lg flex items-center justify-center" style={{ background: "#dcfce7" }}><LuLock size={12} className="text-green-600" /></div>
-        <div><p className="text-xs font-black text-gray-900">Secure</p><p className="text-[10px] text-gray-400">HIPAA</p></div>
-      </motion.div>
-
-      {/* Floating badge: Patients */}
-      <motion.div animate={{ y: [0, -8, 0] }} transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-        className="absolute -bottom-4 -left-4 bg-white rounded-2xl px-3 py-2 shadow-xl flex items-center gap-2">
-        <div className="w-6 h-6 rounded-lg flex items-center justify-center" style={{ background: "#dbeafe" }}><LuUsers size={12} className="text-blue-600" /></div>
-        <div><p className="text-xs font-black text-gray-900">50K+</p><p className="text-[10px] text-gray-400">Patients</p></div>
-      </motion.div>
-    </motion.div>
-  );
-}
-
-// ─── MAIN PAGE ────────────────────────────────────────────────────────────────
-export default function OnlineConsultation() {
-  const [activeTag, setActiveTag] = useState("all");
-  const [search, setSearch] = useState("");
-  const [availOnly, setAvailOnly] = useState(false);
-  const [bookingDoc, setBookingDoc] = useState(null);
-  const [chatDoc, setChatDoc] = useState(null);
-
-  const filtered = doctors.filter(d => {
-    const matchTag = activeTag === "all" || d.tag === activeTag || (d.tags && d.tags.includes(activeTag));
-    const matchSearch = !search || d.name.toLowerCase().includes(search.toLowerCase()) || d.specialty.toLowerCase().includes(search.toLowerCase());
-    const matchAvail = !availOnly || d.available;
-    return matchTag && matchSearch && matchAvail;
-  });
-
-  return (
-    <div className="min-h-screen" style={{ background: "#f8fafc", fontFamily: "'DM Sans', system-ui, sans-serif" }}>
+    <div className="min-h-screen bg-slate-50 font-sans antialiased text-slate-800 flex flex-col justify-between">
       <Navbar />
 
-      {/* ── HERO ── */}
-      <div className="relative overflow-hidden" style={{ background: "linear-gradient(135deg,#f0f9ff 0%,#ffffff 45%,#fdf2f8 100%)" }}>
-        <div className="absolute inset-0" style={{ backgroundImage: "radial-gradient(circle at 15% 50%, rgba(14,165,233,0.08) 0%, transparent 55%), radial-gradient(circle at 85% 20%, rgba(219,39,119,0.06) 0%, transparent 50%)" }} />
-
-        {/* Hero Content: Left text + Right illustration */}
-        <div className="relative max-w-6xl mx-auto px-4 pt-36 pb-14 flex flex-col md:flex-row items-center gap-12">
-          {/* LEFT: Text */}
-          <div className="flex-1 text-left">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-sky-100 shadow-sm mb-5">
-              <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-              <span className="text-sky-600 text-xs font-bold">Doctors Online Now — Live</span>
+      {/* ── OVERHAULED HERO SECTION ── */}
+      <div 
+        className="relative min-h-[75vh] flex items-center justify-center bg-cover bg-center px-4" 
+        style={{ backgroundImage: "url('https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=1600&q=80')" }}
+      >
+        {/* Dark overlay grid overlay for readability */}
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-900/90 via-slate-900/75 to-transparent z-0" />
+        
+        <div className="relative z-10 max-w-4xl w-full text-left md:pl-8 text-white space-y-6">
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="space-y-4"
+          >
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/25 border border-blue-400/30 backdrop-blur-md">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-xs font-bold uppercase tracking-wider text-blue-300">Certified Telehealth Service</span>
             </div>
-            <h1 className="text-4xl md:text-5xl font-black text-slate-900 mb-4 leading-tight">
-              Online Consultation<br />
-              <span style={{ background: "linear-gradient(90deg,#0ea5e9,#db2777)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Anywhere, Anytime</span>
+            <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight leading-tight text-white font-serif">
+              Consult Top Specialists <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-pink-400">
+                100% Online & Secure
+              </span>
             </h1>
-            <p className="text-slate-500 text-base mb-7 max-w-lg">Consult certified specialists via Video, Audio, Chat, or WhatsApp. Get prescriptions, reports & follow-ups — all online, all secure.</p>
-
-            {/* Stats */}
-            <div className="flex gap-7 mb-7">
-              {[{ v: "24+", l: "Specialists" }, { v: "50K+", l: "Consultations" }, { v: "4.9★", l: "Avg Rating" }, { v: "5 Min", l: "Response" }].map(s => (
-                <div key={s.l}>
-                  <p className="text-2xl font-black text-slate-800">{s.v}</p>
-                  <p className="text-xs text-slate-400 font-bold">{s.l}</p>
-                </div>
-              ))}
-            </div>
-
-            {/* Consult type pills */}
-            <div className="flex gap-2 flex-wrap">
-              {CONSULT_TYPES.map(ct => {
-                const Icon = ct.icon;
-                return (
-                  <div key={ct.id} className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white text-slate-700 text-xs font-bold border border-slate-200/80 shadow-sm hover:shadow transition-shadow">
-                    <Icon size={12} color={ct.color} /> {ct.label}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* RIGHT: Bouncing illustration */}
-          <div className="flex-shrink-0 w-full md:w-[380px]">
-            <HeroIllustration />
-          </div>
-        </div>
-      </div>
-
-      {/* ── HOW IT WORKS ── */}
-      <div className="max-w-6xl mx-auto px-4 py-12">
-        <h2 className="text-xl font-black text-gray-900 text-center mb-8">How It Works</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {HOW_STEPS.map((s, i) => {
-            const Icon = s.icon;
-            return (
-              <div key={i} className="text-center p-5 bg-white rounded-3xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-                <div className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-3" style={{ background: `${s.color}15` }}><Icon size={20} color={s.color} /></div>
-                <p className="text-2xl font-black mb-1" style={{ color: s.color }}>{s.step}</p>
-                <p className="font-bold text-gray-900 text-sm mb-1">{s.title}</p>
-                <p className="text-xs text-gray-500 leading-relaxed">{s.desc}</p>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* ── SYMPTOM CHECKER ── */}
-      <div className="max-w-6xl mx-auto px-4 mb-10">
-        <SymptomChecker onBook={setBookingDoc} />
-      </div>
-
-      {/* ── DOCTOR LIST ── */}
-      <div className="max-w-6xl mx-auto px-4 pb-16">
-        <div className="flex flex-col gap-4 mb-8">
-          <div className="flex items-center justify-between flex-wrap gap-3">
-            <div>
-              <h2 className="text-xl font-black text-gray-900">Our Online Specialists</h2>
-              <p className="text-sm text-gray-500 mt-0.5">{filtered.length} doctors available</p>
-            </div>
-            <label className="flex items-center gap-2 text-sm font-semibold text-gray-600 cursor-pointer select-none">
-              <div onClick={() => setAvailOnly(p => !p)} className="w-10 h-5 rounded-full relative transition-colors duration-200 flex-shrink-0" style={{ background: availOnly ? "#10b981" : "#e5e7eb" }}>
-                <div className="absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all duration-200" style={{ left: availOnly ? 22 : 2 }} />
-              </div>
-              Available Now
-            </label>
-          </div>
-          <div className="relative">
-            <FiSearch size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search doctor name or specialty..."
-              className="w-full pl-10 pr-10 py-3 rounded-2xl border border-gray-200 bg-white text-sm focus:outline-none focus:border-blue-400 transition-colors shadow-sm" />
-            {search && <button onClick={() => setSearch("")} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"><FiX size={14} /></button>}
-          </div>
-          <div className="flex gap-2 overflow-x-auto pb-1">
-            {TAGS.map(t => {
-              const Icon = t.icon; const sel = activeTag === t.value;
-              return (
-                <button key={t.value} onClick={() => setActiveTag(t.value)} className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all duration-200 flex-shrink-0" style={{ background: sel ? t.color : "white", color: sel ? "white" : "#6b7280", border: `2px solid ${sel ? t.color : "#e5e7eb"}` }}>
-                  <Icon size={12} /> {t.label}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {filtered.length === 0 ? (
-          <div className="text-center py-16">
-            <FiSearch size={40} className="mx-auto mb-3 opacity-20 text-gray-400" />
-            <p className="font-bold text-gray-500">No doctors found</p>
-            <p className="text-sm text-gray-400 mt-1">Try a different filter or search</p>
-          </div>
-        ) : (
-          <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            <AnimatePresence>
-              {filtered.map(doc => (
-                <motion.div key={doc.id} layout initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }} transition={{ duration: 0.25 }}>
-                  <DoctorCard doc={doc} onBook={setBookingDoc} onChat={setChatDoc} />
-                </motion.div>
-              ))}
-            </AnimatePresence>
+            <p className="text-slate-300 text-sm md:text-lg max-w-xl leading-relaxed">
+              Connect with leading physiotherapists, chiropractors, and medical consultants from anywhere. Skip the waiting room with our guided diagnostic consult wizard.
+            </p>
           </motion.div>
-        )}
-      </div>
 
-      {/* ── FEATURES BAR ── */}
-      <div className="bg-white border-t border-gray-100 py-8">
-        <div className="max-w-6xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-4">
-          {[{ icon: FiShield, color: "#10b981", title: "100% Secure", desc: "Encrypted & HIPAA-compliant" },
-            { icon: FiGlobe, color: "#0ea5e9", title: "Consult Anywhere", desc: "Pakistan or internationally" },
-            { icon: FiFileText, color: "#8b5cf6", title: "Digital Prescription", desc: "Receive after consultation" },
-            { icon: FiDownload, color: "#f59e0b", title: "Download Reports", desc: "Access all records anytime" }].map((f, i) => {
-            const Icon = f.icon;
-            return (
-              <div key={i} className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: `${f.color}15` }}><Icon size={18} color={f.color} /></div>
-                <div><p className="font-bold text-sm text-gray-900">{f.title}</p><p className="text-xs text-gray-500 mt-0.5 leading-relaxed">{f.desc}</p></div>
-              </div>
-            );
-          })}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+          >
+            <button
+              onClick={() => setWizardOpen(true)}
+              className="group relative inline-flex items-center gap-3 bg-gradient-to-r from-blue-600 to-sky-500 text-white font-bold text-base px-8 py-4.5 rounded-2xl shadow-[0_20px_40px_-10px_rgba(37,99,235,0.35)] hover:shadow-[0_24px_48px_-8px_rgba(14,165,233,0.5)] transition-all duration-305 hover:-translate-y-0.5"
+            >
+              <FiActivity className="text-xl animate-pulse text-sky-100" />
+              <span>Start Online Consultation</span>
+              <FiArrowRight className="text-lg transition-transform group-hover:translate-x-1" />
+            </button>
+          </motion.div>
         </div>
       </div>
 
-      {/* ── MODALS ── */}
+      {/* ── STICKY TRUST BAR ── */}
+      <div className="bg-white border-y border-slate-100 py-6">
+        <div className="max-w-6xl mx-auto px-6 flex flex-wrap justify-around items-center gap-6 text-slate-500 text-xs font-bold uppercase tracking-wider">
+          <div className="flex items-center gap-2">
+            <FiShield size={16} className="text-blue-500" />
+            <span>100% HIPAA Compliant</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <FiLock size={16} className="text-blue-500" />
+            <span>End-to-End Encryption</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <TbActivity size={16} className="text-blue-500" />
+            <span>Digital Prescriptions</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <FiCalendar size={16} className="text-blue-500" />
+            <span>Direct WhatsApp Follow-up</span>
+          </div>
+        </div>
+      </div>
+
+      {/* ── MULTI-STEP WIZARD MODAL ── */}
       <AnimatePresence>
-        {bookingDoc && <BookingModal doctor={bookingDoc} onClose={() => setBookingDoc(null)} />}
-        {chatDoc && <ChatWidget doctor={chatDoc} onClose={() => setChatDoc(null)} />}
+        {wizardOpen && (
+          <div 
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md"
+            onClick={resetWizard}
+          >
+            <motion.div 
+              initial={{ y: 40, opacity: 0 }} 
+              animate={{ y: 0, opacity: 1 }} 
+              exit={{ y: 40, opacity: 0 }}
+              className="bg-white rounded-3xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col"
+              style={{ maxHeight: "88vh" }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div className="p-6 border-b border-slate-150 flex items-center justify-between bg-slate-50/50">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-blue-500 flex items-center justify-center text-white">
+                    <TbStethoscope size={20} />
+                  </div>
+                  <div>
+                    <h3 className="font-black text-slate-800 text-base leading-tight">Telehealth Consultation Wizard</h3>
+                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">
+                      {booked ? "Completed" : `Step ${step} of 4 — ${step === 1 ? "Consult Channel" : step === 2 ? "Select Doctor" : step === 3 ? "Schedule" : "Details"}`}
+                    </p>
+                  </div>
+                </div>
+                <button 
+                  onClick={resetWizard} 
+                  className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center hover:bg-slate-200 transition-colors border-none cursor-pointer"
+                >
+                  <FiX size={16} className="text-slate-500" />
+                </button>
+              </div>
+
+              {/* Body */}
+              <div className="flex-1 overflow-y-auto p-6 md:p-8">
+                {booked ? (
+                  <motion.div 
+                    initial={{ scale: 0.95, opacity: 0 }} 
+                    animate={{ scale: 1, opacity: 1 }} 
+                    className="text-center py-6 space-y-6"
+                  >
+                    <div className="w-20 h-20 rounded-full bg-emerald-500 flex items-center justify-center mx-auto shadow-lg shadow-emerald-100">
+                      <FiCheck size={36} color="white" />
+                    </div>
+                    <div className="space-y-2">
+                      <h2 className="text-2xl font-black text-slate-900">Consultation Booked!</h2>
+                      <p className="text-slate-500 text-sm">
+                        Your <span className="font-bold text-slate-700 capitalize">{channel} Consultation</span> with
+                      </p>
+                      <p className="text-lg font-black text-slate-800">{selectedDoc?.name}</p>
+                      <p className="text-slate-500 text-sm">
+                        is confirmed for <span className="font-bold text-slate-700">{selectedDate && `${dayNames[selectedDate.getDay()]}, ${selectedDate.getDate()} ${monthNames[selectedDate.getMonth()]}`}</span> at <span className="font-bold text-slate-700">{selectedSlot}</span>
+                      </p>
+                    </div>
+
+                    <div className="bg-slate-50 rounded-2xl p-5 border border-slate-100 text-left space-y-3 max-w-md mx-auto text-xs font-semibold text-slate-655">
+                      <div className="flex items-center gap-3">
+                        <FiCheck className="text-emerald-500" />
+                        <span>Confirmation sent via Email and SMS</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <FaWhatsapp className="text-emerald-500" />
+                        <span>Direct WhatsApp coordination link dispatched</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <FiShield className="text-emerald-500" />
+                        <span>Encrypted HIPAA-compliant telehealth room initialized</span>
+                      </div>
+                    </div>
+
+                    <button 
+                      onClick={resetWizard} 
+                      className="w-full max-w-sm py-4 bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl font-bold text-sm border-none shadow-md cursor-pointer transition-colors"
+                    >
+                      Close Wizard
+                    </button>
+                  </motion.div>
+                ) : (
+                  <div>
+                    {/* STEP 1: SELECT CHANNEL */}
+                    {step === 1 && (
+                      <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
+                        <div className="space-y-1">
+                          <h4 className="text-lg font-extrabold text-slate-900">Select Consultation Channel</h4>
+                          <p className="text-xs text-slate-500 leading-relaxed">Choose how you'd like to communicate with your doctor.</p>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                          {CONSULT_TYPES.map(ct => {
+                            const Icon = ct.icon;
+                            const isSel = channel === ct.id;
+                            return (
+                              <button
+                                key={ct.id}
+                                onClick={() => handleSelectChannel(ct.id)}
+                                className="p-5 rounded-2xl border-2 text-left transition-all duration-200 cursor-pointer flex flex-col justify-between"
+                                style={{
+                                  borderColor: isSel ? ct.color : "#f1f5f9",
+                                  background: isSel ? ct.lightColor : "white",
+                                  boxShadow: isSel ? "0 4px 12px rgba(0,0,0,0.02)" : "none"
+                                }}
+                              >
+                                <div 
+                                  className="w-10 h-10 rounded-xl flex items-center justify-center mb-4 transition-transform group-hover:scale-105"
+                                  style={{ background: isSel ? ct.color : "#f8fafc", color: isSel ? "white" : ct.color }}
+                                >
+                                  <Icon size={20} />
+                                </div>
+                                <div>
+                                  <p className="font-extrabold text-sm text-slate-900">{ct.label}</p>
+                                  <p className="text-xs text-slate-400 mt-1 leading-relaxed">{ct.desc}</p>
+                                </div>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </motion.div>
+                    )}
+
+                    {/* STEP 2: SELECT SPECIALIST */}
+                    {step === 2 && (
+                      <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
+                        <div className="space-y-1">
+                          <h4 className="text-lg font-extrabold text-slate-900">Choose Available Specialist</h4>
+                          <p className="text-xs text-slate-500 leading-relaxed">Select one of our board-certified online specialists for your consult.</p>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                          {doctors.filter(d => d.status === "Active" || d.available).map(doc => {
+                            const isSel = selectedDoc?.id === doc.id;
+                            return (
+                              <button
+                                key={doc.id}
+                                onClick={() => handleSelectDoc(doc)}
+                                className="p-4 rounded-2xl border-2 text-left transition-all duration-200 cursor-pointer flex items-start gap-3 w-full"
+                                style={{
+                                  borderColor: isSel ? "#3b82f6" : "#f1f5f9",
+                                  background: isSel ? "#eff6ff" : "white"
+                                }}
+                              >
+                                <img src={doc.image} alt={doc.name} className="w-14 h-14 rounded-xl object-cover border border-slate-100 flex-shrink-0" />
+                                <div className="flex-1 min-w-0">
+                                  <p className="font-extrabold text-sm text-slate-900 truncate">{doc.name}</p>
+                                  <p className="text-[11px] text-blue-600 font-bold tracking-wide">{doc.specialty}</p>
+                                  <p className="text-xs text-slate-400 mt-0.5">{doc.experience} • Fee: {doc.fee}</p>
+                                  <div className="mt-1">
+                                    <StarRating rating={doc.rating} />
+                                  </div>
+                                </div>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </motion.div>
+                    )}
+
+                    {/* STEP 3: PICK DATE & TIME */}
+                    {step === 3 && (
+                      <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
+                        <div className="space-y-1">
+                          <h4 className="text-lg font-extrabold text-slate-900">Schedule Consultation</h4>
+                          <p className="text-xs text-slate-500 leading-relaxed">Pick a preferred date and matching time slot.</p>
+                        </div>
+                        
+                        <div className="space-y-3 pt-2">
+                          <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Available Dates</label>
+                          <div className="flex gap-2 overflow-x-auto pb-2">
+                            {dates.map((d, i) => {
+                              const isSel = selectedDate && d.toDateString() === selectedDate.toDateString();
+                              return (
+                                <button
+                                  key={i}
+                                  onClick={() => setSelectedDate(d)}
+                                  className="flex-shrink-0 flex flex-col items-center py-3 px-4 rounded-xl border-2 transition-all duration-200 min-w-[65px] cursor-pointer"
+                                  style={{
+                                    borderColor: isSel ? "#3b82f6" : "#f1f5f9",
+                                    background: isSel ? "#2563eb" : "white",
+                                    color: isSel ? "white" : "inherit"
+                                  }}
+                                >
+                                  <span className={`text-[10px] font-bold ${isSel ? "text-white/80" : "text-slate-400"}`}>{dayNames[d.getDay()]}</span>
+                                  <span className="text-base font-black mt-0.5">{d.getDate()}</span>
+                                  <span className={`text-[9px] ${isSel ? "text-white/80" : "text-slate-400"}`}>{monthNames[d.getMonth()]}</span>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        <div className="space-y-3 pt-2">
+                          <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Available Slots</label>
+                          <div className="grid grid-cols-3 gap-2">
+                            {TIME_SLOTS.map((slot, idx) => {
+                              const isSel = selectedSlot === slot;
+                              const isAvail = idx % 3 !== 1; // mock availability
+                              return (
+                                <button
+                                  key={slot}
+                                  disabled={!isAvail}
+                                  onClick={() => setSelectedSlot(slot)}
+                                  className="py-2.5 rounded-xl text-xs font-bold border-2 transition-all duration-200 cursor-pointer disabled:cursor-not-allowed text-center"
+                                  style={{
+                                    borderColor: isSel ? "#3b82f6" : isAvail ? "#f1f5f9" : "#f8fafc",
+                                    background: isSel ? "#2563eb" : isAvail ? "white" : "#f8fafc",
+                                    color: isSel ? "white" : isAvail ? "#334155" : "#cbd5e1"
+                                  }}
+                                >
+                                  {slot}
+                                  {!isAvail && <span className="block text-[9px] font-bold text-slate-300">Booked</span>}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+
+                    {/* STEP 4: PATIENT DETAILS */}
+                    {step === 4 && (
+                      <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
+                        <div className="space-y-1">
+                          <h4 className="text-lg font-extrabold text-slate-900">Enter Personal Details</h4>
+                          <p className="text-xs text-slate-500 leading-relaxed">Provide your details to complete the consultation setup.</p>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                          <div>
+                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Full Name *</label>
+                            <input
+                              type="text"
+                              value={form.name}
+                              onChange={e => setForm({ ...form, name: e.target.value })}
+                              placeholder="John Doe"
+                              className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-blue-400 bg-white"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Phone / WhatsApp *</label>
+                            <input
+                              type="tel"
+                              value={form.phone}
+                              onChange={e => setForm({ ...form, phone: e.target.value })}
+                              placeholder="+92 300 1234567"
+                              className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-blue-400 bg-white"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Email Address</label>
+                            <input
+                              type="email"
+                              value={form.email}
+                              onChange={e => setForm({ ...form, email: e.target.value })}
+                              placeholder="john@example.com"
+                              className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-blue-400 bg-white"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Age</label>
+                            <input
+                              type="number"
+                              value={form.age}
+                              onChange={e => setForm({ ...form, age: e.target.value })}
+                              placeholder="30"
+                              className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-blue-400 bg-white"
+                            />
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Describe Symptoms (Optional)</label>
+                          <textarea
+                            value={form.symptoms}
+                            onChange={e => setForm({ ...form, symptoms: e.target.value })}
+                            placeholder="Briefly describe your symptoms..."
+                            className="w-full border border-slate-200 rounded-xl p-3 text-xs focus:outline-none focus:border-blue-400 bg-white resize-none"
+                            rows={3}
+                          />
+                        </div>
+
+                        <div>
+                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Upload Reports / Medical Files (Optional)</label>
+                          <button
+                            type="button"
+                            onClick={() => fileRef.current.click()}
+                            className="w-full border-2 border-dashed border-slate-200 hover:border-blue-400 rounded-xl p-4 flex items-center justify-center gap-2 text-xs font-bold text-slate-400 hover:text-blue-500 bg-slate-50/50 cursor-pointer transition-colors"
+                          >
+                            <FiUpload size={14} />
+                            {uploadedFile ? <span>{uploadedFile.name}</span> : <span>Select Medical File (PDF, JPG, PNG)</span>}
+                          </button>
+                          <input
+                            ref={fileRef}
+                            type="file"
+                            className="hidden"
+                            accept=".pdf,.jpg,.jpeg,.png"
+                            onChange={e => setUploadedFile(e.target.files[0])}
+                          />
+                        </div>
+
+                        {/* Booking Summary Box */}
+                        <div className="p-4 bg-blue-50/30 border border-blue-100/50 rounded-2xl space-y-2 text-xs font-semibold text-slate-700">
+                          <div className="flex justify-between">
+                            <span className="text-slate-400">Doctor</span>
+                            <span className="text-slate-800 font-extrabold">{selectedDoc?.name}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-slate-400">Channel</span>
+                            <span className="text-slate-800 font-extrabold capitalize">{channel} Consultation</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-slate-400">Date / Time</span>
+                            <span className="text-slate-800 font-extrabold">
+                              {selectedDate && `${dayNames[selectedDate.getDay()]} ${selectedDate.getDate()} ${monthNames[selectedDate.getMonth()]}`} • {selectedSlot}
+                            </span>
+                          </div>
+                          <div className="flex justify-between border-t border-slate-150 pt-2 text-sm">
+                            <span className="text-slate-900 font-bold">Consultation Fee</span>
+                            <span className="text-blue-600 font-black">{selectedDoc?.fee}</span>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Footer */}
+              {!booked && (
+                <div className="p-5 border-t border-slate-150 bg-slate-50/50 flex items-center justify-between">
+                  {step > 1 ? (
+                    <button
+                      onClick={handlePrevStep}
+                      className="px-6 py-3 rounded-xl border border-slate-200 text-slate-650 hover:bg-slate-100 font-bold text-xs cursor-pointer transition-colors flex items-center gap-1.5"
+                    >
+                      <FiChevronLeft size={16} /> Back
+                    </button>
+                  ) : (
+                    <div />
+                  )}
+
+                  {step < 4 ? (
+                    <button
+                      disabled={(step === 1 && !channel) || (step === 2 && !selectedDoc) || (step === 3 && (!selectedDate || !selectedSlot))}
+                      onClick={handleNextStep}
+                      className="px-6 py-3 bg-blue-600 disabled:bg-slate-200 text-white disabled:text-slate-400 font-bold text-xs rounded-xl border-none cursor-pointer disabled:cursor-not-allowed transition-colors"
+                    >
+                      Continue
+                    </button>
+                  ) : (
+                    <button
+                      disabled={!form.name || !form.phone}
+                      onClick={handleBook}
+                      className="px-7 py-3 bg-gradient-to-r from-blue-600 to-sky-500 disabled:from-slate-200 disabled:to-slate-200 text-white disabled:text-slate-400 font-bold text-xs rounded-xl border-none cursor-pointer disabled:cursor-not-allowed transition-all"
+                    >
+                      Confirm Consultation
+                    </button>
+                  )}
+                </div>
+              )}
+            </motion.div>
+          </div>
+        )}
       </AnimatePresence>
 
-      {/* ── WhatsApp Float ── */}
-      <a href="https://wa.me/923008786187" target="_blank" rel="noopener noreferrer"
-        className="fixed bottom-6 right-6 z-40 w-14 h-14 rounded-full flex items-center justify-center shadow-xl transition-transform hover:scale-110 active:scale-95"
-        style={{ background: "#25d366" }}>
-        <FaWhatsapp size={26} color="white" />
-      </a>
       <Footer />
     </div>
   );

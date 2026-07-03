@@ -57,10 +57,7 @@ export default function CSR() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-white border border-teal-200 text-teal-600 text-xs font-bold uppercase tracking-widest mb-6 shadow-sm">
-              <FiHeart className="text-teal-500 animate-pulse" />
-              Welfare & CSR Outreach
-            </span>
+
             <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight font-serif mb-6 leading-tight text-slate-900">
               Corporate Social <span style={{ background: "linear-gradient(135deg,#0d9488,#0ea5e9)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Responsibility</span>
             </h1>

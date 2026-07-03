@@ -126,12 +126,7 @@ export default function Hero() {
           <div style={{ position: "absolute", inset: 0, background: "radial-gradient(circle at 20% 30%, rgba(59,130,246,0.18) 0%, transparent 50%), radial-gradient(circle at 80% 70%, rgba(236,72,153,0.18) 0%, transparent 50%)" }} />
         </div>
 
-        {/* Floating Icons */}
-        {floatingIcons.map(({ Icon, color, pos, dur, delay, size }, i) => (
-          <div key={i} style={{ position: "absolute", zIndex: 2, opacity: 0.7, pointerEvents: "none", animation: `iconFloat ${dur}s ease-in-out ${delay}s infinite`, ...pos }}>
-            <Icon style={{ color, fontSize: size }} />
-          </div>
-        ))}
+
 
         {/* Content */}
         <div style={{

@@ -20,9 +20,8 @@ const links = {
     { name: "Online Consultation", path: "/online-consultation" },
     { name: "Patient Portal", path: "/dashboard" },
     { name: "Medical Records", path: "/dashboard" },
-    { name: "Insurance", path: "/insurance" },
     { name: "Health Blog", path: "/blog" },
-    { name: "Vital Shop", path: "/shop" }
+    { name: "Equipment Store", path: "/shop" }
   ],
   Company: [
     { name: "About Us", path: "/about" },
@@ -38,23 +37,23 @@ const links = {
 const socials = [
   { 
     icon: FiInstagram, 
-    baseColor: "text-[#E1306C] border-pink-100", 
-    hoverStyles: "hover:bg-pink-50 hover:border-pink-300" 
+    baseColor: "text-white border-white/10", 
+    hoverStyles: "hover:bg-white/10 hover:border-white/30" 
   },
   { 
     icon: FiTwitter, 
-    baseColor: "text-[#1DA1F2] border-sky-100", 
-    hoverStyles: "hover:bg-sky-50 hover:border-sky-300" 
+    baseColor: "text-white border-white/10", 
+    hoverStyles: "hover:bg-white/10 hover:border-white/30" 
   },
   { 
     icon: FiFacebook, 
-    baseColor: "text-[#1877F2] border-blue-100", 
-    hoverStyles: "hover:bg-blue-50 hover:border-blue-300" 
+    baseColor: "text-white border-white/10", 
+    hoverStyles: "hover:bg-white/10 hover:border-white/30" 
   },
   { 
     icon: FiLinkedin, 
-    baseColor: "text-[#0077B5] border-cyan-100", 
-    hoverStyles: "hover:bg-cyan-50 hover:border-cyan-300" 
+    baseColor: "text-white border-white/10", 
+    hoverStyles: "hover:bg-white/10 hover:border-white/30" 
   },
 ];
 
@@ -76,7 +75,7 @@ export default function Footer() {
   }, []);
 
   return (
-    <footer className="bg-gradient-to-b from-slate-50 to-slate-100 border-t border-slate-200/80">
+    <footer className="bg-[#0f172a] border-t border-slate-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-16 pb-12">
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-10 mb-14">
           
@@ -87,14 +86,14 @@ export default function Footer() {
                 <MdLocalHospital className="text-white text-xl" />
               </div>
               <div>
-                <span className="text-slate-900 font-display font-black text-xl tracking-tight">
-                  Physio<span style={{ background: "linear-gradient(90deg, #1e3a8a, #3b82f6)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>hub</span>
+                <span className="text-white font-display font-black text-xl tracking-tight">
+                  Physio<span style={{ background: "linear-gradient(90deg, #38bdf8, #f472b6)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>hub</span>
                 </span>
                 <p className="text-slate-400 text-[10px] font-body font-bold tracking-widest uppercase mt-0.5">Advanced Physical Therapy & Rehabilitation</p>
               </div>
             </div>
             
-            <p className="text-slate-500 text-sm font-body leading-relaxed max-w-sm mb-6">
+            <p className="text-slate-300 text-sm font-body leading-relaxed max-w-sm mb-6">
               Redefining healthcare through innovation, compassion, and technology. Our mission is to make world-class medical care accessible to all.
             </p>
             
@@ -105,8 +104,8 @@ export default function Footer() {
                 { icon: FiMail, text: settings.clinic_email },
                 { icon: FiMapPin, text: settings.clinic_address },
               ].map(({ icon: Icon, text }) => (
-                <div key={text} className="flex items-center gap-3 text-slate-600 text-sm font-body hover:text-blue-600 transition-colors cursor-pointer group">
-                  <Icon className="text-blue-500 flex-shrink-0 transition-colors group-hover:text-blue-600" />
+                <div key={text} className="flex items-center gap-3 text-slate-300 text-sm font-body hover:text-sky-400 transition-colors cursor-pointer group">
+                  <Icon className="text-sky-400 flex-shrink-0 transition-colors group-hover:text-sky-300" />
                   {text}
                 </div>
               ))}
@@ -119,7 +118,7 @@ export default function Footer() {
                   key={i}
                   whileHover={{ scale: 1.15, y: -3 }}
                   whileTap={{ scale: 0.95 }}
-                  className={`w-10 h-10 rounded-xl border bg-white flex items-center justify-center transition-all duration-300 shadow-sm ${baseColor} ${hoverStyles}`}
+                  className={`w-10 h-10 rounded-xl border border-slate-800 bg-slate-900/50 flex items-center justify-center transition-all duration-300 shadow-sm ${baseColor} ${hoverStyles}`}
                 >
                   <Icon size={18} className="stroke-[2.5]" />
                 </motion.button>
@@ -130,16 +129,16 @@ export default function Footer() {
           {/* Links Categories Mapping */}
           {Object.entries(links).map(([category, items]) => (
             <div key={category}>
-              <h4 className="text-slate-900 font-display font-extrabold text-xs uppercase tracking-wider mb-5">{category}</h4>
+              <h4 className="text-white font-display font-extrabold text-xs uppercase tracking-wider mb-5">{category}</h4>
               <ul className="flex flex-col gap-3">
                 {items.map((item) => (
                   <li key={item.name}>
                     {item.path.startsWith("/") ? (
-                      <Link to={item.path} className="text-slate-500 text-sm font-body hover:text-blue-600 transition-colors duration-200">
+                      <Link to={item.path} className="text-slate-400 text-sm font-body hover:text-sky-400 transition-colors duration-200">
                         {item.name}
                       </Link>
                     ) : (
-                      <a href={item.path} className="text-slate-500 text-sm font-body hover:text-blue-600 transition-colors duration-200">
+                      <a href={item.path} className="text-slate-400 text-sm font-body hover:text-sky-400 transition-colors duration-200">
                         {item.name}
                       </a>
                     )}
@@ -152,27 +151,27 @@ export default function Footer() {
       </div>
 
       {/* --- END PREMIUM ROYAL BLUE BOTTOM BAR (High Contrast Panel) --- */}
-      <div className="bg-[#1e3a8a] py-6 shadow-[inner_0_2px_4px_rgba(0,0,0,0.06)]">
+      <div className="bg-[#0b0f19] py-6 shadow-[inner_0_2px_4px_rgba(0,0,0,0.06)] border-t border-slate-800/60">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-blue-100 text-xs font-body font-semibold tracking-wide">
+          <p className="text-slate-400 text-xs font-body font-semibold tracking-wide">
             © {new Date().getFullYear()} Physiohub. All rights reserved.
           </p>
           <div className="flex gap-6">
             <Link 
               to="/privacy" 
-              className="text-blue-200/90 text-xs font-body font-semibold tracking-wide hover:text-white transition-colors duration-200"
+              className="text-slate-400 text-xs font-body font-semibold tracking-wide hover:text-white transition-colors duration-200"
             >
               Privacy Policy
             </Link>
             <Link 
               to="/terms" 
-              className="text-blue-200/90 text-xs font-body font-semibold tracking-wide hover:text-white transition-colors duration-200"
+              className="text-slate-400 text-xs font-body font-semibold tracking-wide hover:text-white transition-colors duration-200"
             >
               Terms of Service
             </Link>
             <Link 
               to="/cookie-policy" 
-              className="text-blue-200/90 text-xs font-body font-semibold tracking-wide hover:text-white transition-colors duration-200"
+              className="text-slate-405 text-xs font-body font-semibold tracking-wide hover:text-white transition-colors duration-200"
             >
               Cookie Policy
             </Link>

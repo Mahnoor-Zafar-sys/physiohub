@@ -79,17 +79,7 @@ export default function AppointmentCTA() {
         
         {/* Header Content Center Canvas */}
         <div className="mb-16 flex flex-col items-center">
-          {/* Badge indicator */}
-          <motion.span
-            initial={{ opacity: 0, scale: 0.85 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: false, amount: 0.2 }}
-            transition={{ duration: 0.6 }}
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/80 border border-pink-200/60 text-pink-600 text-xs font-bold uppercase tracking-widest mb-6 shadow-sm backdrop-blur-sm"
-          >
-            <span className="w-1.5 h-1.5 bg-pink-500 rounded-full animate-pulse" />
-            Ready When You Are
-          </motion.span>
+
 
           {/* 1st Stage: Slow Heading Animation coming from Left to Right */}
           <motion.h2

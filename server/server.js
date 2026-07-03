@@ -107,12 +107,13 @@ let mockFaqs = [
 ];
 
 let mockGallery = [
-  { id: 1, src: "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=800&q=80", category: "facility", title: "Main Reception & Waiting Lobby", description: "Premium glassmorphic waiting area with botanical healing aesthetics.", span: "wide" },
-  { id: 2, src: "https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?auto=format&fit=crop&w=800&q=80", category: "equipment", title: "Advanced Diagnostic Wing", description: "German-engineered biomechanical diagnostic terminals.", span: "normal" },
-  { id: 3, src: "https://images.unsplash.com/photo-1551884170-09fb70a3a2ed?auto=format&fit=crop&w=800&q=80", category: "team", title: "Team of Expert Consultants", description: "Board-certified medical and manual therapy practitioners.", span: "normal" },
-  { id: 4, src: "https://images.unsplash.com/photo-1578991624414-276ef23a534f?auto=format&fit=crop&w=800&q=80", category: "treatment", title: "Laser Treatment Suite", description: "Advanced clinical skin laser devices.", span: "normal" },
-  { id: 5, src: "https://images.unsplash.com/photo-1608248597481-496100c8c836?auto=format&fit=crop&w=600&q=80,https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=600&q=80", category: "before-after", title: "Acne & Skin Resurfacing", description: "Clinical results after 3 sessions of fractional CO2 laser treatment. Acne scarring and hyperpigmentation reduced by 85%.", span: "Dermatology" },
-  { id: 6, src: "https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?auto=format&fit=crop&w=600&q=80,https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80", category: "before-after", title: "Smile Makeover (Veneers)", description: "Full mouth porcelain veneers smile design completed in 2 visits. Corrected bite alignment and tooth discoloration.", span: "Dentistry" }
+  { id: 1, src: "/gallery/Reciption-desk.jpeg", category: "facility", title: "Main Reception Desk", description: "Our main reception area designed to welcome you with a professional and friendly environment.", span: "wide" },
+  { id: 2, src: "/gallery/Reciption-desk-view-2.jpeg", category: "facility", title: "Reception Desk Lobby View", description: "A spacious waiting lobby next to the reception counter featuring modern comforts.", span: "normal" },
+  { id: 3, src: "/gallery/ceo-room-inside.jpeg", category: "facility", title: "Executive Consultation Room", description: "The primary office where board-certified specialists conduct detailed clinical assessments.", span: "normal" },
+  { id: 4, src: "/gallery/gallery-outside-ceo-office.jpeg", category: "facility", title: "Main Walkway and Lounge Corridor", description: "Clean, spacious corridors leading to consulting rooms and therapy bays.", span: "normal" },
+  { id: 5, src: "/gallery/patient-bed.jpeg", category: "equipment", title: "Physiotherapy Treatment Bed", description: "Ergonomically designed treatment beds optimized for therapeutic manual manipulation and rehabilitation exercises.", span: "normal" },
+  { id: 6, src: "/gallery/patient-bed-view-2.jpeg", category: "equipment", title: "Dedicated Therapy Bay", description: "Private treatment spaces equipped with electrotherapy and support systems for targeted recovery.", span: "normal" },
+  { id: 7, src: "/gallery/patient-waiting-launch.jpeg", category: "facility", title: "Patient Waiting Lounge", description: "Comfortable and calming waiting lounge featuring premium amenities and soothing aesthetics.", span: "wide" }
 ];
 
 let mockCareers = [

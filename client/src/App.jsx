@@ -12,7 +12,6 @@ import Reviews from "./pages/Reviews";
 import GalleryPage from "./pages/GalleryPage";
 import Blog from "./pages/Blog";
 import FAQ from "./pages/FAQ";
-import Insurance from "./pages/Insurance";
 import Careers from "./pages/Careers";
 import WhyUsPage from "./pages/WhyUsPage";
 import ScrollToTop from "./components/ScrollToTop";
@@ -76,7 +75,6 @@ export default function App() {
         <Route path="/blog" element={<Blog />} />
         <Route path="/blog/:id" element={<BlogPostPage />} />
         <Route path="/faq" element={<FAQ />} />
-        <Route path="/insurance" element={<Insurance />} />
         <Route path="/careers" element={<Careers />} />
         <Route path="/why-us" element={<WhyUsPage />} />
         <Route path="/emergency" element={<Emergency />} />

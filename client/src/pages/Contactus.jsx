@@ -1847,26 +1847,9 @@ function ContactBanner({ settings }) {
       </div>
 
       {/* Floating animated icons — same motion as Services Banner */}
-      {floatIcons.map(({ Icon, style, size, delay }, i) => (
-        <motion.div key={i}
-          className="absolute hidden lg:flex items-center justify-center w-14 h-14 rounded-2xl bg-white/70 border border-slate-100 shadow-md"
-          style={style}
-          initial={{ opacity: 0, y: 20 }}
-          animate={inView ? { opacity: [0, 0.65, 0.65], y: [20, 0, -6, 0] } : {}}
-          transition={{ delay, duration: 3.5, repeat: Infinity, repeatType: "reverse", ease: "easeInOut" }}>
-          <Icon size={size} style={{ color: "#0ea5e9", opacity: 0.7 }} />
-        </motion.div>
-      ))}
-
       {/* Main banner text content */}
       <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 text-center">
 
-        <motion.div initial={{ opacity: 0, scale: 0.85 }} animate={inView ? { opacity: 1, scale: 1 } : {}}
-          transition={{ duration: 0.6 }}
-          className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/80 border border-sky-200/70 text-sky-600 text-xs font-bold uppercase tracking-widest mb-6 shadow-sm backdrop-blur-sm">
-          <FaHeartbeat className="animate-pulse text-pink-500" />
-          Physiohub · Contact Us
-        </motion.div>
 
         <motion.h1 initial={{ opacity: 0, y: 30 }} animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 1, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}

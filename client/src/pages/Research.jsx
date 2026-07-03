@@ -110,10 +110,7 @@ export default function Research() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-white border border-indigo-200 text-indigo-600 text-xs font-bold uppercase tracking-widest mb-6 shadow-sm">
-              <FiBookOpen className="text-indigo-500" />
-              Clinical Innovation Center
-            </span>
+
             <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight font-serif mb-6 leading-tight text-slate-900">
               Clinical Research & <span style={{ background: "linear-gradient(135deg,#6366f1,#d946ef)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Breakthroughs</span>
             </h1>

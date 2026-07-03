@@ -139,10 +139,6 @@ export default function WhyUsPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/80 border border-sky-200/70 text-sky-600 text-xs font-bold uppercase tracking-widest mb-6 shadow-sm backdrop-blur-sm">
-              <FaHeartbeat className="animate-pulse text-pink-500" />
-              Our Core Strengths
-            </div>
             <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight font-serif mb-6 leading-tight text-slate-900">
               {settings.why_us_headline ? (
                 settings.why_us_headline.includes("Vital Physio Hub") ? (
@@ -324,10 +320,8 @@ export default function WhyUsPage() {
       <section className="relative overflow-hidden py-32 px-6 bg-[#f8f9fb] border-t border-slate-100">
         <div className="absolute inset-0 pointer-events-none opacity-20">
           <div className="absolute top-0 right-1/4 w-[350px] h-[350px] bg-blue-300 rounded-full blur-[100px]" />
-          <div className="absolute bottom-0 left-1/4 w-[350px] h-[350px] bg-pink-300 rounded-full blur-[100px]" />
         </div>
         <div className="relative max-w-3xl mx-auto text-center space-y-8 z-10">
-          <span className="text-[10px] font-bold text-blue-600 tracking-[0.3em] uppercase block mb-4">Get Started</span>
           <h2 className="text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">
             Ready to experience<br />modern healthcare?
           </h2>

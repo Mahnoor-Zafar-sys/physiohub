@@ -120,10 +120,7 @@ export default function Emergency() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-red-100 border border-red-200 text-red-600 text-xs font-bold uppercase tracking-widest mb-6">
-              <FiAlertOctagon size={13} className="animate-bounce" />
-              24/7 Standby Support
-            </span>
+
             <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight font-serif mb-6 leading-tight text-slate-900">
               Emergency Trauma & <span className="text-red-600">Ambulance Care</span>
             </h1>

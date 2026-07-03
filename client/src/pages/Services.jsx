@@ -1541,21 +1541,7 @@ function Banner() {
         <div className="absolute inset-0 opacity-[0.18]"
           style={{ backgroundImage:`linear-gradient(rgba(14,165,233,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(219,39,119,.05) 1px,transparent 1px)`, backgroundSize:"48px 48px" }} />
       </div>
-      {floatIcons.map(({ Icon, style, size, delay }, i) => (
-        <motion.div key={i}
-          className="absolute hidden lg:flex items-center justify-center w-14 h-14 rounded-2xl bg-white/70 border border-slate-100 shadow-md"
-          style={style}
-          initial={{ opacity:0,y:20 }}
-          animate={inView ? { opacity:[0,0.65,0.65],y:[20,0,-6,0] } : {}}
-          transition={{ delay, duration:3.5, repeat:Infinity, repeatType:"reverse", ease:"easeInOut" }}>
-          <Icon size={size} style={{ color:"#0ea5e9",opacity:0.7 }} />
-        </motion.div>
-      ))}
       <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 text-center">
-        <motion.div initial={{ opacity:0,scale:0.85 }} animate={inView ? { opacity:1,scale:1 } : {}} transition={{ duration:0.6 }}
-          className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/80 border border-sky-200/70 text-sky-600 text-xs font-bold uppercase tracking-widest mb-6 shadow-sm backdrop-blur-sm">
-          <span className="w-1.5 h-1.5 bg-sky-500 rounded-full animate-pulse" /> Premium Healthcare Services
-        </motion.div>
         <motion.h1 initial={{ opacity:0,y:30 }} animate={inView ? { opacity:1,y:0 } : {}}
           transition={{ duration:1, ease:[0.16,1,0.3,1], delay:0.1 }}
           className="text-4xl sm:text-6xl font-extrabold text-slate-900 leading-tight tracking-tight font-serif mb-5">
@@ -1565,19 +1551,6 @@ function Banner() {
           </span>
           <br />Under One Roof
         </motion.h1>
-        <motion.p initial={{ opacity:0,y:20 }} animate={inView ? { opacity:1,y:0 } : {}} transition={{ duration:0.9,delay:0.25 }}
-          className="text-lg text-slate-500 max-w-2xl mx-auto leading-relaxed mb-10">
-          8 clinic facilities · 20+ procedures · Board-certified therapists delivering exceptional care with compassion and technology.
-        </motion.p>
-        <motion.div initial={{ opacity:0,y:20 }} animate={inView ? { opacity:1,y:0 } : {}} transition={{ duration:0.8,delay:0.4 }}
-          className="flex flex-wrap justify-center gap-6 sm:gap-10 mb-10">
-          {[{num:"8",label:"Facilities"},{num:"20+",label:"Procedures"},{num:"3",label:"Therapists"},{num:"20K+",label:"Patients Treated"}].map((s,i) => (
-            <motion.div key={s.label} initial={{ opacity:0,y:20 }} animate={inView ? { opacity:1,y:0 } : {}} transition={{ delay:0.4+i*0.08 }} className="text-center">
-              <p className="text-3xl font-extrabold" style={{ background:"linear-gradient(135deg,#0ea5e9,#db2777)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent" }}>{s.num}</p>
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mt-0.5">{s.label}</p>
-            </motion.div>
-          ))}
-        </motion.div>
         <motion.div initial={{ opacity:0,y:20 }} animate={inView ? { opacity:1,y:0 } : {}} transition={{ duration:0.8,delay:0.55 }}
           className="flex flex-wrap justify-center gap-4">
           <button onClick={() => navigate("/book-appointment")} className="px-8 py-3.5 rounded-xl font-bold text-sm text-white shadow-xl hover:opacity-90 transition-opacity flex items-center gap-2"

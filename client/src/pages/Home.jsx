@@ -5,12 +5,10 @@ import { FiUser, FiArrowRight } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Hero from "../components/Hero";
-import QuickInfoBar from "../components/QuickInfoBar";
 import Services from "../components/Services";
 import WhyUs from "../components/WhyUs";
 import Doctors from "../components/Doctors";
 import Testimonials from "../components/Testimonials";
-import Gallery from "../components/Gallery";
 import Footer from "../components/Footer";
 
 export default function Home() {
@@ -48,7 +46,6 @@ export default function Home() {
       </AnimatePresence>
 
       <Hero />
-      <QuickInfoBar />
       <Services />
       <WhyUs />
       
@@ -69,29 +66,29 @@ export default function Home() {
         `}</style>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Patient Portal Card */}
-          <div className="cta-card rounded-3xl p-8 sm:p-10 flex flex-col justify-between items-start">
+          <div className="cta-card rounded-3xl p-8 sm:p-10 flex flex-col justify-between items-start" style={{ background: "linear-gradient(135deg, #e0f2fe 0%, #ede9fe 100%)", border: "1px solid rgba(59, 130, 246, 0.15)" }}>
             <div className="w-full">
-              <div className="w-12 h-12 bg-sky-500/10 rounded-2xl flex items-center justify-center text-sky-500 mb-6">
+              <div className="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center text-white mb-6 shadow-sm">
                 <FiUser size={24} />
               </div>
               <h3 className="text-2xl font-black text-slate-800 tracking-tight">Are you a Patient?</h3>
-              <p className="text-sm text-slate-500 mt-2.5 leading-relaxed">Book clinical consultations, access digital medical records (EMR), view authorized prescriptions, and manage billing invoices securely.</p>
+              <p className="text-sm text-slate-600 mt-2.5 leading-relaxed">Book clinical consultations, access digital medical records (EMR), view authorized prescriptions, and manage billing invoices securely.</p>
             </div>
-            <Link to="/login" className="mt-8 px-6 py-3.5 bg-slate-900 hover:bg-sky-500 text-white rounded-xl text-xs font-bold transition-all no-underline flex items-center gap-1.5 shadow-sm">
+            <Link to="/login" className="mt-8 px-6 py-3.5 bg-gradient-to-r from-blue-600 to-sky-500 hover:opacity-95 text-white rounded-xl text-xs font-bold transition-all no-underline flex items-center gap-1.5 shadow-md">
               Access Patient Portal <FiArrowRight />
             </Link>
           </div>
 
           {/* Doctor Portal Card */}
-          <div className="cta-card rounded-3xl p-8 sm:p-10 flex flex-col justify-between items-start">
+          <div className="cta-card rounded-3xl p-8 sm:p-10 flex flex-col justify-between items-start" style={{ background: "linear-gradient(135deg, #fce4ec 0%, #fae8ff 100%)", border: "1px solid rgba(236, 72, 153, 0.15)" }}>
             <div className="w-full">
-              <div className="w-12 h-12 bg-pink-500/10 rounded-2xl flex items-center justify-center text-pink-500 mb-6">
+              <div className="w-12 h-12 bg-pink-600 rounded-2xl flex items-center justify-center text-white mb-6 shadow-sm">
                 <FaUserMd size={24} />
               </div>
               <h3 className="text-2xl font-black text-slate-800 tracking-tight">Join as a Doctor?</h3>
-              <p className="text-sm text-slate-500 mt-2.5 leading-relaxed">Register your clinical practice at Vital Physio Hub, schedule consulting slots, coordinate online consult video calls, and dispatch digital prescriptions.</p>
+              <p className="text-sm text-slate-600 mt-2.5 leading-relaxed">Register your clinical practice at Vital Physio Hub, schedule consulting slots, coordinate online consult video calls, and dispatch digital prescriptions.</p>
             </div>
-            <Link to="/signup" className="mt-8 px-6 py-3.5 bg-gradient-to-r from-sky-500 to-pink-500 hover:opacity-95 text-white rounded-xl text-xs font-bold transition-all no-underline flex items-center gap-1.5 shadow-md">
+            <Link to="/signup" className="mt-8 px-6 py-3.5 bg-gradient-to-r from-pink-600 to-rose-500 hover:opacity-95 text-white rounded-xl text-xs font-bold transition-all no-underline flex items-center gap-1.5 shadow-md">
               Apply to Join <FiArrowRight />
             </Link>
           </div>
@@ -100,7 +97,6 @@ export default function Home() {
 
       <Doctors />
       <Testimonials />
-      <Gallery />
       <Footer />
 
       <div className="fixed bottom-6 right-6 z-50 flex items-center justify-center">

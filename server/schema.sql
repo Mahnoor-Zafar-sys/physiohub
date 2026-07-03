@@ -315,12 +315,13 @@ CREATE TABLE IF NOT EXISTS gallery_items (
 
 -- Seed Gallery
 INSERT INTO gallery_items (src, category, title, description, span) VALUES
-('https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=800&q=80', 'facility', 'Main Reception & Waiting Lobby', 'Premium glassmorphic waiting area with botanical healing aesthetics.', 'wide'),
-('https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?auto=format&fit=crop&w=800&q=80', 'equipment', 'Advanced Diagnostic Wing', 'German-engineered biomechanical diagnostic terminals.', 'normal'),
-('https://images.unsplash.com/photo-1551884170-09fb70a3a2ed?auto=format&fit=crop&w=800&q=80', 'team', 'Team of Expert Consultants', 'Board-certified medical and manual therapy practitioners.', 'normal'),
-('https://images.unsplash.com/photo-1578991624414-276ef23a534f?auto=format&fit=crop&w=800&q=80', 'treatment', 'Laser Treatment Suite', 'Advanced clinical skin laser devices.', 'normal'),
-('https://images.unsplash.com/photo-1608248597481-496100c8c836?auto=format&fit=crop&w=600&q=80,https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=600&q=80', 'before-after', 'Acne & Skin Resurfacing', 'Clinical results after 3 sessions of fractional CO2 laser treatment. Acne scarring and hyperpigmentation reduced by 85%.', 'Dermatology'),
-('https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?auto=format&fit=crop&w=600&q=80,https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80', 'before-after', 'Smile Makeover (Veneers)', 'Full mouth porcelain veneers smile design completed in 2 visits. Corrected bite alignment and tooth discoloration.', 'Dentistry');
+('/gallery/Reciption-desk.jpeg', 'facility', 'Main Reception Desk', 'Our main reception area designed to welcome you with a professional and friendly environment.', 'wide'),
+('/gallery/Reciption-desk-view-2.jpeg', 'facility', 'Reception Desk Lobby View', 'A spacious waiting lobby next to the reception counter featuring modern comforts.', 'normal'),
+('/gallery/ceo-room-inside.jpeg', 'facility', 'Executive Consultation Room', 'The primary office where board-certified specialists conduct detailed clinical assessments.', 'normal'),
+('/gallery/gallery-outside-ceo-office.jpeg', 'facility', 'Main Walkway and Lounge Corridor', 'Clean, spacious corridors leading to consulting rooms and therapy bays.', 'normal'),
+('/gallery/patient-bed.jpeg', 'equipment', 'Physiotherapy Treatment Bed', 'Ergonomically designed treatment beds optimized for therapeutic manual manipulation and rehabilitation exercises.', 'normal'),
+('/gallery/patient-bed-view-2.jpeg', 'equipment', 'Dedicated Therapy Bay', 'Private treatment spaces equipped with electrotherapy and support systems for targeted recovery.', 'normal'),
+('/gallery/patient-waiting-launch.jpeg', 'facility', 'Patient Waiting Lounge', 'Comfortable and calming waiting lounge featuring premium amenities and soothing aesthetics.', 'wide');
 
 -- 16. Careers Job Openings Table
 CREATE TABLE IF NOT EXISTS careers_jobs (

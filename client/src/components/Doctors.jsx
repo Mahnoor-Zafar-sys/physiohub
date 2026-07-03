@@ -64,7 +64,7 @@ export default function Doctors() {
   const homePageDoctors = filteredDoctors.slice(0, 4);
 
   return (
-    <section id="doctors" className="py-24 bg-gradient-to-b from-slate-50/60 to-white overflow-hidden">
+    <section id="doctors" className="py-24 overflow-hidden" style={{ background: "linear-gradient(135deg, #fce4ec 0%, #e0f2fe 60%, #fdf4ff 100%)" }}>
       
       {/* Royal Blue Glittering & Shiny Effect CSS Injection */}
       <style dangerouslySetInnerHTML={{__html: `

@@ -69,7 +69,6 @@ export default function Navbar({ onBookAppointment }) {
       { name: "About",               path: "/about" },
       { name: "Doctors",             path: "/doctors" },
       { name: "Services",            path: "/services" },
-      ...(userRole !== "doctor" ? [{ name: "Shop", path: "/shop" }] : []),
       {
         name: "Resources",
         isDropdown: true,
@@ -78,8 +77,8 @@ export default function Navbar({ onBookAppointment }) {
           { name: "Gallery",                path: "/gallery" },
           { name: "Blog & Health Articles", path: "/blog" },
           { name: "FAQ",                    path: "/faq" },
-          { name: "Insurance Information",  path: "/insurance" },
           { name: "Careers / Jobs",         path: "/careers" },
+          ...(userRole !== "doctor" ? [{ name: "Equipment Store", path: "/shop" }] : []),
         ],
       },
       { name: "Online Consult",      path: "/online-consultation" },
@@ -113,36 +112,15 @@ export default function Navbar({ onBookAppointment }) {
     <>
       <style>{`
         .nav-glass-top {
-          background: rgba(255, 255, 255, 0.45) !important;
-          backdrop-filter: blur(10px) !important;
-          -webkit-backdrop-filter: blur(10px) !important;
-          border: 1.2px solid rgba(255, 255, 255, 0.4) !important;
-          box-shadow: 0 4px 20px -6px rgba(0, 0, 0, 0.01) !important;
+          background: #ffffff !important;
+          border: 1.2px solid #e2e8f0 !important;
+          box-shadow: 0 4px 20px -6px rgba(0, 0, 0, 0.05) !important;
         }
         .nav-glass {
-          background: linear-gradient(135deg,
-            rgba(255,255,255,0.45) 0%,
-            rgba(239,246,255,0.3) 40%,
-            rgba(253,242,248,0.35) 100%
-          ) !important;
-          backdrop-filter: blur(18px) saturate(180%) !important;
-          -webkit-backdrop-filter: blur(18px) saturate(180%) !important;
-          border: 1.5px solid rgba(255,255,255,0.65) !important;
-          box-shadow: 0 8px 32px -8px rgba(37,99,235,0.10), inset 0 1px 3px rgba(255,255,255,0.7) !important;
+          background: #ffffff !important;
+          border: 1.5px solid #e2e8f0 !important;
+          box-shadow: 0 8px 32px -8px rgba(37,99,235,0.08) !important;
           position: relative;
-        }
-        .nav-glass::before {
-          content:'';
-          position:absolute;inset:0;border-radius:inherit;
-          background: linear-gradient(115deg,transparent 30%,rgba(255,255,255,0.55) 49%,rgba(255,255,255,0.75) 50%,rgba(255,255,255,0.55) 51%,transparent 70%);
-          background-size:200% 100%;
-          transform:translateX(-100%);
-          animation:navGlitter 6s infinite linear;
-          pointer-events:none;z-index:1;
-        }
-        @keyframes navGlitter {
-          0%   { transform:translateX(-100%); }
-          100% { transform:translateX(100%); }
         }
         .btn-book {
           background: linear-gradient(135deg,#2563eb,#1d4ed8) !important;

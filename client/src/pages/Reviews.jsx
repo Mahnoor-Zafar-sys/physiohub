@@ -319,11 +319,6 @@ export default function Reviews({ onBookAppointment }) {
       {/* HERO BANNER */}
       <section className="relative overflow-hidden pt-32 pb-10 px-4">
         <div className="relative z-10 max-w-5xl mx-auto text-center">
-          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.6 }} className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold mb-4 shadow-sm" style={{ background: "rgba(255,255,255,0.7)", backdropFilter: "blur(10px)", color: THEME.pink, border: "1px solid #fce4ec" }}>
-            <HiSparkles size={13} />
-            Trusted by 20,000+ Patients Across Pakistan
-          </motion.div>
-
           <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15, duration: 0.7 }} className="text-4xl sm:text-6xl font-black text-slate-800 mb-3 leading-tight">
             Patient{" "}
             <span style={{ background: "linear-gradient(135deg, #e91e8c, #0ea5e9)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Reviews</span>
@@ -332,12 +327,6 @@ export default function Reviews({ onBookAppointment }) {
           <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25, duration: 0.7 }} className="text-slate-500 text-lg max-w-2xl mx-auto mb-8">
             Read what our verified patients have to say about their treatment journeys at Physiohub.
           </motion.p>
-
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="flex flex-wrap items-center justify-center gap-8 sm:gap-14 mb-8">
-            <StatBubble value="4.9★" label="Google Rating" color="#FBBF24" delay={0.4} />
-            <StatBubble value="2,400+" label="Verified Reviews" color={THEME.sky} delay={0.45} />
-            <StatBubble value="98%" label="Patient Satisfaction" color={THEME.sky} delay={0.5} />
-          </motion.div>
         </div>
       </section>
 
@@ -368,41 +357,7 @@ export default function Reviews({ onBookAppointment }) {
           </div>
         </div>
 
-        <motion.div initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3 }} className="rounded-3xl p-6 mb-10 flex flex-col sm:flex-row items-center gap-6 shadow-md" style={{ background: "rgba(255,255,255,0.85)", backdropFilter: "blur(12px)", border: "1px solid rgba(251, 191, 36, 0.2)" }}>
-          <div className="flex items-center gap-5">
-            <div className="text-center">
-              <div className="text-6xl font-black" style={{ color: "#1a1a2e" }}>4.9</div>
-              <StarRow rating={4.9} size={18} />
-              <p className="text-xs text-slate-400 mt-1">2,400+ reviews</p>
-            </div>
-            <div className="hidden sm:flex flex-col gap-1.5 min-w-[160px]">
-              {[{ stars: 5, pct: 87 }, { stars: 4, pct: 10 }, { stars: 3, pct: 2 }, { stars: 2, pct: 0.5 }, { stars: 1, pct: 0.5 }].map((row) => (
-                <div key={row.stars} className="flex items-center gap-2 text-xs text-slate-500">
-                  <span className="w-4 text-right">{row.stars}</span>
-                  <FaStar size={9} color="#FBBF24" />
-                  <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                    <motion.div initial={{ width: 0 }} animate={{ width: `${row.pct}%` }} transition={{ duration: 1, delay: 0.5 }} className="h-full rounded-full" style={{ background: THEME.gradBtn }} />
-                  </div>
-                  <span className="w-7">{row.pct}%</span>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="sm:ml-auto flex flex-col items-center sm:items-end gap-3">
-            <div className="flex items-center gap-2">
-              <FaGoogle size={18} className="text-blue-500" />
-              <span className="font-bold text-slate-700">Verified on Google</span>
-              <HiOutlineBadgeCheck size={18} className="text-green-500" />
-            </div>
-            <button 
-              onClick={() => setWriteModalOpen(true)}
-              className="px-5 py-2.5 rounded-xl text-sm font-bold text-white shadow-lg hover:shadow-xl transition-shadow border-none cursor-pointer" 
-              style={{ background: THEME.gradBtn }}
-            >
-              Write a Review
-            </button>
-          </div>
-        </motion.div>
+
 
         <div className="flex flex-col sm:flex-row gap-3 mb-7">
           <div className="flex items-center gap-2 px-4 py-2.5 rounded-2xl flex-1 max-w-sm" style={{ background: "rgba(255,255,255,0.8)", border: "1px solid #fce4ec" }}>
