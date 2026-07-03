@@ -73,7 +73,7 @@ const parseContent = (contentVal) => {
 const BLOG_POSTS = [
   {
     id: 1,
-    title: "10 Warning Signs You Should Never Ignore — Visit a Doctor Immediately",
+    title: "10 Warning Signs You Should Never Ignore: Visit a Doctor Immediately",
     excerpt: "Your body sends signals before serious conditions develop. Learn the critical symptoms that demand immediate medical attention and could save your life.",
     image: "https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=800&q=80",
     category: "General Health",
@@ -140,7 +140,7 @@ const BLOG_POSTS = [
   {
     id: 2,
     title: "The Complete Guide to Laser Skin Treatments in 2026",
-    excerpt: "From fractional CO₂ to PicoSure — understand how each laser works, what skin concerns it addresses, and what results you can realistically expect.",
+    excerpt: "From fractional CO₂ to PicoSure, understand how each laser works, what skin concerns it addresses, and what results you can realistically expect.",
     image: "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=800&q=80",
     category: "Skin Care",
     categoryColor: "#e91e8c",

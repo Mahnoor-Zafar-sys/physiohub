@@ -233,11 +233,7 @@ export default function OnlineConsultation() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            {/* Pill badge */}
-            <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)", borderRadius: 99, padding: "5px 14px", marginBottom: 20 }}>
-              <span style={{ width: 7, height: 7, borderRadius: 99, background: "#34d399", display: "inline-block", animation: "pulse 2s infinite" }} />
-              <span style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.1em" }}>Secure Telehealth — Pakistan</span>
-            </div>
+
 
             {/* Heading */}
             <h1 style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)", fontWeight: 900, lineHeight: 1.15, color: "#fff", fontFamily: "serif", marginBottom: 20, maxWidth: 640 }}>
@@ -250,7 +246,7 @@ export default function OnlineConsultation() {
 
             {/* Sub-text */}
             <p style={{ fontSize: 15, color: "#cbd5e1", maxWidth: 520, lineHeight: 1.75, marginBottom: 32, fontWeight: 400 }}>
-              Connect with board-certified physiotherapists and chiropractors from anywhere in Pakistan. Skip the waiting room — your guided consultation is just a few clicks away.
+              Connect with board-certified physiotherapists and chiropractors from anywhere in Pakistan. Skip the waiting room. Your guided consultation is just a few clicks away.
             </p>
 
             {/* CTA button */}
@@ -305,14 +301,11 @@ export default function OnlineConsultation() {
       <section style={{ background: "linear-gradient(135deg, #f0f9ff 0%, #fdf4ff 50%, #fff7ed 100%)", padding: "80px 24px" }}>
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-14">
-            <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "linear-gradient(90deg,#2563eb18,#7c3aed18)", border: "1px solid #7c3aed30", borderRadius: 99, padding: "6px 16px", marginBottom: 16 }}>
-              <span style={{ fontSize: 11, fontWeight: 800, color: "#7c3aed", textTransform: "uppercase", letterSpacing: "0.12em" }}>Simple 4-Step Process</span>
-            </div>
             <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight font-serif" style={{ color: "#0f172a" }}>
               How Your Online Consultation Works
             </h2>
             <p style={{ color: "#64748b", fontSize: 15, marginTop: 12, maxWidth: 480, marginLeft: "auto", marginRight: "auto", lineHeight: 1.6 }}>
-              Get premium physical therapy guidance in four easy steps — no waiting room required.
+              Get premium physical therapy guidance in four easy steps. No waiting room required.
             </p>
           </div>
 
@@ -360,14 +353,11 @@ export default function OnlineConsultation() {
       <section style={{ background: "linear-gradient(135deg,#1e1b4b 0%,#1e3a5f 50%,#0c4a6e 100%)", padding: "80px 24px" }}>
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-14">
-            <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)", borderRadius: 99, padding: "6px 16px", marginBottom: 16 }}>
-              <span style={{ fontSize: 11, fontWeight: 800, color: "#a5f3fc", textTransform: "uppercase", letterSpacing: "0.12em" }}>Why Go Digital</span>
-            </div>
             <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight font-serif" style={{ color: "#fff" }}>
               Why Choose Digital Telehealth?
             </h2>
             <p style={{ color: "#94a3b8", fontSize: 15, marginTop: 12, maxWidth: 480, marginLeft: "auto", marginRight: "auto", lineHeight: 1.6 }}>
-              Same gold-standard rehab care — from the comfort of your home.
+              Same gold-standard rehab care, right from the comfort of your home.
             </p>
           </div>
 
@@ -411,9 +401,6 @@ export default function OnlineConsultation() {
       <section style={{ background: "linear-gradient(135deg,#fdf4ff 0%,#f0f9ff 100%)", padding: "80px 24px" }}>
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-14">
-            <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "linear-gradient(90deg,#db277718,#2563eb18)", border: "1px solid #db277730", borderRadius: 99, padding: "6px 16px", marginBottom: 16 }}>
-              <span style={{ fontSize: 11, fontWeight: 800, color: "#db2777", textTransform: "uppercase", letterSpacing: "0.12em" }}>Common Questions</span>
-            </div>
             <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight font-serif" style={{ color: "#0f172a" }}>
               Frequently Asked Questions
             </h2>
