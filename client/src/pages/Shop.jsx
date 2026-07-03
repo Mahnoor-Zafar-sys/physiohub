@@ -317,7 +317,6 @@ export default function Shop() {
           {/* Header Banner */}
           <div className="glass-panel rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row justify-between items-center gap-6 text-left relative overflow-hidden">
             <div className="relative z-10 space-y-2">
-              <span className="text-[10px] font-black text-pink-500 uppercase tracking-widest bg-pink-50 px-2 py-0.5 rounded">Vital Shop</span>
               <h2 className="text-2xl sm:text-3xl font-black text-slate-900 leading-tight">Rehab & Recovery Shop</h2>
               <p className="text-slate-500 text-xs sm:text-sm font-semibold max-w-lg leading-relaxed">
                 Basic physio equipment, posture stabilizers, orthopedic pillows, and healing tools. Easy delivery all across Pakistan.

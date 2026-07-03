@@ -2122,6 +2122,34 @@ app.post("/api/clinics/status", async (req, res) => {
   }
 });
 
+app.post("/api/newsletter/subscribe", async (req, res) => {
+  const { email } = req.body;
+  if (!email) {
+    return res.status(400).json({ error: "Email is required" });
+  }
+  const clinicId = req.headers["x-clinic-id"] || 1;
+  if (db.isDbEnabled()) {
+    try {
+      await db.query(`
+        CREATE TABLE IF NOT EXISTS newsletter_subscribers (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          email VARCHAR(255) NOT NULL,
+          clinic_id INT DEFAULT 1,
+          subscribed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          UNIQUE KEY unique_email_clinic (email, clinic_id)
+        )
+      `);
+      await db.query("INSERT IGNORE INTO newsletter_subscribers (email, clinic_id) VALUES (?, ?)", [email, clinicId]);
+      res.json({ success: true, message: "Subscribed successfully!" });
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  } else {
+    console.log(\`[Mock Newsletter] Subscribed email: \${email} for clinic ID: \${clinicId}\`);
+    res.json({ success: true, message: "Subscribed successfully (Mock)!" });
+  }
+});
+
 const PORT = process.env.PORT || 5000;
 
 

@@ -121,10 +121,7 @@ export default function FAQ({ onBookAppointment }) {
       {/* HERO SECTION */}
       <section className="relative overflow-hidden pt-32 pb-10 px-4">
         <div className="relative z-10 max-w-5xl mx-auto text-center">
-          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.6 }} className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold mb-4 shadow-sm" style={{ background: "rgba(255,255,255,0.7)", backdropFilter: "blur(10px)", color: THEME.pink, border: "1px solid #fce4ec" }}>
-            <HiSparkles size={13} />
-            Patient Help Center
-          </motion.div>
+
 
           <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15, duration: 0.7 }} className="text-4xl sm:text-6xl font-black text-slate-800 mb-3 leading-tight">
             Frequently Asked{" "}
@@ -150,19 +147,31 @@ export default function FAQ({ onBookAppointment }) {
           {faqCategories.map((cat) => {
             const Icon = cat.icon;
             const isActive = activeFaqCat === cat.id;
+            const categoryGradients = {
+              appointments: "linear-gradient(135deg, #0ea5e9, #0284c7)",
+              services: "linear-gradient(135deg, #e91e8c, #db2777)",
+              billing: "linear-gradient(135deg, #10b981, #059669)",
+              general: "linear-gradient(135deg, #8b5cf6, #7c3aed)"
+            };
+            const gradient = categoryGradients[cat.id] || "linear-gradient(135deg, #6366f1, #4f46e5)";
             return (
               <motion.button
                 key={cat.id}
                 onClick={() => setActiveFaqCat(cat.id)}
-                whileHover={{ y: -3 }}
-                whileTap={{ scale: 0.97 }}
-                className="flex flex-col items-center gap-2 p-4 rounded-2xl border transition-all duration-300 text-center"
-                style={isActive ? { background: cat.bg, border: `1.5px solid ${cat.color}40`, boxShadow: `0 4px 20px ${cat.color}20` } : { background: "rgba(255,255,255,0.8)", border: "1px solid #f1f5f9" }}
+                whileHover={{ y: -4, scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="flex flex-col items-center gap-2.5 p-5 rounded-2xl transition-all duration-300 text-center cursor-pointer border-none shadow-md"
+                style={{ 
+                  background: gradient, 
+                  boxShadow: isActive ? `0 12px 24px ${cat.color}60` : `0 4px 10px rgba(0,0,0,0.05)`,
+                  transform: isActive ? "scale(1.03)" : "none",
+                  border: isActive ? "2px solid #ffffff" : "2px solid transparent"
+                }}
               >
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: isActive ? cat.color : "#f1f5f9" }}>
-                  <Icon size={18} style={{ color: isActive ? "white" : "#94a3b8" }} />
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-white/20">
+                  <Icon size={18} className="text-white" />
                 </div>
-                <span className="text-xs font-bold" style={{ color: isActive ? cat.color : "#64748b" }}>{cat.label}</span>
+                <span className="text-xs font-extrabold text-white">{cat.label}</span>
               </motion.button>
             );
           })}
@@ -183,19 +192,19 @@ export default function FAQ({ onBookAppointment }) {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.3 }}
-          className="mt-12 rounded-3xl p-7 text-center"
-          style={{ background: "rgba(255,255,255,0.85)", backdropFilter: "blur(12px)", border: "1.5px solid rgba(233,30,140,0.1)" }}
+          className="mt-12 rounded-3xl p-8 text-center"
+          style={{ background: "linear-gradient(135deg, #0ea5e9 0%, #7c3aed 50%, #e91e8c 100%)", boxShadow: "0 12px 30px rgba(124, 58, 237, 0.25)" }}
         >
           <div className="flex justify-center mb-3">
-            <LuCircleHelp size={36} className="text-pink-500 animate-bounce" />
+            <LuCircleHelp size={36} className="text-white animate-bounce" />
           </div>
-          <h3 className="text-xl font-black text-slate-800 mb-2">Still Have a Question?</h3>
-          <p className="text-slate-500 text-sm mb-6 max-w-md mx-auto">Our reception team is available 7 days a week. Connect instantly on WhatsApp or phone.</p>
+          <h3 className="text-xl font-black text-white mb-2">Still Have a Question?</h3>
+          <p className="text-white/80 text-sm mb-6 max-w-md mx-auto">Our reception team is available 7 days a week. Connect instantly on WhatsApp or phone.</p>
           <div className="flex flex-wrap justify-center gap-3">
             <motion.a href={`https://wa.me/${whatsappNumber}`} target="_blank" whileHover={{ scale: 1.04 }} className="flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm text-white shadow-lg" style={{ background: "#25D366", textDecoration: "none" }}>
               <FaWhatsapp size={16} /> WhatsApp Us
             </motion.a>
-            <motion.a href={`tel:${settings.clinic_phone || '+923008786187'}`} whileHover={{ scale: 1.04 }} className="flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm text-white shadow-lg" style={{ background: THEME.gradBtn, textDecoration: "none" }}>
+            <motion.a href={`tel:${settings.clinic_phone || '+923008786187'}`} whileHover={{ scale: 1.04 }} className="flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm bg-white shadow-lg" style={{ color: THEME.pink, textDecoration: "none" }}>
               <FiPhone size={15} /> Call Us Now
             </motion.a>
           </div>

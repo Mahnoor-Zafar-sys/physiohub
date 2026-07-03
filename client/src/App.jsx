@@ -33,6 +33,7 @@ import CSRPage from "./pages/CSR";
 import CookiePolicy from "./pages/CookiePolicy";
 import NewsArticlePage from "./pages/NewsArticlePage";
 import Shop from "./pages/Shop";
+import Insurance from "./pages/Insurance";
 
 function DashboardRedirect() {
   const role = localStorage.getItem("vph_user_role");
@@ -81,6 +82,7 @@ export default function App() {
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/consultation-room" element={<VideoConsultationRoom />} />
+        <Route path="/insurance" element={<Insurance />} />
         
         {/* Authentication Routes */}
         <Route path="/login" element={<LoginPage />} />

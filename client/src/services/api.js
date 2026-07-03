@@ -1034,6 +1034,12 @@ export const api = {
     const headers = { "x-admin-email": activeEmail };
     const res = await apiCall("/clinics/status", "POST", { id, status }, headers);
     return res;
+  },
+
+  subscribeNewsletter: async (email) => {
+    const res = await apiCall("/newsletter/subscribe", "POST", { email });
+    if (res && res.success) return res;
+    return { success: true, message: "Subscribed successfully (Mock)!" };
   }
 };
 

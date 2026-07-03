@@ -268,10 +268,7 @@ export default function GalleryPage({ onBookAppointment }) {
       {/* HERO SECTION */}
       <section className="relative overflow-hidden pt-32 pb-10 px-4">
         <div className="relative z-10 max-w-5xl mx-auto text-center">
-          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.6 }} className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold mb-4 shadow-sm" style={{ background: "rgba(255,255,255,0.7)", backdropFilter: "blur(10px)", color: THEME.pink, border: "1px solid #fce4ec" }}>
-            <HiSparkles size={13} />
-            View Our World-Class Infrastructure
-          </motion.div>
+
 
           <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15, duration: 0.7 }} className="text-4xl sm:text-6xl font-black text-slate-800 mb-3 leading-tight">
             Clinic{" "}
@@ -328,108 +325,7 @@ export default function GalleryPage({ onBookAppointment }) {
             {filteredGallery.map((item, i) => <GalleryItem key={item.id} item={item} index={i} onOpen={setLightboxIndex} />)}
           </div>
         )}
-
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="mt-12 rounded-3xl p-8 text-center overflow-hidden relative" style={{ background: "linear-gradient(135deg, #0ea5e9 0%, #e91e8c 100%)" }}>
-          <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl" />
-            <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/5 rounded-full blur-3xl" />
-          </div>
-          <div className="relative z-10">
-            <div className="flex justify-center mb-3">
-              <LuHospital size={36} className="text-white animate-pulse" />
-            </div>
-            <h3 className="text-2xl font-black text-white mb-2">Take a Virtual Tour</h3>
-            <p className="text-white/80 text-sm mb-6 max-w-md mx-auto">Experience our state-of-the-art facility from the comfort of your home with our 360° interactive tour.</p>
-            <motion.button 
-              whileHover={{ scale: 1.04 }} 
-              whileTap={{ scale: 0.96 }} 
-              onClick={() => setTourOpen(true)}
-              className="inline-flex items-center gap-2 px-7 py-3 rounded-xl font-bold text-sm shadow-xl bg-white hover:bg-white/90 transition-colors mx-auto cursor-pointer border-none" 
-              style={{ color: THEME.pink }}
-            >
-              <LuGlobe size={16} /> Start 360° Tour
-            </motion.button>
-          </div>
-        </motion.div>
       </section>
-
-      {/* 360 VIRTUAL TOUR MODAL */}
-      <AnimatePresence>
-        {tourOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md" onClick={() => setTourOpen(false)}>
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-slate-950 rounded-3xl p-6 max-w-4xl w-full text-slate-100 shadow-2xl relative border border-slate-800 text-left overflow-hidden"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <button 
-                onClick={() => setTourOpen(false)} 
-                className="absolute top-5 right-5 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors border-none cursor-pointer z-50"
-              >
-                <FiX size={15} />
-              </button>
-
-              <div className="relative h-[400px] w-full bg-slate-900 rounded-2xl overflow-hidden mb-4">
-                <AnimatePresence mode="wait">
-                  <motion.img 
-                    key={tourIndex}
-                    src={TOUR_SCENES[tourIndex].url}
-                    alt={TOUR_SCENES[tourIndex].name}
-                    initial={{ opacity: 0, scale: 1.05 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.4 }}
-                    className="w-full h-full object-cover select-none"
-                  />
-                </AnimatePresence>
-
-                {/* Simulated Panoramic Scan Animation Layer */}
-                <div className="absolute inset-0 bg-gradient-to-r from-black/20 via-transparent to-black/20 pointer-events-none" />
-                <div className="absolute top-4 left-4 bg-slate-950/70 border border-slate-800 px-3 py-1.5 rounded-xl text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-red-500 animate-ping inline-block" />
-                  Simulated 360° Panoramic Feed
-                </div>
-
-                {/* Navigation Controls */}
-                <button 
-                  onClick={() => setTourIndex(i => (i - 1 + TOUR_SCENES.length) % TOUR_SCENES.length)}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-slate-950/60 border border-slate-800 hover:bg-slate-800 flex items-center justify-center text-white transition-colors cursor-pointer border-none"
-                >
-                  <FiChevronLeft size={20} />
-                </button>
-                <button 
-                  onClick={() => setTourIndex(i => (i + 1) % TOUR_SCENES.length)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-slate-950/60 border border-slate-800 hover:bg-slate-800 flex items-center justify-center text-white transition-colors cursor-pointer border-none"
-                >
-                  <FiChevronRight size={20} />
-                </button>
-              </div>
-
-              <div>
-                <h4 className="font-extrabold text-lg text-white mb-1">{TOUR_SCENES[tourIndex].name}</h4>
-                <p className="text-slate-400 text-xs sm:text-sm leading-relaxed">{TOUR_SCENES[tourIndex].desc}</p>
-              </div>
-
-              {/* Thumbnails Navigation Row */}
-              <div className="flex gap-2.5 mt-5 border-t border-slate-900 pt-4 overflow-x-auto pb-1.5">
-                {TOUR_SCENES.map((scene, sIdx) => (
-                  <button 
-                    key={scene.id}
-                    onClick={() => setTourIndex(sIdx)}
-                    className="flex-shrink-0 w-20 h-14 rounded-lg overflow-hidden border-2 relative cursor-pointer"
-                    style={{ borderColor: tourIndex === sIdx ? THEME.pink : "transparent" }}
-                  >
-                    <img src={scene.url} className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 bg-black/40 hover:bg-transparent transition-colors" />
-                  </button>
-                ))}
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
 
       <Footer />
     </div>

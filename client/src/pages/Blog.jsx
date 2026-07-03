@@ -225,9 +225,32 @@ function BlogCard({ post, index, featured = false }) {
 }
 
 export default function Blog({ onBookAppointment }) {
+  const [email, setEmail] = useState("");
+  const [subscribing, setSubscribing] = useState(false);
+  const [subscribedMsg, setSubscribedMsg] = useState("");
   const [posts, setPosts] = useState(BLOG_POSTS);
   const [blogTag, setBlogTag] = useState("all");
   const [search, setSearch] = useState("");
+
+  const handleSubscribe = async (e) => {
+    e.preventDefault();
+    if (!email) return;
+    setSubscribing(true);
+    try {
+      const res = await api.subscribeNewsletter(email);
+      if (res && res.success) {
+        setSubscribedMsg("Subscribed successfully!");
+        setEmail("");
+      } else {
+        setSubscribedMsg(res && res.error ? res.error : "Subscription failed.");
+      }
+    } catch (err) {
+      setSubscribedMsg("Error subscribing.");
+    } finally {
+      setSubscribing(false);
+      setTimeout(() => setSubscribedMsg(""), 5000);
+    }
+  };
 
   useEffect(() => {
     async function loadPosts() {
@@ -292,10 +315,7 @@ export default function Blog({ onBookAppointment }) {
       {/* HERO BANNER */}
       <section className="relative overflow-hidden pt-32 pb-10 px-4">
         <div className="relative z-10 max-w-5xl mx-auto text-center">
-          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.6 }} className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold mb-4 shadow-sm" style={{ background: "rgba(255,255,255,0.7)", backdropFilter: "blur(10px)", color: THEME.pink, border: "1px solid #fce4ec" }}>
-            <HiSparkles size={13} />
-            Verified Medical Content & Articles
-          </motion.div>
+
 
           <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15, duration: 0.7 }} className="text-4xl sm:text-6xl font-black text-slate-800 mb-3 leading-tight">
             Health{" "}
@@ -374,10 +394,26 @@ export default function Blog({ onBookAppointment }) {
               <h3 className="text-xl font-black text-white mb-1">Get Health Tips in Your Inbox</h3>
               <p className="text-white/75 text-sm">Subscribe for weekly health articles, clinic news, and exclusive offers.</p>
             </div>
-            <div className="sm:ml-auto flex flex-col sm:flex-row gap-2 w-full sm:w-auto flex-shrink-0">
-              <input type="email" placeholder="Your email address" className="px-4 py-2.5 rounded-xl text-sm outline-none bg-white/25 text-white placeholder-white/60 border border-white/30 focus:border-white/60 transition-colors min-w-0 w-full sm:w-44" />
-              <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }} className="px-5 py-2.5 rounded-xl font-bold text-sm bg-white shadow-lg whitespace-nowrap w-full sm:w-auto" style={{ color: THEME.pink }}>Subscribe</motion.button>
-            </div>
+            <form onSubmit={handleSubscribe} className="sm:ml-auto flex flex-col sm:flex-row gap-2 w-full sm:w-auto flex-shrink-0">
+              <input 
+                type="email" 
+                value={email} 
+                onChange={(e) => setEmail(e.target.value)} 
+                required
+                placeholder={subscribedMsg || "Your email address"} 
+                className="px-4 py-2.5 rounded-xl text-sm outline-none bg-white/25 text-white placeholder-white/80 border border-white/30 focus:border-white/60 transition-all min-w-0 w-full sm:w-48 font-semibold" 
+              />
+              <motion.button 
+                type="submit"
+                disabled={subscribing}
+                whileHover={{ scale: 1.05 }} 
+                whileTap={{ scale: 0.97 }} 
+                className="px-5 py-2.5 rounded-xl font-bold text-sm bg-white shadow-lg whitespace-nowrap w-full sm:w-auto cursor-pointer border-none" 
+                style={{ color: THEME.pink }}
+              >
+                {subscribing ? "Subscribing..." : "Subscribe"}
+              </motion.button>
+            </form>
           </div>
         </motion.div>
       </section>

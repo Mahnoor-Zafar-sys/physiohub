@@ -50,7 +50,7 @@ export default function Testimonials() {
         >
           
           <h2 className="text-4xl sm:text-5xl font-extrabold text-slate-900 mt-2 tracking-tight font-serif">
-            Trusted by{" "}
+            Patient{" "}
             <span style={{ 
               background: "linear-gradient(90deg, #2563eb, #0284c7)",
               WebkitBackgroundClip: "text",
@@ -58,8 +58,7 @@ export default function Testimonials() {
               backgroundClip: "text",
               color: "transparent",
               display: "inline-block"
-            }}>15,000+</span>{" "}
-            Patients
+            }}>Success Stories</span>
           </h2>
           <p className="mt-4 text-slate-500 text-lg max-w-xl mx-auto font-normal leading-relaxed">
             Real stories from real people who've experienced the Physiohub difference.
