@@ -33,25 +33,47 @@ function StarRating({ rating }) {
   );
 }
 
+const FAQ_ITEMS = [
+  { q: "How do I join the video consultation?", a: "Once your booking is confirmed, a secure telehealth link is sent via email and WhatsApp. You can also join directly from your Patient Portal dashboard under the 'Appointments' tab.", accent: "#2563eb" },
+  { q: "Can my consultant assess my physical movements online?", a: "Yes. Our physical therapists are trained to conduct comprehensive video movement assessments, observe gait patterns, check active ranges of motion, and guide you through customized clinical exercises.", accent: "#7c3aed" },
+  { q: "What should I wear during the session?", a: "We recommend wearing comfortable, loose-fitting athletic clothing (shorts, t-shirt, or tracks) so that our specialists can easily observe the affected joint or muscular regions.", accent: "#0284c7" },
+  { q: "Can I upload my MRI or X-ray reports?", a: "Absolutely. During the 4th step of our scheduling wizard, you can upload any reports (PDF, JPG, or PNG) which will be securely shared with your selected specialist before the session starts.", accent: "#db2777" },
+];
+
 function ConsultFaqAccordion() {
   const [openIdx, setOpenIdx] = useState(null);
-  const faqs = [
-    { q: "How do I join the video consultation?", a: "Once your booking is confirmed, a secure telehealth link is sent via email and WhatsApp. You can also join directly from your Patient Portal dashboard under the 'Appointments' tab." },
-    { q: "Can my consultant assess my physical movements online?", a: "Yes. Our physical therapists are trained to conduct comprehensive video movement assessments, observe gait patterns, check active ranges of motion, and guide you through customized clinical exercises." },
-    { q: "What should I wear during the session?", a: "We recommend wearing comfortable, loose-fitting athletic clothing (shorts, t-shirt, or tracks) so that our specialists can easily observe the affected joint or muscular regions." },
-    { q: "Can I upload my MRI or X-ray reports?", a: "Absolutely. During the 4th step of our scheduling wizard, you can upload any reports (PDF, JPG, or PNG) which will be securely shared with your selected specialist before the session starts." }
-  ];
-
   return (
-    <div className="space-y-3 max-w-3xl mx-auto text-left">
-      {faqs.map((faq, i) => (
-        <div key={i} className="rounded-2xl border border-slate-100 bg-white overflow-hidden shadow-sm">
+    <div className="space-y-4 max-w-3xl mx-auto text-left">
+      {FAQ_ITEMS.map((faq, i) => (
+        <div
+          key={i}
+          style={{
+            borderRadius: 20,
+            overflow: "hidden",
+            border: openIdx === i ? `1.5px solid ${faq.accent}40` : "1.5px solid #f1f5f9",
+            background: openIdx === i ? `linear-gradient(135deg, ${faq.accent}08 0%, #fff 100%)` : "#fff",
+            boxShadow: openIdx === i ? `0 4px 24px ${faq.accent}18` : "0 1px 6px rgba(0,0,0,0.04)",
+            transition: "all 0.3s ease"
+          }}
+        >
           <button
             onClick={() => setOpenIdx(openIdx === i ? null : i)}
-            className="w-full flex items-center justify-between px-6 py-4.5 text-left transition-colors bg-white hover:bg-slate-50 border-none cursor-pointer"
+            className="w-full flex items-center justify-between px-6 text-left border-none cursor-pointer"
+            style={{ padding: "18px 24px", background: "transparent" }}
           >
-            <span className="font-extrabold text-slate-700 text-sm pr-4">{faq.q}</span>
-            <FiChevronLeft size={16} className={`text-slate-400 transition-transform duration-200 \${openIdx === i ? "rotate-90" : ""}`} />
+            <div className="flex items-center gap-3">
+              <div style={{ width: 8, height: 8, borderRadius: 99, background: faq.accent, flexShrink: 0, opacity: openIdx === i ? 1 : 0.4 }} />
+              <span style={{ fontWeight: 800, fontSize: 14, color: openIdx === i ? faq.accent : "#334155" }}>{faq.q}</span>
+            </div>
+            <div
+              style={{
+                width: 28, height: 28, borderRadius: 99, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+                background: openIdx === i ? faq.accent : "#f1f5f9",
+                transition: "all 0.25s ease"
+              }}
+            >
+              <FiChevronLeft size={14} style={{ color: openIdx === i ? "#fff" : "#94a3b8", transform: openIdx === i ? "rotate(-90deg)" : "rotate(0deg)", transition: "transform 0.25s ease" }} />
+            </div>
           </button>
           <AnimatePresence>
             {openIdx === i && (
@@ -60,7 +82,7 @@ function ConsultFaqAccordion() {
                 animate={{ height: "auto", opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}
                 transition={{ duration: 0.25 }}
-                className="px-6 pb-5 pt-1 text-sm text-slate-500 leading-relaxed bg-white"
+                style={{ padding: "0 24px 18px 44px", fontSize: 13, color: "#64748b", lineHeight: 1.7 }}
               >
                 {faq.a}
               </motion.div>
@@ -237,63 +259,74 @@ export default function OnlineConsultation() {
         </div>
       </div>
 
-      {/* ── STICKY TRUST BAR ── */}
-      <div className="bg-white border-y border-slate-100 py-6">
-        <div className="max-w-6xl mx-auto px-6 flex flex-wrap justify-around items-center gap-6 text-slate-500 text-xs font-bold uppercase tracking-wider">
-          <div className="flex items-center gap-2">
-            <FiShield size={16} className="text-blue-500" />
-            <span>100% HIPAA Compliant</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <FiLock size={16} className="text-blue-500" />
-            <span>End-to-End Encryption</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <TbActivity size={16} className="text-blue-500" />
-            <span>Digital Prescriptions</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <FiCalendar size={16} className="text-blue-500" />
-            <span>Direct WhatsApp Follow-up</span>
-          </div>
+      {/* ── TRUST BAR ── */}
+      <div style={{ background: "linear-gradient(135deg, #1e3a5f 0%, #1e1b4b 100%)", padding: "20px 24px" }}>
+        <div className="max-w-6xl mx-auto flex flex-wrap justify-around items-center gap-6">
+          {[
+            { icon: FiShield, label: "100% HIPAA Compliant", color: "#38bdf8" },
+            { icon: FiLock, label: "End-to-End Encryption", color: "#a78bfa" },
+            { icon: TbActivity, label: "Digital Prescriptions", color: "#34d399" },
+            { icon: FiCalendar, label: "Direct WhatsApp Follow-up", color: "#f472b6" },
+          ].map((item, i) => {
+            const Icon = item.icon;
+            return (
+              <div key={i} className="flex items-center gap-2.5">
+                <Icon size={16} style={{ color: item.color }} />
+                <span style={{ color: "#cbd5e1", fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>{item.label}</span>
+              </div>
+            );
+          })}
         </div>
       </div>
 
-      {/* ── SECTION: HOW IT WORKS ── */}
-      <section className="py-20 bg-white">
-        <div className="max-w-5xl mx-auto px-6 text-center space-y-12">
-          <div className="space-y-4">
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight font-serif">
+      {/* ── HOW IT WORKS ── */}
+      <section style={{ background: "linear-gradient(135deg, #f0f9ff 0%, #fdf4ff 50%, #fff7ed 100%)", padding: "80px 24px" }}>
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-14">
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "linear-gradient(90deg,#2563eb18,#7c3aed18)", border: "1px solid #7c3aed30", borderRadius: 99, padding: "6px 16px", marginBottom: 16 }}>
+              <span style={{ fontSize: 11, fontWeight: 800, color: "#7c3aed", textTransform: "uppercase", letterSpacing: "0.12em" }}>Simple 4-Step Process</span>
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight font-serif" style={{ color: "#0f172a" }}>
               How Your Online Consultation Works
             </h2>
-            <p className="text-slate-500 text-sm max-w-xl mx-auto leading-relaxed">
-              Get premium physical therapy advice and adjustments guidance in four simple steps.
+            <p style={{ color: "#64748b", fontSize: 15, marginTop: 12, maxWidth: 480, marginLeft: "auto", marginRight: "auto", lineHeight: 1.6 }}>
+              Get premium physical therapy guidance in four easy steps — no waiting room required.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 pt-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
-              { step: "01", title: "Select Channel", desc: "Choose between video call, audio call, or chat based on your preference.", icon: FiVideo, color: "from-sky-400 to-blue-500" },
-              { step: "02", title: "Choose Specialist", desc: "Browse board-certified manual therapists and chiropractors.", icon: TbStethoscope, color: "from-pink-400 to-rose-500" },
-              { step: "03", title: "Pick Date & Time", desc: "Find a convenient slot that fits into your daily routine.", icon: FiCalendar, color: "from-purple-400 to-indigo-500" },
-              { step: "04", title: "Connect Instantly", desc: "Join our secure digital clinic room and begin your consultation.", icon: FiActivity, color: "from-emerald-400 to-teal-500" }
+              { step: "01", title: "Select Channel", desc: "Choose video call, audio call, chat, or WhatsApp based on your comfort.", icon: FiVideo, grad: "linear-gradient(135deg,#0ea5e9,#2563eb)", glow: "rgba(37,99,235,0.22)" },
+              { step: "02", title: "Choose Specialist", desc: "Browse board-certified physiotherapists and chiropractors.", icon: TbStethoscope, grad: "linear-gradient(135deg,#ec4899,#f43f5e)", glow: "rgba(236,72,153,0.22)" },
+              { step: "03", title: "Pick Date & Time", desc: "Find a slot that perfectly fits your daily schedule.", icon: FiCalendar, grad: "linear-gradient(135deg,#7c3aed,#4f46e5)", glow: "rgba(124,58,237,0.22)" },
+              { step: "04", title: "Connect Instantly", desc: "Join our secure encrypted digital clinic room and start.", icon: FiActivity, grad: "linear-gradient(135deg,#059669,#0ea5e9)", glow: "rgba(5,150,105,0.22)" }
             ].map((s, idx) => {
               const IconComp = s.icon;
               return (
-                <motion.div 
+                <motion.div
                   key={idx}
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 24 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: idx * 0.1 }}
-                  className="bg-slate-50 rounded-3xl p-6 border border-slate-100/80 shadow-sm relative group hover:shadow-md transition-all text-left"
+                  whileHover={{ y: -5 }}
+                  style={{
+                    background: "rgba(255,255,255,0.75)",
+                    backdropFilter: "blur(12px)",
+                    borderRadius: 24,
+                    padding: "28px 24px",
+                    border: "1.5px solid rgba(255,255,255,0.9)",
+                    boxShadow: `0 8px 32px ${s.glow}`,
+                    position: "relative",
+                    overflow: "hidden"
+                  }}
                 >
-                  <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br \${s.color} text-white flex items-center justify-center mb-5`}>
-                    <IconComp size={20} />
+                  <div style={{ position: "absolute", top: 16, right: 18, fontSize: 38, fontWeight: 900, background: s.grad, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", opacity: 0.18, fontFamily: "sans-serif" }}>{s.step}</div>
+                  <div style={{ width: 52, height: 52, borderRadius: 16, background: s.grad, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 20, boxShadow: `0 6px 20px ${s.glow}` }}>
+                    <IconComp size={22} color="white" />
                   </div>
-                  <span className="absolute top-6 right-6 text-3xl font-black text-slate-200/60 font-sans">{s.step}</span>
-                  <h3 className="text-base font-extrabold text-slate-800 mb-2">{s.title}</h3>
-                  <p className="text-xs text-slate-500 leading-relaxed font-medium">{s.desc}</p>
+                  <h3 style={{ fontWeight: 800, fontSize: 15, color: "#0f172a", marginBottom: 8 }}>{s.title}</h3>
+                  <p style={{ fontSize: 13, color: "#64748b", lineHeight: 1.65, fontWeight: 500 }}>{s.desc}</p>
                 </motion.div>
               );
             })}
@@ -301,41 +334,50 @@ export default function OnlineConsultation() {
         </div>
       </section>
 
-      {/* ── SECTION: KEY BENEFITS ── */}
-      <section className="py-20 bg-slate-50 border-t border-slate-100">
-        <div className="max-w-5xl mx-auto px-6 text-center space-y-12">
-          <div className="space-y-4">
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight font-serif">
+      {/* ── KEY BENEFITS ── */}
+      <section style={{ background: "linear-gradient(135deg,#1e1b4b 0%,#1e3a5f 50%,#0c4a6e 100%)", padding: "80px 24px" }}>
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-14">
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)", borderRadius: 99, padding: "6px 16px", marginBottom: 16 }}>
+              <span style={{ fontSize: 11, fontWeight: 800, color: "#a5f3fc", textTransform: "uppercase", letterSpacing: "0.12em" }}>Why Go Digital</span>
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight font-serif" style={{ color: "#fff" }}>
               Why Choose Digital Telehealth?
             </h2>
-            <p className="text-slate-500 text-sm max-w-xl mx-auto leading-relaxed">
-              Experience the same gold-standard physical rehabilitation care from the comfort of your home.
+            <p style={{ color: "#94a3b8", fontSize: 15, marginTop: 12, maxWidth: 480, marginLeft: "auto", marginRight: "auto", lineHeight: 1.6 }}>
+              Same gold-standard rehab care — from the comfort of your home.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
-              { title: "Zero Travel & Wait Times", desc: "No more traffic or busy waiting rooms. Consult with your physical therapist at the exact scheduled time slot.", icon: FiClock, color: "text-sky-500", bg: "bg-sky-50" },
-              { title: "Direct Portal Integration", desc: "Your assessments, custom video exercise regimes, and medical prescriptions are instantly saved to your Patient Portal.", icon: FiLock, color: "text-purple-500", bg: "bg-purple-50" },
-              { title: "WhatsApp Coordination", desc: "Receive automated session links and direct post-consultation assistance with our dedicated clinical staff.", icon: FaWhatsapp, color: "text-emerald-500", bg: "bg-emerald-50" }
+              { title: "Zero Travel & Wait", desc: "No waiting rooms or commuting. Consult at your exact time slot from anywhere in Pakistan.", icon: FiClock, grad: "linear-gradient(135deg,#0ea5e9,#38bdf8)", glow: "rgba(14,165,233,0.3)" },
+              { title: "Portal Integration", desc: "Assessments, exercises, and prescriptions auto-save to your Patient Portal after each session.", icon: FiShield, grad: "linear-gradient(135deg,#7c3aed,#a78bfa)", glow: "rgba(124,58,237,0.3)" },
+              { title: "WhatsApp Support", desc: "Session links and post-consultation follow-ups delivered directly on WhatsApp by our clinical team.", icon: FaWhatsapp, grad: "linear-gradient(135deg,#059669,#34d399)", glow: "rgba(5,150,105,0.3)" },
             ].map((b, idx) => {
               const IconComp = b.icon;
               return (
                 <motion.div
                   key={idx}
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 24 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: idx * 0.1 }}
-                  className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm text-left flex flex-col justify-between"
+                  whileHover={{ y: -5 }}
+                  style={{
+                    background: "rgba(255,255,255,0.06)",
+                    backdropFilter: "blur(16px)",
+                    border: "1.5px solid rgba(255,255,255,0.12)",
+                    borderRadius: 24,
+                    padding: "32px 28px",
+                    boxShadow: `0 8px 40px ${b.glow}`
+                  }}
                 >
-                  <div>
-                    <div className={`w-12 h-12 rounded-2xl \${b.bg} \${b.color} flex items-center justify-center mb-6`}>
-                      <IconComp size={22} />
-                    </div>
-                    <h3 className="text-lg font-black text-slate-800 mb-3">{b.title}</h3>
-                    <p className="text-slate-550 text-sm leading-relaxed">{b.desc}</p>
+                  <div style={{ width: 56, height: 56, borderRadius: 18, background: b.grad, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 24, boxShadow: `0 6px 24px ${b.glow}` }}>
+                    <IconComp size={24} color="white" />
                   </div>
+                  <h3 style={{ fontWeight: 800, fontSize: 17, color: "#fff", marginBottom: 12 }}>{b.title}</h3>
+                  <p style={{ fontSize: 14, color: "#94a3b8", lineHeight: 1.7 }}>{b.desc}</p>
                 </motion.div>
               );
             })}
@@ -343,21 +385,21 @@ export default function OnlineConsultation() {
         </div>
       </section>
 
-      {/* ── SECTION: TELEHEALTH FAQ ── */}
-      <section className="py-20 bg-white border-t border-slate-100">
-        <div className="max-w-5xl mx-auto px-6 text-center space-y-12">
-          <div className="space-y-4">
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight font-serif">
+      {/* ── TELEHEALTH FAQ ── */}
+      <section style={{ background: "linear-gradient(135deg,#fdf4ff 0%,#f0f9ff 100%)", padding: "80px 24px" }}>
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-14">
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "linear-gradient(90deg,#db277718,#2563eb18)", border: "1px solid #db277730", borderRadius: 99, padding: "6px 16px", marginBottom: 16 }}>
+              <span style={{ fontSize: 11, fontWeight: 800, color: "#db2777", textTransform: "uppercase", letterSpacing: "0.12em" }}>Common Questions</span>
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight font-serif" style={{ color: "#0f172a" }}>
               Frequently Asked Questions
             </h2>
-            <p className="text-slate-500 text-sm max-w-xl mx-auto leading-relaxed">
-              Find quick answers regarding our secure video consults, files submission, and follow-ups.
+            <p style={{ color: "#64748b", fontSize: 15, marginTop: 12, maxWidth: 480, marginLeft: "auto", marginRight: "auto", lineHeight: 1.6 }}>
+              Find quick answers about video consults, file uploads, and what to expect.
             </p>
           </div>
-
-          <div className="pt-4">
-            <ConsultFaqAccordion />
-          </div>
+          <ConsultFaqAccordion />
         </div>
       </section>
 
