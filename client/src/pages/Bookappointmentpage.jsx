@@ -9,7 +9,7 @@ import {
   FiVideo, FiAlertCircle, FiShield,
   FiUpload, FiFileText, FiTrash2
 } from "react-icons/fi";
-import { FaWhatsapp } from "react-icons/fa";
+import { FaWhatsapp, FaUserMd } from "react-icons/fa";
 import { LuCalendar, LuClock, LuCreditCard, LuMapPin } from "react-icons/lu";
 
 import { doctors as MOCK_DOCTORS } from "../data/mockData";
@@ -863,7 +863,7 @@ export default function BookAppointmentPage() {
                     display: "flex", alignItems: "center", justifyContent: "center",
                     fontSize: 12, color: "white", fontWeight: 700,
                   }}>
-                    {["👨‍⚕️", "👩‍⚕️", "👨‍⚕️"][i]}
+                    <FaUserMd size={14} className="text-white" />
                   </div>
                 ))}
               </div>
