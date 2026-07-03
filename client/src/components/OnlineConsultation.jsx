@@ -33,6 +33,45 @@ function StarRating({ rating }) {
   );
 }
 
+function ConsultFaqAccordion() {
+  const [openIdx, setOpenIdx] = useState(null);
+  const faqs = [
+    { q: "How do I join the video consultation?", a: "Once your booking is confirmed, a secure telehealth link is sent via email and WhatsApp. You can also join directly from your Patient Portal dashboard under the 'Appointments' tab." },
+    { q: "Can my consultant assess my physical movements online?", a: "Yes. Our physical therapists are trained to conduct comprehensive video movement assessments, observe gait patterns, check active ranges of motion, and guide you through customized clinical exercises." },
+    { q: "What should I wear during the session?", a: "We recommend wearing comfortable, loose-fitting athletic clothing (shorts, t-shirt, or tracks) so that our specialists can easily observe the affected joint or muscular regions." },
+    { q: "Can I upload my MRI or X-ray reports?", a: "Absolutely. During the 4th step of our scheduling wizard, you can upload any reports (PDF, JPG, or PNG) which will be securely shared with your selected specialist before the session starts." }
+  ];
+
+  return (
+    <div className="space-y-3 max-w-3xl mx-auto text-left">
+      {faqs.map((faq, i) => (
+        <div key={i} className="rounded-2xl border border-slate-100 bg-white overflow-hidden shadow-sm">
+          <button
+            onClick={() => setOpenIdx(openIdx === i ? null : i)}
+            className="w-full flex items-center justify-between px-6 py-4.5 text-left transition-colors bg-white hover:bg-slate-50 border-none cursor-pointer"
+          >
+            <span className="font-extrabold text-slate-700 text-sm pr-4">{faq.q}</span>
+            <FiChevronLeft size={16} className={`text-slate-400 transition-transform duration-200 \${openIdx === i ? "rotate-90" : ""}`} />
+          </button>
+          <AnimatePresence>
+            {openIdx === i && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.25 }}
+                className="px-6 pb-5 pt-1 text-sm text-slate-500 leading-relaxed bg-white"
+              >
+                {faq.a}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function OnlineConsultation() {
   const [wizardOpen, setWizardOpen] = useState(false);
   const [step, setStep] = useState(1);
@@ -219,6 +258,108 @@ export default function OnlineConsultation() {
           </div>
         </div>
       </div>
+
+      {/* ── SECTION: HOW IT WORKS ── */}
+      <section className="py-20 bg-white">
+        <div className="max-w-5xl mx-auto px-6 text-center space-y-12">
+          <div className="space-y-4">
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight font-serif">
+              How Your Online Consultation Works
+            </h2>
+            <p className="text-slate-500 text-sm max-w-xl mx-auto leading-relaxed">
+              Get premium physical therapy advice and adjustments guidance in four simple steps.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 pt-4">
+            {[
+              { step: "01", title: "Select Channel", desc: "Choose between video call, audio call, or chat based on your preference.", icon: FiVideo, color: "from-sky-400 to-blue-500" },
+              { step: "02", title: "Choose Specialist", desc: "Browse board-certified manual therapists and chiropractors.", icon: TbStethoscope, color: "from-pink-400 to-rose-500" },
+              { step: "03", title: "Pick Date & Time", desc: "Find a convenient slot that fits into your daily routine.", icon: FiCalendar, color: "from-purple-400 to-indigo-500" },
+              { step: "04", title: "Connect Instantly", desc: "Join our secure digital clinic room and begin your consultation.", icon: FiActivity, color: "from-emerald-400 to-teal-500" }
+            ].map((s, idx) => {
+              const IconComp = s.icon;
+              return (
+                <motion.div 
+                  key={idx}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: idx * 0.1 }}
+                  className="bg-slate-50 rounded-3xl p-6 border border-slate-100/80 shadow-sm relative group hover:shadow-md transition-all text-left"
+                >
+                  <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br \${s.color} text-white flex items-center justify-center mb-5`}>
+                    <IconComp size={20} />
+                  </div>
+                  <span className="absolute top-6 right-6 text-3xl font-black text-slate-200/60 font-sans">{s.step}</span>
+                  <h3 className="text-base font-extrabold text-slate-800 mb-2">{s.title}</h3>
+                  <p className="text-xs text-slate-500 leading-relaxed font-medium">{s.desc}</p>
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ── SECTION: KEY BENEFITS ── */}
+      <section className="py-20 bg-slate-50 border-t border-slate-100">
+        <div className="max-w-5xl mx-auto px-6 text-center space-y-12">
+          <div className="space-y-4">
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight font-serif">
+              Why Choose Digital Telehealth?
+            </h2>
+            <p className="text-slate-500 text-sm max-w-xl mx-auto leading-relaxed">
+              Experience the same gold-standard physical rehabilitation care from the comfort of your home.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
+            {[
+              { title: "Zero Travel & Wait Times", desc: "No more traffic or busy waiting rooms. Consult with your physical therapist at the exact scheduled time slot.", icon: FiClock, color: "text-sky-500", bg: "bg-sky-50" },
+              { title: "Direct Portal Integration", desc: "Your assessments, custom video exercise regimes, and medical prescriptions are instantly saved to your Patient Portal.", icon: FiLock, color: "text-purple-500", bg: "bg-purple-50" },
+              { title: "WhatsApp Coordination", desc: "Receive automated session links and direct post-consultation assistance with our dedicated clinical staff.", icon: FaWhatsapp, color: "text-emerald-500", bg: "bg-emerald-50" }
+            ].map((b, idx) => {
+              const IconComp = b.icon;
+              return (
+                <motion.div
+                  key={idx}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: idx * 0.1 }}
+                  className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm text-left flex flex-col justify-between"
+                >
+                  <div>
+                    <div className={`w-12 h-12 rounded-2xl \${b.bg} \${b.color} flex items-center justify-center mb-6`}>
+                      <IconComp size={22} />
+                    </div>
+                    <h3 className="text-lg font-black text-slate-800 mb-3">{b.title}</h3>
+                    <p className="text-slate-550 text-sm leading-relaxed">{b.desc}</p>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ── SECTION: TELEHEALTH FAQ ── */}
+      <section className="py-20 bg-white border-t border-slate-100">
+        <div className="max-w-5xl mx-auto px-6 text-center space-y-12">
+          <div className="space-y-4">
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight font-serif">
+              Frequently Asked Questions
+            </h2>
+            <p className="text-slate-500 text-sm max-w-xl mx-auto leading-relaxed">
+              Find quick answers regarding our secure video consults, files submission, and follow-ups.
+            </p>
+          </div>
+
+          <div className="pt-4">
+            <ConsultFaqAccordion />
+          </div>
+        </div>
+      </section>
 
       {/* ── MULTI-STEP WIZARD MODAL ── */}
       <AnimatePresence>
