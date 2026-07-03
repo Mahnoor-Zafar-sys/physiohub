@@ -10,7 +10,8 @@ import {
 } from "react-icons/fi";
 import { FaWhatsapp, FaStar } from "react-icons/fa";
 import { TbStethoscope, TbActivity } from "react-icons/tb";
-import { doctors } from "../data/mockData";
+import { doctors as mockDocs } from "../data/mockData";
+import { api } from "../services/api";
 
 const CONSULT_TYPES = [
   { id: "video", label: "Video Consultation", icon: FiVideo, desc: "Face-to-face clinical video consultation with HD feed.", color: "#0ea5e9", lightColor: "rgba(14,165,233,0.08)" },
@@ -44,6 +45,20 @@ export default function OnlineConsultation() {
   const [booked, setBooked] = useState(false);
   const fileRef = useRef();
 
+  const [doctorsList, setDoctorsList] = useState([]);
+
+  useEffect(() => {
+    api.getDoctors().then(data => {
+      if (data && data.length > 0) {
+        setDoctorsList(data);
+      } else {
+        setDoctorsList(mockDocs || []);
+      }
+    }).catch(() => {
+      setDoctorsList(mockDocs || []);
+    });
+  }, []);
+
   const today = new Date();
   const dates = Array.from({ length: 7 }, (_, i) => {
     const d = new Date(today);
@@ -64,12 +79,51 @@ export default function OnlineConsultation() {
     setStep(prev => Math.max(1, prev - 1));
   };
 
-  const handleBook = () => {
+  const handleBook = async () => {
     if (!form.name || !form.phone) {
       alert("Please fill in your name and phone number.");
       return;
     }
-    setBooked(true);
+    
+    let reportBase64 = null;
+    let reportName = null;
+    
+    if (uploadedFile) {
+      reportName = uploadedFile.name;
+      const reader = new FileReader();
+      reader.readAsDataURL(uploadedFile);
+      await new Promise((resolve) => {
+        reader.onloadend = () => {
+          reportBase64 = reader.result;
+          resolve();
+        };
+      });
+    }
+
+    try {
+      const apptData = {
+        doctor: selectedDoc?.name || "Dr. Sarah Ahmed",
+        date: selectedDate ? `${dayNames[selectedDate.getDay()]} ${selectedDate.getDate()} ${monthNames[selectedDate.getMonth()]}` : new Date().toLocaleDateString(),
+        time: selectedSlot || "09:00 AM",
+        type: channel || "video",
+        branch: "Online",
+        status: "Confirmed",
+        patient: form.name,
+        payment_status: "Paid",
+        patient_report: reportBase64,
+        patient_report_name: reportName
+      };
+      
+      const res = await api.createAppointment(apptData);
+      if (res) {
+        setBooked(true);
+      } else {
+        alert("Failed to submit consultation booking.");
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Error booking online consultation.");
+    }
   };
 
   const resetWizard = () => {
@@ -115,10 +169,7 @@ export default function OnlineConsultation() {
             transition={{ duration: 0.8 }}
             className="space-y-4"
           >
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/25 border border-blue-400/30 backdrop-blur-md">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-xs font-bold uppercase tracking-wider text-blue-300">Certified Telehealth Service</span>
-            </div>
+
             <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight leading-tight text-white font-serif">
               Consult Top Specialists <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-pink-400">
@@ -298,7 +349,7 @@ export default function OnlineConsultation() {
                           <p className="text-xs text-slate-500 leading-relaxed">Select one of our board-certified online specialists for your consult.</p>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-                          {doctors.filter(d => d.status === "Active" || d.available).map(doc => {
+                          {doctorsList.filter(d => d.status === "Active" || d.available).map(doc => {
                             const isSel = selectedDoc?.id === doc.id;
                             return (
                               <button
