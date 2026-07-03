@@ -215,46 +215,68 @@ export default function OnlineConsultation() {
     <div className="min-h-screen bg-slate-50 font-sans antialiased text-slate-800 flex flex-col justify-between">
       <Navbar />
 
-      {/* ── OVERHAULED HERO SECTION ── */}
-      <div 
-        className="relative min-h-[75vh] flex items-center justify-center bg-cover bg-center px-4" 
-        style={{ backgroundImage: "url('https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=1600&q=80')" }}
+      {/* ── HERO SECTION ── */}
+      <div
+        className="relative flex items-center bg-cover bg-center"
+        style={{
+          backgroundImage: "url('https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=1600&q=80')",
+          minHeight: "88vh",
+          paddingTop: 88  /* offset for fixed navbar */
+        }}
       >
-        {/* Dark overlay grid overlay for readability */}
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-900/90 via-slate-900/75 to-transparent z-0" />
-        
-        <div className="relative z-10 max-w-4xl w-full text-left md:pl-8 text-white space-y-6">
-          <motion.div 
+        {/* Overlay */}
+        <div className="absolute inset-0 z-0" style={{ background: "linear-gradient(105deg, rgba(15,23,42,0.95) 0%, rgba(15,23,42,0.80) 55%, rgba(15,23,42,0.35) 100%)" }} />
+
+        <div className="relative z-10 w-full max-w-5xl mx-auto px-6 md:px-12 py-16">
+          <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="space-y-4"
           >
+            {/* Pill badge */}
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)", borderRadius: 99, padding: "5px 14px", marginBottom: 20 }}>
+              <span style={{ width: 7, height: 7, borderRadius: 99, background: "#34d399", display: "inline-block", animation: "pulse 2s infinite" }} />
+              <span style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.1em" }}>Secure Telehealth — Pakistan</span>
+            </div>
 
-            <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight leading-tight text-white font-serif">
-              Consult Top Specialists <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-pink-400">
-                100% Online & Secure
+            {/* Heading */}
+            <h1 style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)", fontWeight: 900, lineHeight: 1.15, color: "#fff", fontFamily: "serif", marginBottom: 20, maxWidth: 640 }}>
+              Consult Top Specialists{" "}
+              <span style={{ background: "linear-gradient(90deg, #60a5fa, #f472b6)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
+                100% Online
               </span>
+              {" & Secure"}
             </h1>
-            <p className="text-slate-300 text-sm md:text-lg max-w-xl leading-relaxed">
-              Connect with leading physiotherapists, chiropractors, and medical consultants from anywhere. Skip the waiting room with our guided diagnostic consult wizard.
-            </p>
-          </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-          >
-            <button
-              onClick={() => setWizardOpen(true)}
-              className="group relative inline-flex items-center gap-3 bg-gradient-to-r from-blue-600 to-sky-500 text-white font-bold text-base px-8 py-4.5 rounded-2xl shadow-[0_20px_40px_-10px_rgba(37,99,235,0.35)] hover:shadow-[0_24px_48px_-8px_rgba(14,165,233,0.5)] transition-all duration-305 hover:-translate-y-0.5"
+            {/* Sub-text */}
+            <p style={{ fontSize: 15, color: "#cbd5e1", maxWidth: 520, lineHeight: 1.75, marginBottom: 32, fontWeight: 400 }}>
+              Connect with board-certified physiotherapists and chiropractors from anywhere in Pakistan. Skip the waiting room — your guided consultation is just a few clicks away.
+            </p>
+
+            {/* CTA button */}
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
             >
-              <FiActivity className="text-xl animate-pulse text-sky-100" />
-              <span>Start Online Consultation</span>
-              <FiArrowRight className="text-lg transition-transform group-hover:translate-x-1" />
-            </button>
+              <button
+                onClick={() => setWizardOpen(true)}
+                className="group relative inline-flex items-center gap-3 text-white font-bold text-sm cursor-pointer border-none"
+                style={{
+                  background: "linear-gradient(135deg, #2563eb, #0ea5e9)",
+                  padding: "14px 32px",
+                  borderRadius: 16,
+                  boxShadow: "0 16px 40px rgba(37,99,235,0.4)",
+                  transition: "all 0.3s ease"
+                }}
+                onMouseEnter={e => e.currentTarget.style.transform = "translateY(-2px)"}
+                onMouseLeave={e => e.currentTarget.style.transform = "translateY(0)"}
+              >
+                <FiActivity size={16} style={{ opacity: 0.9 }} />
+                Start Online Consultation
+                <FiArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
+              </button>
+            </motion.div>
           </motion.div>
         </div>
       </div>
