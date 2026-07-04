@@ -61,7 +61,7 @@ export default function Navbar({ onBookAppointment }) {
       ...(userRole === "doctor" ? [{ name: "Doctor Portal", path: "/doctor-portal" }] : []),
       ...(userRole === "receptionist" ? [{ name: "Staff Desk", path: "/staff-reception-terminal-y77" }] : []),
       ...(userRole === "patient" ? [{ name: "Patient Portal", path: "/patient-portal" }] : []),
-      { name: "Logout", path: "/login", isLogout: true }
+      ...(userRole !== "patient" && userRole !== "doctor" ? [{ name: "Logout", path: "/login", isLogout: true }] : [])
     ];
   } else {
     dynamicLinks = [
@@ -96,7 +96,9 @@ export default function Navbar({ onBookAppointment }) {
       } else if (userRole === "receptionist") {
         dynamicLinks.push({ name: "Staff Desk", path: "/staff-reception-terminal-y77" });
       }
-      dynamicLinks.push({ name: "Logout", path: "/login", isLogout: true });
+      if (userRole !== "patient" && userRole !== "doctor") {
+        dynamicLinks.push({ name: "Logout", path: "/login", isLogout: true });
+      }
     } else {
       dynamicLinks.push({
         name: "Login / Signup",

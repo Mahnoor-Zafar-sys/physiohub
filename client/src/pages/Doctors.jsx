@@ -96,8 +96,12 @@ function Banner() {
   const { displayed: tw2 } = useTypewriter(done1 ? line2 : "", 65, 200);
 
   return (
-    <section ref={ref} className="relative overflow-hidden pt-32 pb-16"
-      style={{ background:"linear-gradient(135deg,#f0f9ff 0%,#ffffff 45%,#fdf2f8 100%)" }}>
+    <section ref={ref} className="relative overflow-hidden pt-32 pb-20"
+      style={{ 
+        backgroundImage: `linear-gradient(135deg, rgba(240, 249, 255, 0.9) 0%, rgba(255, 255, 255, 0.95) 45%, rgba(253, 242, 248, 0.9) 100%), url("https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=1600&q=80")`,
+        backgroundSize: "cover",
+        backgroundPosition: "center"
+      }}>
 
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute -top-32 -left-32 w-[550px] h-[550px] bg-sky-200/25 rounded-full blur-[130px] animate-pulse" style={{ animationDuration:"9s" }} />
@@ -108,7 +112,7 @@ function Banner() {
 
       <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 text-center">
         {/* Typewriter Heading */}
-        <div className="text-4xl sm:text-6xl font-extrabold text-slate-900 leading-tight tracking-tight font-serif mb-5 min-h-[5rem] sm:min-h-[7.5rem]">
+        <div className="text-4xl sm:text-6xl font-extrabold text-slate-900 leading-tight tracking-tight font-serif mb-8 min-h-[5rem] sm:min-h-[7.5rem]">
           <span>{tw1.split(" ").map((word, wi) => {
             const gradientWords = ["Physical", "Therapists"];
             const isGrad = gradientWords.includes(word);
@@ -127,14 +131,8 @@ function Banner() {
           <span className="inline-block w-0.5 h-8 sm:h-12 bg-sky-500 align-middle ml-1 animate-pulse" style={{ opacity: tw2.length >= line2.length ? 0 : 1 }} />
         </div>
 
-        <motion.p initial={{ opacity:0, y:20 }} animate={inView ? { opacity:1, y:0 } : {}}
-          transition={{ duration:0.9, delay:0.25 }}
-          className="text-lg text-slate-500 max-w-2xl mx-auto leading-relaxed mb-10">
-          Board-certified physical therapists with international training — delivering compassionate, cutting-edge care.
-        </motion.p>
-
         <motion.div initial={{ opacity:0, y:20 }} animate={inView ? { opacity:1, y:0 } : {}}
-          transition={{ duration:0.8, delay:0.55 }}
+          transition={{ duration:0.8, delay:0.45 }}
           className="flex flex-wrap justify-center gap-4">
           <button onClick={() => navigate("/book-appointment")}
             className="px-8 py-3.5 rounded-xl font-bold text-sm text-white shadow-xl hover:opacity-90 transition-opacity flex items-center gap-2 cursor-pointer"

@@ -140,9 +140,9 @@ let mockSettings = {
   why_us_headline: "Why Choose Vital Physio Hub?",
   why_us_description: "We combine gold-standard physical adjustments with dynamic clinical technologies to ensure faster, safer, and complete muscular rehabilitation.",
   hero_title: "Premium Healthcare, Powered by Innovation",
-  hero_subtitle: "Book appointments, consult top doctors, and manage your health digitally — all in one beautifully designed platform.",
+  hero_subtitle: "Book appointments, consult top doctors, and manage your health digitally in one beautifully designed platform.",
   about_title: "ABOUT OUR CLINIC",
-  about_description: "For over 13 years, we have built a legacy of professional medical care in Karachi — through world-class specialists, modern infrastructure, and a genuinely patient-first culture.",
+  about_description: "For over 13 years, we have built a legacy of professional medical care in Karachi, through world-class specialists, modern infrastructure, and a genuinely patient-first culture.",
   about_ceo_vision: "My dream is to create a platform that inspires trust, promotes evidence-based physiotherapy, and positively impacts lives across the world."
 };
 
@@ -227,7 +227,7 @@ let mockServices = [
     category: "Electrotherapy",
     tagline: "Accelerating Healing Through Smart Stimulation",
     shortDesc: "Targeted electrical therapies (TENS, EMS) to manage chronic pain and build muscle function.",
-    overview: "Our electrotherapy suite offers cutting-edge modalities like TENS, Interferential Current (IFT), and Electrical Muscle Stimulation (EMS). We use specific therapeutic frequencies to block pain signals and stimulate healing.",
+    overview: "Our electrotherapy suite offers advanced modalities like TENS, Interferential Current (IFT), and Electrical Muscle Stimulation (EMS). We use specific therapeutic frequencies to block pain signals and stimulate healing.",
     symptoms: '["Severe muscle spasms", "Acute post-injury pain", "Muscle atrophy", "Chronic neuropathic pain", "Joint inflammation"]',
     benefits: '["Non-addictive pain block", "Rapid swelling reduction", "Complements active rehab", "Adjustable frequency settings"]',
     treatments: '["TENS Stimulation", "Interferential Therapy (IFT)", "EMS Muscle Retraining", "Ultrasound Therapy", "Combined Laser-Electro Therapy"]',

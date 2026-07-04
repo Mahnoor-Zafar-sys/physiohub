@@ -1835,8 +1835,12 @@ function ContactBanner({ settings }) {
   ];
 
   return (
-    <section ref={ref} className="relative overflow-hidden pt-32 pb-16"
-      style={{ background: "linear-gradient(135deg,#f0f9ff 0%,#ffffff 45%,#fdf2f8 100%)" }}>
+    <section ref={ref} className="relative overflow-hidden pt-32 pb-20"
+      style={{ 
+        backgroundImage: `linear-gradient(135deg, rgba(240, 249, 255, 0.9) 0%, rgba(255, 255, 255, 0.95) 45%, rgba(253, 242, 248, 0.9) 100%), url("https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&w=1600&q=80")`,
+        backgroundSize: "cover",
+        backgroundPosition: "center"
+      }}>
 
       {/* Ambient orbs + grid — exact match with Services */}
       <div className="absolute inset-0 pointer-events-none">
@@ -1864,7 +1868,7 @@ function ContactBanner({ settings }) {
         <motion.p initial={{ opacity: 0, y: 20 }} animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.9, delay: 0.25 }}
           className="text-lg text-slate-500 max-w-2xl mx-auto leading-relaxed mb-10">
-          We're here for you — whether it's a routine inquiry, emergency support, or booking your next appointment.
+          We are here to help you with routine inquiries, emergency support, or booking your next appointment.
         </motion.p>
 
         {/* Stats row — matches Services banner style */}
@@ -2143,7 +2147,7 @@ export default function ContactUs() {
                   </div>
                   <p className="text-slate-400 text-xs mb-3">For life-threatening emergencies, call immediately:</p>
                   <a href={`tel:${settings.ambulance_phone}`} className="block text-3xl font-black text-red-500 hover:text-red-600 transition-colors tracking-wider">{settings.ambulance_phone}</a>
-                  <p className="text-slate-400 text-xs mt-1">Rescue / Ambulance — Free 24/7</p>
+                  <p className="text-slate-400 text-xs mt-1">Rescue and Ambulance: Free 24/7</p>
                   <a href={`tel:${settings.clinic_phone}`} className="mt-3 block text-sm text-red-400 hover:text-red-500 transition-colors font-semibold">
                     Clinic Helpline: {settings.clinic_phone}
                   </a>
@@ -2352,7 +2356,7 @@ export default function ContactUs() {
             Need Immediate Assistance?
           </h2>
           <p className="text-white/75 text-lg mb-10 max-w-xl mx-auto">
-            Our team is ready — book an appointment online, chat on WhatsApp, or call us directly.
+            Our team is ready: book an appointment online, chat on WhatsApp, or call us directly.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <motion.a href="#booking" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}

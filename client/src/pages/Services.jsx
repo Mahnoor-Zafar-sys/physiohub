@@ -1532,8 +1532,12 @@ function Banner() {
     { Icon: FiHeart,      style:{ top:"12%",right:"19%" },  size:19, delay:1.1 },
   ];
   return (
-    <section ref={ref} className="relative overflow-hidden pt-32 pb-16"
-      style={{ background:"linear-gradient(135deg,#f0f9ff 0%,#ffffff 45%,#fdf2f8 100%)" }}>
+    <section ref={ref} className="relative overflow-hidden pt-32 pb-20"
+      style={{ 
+        backgroundImage: `linear-gradient(135deg, rgba(240, 249, 255, 0.9) 0%, rgba(255, 255, 255, 0.95) 45%, rgba(253, 242, 248, 0.9) 100%), url("https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=1600&q=80")`,
+        backgroundSize: "cover",
+        backgroundPosition: "center"
+      }}>
 
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute -top-32 -left-32 w-[550px] h-[550px] bg-sky-200/25 rounded-full blur-[130px] animate-pulse" style={{ animationDuration:"9s" }} />
@@ -1544,12 +1548,12 @@ function Banner() {
       <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 text-center">
         <motion.h1 initial={{ opacity:0,y:30 }} animate={inView ? { opacity:1,y:0 } : {}}
           transition={{ duration:1, ease:[0.16,1,0.3,1], delay:0.1 }}
-          className="text-4xl sm:text-6xl font-extrabold text-slate-900 leading-tight tracking-tight font-serif mb-5">
+          className="text-4xl sm:text-6xl font-extrabold text-slate-900 leading-tight tracking-tight font-serif mb-8">
           World-Class{" "}
           <span style={{ background:"linear-gradient(135deg,#0ea5e9,#db2777)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent" }}>
             Medical Services
           </span>
-          <br />Under One Roof
+          <br />Across Our Care Network
         </motion.h1>
         <motion.div initial={{ opacity:0,y:20 }} animate={inView ? { opacity:1,y:0 } : {}} transition={{ duration:0.8,delay:0.55 }}
           className="flex flex-wrap justify-center gap-4">
