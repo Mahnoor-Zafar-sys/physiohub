@@ -147,7 +147,9 @@ export const api = {
       payment_screenshot: apptData.payment_screenshot || null,
       admin_note: null,
       patient_report: apptData.patient_report || null,
-      patient_report_name: apptData.patient_report_name || null
+      patient_report_name: apptData.patient_report_name || null,
+      consult_channel: apptData.consult_channel || null,
+      meeting_credentials: null
     };
     const updated = [newAppt, ...current];
     localStorage.setItem("pc_appts", JSON.stringify(updated));
@@ -171,7 +173,71 @@ export const api = {
     return true;
   },
 
-  // EMR records
+  // Assign meeting credentials (doctor assigns a meeting link/ID to a consultation)
+  assignMeetingCredentials: async (id, meeting_credentials) => {
+    const res = await apiCall("/appointments/meeting-credentials", "POST", { id, meeting_credentials });
+    if (res && res.success) return true;
+    // Local fallback
+    const local = localStorage.getItem("pc_appts");
+    if (local) {
+      const current = JSON.parse(local);
+      const updated = current.map(appt =>
+        appt.id === id ? { ...appt, meeting_credentials } : appt
+      );
+      localStorage.setItem("pc_appts", JSON.stringify(updated));
+    }
+    return true;
+  },
+
+  // Branches
+  getBranches: async () => {
+    const res = await apiCall("/branches");
+    if (res && Array.isArray(res)) {
+      localStorage.setItem("pc_branches", JSON.stringify(res));
+      return res;
+    }
+    const local = localStorage.getItem("pc_branches");
+    return local ? JSON.parse(local) : [
+      { id: 1, name: "Gulberg", address: "Main Boulevard, Gulberg III", city: "Lahore" },
+      { id: 2, name: "DHA", address: "Phase 5, Commercial Zone", city: "Lahore" }
+    ];
+  },
+
+  createBranch: async (branchData) => {
+    const res = await apiCall("/branches", "POST", branchData);
+    if (res && res.success) return res.branch;
+    // Local fallback
+    const local = localStorage.getItem("pc_branches");
+    const current = local ? JSON.parse(local) : [];
+    const newBranch = { id: Date.now(), ...branchData };
+    localStorage.setItem("pc_branches", JSON.stringify([...current, newBranch]));
+    return newBranch;
+  },
+
+  updateBranch: async (id, branchData) => {
+    const res = await apiCall(`/branches/${id}`, "PUT", branchData);
+    if (res && res.success) return true;
+    const local = localStorage.getItem("pc_branches");
+    if (local) {
+      const current = JSON.parse(local);
+      const updated = current.map(b => b.id === id ? { ...b, ...branchData } : b);
+      localStorage.setItem("pc_branches", JSON.stringify(updated));
+    }
+    return true;
+  },
+
+  deleteBranch: async (id) => {
+    const res = await apiCall(`/branches/${id}`, "DELETE");
+    if (res && res.success) return true;
+    const local = localStorage.getItem("pc_branches");
+    if (local) {
+      const current = JSON.parse(local);
+      localStorage.setItem("pc_branches", JSON.stringify(current.filter(b => b.id !== id)));
+    }
+    return true;
+  },
+
+
   getEMR: async (patientName) => {
     const res = await apiCall(`/emr/${patientName}`);
     if (res) {

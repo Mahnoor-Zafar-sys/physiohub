@@ -42,9 +42,14 @@ let mockInvoices = [
 ];
 
 let mockDoctors = [
-  { id: 1, name: "Dr. Sarah Ahmed", specialty: "Skin & Dermatology", fee: "₨ 3,000", branch: "Gulberg, DHA", status: "Active", image: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=400&q=80", experience: "14 Years", rating: 4.90, title: "MBBS, FCPS (Dermatology)", slug: "dr-sarah-ahmed", available: 1, email: "doctor@physiohub.com", social_linkedin: "https://linkedin.com/in/dr-sarah", social_facebook: "https://facebook.com/dr-sarah", social_instagram: "https://instagram.com/dr-sarah", social_twitter: "https://twitter.com/dr-sarah" },
-  { id: 2, name: "Dr. Omar Farooq", specialty: "Dental Care", fee: "₨ 2,500", branch: "Gulberg", status: "Active", image: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=400&q=80", experience: "11 Years", rating: 4.80, title: "BDS, FCPS (Oral Surgery)", slug: "dr-omar-farooq", available: 1, email: "doctor-omar@physiohub.com", social_linkedin: "https://linkedin.com/in/dr-omar", social_facebook: "https://facebook.com/dr-omar", social_instagram: "https://instagram.com/dr-omar", social_twitter: "https://twitter.com/dr-omar" },
-  { id: 3, name: "Dr. Fatima Malik", specialty: "Gynecology & Obstetrics", fee: "₨ 3,500", branch: "DHA", status: "Active", image: "https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&w=400&q=80", experience: "16 Years", rating: 5.00, title: "MBBS, MRCOG (Gynecology)", slug: "dr-fatima-malik", available: 1, email: "doctor-fatima@physiohub.com", social_linkedin: "https://linkedin.com/in/dr-fatima", social_facebook: "https://facebook.com/dr-fatima", social_instagram: "https://instagram.com/dr-fatima", social_twitter: "https://twitter.com/dr-fatima" }
+  { id: 1, name: "Dr. Sarah Ahmed", specialty: "Skin & Dermatology", fee: "\u20a8 3,000", branch: "Gulberg, DHA", status: "Active", image: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=400&q=80", experience: "14 Years", rating: 4.90, title: "MBBS, FCPS (Dermatology)", slug: "dr-sarah-ahmed", available: 1, email: "doctor@physiohub.com", social_linkedin: "https://linkedin.com/in/dr-sarah", social_facebook: "https://facebook.com/dr-sarah", social_instagram: "https://instagram.com/dr-sarah", social_twitter: "https://twitter.com/dr-sarah", whatsapp_number: "03008786187", whatsapp_username: "Dr.SarahAhmed" },
+  { id: 2, name: "Dr. Omar Farooq", specialty: "Dental Care", fee: "\u20a8 2,500", branch: "Gulberg", status: "Active", image: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=400&q=80", experience: "11 Years", rating: 4.80, title: "BDS, FCPS (Oral Surgery)", slug: "dr-omar-farooq", available: 1, email: "doctor-omar@physiohub.com", social_linkedin: "https://linkedin.com/in/dr-omar", social_facebook: "https://facebook.com/dr-omar", social_instagram: "https://instagram.com/dr-omar", social_twitter: "https://twitter.com/dr-omar", whatsapp_number: "03001234567", whatsapp_username: "Dr.OmarFarooq" },
+  { id: 3, name: "Dr. Fatima Malik", specialty: "Gynecology & Obstetrics", fee: "\u20a8 3,500", branch: "DHA", status: "Active", image: "https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&w=400&q=80", experience: "16 Years", rating: 5.00, title: "MBBS, MRCOG (Gynecology)", slug: "dr-fatima-malik", available: 1, email: "doctor-fatima@physiohub.com", social_linkedin: "https://linkedin.com/in/dr-fatima", social_facebook: "https://facebook.com/dr-fatima", social_instagram: "https://instagram.com/dr-fatima", social_twitter: "https://twitter.com/dr-fatima", whatsapp_number: "03009876543", whatsapp_username: "Dr.FatimaMalik" }
+];
+
+let mockBranches = [
+  { id: 1, name: "Gulberg", address: "Main Boulevard, Gulberg III", city: "Lahore", clinic_id: 1 },
+  { id: 2, name: "DHA", address: "Phase 5, Commercial Zone", city: "Lahore", clinic_id: 1 }
 ];
 
 let mockUserLogs = [
@@ -462,7 +467,7 @@ app.get("/api/appointments", async (req, res) => {
   const clinicId = getClinicId(req);
   if (db.isDbEnabled()) {
     try {
-      const results = await db.query("SELECT * FROM appointments WHERE clinic_id = ? ORDER BY date DESC", [clinicId]);
+      const results = await db.query("SELECT * FROM appointments WHERE clinic_id = ? ORDER BY created_at DESC", [clinicId]);
       // Map columns to match frontend
       const mapped = results.map(row => ({
         id: row.id,
@@ -478,7 +483,9 @@ app.get("/api/appointments", async (req, res) => {
         payment_screenshot: row.payment_screenshot,
         admin_note: row.admin_note,
         patient_report: row.patient_report,
-        patient_report_name: row.patient_report_name
+        patient_report_name: row.patient_report_name,
+        consult_channel: row.consult_channel || null,
+        meeting_credentials: row.meeting_credentials || null
       }));
       res.json(mapped);
     } catch (e) {
@@ -491,7 +498,7 @@ app.get("/api/appointments", async (req, res) => {
 
 // 3. Create Appointment
 app.post("/api/appointments", async (req, res) => {
-  const { doctor, date, time, type, branch, status, patient, payment_status, payment_method, payment_screenshot, patient_report, patient_report_name } = req.body;
+  const { doctor, date, time, type, branch, status, patient, payment_status, payment_method, payment_screenshot, patient_report, patient_report_name, consult_channel } = req.body;
   const clinicId = getClinicId(req);
   const newAppt = {
     id: `PC-${Date.now().toString().slice(-5)}`,
@@ -508,14 +515,16 @@ app.post("/api/appointments", async (req, res) => {
     admin_note: null,
     patient_report: patient_report || null,
     patient_report_name: patient_report_name || null,
+    consult_channel: consult_channel || null,
+    meeting_credentials: null,
     clinic_id: clinicId
   };
 
   if (db.isDbEnabled()) {
     try {
       await db.query(
-        "INSERT INTO appointments (id, doctor_name, date, time, type, branch, status, patient_name, payment_status, payment_method, payment_screenshot, patient_report, patient_report_name, clinic_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-        [newAppt.id, doctor, date, time, type, branch, newAppt.status, newAppt.patient, newAppt.payment_status, newAppt.payment_method, newAppt.payment_screenshot, newAppt.patient_report, newAppt.patient_report_name, clinicId]
+        "INSERT INTO appointments (id, doctor_name, date, time, type, branch, status, patient_name, payment_status, payment_method, payment_screenshot, patient_report, patient_report_name, consult_channel, meeting_credentials, clinic_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        [newAppt.id, doctor, date, time, type, branch, newAppt.status, newAppt.patient, newAppt.payment_status, newAppt.payment_method, newAppt.payment_screenshot, newAppt.patient_report, newAppt.patient_report_name, newAppt.consult_channel, null, clinicId]
       );
       res.json({ success: true, appointment: newAppt });
     } catch (e) {
@@ -605,7 +614,109 @@ app.post("/api/appointments/proof", async (req, res) => {
   }
 });
 
-// 5. Fetch EMR clinical records
+// 4d. Assign Meeting Credentials (Doctor assigns meeting link/ID)
+app.post("/api/appointments/meeting-credentials", async (req, res) => {
+  const { id, meeting_credentials } = req.body;
+  if (!id || !meeting_credentials) return res.status(400).json({ error: "Appointment ID and credentials are required" });
+  const clinicId = getClinicId(req);
+  if (db.isDbEnabled()) {
+    try {
+      await db.query(
+        "UPDATE appointments SET meeting_credentials = ? WHERE id = ? AND clinic_id = ?",
+        [meeting_credentials, id, clinicId]
+      );
+      res.json({ success: true });
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  } else {
+    mockAppointments = mockAppointments.map(appt =>
+      appt.id === id && (appt.clinic_id || 1) === clinicId
+        ? { ...appt, meeting_credentials }
+        : appt
+    );
+    res.json({ success: true });
+  }
+});
+
+// ── BRANCHES ──────────────────────────────────────────────────────
+
+// GET all branches
+app.get("/api/branches", async (req, res) => {
+  const clinicId = getClinicId(req);
+  if (db.isDbEnabled()) {
+    try {
+      const results = await db.query("SELECT * FROM branches WHERE clinic_id = ? ORDER BY id ASC", [clinicId]);
+      res.json(results);
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  } else {
+    res.json(mockBranches.filter(b => (b.clinic_id || 1) === clinicId));
+  }
+});
+
+// POST create branch
+app.post("/api/branches", async (req, res) => {
+  const { name, address, city } = req.body;
+  if (!name) return res.status(400).json({ error: "Branch name is required" });
+  const clinicId = getClinicId(req);
+  if (db.isDbEnabled()) {
+    try {
+      const result = await db.query(
+        "INSERT INTO branches (name, address, city, clinic_id) VALUES (?, ?, ?, ?)",
+        [name, address || "", city || "", clinicId]
+      );
+      res.json({ success: true, branch: { id: result.insertId, name, address, city, clinic_id: clinicId } });
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  } else {
+    const newBranch = { id: mockBranches.length + 1, name, address: address || "", city: city || "", clinic_id: clinicId };
+    mockBranches.push(newBranch);
+    res.json({ success: true, branch: newBranch });
+  }
+});
+
+// PUT update branch
+app.put("/api/branches/:id", async (req, res) => {
+  const { id } = req.params;
+  const { name, address, city } = req.body;
+  const clinicId = getClinicId(req);
+  if (db.isDbEnabled()) {
+    try {
+      await db.query(
+        "UPDATE branches SET name = ?, address = ?, city = ? WHERE id = ? AND clinic_id = ?",
+        [name, address || "", city || "", id, clinicId]
+      );
+      res.json({ success: true });
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  } else {
+    mockBranches = mockBranches.map(b => parseInt(b.id) === parseInt(id) ? { ...b, name, address: address || "", city: city || "" } : b);
+    res.json({ success: true });
+  }
+});
+
+// DELETE branch
+app.delete("/api/branches/:id", async (req, res) => {
+  const { id } = req.params;
+  const clinicId = getClinicId(req);
+  if (db.isDbEnabled()) {
+    try {
+      await db.query("DELETE FROM branches WHERE id = ? AND clinic_id = ?", [id, clinicId]);
+      res.json({ success: true });
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  } else {
+    mockBranches = mockBranches.filter(b => parseInt(b.id) !== parseInt(id));
+    res.json({ success: true });
+  }
+});
+
+
 app.get("/api/emr/:patientName", async (req, res) => {
   const { patientName } = req.params;
   const clinicId = getClinicId(req);
@@ -816,7 +927,7 @@ app.get("/api/doctors", async (req, res) => {
 
 // 13. Create Doctor CRUD
 app.post("/api/doctors", async (req, res) => {
-  const { name, specialty, fee, branch, image, experience, rating, title, slug } = req.body;
+  const { name, specialty, fee, branch, image, experience, rating, title, slug, whatsapp_number, whatsapp_username } = req.body;
   const clinicId = getClinicId(req);
   const docImg = image || "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=400&q=80";
   const docExp = experience || "10 Years";
@@ -827,15 +938,15 @@ app.post("/api/doctors", async (req, res) => {
   if (db.isDbEnabled()) {
     try {
       const results = await db.query(
-        "INSERT INTO doctors (name, specialty, fee, branch, status, image, experience, rating, title, slug, available, clinic_id) VALUES (?, ?, ?, ?, 'Active', ?, ?, ?, ?, ?, 1, ?)",
-        [name, specialty, fee, branch, docImg, docExp, docRating, docTitle, docSlug, clinicId]
+        "INSERT INTO doctors (name, specialty, fee, branch, status, image, experience, rating, title, slug, available, whatsapp_number, whatsapp_username, clinic_id) VALUES (?, ?, ?, ?, 'Active', ?, ?, ?, ?, ?, 1, ?, ?, ?)",
+        [name, specialty, fee, branch, docImg, docExp, docRating, docTitle, docSlug, whatsapp_number || null, whatsapp_username || null, clinicId]
       );
-      res.json({ success: true, doctor: { id: results.insertId, name, specialty, fee, branch, status: "Active", image: docImg, experience: docExp, rating: docRating, title: docTitle, slug: docSlug, available: 1, clinic_id: clinicId } });
+      res.json({ success: true, doctor: { id: results.insertId, name, specialty, fee, branch, status: "Active", image: docImg, experience: docExp, rating: docRating, title: docTitle, slug: docSlug, available: 1, whatsapp_number, whatsapp_username, clinic_id: clinicId } });
     } catch (e) {
       res.status(500).json({ error: e.message });
     }
   } else {
-    const newDoc = { id: mockDoctors.length + 1, name, specialty, fee, branch, status: "Active", image: docImg, experience: docExp, rating: docRating, title: docTitle, slug: docSlug, available: 1, clinic_id: clinicId };
+    const newDoc = { id: mockDoctors.length + 1, name, specialty, fee, branch, status: "Active", image: docImg, experience: docExp, rating: docRating, title: docTitle, slug: docSlug, available: 1, whatsapp_number: whatsapp_number || "", whatsapp_username: whatsapp_username || "", clinic_id: clinicId };
     mockDoctors.push(newDoc);
     res.json({ success: true, doctor: newDoc });
   }
@@ -944,7 +1055,7 @@ app.post("/api/doctors/update", async (req, res) => {
     id, name, specialty, fee, branch, image, experience, rating, title, slug,
     email, social_linkedin, social_facebook, social_instagram, social_twitter,
     cv_file, cv_name, certificates_file, certificates_name, degrees_file, degrees_name, rewards_file, rewards_name,
-    status, admin_note
+    status, admin_note, whatsapp_number, whatsapp_username
   } = req.body;
   if (db.isDbEnabled()) {
     try {
@@ -953,13 +1064,13 @@ app.post("/api/doctors/update", async (req, res) => {
           name = ?, specialty = ?, fee = ?, branch = ?, image = ?, experience = ?, rating = ?, title = ?, slug = ?,
           email = ?, social_linkedin = ?, social_facebook = ?, social_instagram = ?, social_twitter = ?,
           cv_file = ?, cv_name = ?, certificates_file = ?, certificates_name = ?, degrees_file = ?, degrees_name = ?, rewards_file = ?, rewards_name = ?,
-          status = ?, admin_note = ?
+          status = ?, admin_note = ?, whatsapp_number = ?, whatsapp_username = ?
          WHERE id = ?`,
         [
           name, specialty, fee, branch, image, experience, rating || null, title, slug,
           email || null, social_linkedin || null, social_facebook || null, social_instagram || null, social_twitter || null,
           cv_file || null, cv_name || null, certificates_file || null, certificates_name || null, degrees_file || null, degrees_name || null, rewards_file || null, rewards_name || null,
-          status || 'Active', admin_note || null,
+          status || 'Active', admin_note || null, whatsapp_number || null, whatsapp_username || null,
           id
         ]
       );
@@ -987,7 +1098,9 @@ app.post("/api/doctors/update", async (req, res) => {
             rewards_file: rewards_file !== undefined ? rewards_file : doc.rewards_file,
             rewards_name: rewards_name !== undefined ? rewards_name : doc.rewards_name,
             status: status !== undefined ? status : doc.status,
-            admin_note: admin_note !== undefined ? admin_note : doc.admin_note
+            admin_note: admin_note !== undefined ? admin_note : doc.admin_note,
+            whatsapp_number: whatsapp_number !== undefined ? whatsapp_number : doc.whatsapp_number,
+            whatsapp_username: whatsapp_username !== undefined ? whatsapp_username : doc.whatsapp_username
           } 
         : doc
     );
@@ -2145,7 +2258,7 @@ app.post("/api/newsletter/subscribe", async (req, res) => {
       res.status(500).json({ error: e.message });
     }
   } else {
-    console.log(\`[Mock Newsletter] Subscribed email: \${email} for clinic ID: \${clinicId}\`);
+    console.log("[Mock Newsletter] Subscribed email: " + email + " for clinic ID: " + clinicId);
     res.json({ success: true, message: "Subscribed successfully (Mock)!" });
   }
 });

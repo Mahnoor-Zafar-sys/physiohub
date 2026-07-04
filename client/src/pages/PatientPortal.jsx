@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { FiUser, FiCalendar, FiClock, FiFileText, FiDollarSign, FiActivity, FiUpload, FiAlertTriangle, FiCheckCircle, FiPackage } from "react-icons/fi";
-import { FaPrint } from "react-icons/fa";
+import { FiUser, FiCalendar, FiClock, FiFileText, FiDollarSign, FiActivity, FiUpload, FiAlertTriangle, FiCheckCircle, FiPackage, FiVideo } from "react-icons/fi";
+import { FaPrint, FaWhatsapp } from "react-icons/fa";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { api } from "../services/api";
@@ -16,6 +16,7 @@ export default function PatientPortal() {
   const [appointments, setAppointments] = useState([]);
   const [invoices, setInvoices] = useState([]);
   const [orders, setOrders] = useState([]);
+  const [doctorsList, setDoctorsList] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -56,6 +57,9 @@ export default function PatientPortal() {
         (patientEmail && o.patient_email.toLowerCase() === patientEmail.toLowerCase())
       );
       setOrders(myOrds);
+
+      const docs = await api.getDoctors();
+      setDoctorsList(docs || []);
     } catch (err) {
       setError("Failed to sync real-time medical data.");
     } finally {
@@ -343,6 +347,7 @@ export default function PatientPortal() {
                   { id: "records", label: "Medical History (EMR)", icon: FiActivity },
                   { id: "patient-rx", label: "My Prescriptions", icon: FiFileText },
                   { id: "appointments", label: "Appointments", icon: FiCalendar },
+                  { id: "online-consultations", label: "Online Consultations", icon: FiVideo },
                   { id: "billing", label: "Invoices & Payments", icon: FiDollarSign },
                   { id: "orders", label: "My Orders", icon: FiPackage }
                 ].map(tab => (
@@ -844,6 +849,148 @@ export default function PatientPortal() {
                     </form>
                   </div>
                 )}
+              </div>
+            )}
+
+            {/* ONLINE CONSULTATIONS */}
+            {activeTab === "online-consultations" && (
+              <div className="space-y-6 text-left flex-grow">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h3 className="text-lg font-black text-slate-800 flex items-center gap-2">
+                      <FiVideo className="text-pink-500" /> Online Consultations
+                    </h3>
+                    <p className="text-xs text-slate-400 mt-0.5">Track your digital consultation room bookings, payment status, and join sessions.</p>
+                  </div>
+                  <div className="bg-pink-100 text-pink-700 font-extrabold text-[10px] uppercase tracking-wider px-2.5 py-1 rounded-lg">
+                    Total: {appointments.filter(a => a.type === "Online Consultation").length}
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  {appointments.filter(a => a.type === "Online Consultation").length === 0 ? (
+                    <div className="p-8 text-center bg-slate-50 border border-dashed rounded-3xl text-slate-450 text-xs font-semibold">
+                      No online consultations booked yet.
+                    </div>
+                  ) : (
+                    appointments.filter(a => a.type === "Online Consultation").map(appt => {
+                      const isWhatsApp = appt.consult_channel === "whatsapp";
+                      // Find doctor info to get WhatsApp username and number
+                      const docInfo = doctorsList.find(d => d.name === appt.doctor || d.name === appt.doctor_name);
+                      const waNumber = docInfo?.whatsapp_number || "03008786187";
+                      const waUsername = docInfo?.whatsapp_username || "VitalPhysioHub";
+                      
+                      let statusBadgeColor = "bg-amber-100 text-amber-800 border-amber-200";
+                      if (appt.status === "Confirmed") statusBadgeColor = "bg-emerald-100 text-emerald-800 border-emerald-200";
+                      if (appt.status === "Cancelled" || appt.payment_status === "Rejected") statusBadgeColor = "bg-rose-100 text-rose-800 border-rose-200";
+                      if (appt.status === "Completed") statusBadgeColor = "bg-blue-100 text-blue-800 border-blue-200";
+
+                      return (
+                        <div key={appt.id} className="p-5 rounded-2xl bg-white border border-slate-100 shadow-sm space-y-4">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <h4 className="font-extrabold text-sm text-slate-800">{appt.doctor}</h4>
+                                <span className={`text-[9px] px-2 py-0.5 border rounded-lg font-black tracking-wider uppercase ${statusBadgeColor}`}>
+                                  {appt.status}
+                                </span>
+                              </div>
+                              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-1">
+                                channel: <span className="text-slate-650 capitalize">{appt.consult_channel || "video"}</span> • Ref: {appt.id}
+                              </p>
+                            </div>
+                            <div className="text-right">
+                              <span className="text-xs font-extrabold text-slate-700 block">{appt.date}</span>
+                              <span className="text-[10px] text-slate-400 font-bold block">{appt.time}</span>
+                            </div>
+                          </div>
+
+                          <div className="pt-3 border-t border-slate-100/60 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                            <div className="text-xs">
+                              {appt.status === "Pending" && (
+                                <p className="text-amber-600 font-bold flex items-center gap-1.5">
+                                  <FiClock size={13} /> Awaiting Admin Payment Verification
+                                </p>
+                              )}
+                              {appt.payment_status === "Rejected" && (
+                                <div className="space-y-1">
+                                  <p className="text-rose-600 font-bold flex items-center gap-1.5">
+                                    <FiXCircle size={13} /> Payment verification failed.
+                                  </p>
+                                  {appt.admin_note && (
+                                    <p className="text-slate-500 text-[10px] pl-4 font-medium italic">Reason: "{appt.admin_note}"</p>
+                                  )}
+                                </div>
+                              )}
+                              {appt.status === "Confirmed" && (
+                                <div>
+                                  {isWhatsApp ? (
+                                    <div className="bg-emerald-50/50 border border-emerald-100 rounded-xl p-3 space-y-1.5 max-w-md">
+                                      <p className="text-emerald-700 font-extrabold flex items-center gap-1 text-[11px] uppercase tracking-wide">
+                                        <FaWhatsapp size={14} /> WhatsApp Consultation Link Enabled
+                                      </p>
+                                      <p className="text-[10px] text-slate-500 font-medium">Please message your consultant specialist on WhatsApp:</p>
+                                      <div className="flex gap-4 items-center pt-1 font-mono text-[10px] font-bold text-slate-700">
+                                        <div>Number: <span className="text-emerald-600 font-black">{waNumber}</span></div>
+                                        <div>Username: <span className="text-emerald-600 font-black">@{waUsername}</span></div>
+                                      </div>
+                                      <a
+                                        href={`https://wa.me/${waNumber.replace(/[^0-9]/g, "")}?text=Hello%20Dr.%20I%20have%20an%20online%20consultation%20booked%20with%20you.%20Ref:%20${appt.id}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center gap-1 text-[10px] font-black text-white bg-emerald-500 px-3 py-1.5 rounded-lg border-none hover:bg-emerald-600 transition-colors mt-2 cursor-pointer"
+                                        style={{ textDecoration: "none" }}
+                                      >
+                                        <FaWhatsapp size={12} /> Contact Doctor Now
+                                      </a>
+                                    </div>
+                                  ) : (
+                                    <div className="bg-blue-50/50 border border-blue-100 rounded-xl p-3 space-y-1.5 max-w-md">
+                                      <p className="text-blue-700 font-extrabold flex items-center gap-1 text-[11px] uppercase tracking-wide">
+                                        <FiVideo size={14} /> Secure Telehealth Credentials Ready
+                                      </p>
+                                      <p className="text-[10px] text-slate-500 font-medium">Use the following credentials to join the clinical video room:</p>
+                                      {appt.meeting_credentials ? (
+                                        <div className="space-y-1 pt-1 text-[11px]">
+                                          <div className="font-semibold text-slate-650">Room ID / Link:</div>
+                                          <div className="font-mono bg-white p-1.5 border border-slate-200 rounded text-blue-600 font-black break-all select-all">{appt.meeting_credentials}</div>
+                                          {appt.meeting_credentials.startsWith("http") && (
+                                            <a
+                                              href={appt.meeting_credentials}
+                                              target="_blank"
+                                              rel="noopener noreferrer"
+                                              className="inline-flex items-center gap-1.5 text-[10px] font-black text-white bg-blue-600 px-3 py-1.5 rounded-lg border-none hover:bg-blue-700 transition-colors mt-1 cursor-pointer"
+                                              style={{ textDecoration: "none" }}
+                                            >
+                                              Join Consultation Room
+                                            </a>
+                                          )}
+                                        </div>
+                                      ) : (
+                                        <p className="text-[10px] text-slate-400 italic">Doctor is preparing the secure session link. Check back shortly before your scheduled slot.</p>
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                            
+                            <div className="flex gap-2">
+                              {appt.patient_report && (
+                                <button
+                                  onClick={() => setSelectedReportModal({ name: appt.patient_report_name || "Diagnostic Report", report: appt.patient_report })}
+                                  className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[10px] font-bold border-none cursor-pointer"
+                                >
+                                  View Shared Report
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
               </div>
             )}
           </div>

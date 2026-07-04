@@ -4,7 +4,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { 
   FiUser, FiUsers, FiSearch, FiCalendar, FiClock, FiFileText, FiDollarSign, 
   FiCheckCircle, FiXCircle, FiTrendingUp, FiActivity, 
-  FiPlus, FiTrash, FiShield, FiAlertTriangle, FiCheck, FiChevronRight, FiList, FiPackage, FiShoppingCart
+  FiPlus, FiTrash, FiShield, FiAlertTriangle, FiCheck, FiChevronRight, FiList, FiPackage, FiShoppingCart,
+  FiMapPin, FiVideo, FiPhone, FiMessageCircle
 } from "react-icons/fi";
 import { FaUserMd, FaHospitalUser, FaUserCog, FaCreditCard, FaPrint } from "react-icons/fa";
 import { MdOutlineHealthAndSafety, MdVerifiedUser } from "react-icons/md";
@@ -36,8 +37,14 @@ export default function AdminPanel() {
     { time: "11:00 AM", event: "Appointment scheduled with Dr. Omar Farooq." }
   ]);
 
+  // Branches states
+  const [branchesList, setBranchesList] = useState([]);
+  const [newBranch, setNewBranch] = useState({ name: "", address: "", city: "" });
+  const [editingBranch, setEditingBranch] = useState(null);
+  const [apptFilter, setApptFilter] = useState("all");
+
   // Form states
-  const [newDoctor, setNewDoctor] = useState({ name: "", specialty: "", fee: "", branch: "Gulberg", image: "", experience: "", title: "" });
+  const [newDoctor, setNewDoctor] = useState({ name: "", specialty: "", fee: "", branch: "Gulberg", image: "", experience: "", title: "", whatsapp_number: "", whatsapp_username: "" });
   const [editingDoctor, setEditingDoctor] = useState(null);
   const [articleForm, setArticleForm] = useState({ title: "", excerpt: "", content: "", category: "General Health", image: "" });
   const [articleContentMode, setArticleContentMode] = useState("text"); // "text" | "html"
@@ -221,6 +228,9 @@ export default function AdminPanel() {
 
       const ords = await api.getOrders();
       setOrders(ords);
+
+      const branches = await api.getBranches();
+      setBranchesList(branches || []);
 
       const fetchedUsers = await api.getUsers();
       setUsers(fetchedUsers);
@@ -407,13 +417,15 @@ export default function AdminPanel() {
           branch: newDoctor.branch,
           image: newDoctor.image,
           experience: newDoctor.experience,
-          title: newDoctor.title
+          title: newDoctor.title,
+          whatsapp_number: newDoctor.whatsapp_number,
+          whatsapp_username: newDoctor.whatsapp_username
         });
         if (success) {
           addSystemLog(`Doctor profile updated for ${docName}.`);
           alert("Doctor profile updated successfully!");
           setEditingDoctor(null);
-          setNewDoctor({ name: "", specialty: "", fee: "", branch: "Gulberg", image: "", experience: "", title: "" });
+          setNewDoctor({ name: "", specialty: "", fee: "", branch: "Gulberg", image: "", experience: "", title: "", whatsapp_number: "", whatsapp_username: "" });
           loadData();
         }
       } else {
@@ -424,11 +436,13 @@ export default function AdminPanel() {
           branch: newDoctor.branch,
           image: newDoctor.image,
           experience: newDoctor.experience,
-          title: newDoctor.title
+          title: newDoctor.title,
+          whatsapp_number: newDoctor.whatsapp_number,
+          whatsapp_username: newDoctor.whatsapp_username
         });
         if (doc) {
           addSystemLog(`New specialist ${docName} registered under ${newDoctor.specialty}.`);
-          setNewDoctor({ name: "", specialty: "", fee: "", branch: "Gulberg", image: "", experience: "", title: "" });
+          setNewDoctor({ name: "", specialty: "", fee: "", branch: "Gulberg", image: "", experience: "", title: "", whatsapp_number: "", whatsapp_username: "" });
           alert("New specialist added to registry!");
           loadData();
         }
@@ -439,7 +453,54 @@ export default function AdminPanel() {
       setLoading(false);
     }
   };
+  const handleSaveBranch = async (e) => {
+    e.preventDefault();
+    if (!newBranch.name) return;
+    setLoading(true);
+    try {
+      if (editingBranch) {
+        const success = await api.updateBranch(editingBranch.id, newBranch);
+        if (success) {
+          addSystemLog(`Branch ${newBranch.name} updated.`);
+          alert("Branch updated successfully!");
+          setEditingBranch(null);
+          setNewBranch({ name: "", address: "", city: "" });
+          loadData();
+        }
+      } else {
+        const created = await api.createBranch(newBranch);
+        if (created) {
+          addSystemLog(`New branch ${newBranch.name} added.`);
+          alert("New branch registered successfully!");
+          setNewBranch({ name: "", address: "", city: "" });
+          loadData();
+        }
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error saving branch.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  const handleDeleteBranch = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this branch?")) return;
+    setLoading(true);
+    try {
+      const success = await api.deleteBranch(id);
+      if (success) {
+        addSystemLog(`Branch ID ${id} deleted.`);
+        alert("Branch deleted successfully!");
+        loadData();
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error deleting branch.");
+    } finally {
+      setLoading(false);
+    }
+  };
   const handleDeleteDoctor = async (id) => {
     if (!window.confirm("Are you sure you want to delete this doctor profile?")) return;
     try {
@@ -1036,6 +1097,13 @@ export default function AdminPanel() {
     return ord.order_status === selectedOrderFilter;
   });
 
+  const checkInAppointments = appointments.filter(appt => {
+    if (appt.status === "Cancelled") return false;
+    if (apptFilter === "in-person") return appt.type !== "Online Consultation";
+    if (apptFilter === "online") return appt.type === "Online Consultation";
+    return true;
+  });
+
   return (
     <div className="min-h-screen font-sans flex flex-col justify-between" style={{ background: "linear-gradient(135deg, #fce4ec 0%, #e0f2fe 60%, #fdf4ff 100%)" }}>
       <Navbar />
@@ -1064,6 +1132,7 @@ export default function AdminPanel() {
                   { id: "analytics", label: "Analytical Center", icon: FiTrendingUp },
                   { id: "payments", label: "Payment Verification", icon: FaCreditCard },
                   { id: "doctor-crud", label: "Doctor Registry", icon: FaUserMd },
+                  { id: "branches", label: "Manage Branches", icon: FiMapPin },
                   { id: "users", label: "User Management", icon: FiUsers },
                   ...(isSuperAdmin ? [{ id: "saas-clinics", label: "Super Admin Center", icon: FiShield }] : []),
                   { id: "articles", label: "Clinical Articles", icon: FiFileText },
@@ -1684,6 +1753,28 @@ export default function AdminPanel() {
                             className="w-full border border-slate-200 bg-white rounded-xl p-2.5 text-xs outline-none focus:border-pink-400"
                           />
                         </div>
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <label className="text-[9px] font-bold text-slate-400 uppercase block mb-1">WhatsApp Number</label>
+                            <input 
+                              type="text" 
+                              value={newDoctor.whatsapp_number || ""}
+                              onChange={e => setNewDoctor({...newDoctor, whatsapp_number: e.target.value})}
+                              placeholder="03001234567" 
+                              className="w-full border border-slate-200 bg-white rounded-xl p-2.5 text-xs outline-none focus:border-pink-400"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-[9px] font-bold text-slate-400 uppercase block mb-1">WhatsApp Username</label>
+                            <input 
+                              type="text" 
+                              value={newDoctor.whatsapp_username || ""}
+                              onChange={e => setNewDoctor({...newDoctor, whatsapp_username: e.target.value})}
+                              placeholder="Dr.Sarah" 
+                              className="w-full border border-slate-200 bg-white rounded-xl p-2.5 text-xs outline-none focus:border-pink-400"
+                            />
+                          </div>
+                        </div>
 
                         {/* Profile Image Uploader */}
                         <div>
@@ -1782,7 +1873,9 @@ export default function AdminPanel() {
                                   branch: doc.branch,
                                   image: doc.image || "",
                                   experience: doc.experience,
-                                  title: doc.title
+                                  title: doc.title,
+                                  whatsapp_number: doc.whatsapp_number || "",
+                                  whatsapp_username: doc.whatsapp_username || ""
                                 });
                               }}
                               className="px-2.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg text-[9px] font-bold border-none cursor-pointer"
@@ -2187,16 +2280,36 @@ export default function AdminPanel() {
                   <h3 className="text-lg font-black text-slate-800 flex items-center gap-2">
                     <FiList className="text-pink-500" /> Patient Check-In Desk
                   </h3>
-                  <p className="text-xs text-slate-400 mt-0.5">Check in scheduled patients, track current waiting times, and manage active consultation rooms.</p>
+                  <p className="text-xs text-slate-400 mt-0.5">Check in scheduled patients, track waiting times, and route online or in-person rooms.</p>
+                </div>
+
+                {/* Filter tabs */}
+                <div className="flex gap-1.5 bg-slate-100 p-1 rounded-xl w-max">
+                  {[
+                    { id: "all", label: "All Visits" },
+                    { id: "in-person", label: "In-Person Visits" },
+                    { id: "online", label: "Online Consultations" }
+                  ].map(f => (
+                    <button
+                      key={f.id}
+                      type="button"
+                      onClick={() => setApptFilter(f.id)}
+                      className={`px-3 py-1.5 rounded-lg text-[10px] font-bold border-none cursor-pointer transition-all ${
+                        apptFilter === f.id ? "bg-white text-slate-900 shadow-sm" : "bg-transparent text-slate-500 hover:text-slate-700"
+                      }`}
+                    >
+                      {f.label}
+                    </button>
+                  ))}
                 </div>
 
                 <div className="space-y-3">
-                  {appointments.filter(appt => appt.status !== "Cancelled").length === 0 ? (
+                  {checkInAppointments.length === 0 ? (
                     <div className="p-8 text-center bg-slate-50 border border-dashed rounded-3xl text-slate-400 text-xs">
-                      No active appointments to check in.
+                      No active appointments matching filter.
                     </div>
                   ) : (
-                    appointments.filter(appt => appt.status !== "Cancelled").map(appt => (
+                    checkInAppointments.map(appt => (
                       <div key={appt.id} className="border border-slate-100 bg-white/40 rounded-2xl p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                         <div>
                           <div className="flex items-center gap-2">
@@ -2916,6 +3029,114 @@ export default function AdminPanel() {
                         ))}
                       </tbody>
                     </table>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* MANAGE BRANCHES */}
+            {activeTab === "branches" && (
+              <div className="space-y-6 text-left flex-grow">
+                <div>
+                  <h3 className="text-lg font-black text-slate-800 flex items-center gap-2">
+                    <FiMapPin className="text-pink-500" /> Clinic Branches Management
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-0.5 font-semibold">Configure geographic clinic branch locations dynamically. These branches will automatically populate in patient booking forms.</p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {/* Add Branch Form */}
+                  <div className="md:col-span-1 border border-slate-100 rounded-3xl p-5 bg-slate-50/50 h-fit">
+                    <h4 className="font-black text-slate-800 text-sm mb-4">
+                      {editingBranch ? "Edit Branch Info" : "Register New Branch"}
+                    </h4>
+                    <form onSubmit={handleSaveBranch} className="space-y-3.5">
+                      <div>
+                        <label className="text-[9px] font-bold text-slate-400 uppercase block mb-1">Branch Name *</label>
+                        <input
+                          type="text"
+                          required
+                          value={newBranch.name}
+                          onChange={e => setNewBranch({ ...newBranch, name: e.target.value })}
+                          placeholder="e.g. DHA Phase 6"
+                          className="w-full border border-slate-200 bg-white rounded-xl p-2.5 text-xs outline-none focus:border-pink-400"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[9px] font-bold text-slate-400 uppercase block mb-1">City</label>
+                        <input
+                          type="text"
+                          value={newBranch.city}
+                          onChange={e => setNewBranch({ ...newBranch, city: e.target.value })}
+                          placeholder="e.g. Lahore"
+                          className="w-full border border-slate-200 bg-white rounded-xl p-2.5 text-xs outline-none focus:border-pink-400"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[9px] font-bold text-slate-400 uppercase block mb-1">Street Address</label>
+                        <textarea
+                          value={newBranch.address}
+                          onChange={e => setNewBranch({ ...newBranch, address: e.target.value })}
+                          placeholder="e.g. Main Boulevard, Phase 6"
+                          className="w-full border border-slate-200 bg-white rounded-xl p-2.5 text-xs outline-none focus:border-pink-400 resize-none"
+                          rows={3}
+                        />
+                      </div>
+
+                      <button type="submit" className="w-full py-3 bg-slate-900 hover:bg-pink-600 text-white rounded-xl text-xs font-bold border-none cursor-pointer mt-2 shadow-md">
+                        {editingBranch ? "Save Changes" : "Add Branch"}
+                      </button>
+                      {editingBranch && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEditingBranch(null);
+                            setNewBranch({ name: "", address: "", city: "" });
+                          }}
+                          className="w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-650 rounded-xl text-xs font-bold border-none cursor-pointer mt-1"
+                        >
+                          Cancel Edit
+                        </button>
+                      )}
+                    </form>
+                  </div>
+
+                  {/* Branches List */}
+                  <div className="md:col-span-2 space-y-4">
+                    <h4 className="font-extrabold text-sm text-slate-800">Geographic Branch Registry</h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {branchesList.map(b => (
+                        <div key={b.id} className="border border-slate-100 bg-white rounded-2xl p-4 flex flex-col justify-between gap-3 shadow-sm animate-fade-in">
+                          <div>
+                            <h4 className="font-extrabold text-sm text-slate-850">{b.name}</h4>
+                            <p className="text-[10px] text-slate-400 font-bold tracking-wide uppercase mt-0.5">{b.city || "Lahore"}</p>
+                            <p className="text-xs text-slate-550 mt-1.5 leading-relaxed font-semibold">{b.address || "N/A"}</p>
+                          </div>
+                          <div className="flex gap-2 pt-2 border-t border-slate-50 justify-end">
+                            <button
+                              onClick={() => {
+                                setEditingBranch(b);
+                                setNewBranch({ name: b.name, address: b.address || "", city: b.city || "" });
+                              }}
+                              className="px-2.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg text-[9px] font-bold border-none cursor-pointer"
+                            >
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => handleDeleteBranch(b.id)}
+                              className="px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg text-[9px] font-bold border-none cursor-pointer"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                      {branchesList.length === 0 && (
+                        <div className="col-span-2 text-center py-12 text-slate-400">
+                          <p className="font-semibold text-xs">No clinic branches registered.</p>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>

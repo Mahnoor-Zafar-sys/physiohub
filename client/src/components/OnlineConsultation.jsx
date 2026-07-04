@@ -104,7 +104,16 @@ export default function OnlineConsultation() {
   const [uploadedFile, setUploadedFile] = useState(null);
   const [form, setForm] = useState({ name: "", phone: "", email: "", age: "", symptoms: "" });
   const [booked, setBooked] = useState(false);
+  
+  // Payment states
+  const [selectedMethod, setSelectedMethod] = useState("Easypaisa");
+  const [txnRef, setTxnRef] = useState("");
+  const [screenshotBase64, setScreenshotBase64] = useState("");
+  const [paymentFile, setPaymentFile] = useState(null);
+  const [bookedAppt, setBookedAppt] = useState(null);
+
   const fileRef = useRef();
+  const paymentFileRef = useRef();
 
   const [doctorsList, setDoctorsList] = useState([]);
 
@@ -133,6 +142,10 @@ export default function OnlineConsultation() {
     if (step === 1 && !channel) return;
     if (step === 2 && !selectedDoc) return;
     if (step === 3 && (!selectedDate || !selectedSlot)) return;
+    if (step === 4 && (!form.name || !form.phone)) {
+      alert("Please fill in your name and phone number.");
+      return;
+    }
     setStep(prev => prev + 1);
   };
 
@@ -141,8 +154,8 @@ export default function OnlineConsultation() {
   };
 
   const handleBook = async () => {
-    if (!form.name || !form.phone) {
-      alert("Please fill in your name and phone number.");
+    if (!txnRef) {
+      alert("Please enter your transaction ID / Reference ID.");
       return;
     }
     
@@ -166,17 +179,21 @@ export default function OnlineConsultation() {
         doctor: selectedDoc?.name || "Dr. Sarah Ahmed",
         date: selectedDate ? `${dayNames[selectedDate.getDay()]} ${selectedDate.getDate()} ${monthNames[selectedDate.getMonth()]}` : new Date().toLocaleDateString(),
         time: selectedSlot || "09:00 AM",
-        type: channel || "video",
+        type: "Online Consultation",
         branch: "Online",
-        status: "Confirmed",
+        status: "Pending",
         patient: form.name,
-        payment_status: "Paid",
+        payment_status: "Pending Verification",
+        payment_method: selectedMethod,
+        payment_screenshot: screenshotBase64 || null,
         patient_report: reportBase64,
-        patient_report_name: reportName
+        patient_report_name: reportName,
+        consult_channel: channel || "video"
       };
       
       const res = await api.createAppointment(apptData);
       if (res) {
+        setBookedAppt(res);
         setBooked(true);
       } else {
         alert("Failed to submit consultation booking.");
@@ -196,6 +213,11 @@ export default function OnlineConsultation() {
     setSelectedSlot(null);
     setUploadedFile(null);
     setForm({ name: "", phone: "", email: "", age: "", symptoms: "" });
+    setSelectedMethod("Easypaisa");
+    setTxnRef("");
+    setScreenshotBase64("");
+    setPaymentFile(null);
+    setBookedAppt(null);
     setBooked(false);
   };
 
@@ -210,6 +232,7 @@ export default function OnlineConsultation() {
     // Auto-advance to scheduling
     setStep(3);
   };
+
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans antialiased text-slate-800 flex flex-col justify-between">
@@ -412,11 +435,9 @@ export default function OnlineConsultation() {
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-blue-500 flex items-center justify-center text-white">
                     <TbStethoscope size={20} />
-                  </div>
-                  <div>
-                    <h3 className="font-black text-slate-800 text-base leading-tight">Telehealth Consultation Wizard</h3>
+                             <h3 className="font-black text-slate-800 text-base leading-tight">Telehealth Consultation Wizard</h3>
                     <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">
-                      {booked ? "Completed" : `Step ${step} of 4 — ${step === 1 ? "Consult Channel" : step === 2 ? "Select Doctor" : step === 3 ? "Schedule" : "Details"}`}
+                      {booked ? "Completed" : `Step ${step} of 5 — ${step === 1 ? "Consult Channel" : step === 2 ? "Select Doctor" : step === 3 ? "Schedule" : step === 4 ? "Details" : "Payment"}`}
                     </p>
                   </div>
                 </div>
@@ -436,38 +457,73 @@ export default function OnlineConsultation() {
                     animate={{ scale: 1, opacity: 1 }} 
                     className="text-center py-6 space-y-6"
                   >
-                    <div className="w-20 h-20 rounded-full bg-emerald-500 flex items-center justify-center mx-auto shadow-lg shadow-emerald-100">
+                    <div className="w-20 h-20 rounded-full bg-blue-500 flex items-center justify-center mx-auto shadow-lg shadow-blue-100">
                       <FiCheck size={36} color="white" />
                     </div>
-                    <div className="space-y-2">
-                      <h2 className="text-2xl font-black text-slate-900">Consultation Booked!</h2>
+                    <div className="space-y-2 text-center">
+                      <h2 className="text-2xl font-black text-slate-900">Booking Submitted!</h2>
                       <p className="text-slate-500 text-sm">
-                        Your <span className="font-bold text-slate-700 capitalize">{channel} Consultation</span> with
+                        Your <span className="font-bold text-slate-700 capitalize">{channel} Consultation</span> booking with
                       </p>
-                      <p className="text-lg font-black text-slate-800">{selectedDoc?.name}</p>
-                      <p className="text-slate-500 text-sm">
-                        is confirmed for <span className="font-bold text-slate-700">{selectedDate && `${dayNames[selectedDate.getDay()]}, ${selectedDate.getDate()} ${monthNames[selectedDate.getMonth()]}`}</span> at <span className="font-bold text-slate-700">{selectedSlot}</span>
+                      <p className="text-base font-black text-slate-800">{selectedDoc?.name}</p>
+                      <p className="text-slate-500 text-xs">
+                        is awaiting payment verification. Ref ID: <span className="font-mono font-extrabold text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-100">{bookedAppt?.id || "N/A"}</span>
+                      </p>
+                      <p className="text-slate-500 text-xs">
+                        Scheduled for <span className="font-bold text-slate-700">{selectedDate && `${dayNames[selectedDate.getDay()]}, ${selectedDate.getDate()} ${monthNames[selectedDate.getMonth()]}`}</span> at <span className="font-bold text-slate-700">{selectedSlot}</span>
                       </p>
                     </div>
 
-                    <div className="bg-slate-50 rounded-2xl p-5 border border-slate-100 text-left space-y-3 max-w-md mx-auto text-xs font-semibold text-slate-655">
+                    <div className="bg-slate-50 rounded-2xl p-5 border border-slate-100 text-left space-y-3 max-w-md mx-auto text-xs font-semibold text-slate-650">
                       <div className="flex items-center gap-3">
-                        <FiCheck className="text-emerald-500" />
-                        <span>Confirmation sent via Email and SMS</span>
+                        <FiClock className="text-amber-500 shrink-0" size={14} />
+                        <span>Receipt verification pending (usually takes 1-2 hours)</span>
                       </div>
                       <div className="flex items-center gap-3">
-                        <FaWhatsapp className="text-emerald-500" />
-                        <span>Direct WhatsApp coordination link dispatched</span>
+                        <FiShield className="text-blue-500 shrink-0" size={14} />
+                        <span>Telehealth room credentials will activate upon approval</span>
                       </div>
                       <div className="flex items-center gap-3">
-                        <FiShield className="text-emerald-500" />
-                        <span>Encrypted HIPAA-compliant telehealth room initialized</span>
+                        <FaWhatsapp className="text-emerald-500 shrink-0" size={14} />
+                        <span>Coordination notification will be sent on WhatsApp</span>
                       </div>
+                    </div>
+
+                    {/* Google Calendar + ICS Download Buttons */}
+                    <div className="flex gap-3 justify-center max-w-sm mx-auto">
+                      <button
+                        onClick={() => {
+                          const title = encodeURIComponent(`Online Consultation with ${selectedDoc?.name}`);
+                          const desc = encodeURIComponent(`Consultation Type: ${channel} online session\nVerification status: Pending`);
+                          const formattedDate = selectedDate ? selectedDate.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z" : "";
+                          const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${formattedDate}/${formattedDate}&details=${desc}&location=Online`;
+                          window.open(url, "_blank");
+                        }}
+                        className="flex-1 py-3 px-4 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold border-none cursor-pointer transition-colors"
+                      >
+                        Google Calendar
+                      </button>
+                      <button
+                        onClick={() => {
+                          const dateStr = selectedDate ? selectedDate.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z" : "";
+                          const icsContent = `BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nSUMMARY:Online Consultation with ${selectedDoc?.name}\nDESCRIPTION:Consultation Type: ${channel} online session\\nVerification status: Pending\nLOCATION:Online\nDTSTART:${dateStr}\nDTEND:${dateStr}\nEND:VEVENT\nEND:VCALENDAR`;
+                          const blob = new Blob([icsContent], { type: "text/calendar;charset=utf-8" });
+                          const link = document.createElement("a");
+                          link.href = URL.createObjectURL(blob);
+                          link.setAttribute("download", "consultation-booking.ics");
+                          document.body.appendChild(link);
+                          link.click();
+                          document.body.removeChild(link);
+                        }}
+                        className="flex-1 py-3 px-4 border border-slate-200 text-slate-700 hover:bg-slate-50 rounded-xl text-xs font-bold cursor-pointer transition-colors"
+                      >
+                        Download ICS
+                      </button>
                     </div>
 
                     <button 
                       onClick={resetWizard} 
-                      className="w-full max-w-sm py-4 bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl font-bold text-sm border-none shadow-md cursor-pointer transition-colors"
+                      className="w-full max-w-sm py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-bold text-sm border-none shadow-md cursor-pointer transition-colors"
                     >
                       Close Wizard
                     </button>
@@ -677,7 +733,7 @@ export default function OnlineConsultation() {
                           <button
                             type="button"
                             onClick={() => fileRef.current.click()}
-                            className="w-full border-2 border-dashed border-slate-200 hover:border-blue-400 rounded-xl p-4 flex items-center justify-center gap-2 text-xs font-bold text-slate-400 hover:text-blue-500 bg-slate-50/50 cursor-pointer transition-colors"
+                            className="w-full border-2 border-dashed border-slate-200 hover:border-blue-400 rounded-xl p-4 flex items-center justify-center gap-2 text-xs font-bold text-slate-450 hover:text-blue-500 bg-slate-50/50 cursor-pointer transition-colors"
                           >
                             <FiUpload size={14} />
                             {uploadedFile ? <span>{uploadedFile.name}</span> : <span>Select Medical File (PDF, JPG, PNG)</span>}
@@ -690,30 +746,126 @@ export default function OnlineConsultation() {
                             onChange={e => setUploadedFile(e.target.files[0])}
                           />
                         </div>
+                      </motion.div>
+                    )}
 
-                        {/* Booking Summary Box */}
-                        <div className="p-4 bg-blue-50/30 border border-blue-100/50 rounded-2xl space-y-2 text-xs font-semibold text-slate-700">
-                          <div className="flex justify-between">
-                            <span className="text-slate-400">Doctor</span>
-                            <span className="text-slate-800 font-extrabold">{selectedDoc?.name}</span>
+                    {/* STEP 5: PAYMENT VERIFICATION */}
+                    {step === 5 && (
+                      <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
+                        <div className="space-y-1">
+                          <h4 className="text-lg font-extrabold text-slate-900">Secure Consultation Payment</h4>
+                          <p className="text-xs text-slate-500 leading-relaxed">Pay the fee to any of our wallets or bank transfer and input the details below.</p>
+                        </div>
+                        
+                        <div className="space-y-4 pt-2 text-left">
+                          <div>
+                            <label className="text-[10px] font-bold text-slate-450 uppercase tracking-widest block mb-2">Select Payment Method</label>
+                            <div className="grid grid-cols-2 gap-2">
+                              {[
+                                { name: "Easypaisa", brand: "Easypaisa Wallet" },
+                                { name: "JazzCash", brand: "JazzCash Wallet" },
+                                { name: "SadaPay", brand: "SadaPay Card" },
+                                { name: "Bank Transfer", brand: "Allied Bank (ABL)" }
+                              ].map(method => {
+                                const isSel = selectedMethod === method.name;
+                                return (
+                                  <button
+                                    key={method.name}
+                                    type="button"
+                                    onClick={() => setSelectedMethod(method.name)}
+                                    className={`p-3 rounded-2xl border text-left transition-all relative flex flex-col justify-between h-16 w-full cursor-pointer ${isSel ? "border-blue-500 text-blue-600 bg-blue-50/30 border-2 font-bold shadow-sm" : "border-slate-200 text-slate-650 hover:bg-slate-50"}`}
+                                  >
+                                    <span className="text-[8px] font-bold uppercase tracking-wider text-slate-400 leading-none">{method.brand}</span>
+                                    <span className="text-xs font-black text-slate-800 leading-none">{method.name}</span>
+                                  </button>
+                                );
+                              })}
+                            </div>
                           </div>
-                          <div className="flex justify-between">
-                            <span className="text-slate-400">Channel</span>
-                            <span className="text-slate-800 font-extrabold capitalize">{channel} Consultation</span>
+
+                          <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 text-xs text-slate-655 space-y-1">
+                            <div className="flex justify-between items-center mb-1">
+                              <span className="text-slate-400 font-bold uppercase tracking-wider text-[9px]">Recipient Info</span>
+                              <span className="px-2 py-0.5 bg-blue-100 text-blue-800 rounded text-[9px] font-bold">{selectedMethod}</span>
+                            </div>
+                            {selectedMethod === "Bank Transfer" ? (
+                              <div className="space-y-1 text-slate-700 text-xs">
+                                <p className="font-bold text-slate-900">Bank: <span className="font-normal text-slate-600">Allied Bank Limited (ABL)</span></p>
+                                <p className="font-bold text-slate-900">Account Title: <span className="font-normal text-slate-600">Vital Physio Hub (Pvt) Ltd</span></p>
+                                <p className="font-bold text-slate-900">IBAN / Account #: <span className="font-mono bg-white px-1.5 py-0.5 border border-slate-200 rounded text-pink-600 font-bold select-all">PK12ALBL0012345678901234</span></p>
+                              </div>
+                            ) : (
+                              <div className="space-y-1 text-slate-700 text-xs">
+                                <p className="font-bold text-slate-900">Account Title: <span className="font-normal text-slate-600">Vital Physio Hub</span></p>
+                                <p className="font-bold text-slate-900">Mobile Wallet Number: <span className="font-mono bg-white px-1.5 py-0.5 border border-slate-200 rounded text-pink-600 font-bold select-all">0300-8786187</span></p>
+                              </div>
+                            )}
                           </div>
-                          <div className="flex justify-between">
-                            <span className="text-slate-400">Date / Time</span>
-                            <span className="text-slate-800 font-extrabold">
-                              {selectedDate && `${dayNames[selectedDate.getDay()]} ${selectedDate.getDate()} ${monthNames[selectedDate.getMonth()]}`} • {selectedSlot}
-                            </span>
+
+                          <div>
+                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Transaction ID / Reference ID *</label>
+                            <input
+                              type="text"
+                              value={txnRef}
+                              onChange={e => setTxnRef(e.target.value)}
+                              placeholder="Enter 12-digit Transaction reference ID"
+                              className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-blue-400 bg-white"
+                            />
                           </div>
-                          <div className="flex justify-between border-t border-slate-150 pt-2 text-sm">
-                            <span className="text-slate-900 font-bold">Consultation Fee</span>
-                            <span className="text-blue-600 font-black">{selectedDoc?.fee}</span>
+
+                          <div>
+                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1.5">Upload Receipt Screenshot (Optional)</label>
+                            <button
+                              type="button"
+                              onClick={() => paymentFileRef.current.click()}
+                              className="w-full border-2 border-dashed border-slate-200 hover:border-blue-400 rounded-xl p-3 flex items-center justify-center gap-2 text-xs font-bold text-slate-450 hover:text-blue-500 bg-slate-50/50 cursor-pointer transition-colors"
+                            >
+                              <FiUpload size={14} />
+                              {paymentFile ? <span>{paymentFile.name}</span> : <span>Select receipt image</span>}
+                            </button>
+                            <input
+                              ref={paymentFileRef}
+                              type="file"
+                              className="hidden"
+                              accept="image/*"
+                              onChange={e => {
+                                const file = e.target.files[0];
+                                if (file) {
+                                  setPaymentFile(file);
+                                  const r = new FileReader();
+                                  r.readAsDataURL(file);
+                                  r.onloadend = () => {
+                                    setScreenshotBase64(r.result);
+                                  };
+                                }
+                              }}
+                            />
                           </div>
                         </div>
                       </motion.div>
                     )}
+
+                    {/* Booking Summary Box */}
+                    <div className="p-4 mt-4 bg-blue-50/30 border border-blue-100/50 rounded-2xl space-y-2 text-xs font-semibold text-slate-700">
+                      <div className="flex justify-between">
+                        <span className="text-slate-400">Doctor</span>
+                        <span className="text-slate-800 font-extrabold">{selectedDoc?.name}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-400">Channel</span>
+                        <span className="text-slate-800 font-extrabold capitalize">{channel} Consultation</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-400">Date / Time</span>
+                        <span className="text-slate-800 font-extrabold">
+                          {selectedDate && `${dayNames[selectedDate.getDay()]} ${selectedDate.getDate()} ${monthNames[selectedDate.getMonth()]}`} • {selectedSlot}
+                        </span>
+                      </div>
+                      <div className="flex justify-between border-t border-slate-150 pt-2 text-sm">
+                        <span className="text-slate-900 font-bold">Consultation Fee</span>
+                        <span className="text-blue-600 font-black">{selectedDoc?.fee}</span>
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>
@@ -732,7 +884,7 @@ export default function OnlineConsultation() {
                     <div />
                   )}
 
-                  {step < 4 ? (
+                  {step < 5 ? (
                     <button
                       disabled={(step === 1 && !channel) || (step === 2 && !selectedDoc) || (step === 3 && (!selectedDate || !selectedSlot))}
                       onClick={handleNextStep}
@@ -742,11 +894,11 @@ export default function OnlineConsultation() {
                     </button>
                   ) : (
                     <button
-                      disabled={!form.name || !form.phone}
+                      disabled={!txnRef}
                       onClick={handleBook}
                       className="px-7 py-3 bg-gradient-to-r from-blue-600 to-sky-500 disabled:from-slate-200 disabled:to-slate-200 text-white disabled:text-slate-400 font-bold text-xs rounded-xl border-none cursor-pointer disabled:cursor-not-allowed transition-all"
                     >
-                      Confirm Consultation
+                      Submit Consultation Booking
                     </button>
                   )}
                 </div>

@@ -7,9 +7,9 @@ import {
   FiCalendar, FiClock, FiUser, FiPhone, FiMail,
   FiCheck, FiMapPin, FiChevronDown,
   FiVideo, FiAlertCircle, FiShield,
-  FiUpload, FiFileText, FiTrash2
+  FiUpload, FiFileText, FiTrash2, FiMessageSquare
 } from "react-icons/fi";
-import { FaWhatsapp, FaUserMd } from "react-icons/fa";
+import { FaWhatsapp, FaUserMd, FaAmbulance } from "react-icons/fa";
 import { LuCalendar, LuClock, LuCreditCard, LuMapPin } from "react-icons/lu";
 
 import { doctors as MOCK_DOCTORS } from "../data/mockData";
@@ -26,12 +26,17 @@ const TIME_SLOTS = [
 ];
 
 const CONSULTATION_TYPES = [
-  { value: "in-person", label: "In-Person Visit", icon: FiUser, desc: "Visit our clinic" },
-  { value: "video", label: "Video Consultation", icon: FiVideo, desc: "Online video call" },
-  { value: "whatsapp", label: "WhatsApp Consult", icon: FaWhatsapp, desc: "Chat on WhatsApp" },
+  { value: "in-person", label: "In-Person Visit", icon: FiUser, desc: "Visit our clinic branches" },
+  { value: "online", label: "Online Consultation", icon: FiVideo, desc: "Telehealth consult channels" },
+  { value: "home-visit", label: "Doctor Home Visit", icon: FaAmbulance, desc: "Specialist visits you at home" },
 ];
 
-const BRANCHES = ["Gulberg", "DHA"];
+const ONLINE_CHANNELS = [
+  { value: "video", label: "Video Call", icon: FiVideo },
+  { value: "audio", label: "Audio Call", icon: FiPhone },
+  { value: "chat", label: "Chat Consultation", icon: FiMessageSquare },
+  { value: "whatsapp", label: "WhatsApp", icon: FaWhatsapp },
+];
 
 const REASONS_FOR_VISIT = [
   "Routine Checkup",
@@ -672,6 +677,9 @@ export default function BookAppointmentPage() {
   const [reportBase64, setReportBase64] = useState("");
   const [reportName, setReportName] = useState("");
 
+  const [branchesList, setBranchesList] = useState([]);
+  const [onlineChannel, setOnlineChannel] = useState("video");
+
   const days = getNext7Days();
 
   const handleScreenshotChange = (e) => {
@@ -697,6 +705,15 @@ export default function BookAppointmentPage() {
 
   useEffect(() => {
     api.getAppointments().then(res => { if (res) setAppointments(res); });
+    api.getBranches().then(res => {
+      if (res && res.length > 0) {
+        setBranchesList(res);
+        setSelectedBranch(res[0].name);
+      } else {
+        setBranchesList([{ id: 1, name: "Gulberg", city: "Lahore" }, { id: 2, name: "DHA", city: "Lahore" }]);
+        setSelectedBranch("Gulberg");
+      }
+    });
   }, []);
 
   useEffect(() => {
@@ -744,6 +761,14 @@ export default function BookAppointmentPage() {
     if (!selectedCustomDate) e.date = "Please select a date.";
     if (!selectedTime) e.time = "Please select a time.";
     if (form.email && !/\S+@\S+\.\S+/.test(form.email)) e.email = "Enter a valid email address.";
+    
+    if (consultType === "home-visit") {
+      if (!form.address || !form.address.trim()) e.address = "Address is required for home visit.";
+      if (!form.city || !form.city.trim()) e.city = "City is required for home visit.";
+    }
+    
+    if (!selectedDoctor) e.doctor = "Please select a specialist doctor.";
+
     setErrors(e);
     return Object.keys(e).length === 0;
   }
@@ -756,12 +781,35 @@ export default function BookAppointmentPage() {
     e.preventDefault();
     const patientName = form.name || "Jane Doe";
     const dateInfo = selectedCustomDate || days[0];
+
+    let calculatedType = "In-Person Visit";
+    if (consultType === "online") {
+      calculatedType = "Online Consultation";
+    } else if (consultType === "home-visit") {
+      calculatedType = "Doctor Home Visit";
+    }
+
+    let calculatedBranch = selectedBranch + " Branch";
+    if (consultType === "online") {
+      calculatedBranch = "Online";
+    } else if (consultType === "home-visit") {
+      calculatedBranch = form.city || "Home Visit";
+    }
+
+    const calculatedChannel = consultType === "online" ? onlineChannel : null;
+    const homeAddress = consultType === "home-visit" ? `${form.address}, ${form.city}` : null;
+    const homeTimeWindow = consultType === "home-visit" ? (form.timeWindow || "09:00 AM - 12:00 PM") : null;
+
     await api.createAppointment({
-      doctor: selectedDoctor?.name || form.department || "General",
+      doctor: selectedDoctor?.name || "General",
+      doctor_name: selectedDoctor?.name || "General",
       date: dateInfo.date,
       time: selectedTime,
-      type: consultType === "in-person" ? "In-Person Visit" : consultType === "video" ? "Video Consultation" : "WhatsApp Consult",
-      branch: selectedBranch + " Branch",
+      type: calculatedType,
+      branch: calculatedBranch,
+      consult_channel: calculatedChannel,
+      home_address: homeAddress,
+      home_time_window: homeTimeWindow,
       status: "Pending",
       payment_status: "Pending Verification",
       patient: patientName,
@@ -769,13 +817,16 @@ export default function BookAppointmentPage() {
       payment_screenshot: screenshotBase64 || txnRef,
       patient_report: reportBase64 || null,
       patient_report_name: reportName || null,
+      notes: form.notes || "",
     });
+
     await api.createInvoice({
       patientName: patientName,
-      description: `Consultation Booking${selectedDoctor ? ` - ${selectedDoctor.name}` : ""}`,
+      description: `${calculatedType}${selectedDoctor ? ` - ${selectedDoctor.name}` : ""}`,
       amount: selectedDoctor?.fee || "Rs. 3,000",
       status: "Unpaid",
     });
+
     setShowPaymentModal(false);
     setSubmitted(true);
   };
@@ -925,11 +976,11 @@ export default function BookAppointmentPage() {
                 Appointment
               </h2>
 
-              <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
                 {/* Row 1: Name + Phone */}
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
                   <div>
-                    <label style={labelStyle}>Name</label>
+                    <label style={labelStyle}>Patient Full Name</label>
                     <div style={{ position: "relative" }}>
                       <FiUser size={15} style={{ position: "absolute", left: 16, top: "50%", transform: "translateY(-50%)", color: "#94a3b8" }} />
                       <input
@@ -953,7 +1004,7 @@ export default function BookAppointmentPage() {
                       <input
                         value={form.phone}
                         onChange={e => update("phone", e.target.value)}
-                        placeholder="(123) 456 - 789"
+                        placeholder="03001234567"
                         style={{
                           ...inputStyle,
                           paddingLeft: 42,
@@ -966,21 +1017,7 @@ export default function BookAppointmentPage() {
                   </div>
                 </div>
 
-                {/* Row 2: Medical Record Number */}
-                <div>
-                  <label style={labelStyle}>Medical Record Number</label>
-                  <div style={{ position: "relative" }}>
-                    <FiFileText size={15} style={{ position: "absolute", left: 16, top: "50%", transform: "translateY(-50%)", color: "#94a3b8" }} />
-                    <input
-                      value={form.medicalRecord}
-                      onChange={e => update("medicalRecord", e.target.value)}
-                      placeholder="12345-7890-0987"
-                      style={{ ...inputStyle, paddingLeft: 42 }}
-                    />
-                  </div>
-                </div>
-
-                {/* Row 3: Email */}
+                {/* Row 2: Email */}
                 <div>
                   <label style={labelStyle}>Email Address <span style={{ color: "#94a3b8", fontWeight: 400 }}>(optional)</span></label>
                   <div style={{ position: "relative" }}>
@@ -1000,46 +1037,18 @@ export default function BookAppointmentPage() {
                   {errors.email && <p style={errorStyle}><FiAlertCircle size={11} /> {errors.email}</p>}
                 </div>
 
-                {/* Row 4: Reason for Visit + Department */}
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-                  <div>
-                    <label style={labelStyle}>Reason for Visit</label>
-                    <CustomSelect
-                      value={form.reason}
-                      onChange={(val) => update("reason", val)}
-                      options={REASONS_FOR_VISIT}
-                      placeholder="Routine Checkup"
-                    />
-                  </div>
-                  <div>
-                    <label style={labelStyle}>Department</label>
-                    <CustomSelect
-                      value={form.department}
-                      onChange={(val) => update("department", val)}
-                      options={DEPARTMENTS}
-                      placeholder="Select Department"
-                    />
-                  </div>
+                {/* Row 3: Reason for Visit */}
+                <div>
+                  <label style={labelStyle}>Reason for Visit</label>
+                  <CustomSelect
+                    value={form.reason}
+                    onChange={(val) => update("reason", val)}
+                    options={REASONS_FOR_VISIT}
+                    placeholder="Routine Checkup"
+                  />
                 </div>
 
-                {/* Row 5: Select Doctor (dynamic from DB) */}
-                {doctors.length > 0 && (
-                  <div>
-                    <label style={labelStyle}>Select Doctor</label>
-                    <CustomSelect
-                      value={selectedDoctor?.name || ""}
-                      onChange={(val) => {
-                        const doc = doctors.find(d => d.name === val);
-                        setSelectedDoctor(doc || null);
-                      }}
-                      options={doctorOptions}
-                      placeholder="Choose your specialist"
-                      icon={FiUser}
-                    />
-                  </div>
-                )}
-
-                {/* Row 6: Consultation Type */}
+                {/* Row 4: Consultation Type */}
                 <div>
                   <label style={labelStyle}>Consultation Type</label>
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10 }}>
@@ -1050,54 +1059,206 @@ export default function BookAppointmentPage() {
                         <button
                           key={ct.value}
                           type="button"
-                          onClick={() => setConsultType(ct.value)}
+                          onClick={() => {
+                            setConsultType(ct.value);
+                            setSelectedDoctor(null);
+                          }}
                           style={{
                             display: "flex", flexDirection: "column", alignItems: "center", gap: 6,
                             padding: "14px 8px", borderRadius: 16,
-                            border: active ? "2px solid #0ea5e9" : "1.5px solid #e2e8f0",
-                            background: active ? "linear-gradient(135deg, #e0f2fe, #fce7f3)" : "white",
+                            border: active ? "2.5px solid #db2777" : "1.5px solid #e2e8f0",
+                            background: active ? "linear-gradient(135deg, #fff1f2, #fff5f7)" : "white",
                             cursor: "pointer", transition: "all 0.2s", textAlign: "center",
                           }}
                         >
                           <div style={{
                             width: 36, height: 36, borderRadius: 10,
                             display: "flex", alignItems: "center", justifyContent: "center",
-                            background: active ? "linear-gradient(135deg, #0ea5e9, #db2777)" : "#f1f5f9",
+                            background: active ? "linear-gradient(135deg, #db2777, #e11d48)" : "#f1f5f9",
                           }}>
                             <Icon size={16} style={{ color: active ? "white" : "#94a3b8" }} />
                           </div>
-                          <span style={{ fontSize: 11, fontWeight: 700, color: active ? "#0369a1" : "#64748b" }}>{ct.label}</span>
+                          <span style={{ fontSize: 11, fontWeight: 700, color: active ? "#be185d" : "#64748b" }}>{ct.label}</span>
                         </button>
                       );
                     })}
                   </div>
                 </div>
 
-                {/* Branch selector (in-person) */}
+                {/* Branch Selector (In-Person Visit) */}
                 {consultType === "in-person" && (
                   <div>
-                    <label style={labelStyle}>Select Branch</label>
-                    <div style={{ display: "flex", gap: 12 }}>
-                      {BRANCHES.map(b => (
-                        <button key={b} type="button" onClick={() => setSelectedBranch(b)}
+                    <label style={labelStyle}>Select Clinic Branch</label>
+                    <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+                      {branchesList.map(b => (
+                        <button
+                          key={b.id}
+                          type="button"
+                          onClick={() => {
+                            setSelectedBranch(b.name);
+                            setSelectedDoctor(null);
+                          }}
                           style={{
-                            flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                            flex: "1 1 calc(50% - 6px)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
                             padding: "12px 16px", borderRadius: 14,
-                            border: selectedBranch === b ? "2px solid #0ea5e9" : "1.5px solid #e2e8f0",
-                            background: selectedBranch === b ? "#e0f2fe" : "white",
-                            cursor: "pointer", fontSize: 13, fontWeight: 700,
-                            color: selectedBranch === b ? "#0369a1" : "#64748b",
+                            border: selectedBranch === b.name ? "2.5px solid #db2777" : "1.5px solid #e2e8f0",
+                            background: selectedBranch === b.name ? "#fff1f2" : "white",
+                            cursor: "pointer", fontSize: 13, fontWeight: 750,
+                            color: selectedBranch === b.name ? "#be185d" : "#64748b",
                             transition: "all 0.2s",
                           }}
                         >
-                          <FiMapPin size={14} /> {b}
+                          <FiMapPin size={14} /> {b.name}
                         </button>
                       ))}
                     </div>
                   </div>
                 )}
 
-                {/* Row 7: Preferred Date + Preferred Time */}
+                {/* Online Channel Selector */}
+                {consultType === "online" && (
+                  <div>
+                    <label style={labelStyle}>Select Consultation Channel</label>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
+                      {ONLINE_CHANNELS.map(oc => {
+                        const Icon = oc.icon;
+                        const active = onlineChannel === oc.value;
+                        return (
+                          <button
+                            key={oc.value}
+                            type="button"
+                            onClick={() => setOnlineChannel(oc.value)}
+                            style={{
+                              display: "flex", flexDirection: "column", alignItems: "center", gap: 6,
+                              padding: "12px 6px", borderRadius: 16,
+                              border: active ? "2.5px solid #db2777" : "1.5px solid #e2e8f0",
+                              background: active ? "linear-gradient(135deg, #fff1f2, #fdf2f8)" : "white",
+                              cursor: "pointer", transition: "all 0.2s", textAlign: "center",
+                            }}
+                          >
+                            <div style={{
+                              width: 32, height: 32, borderRadius: 10,
+                              display: "flex", alignItems: "center", justifyContent: "center",
+                              background: active ? "linear-gradient(135deg, #db2777, #e11d48)" : "#f1f5f9",
+                            }}>
+                              <Icon size={14} style={{ color: active ? "white" : "#94a3b8" }} />
+                            </div>
+                            <span style={{ fontSize: 10, fontWeight: 700, color: active ? "#be185d" : "#64748b" }}>{oc.label}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* Home Visit Details */}
+                {consultType === "home-visit" && (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 14, borderLeft: "3.5px solid #db2777", paddingLeft: 16, background: "#fffdfd", padding: "16px 12px", borderRadius: "16px", border: "1px solid #ffe4e6" }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 12 }}>
+                      <div>
+                        <label style={labelStyle}>Patient Street Address *</label>
+                        <input
+                          value={form.address || ""}
+                          onChange={e => update("address", e.target.value)}
+                          placeholder="House 123, Street 4, Sector G-11"
+                          style={{
+                            ...inputStyle,
+                            borderColor: errors.address ? "#fca5a5" : "#e2e8f0",
+                            background: errors.address ? "#fef2f2" : "white",
+                          }}
+                        />
+                        {errors.address && <p style={errorStyle}><FiAlertCircle size={11} /> {errors.address}</p>}
+                      </div>
+                      <div>
+                        <label style={labelStyle}>City *</label>
+                        <input
+                          value={form.city || ""}
+                          onChange={e => update("city", e.target.value)}
+                          placeholder="e.g. Islamabad"
+                          style={{
+                            ...inputStyle,
+                            borderColor: errors.city ? "#fca5a5" : "#e2e8f0",
+                            background: errors.city ? "#fef2f2" : "white",
+                          }}
+                        />
+                        {errors.city && <p style={errorStyle}><FiAlertCircle size={11} /> {errors.city}</p>}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label style={labelStyle}>Preferred Time Window *</label>
+                      <select
+                        value={form.timeWindow || "09:00 AM - 12:00 PM"}
+                        onChange={e => update("timeWindow", e.target.value)}
+                        style={{ ...inputStyle, padding: "12px 16px" }}
+                      >
+                        <option value="09:00 AM - 12:00 PM">Morning (09:00 AM - 12:00 PM)</option>
+                        <option value="12:00 PM - 03:00 PM">Midday (12:00 PM - 03:00 PM)</option>
+                        <option value="03:00 PM - 06:00 PM">Afternoon (03:00 PM - 06:00 PM)</option>
+                        <option value="06:00 PM - 09:00 PM">Evening (06:00 PM - 09:00 PM)</option>
+                      </select>
+                    </div>
+                  </div>
+                )}
+
+                {/* Doctor Selector cards */}
+                {doctors.length > 0 && (
+                  <div>
+                    <label style={labelStyle}>Select Specialist Doctor</label>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 14, marginTop: 8 }}>
+                      {doctors
+                        .filter(d => {
+                          if (consultType === "in-person" && selectedBranch) {
+                            return d.branch.some(b => b.toLowerCase() === selectedBranch.toLowerCase());
+                          }
+                          return true;
+                        })
+                        .map(doc => {
+                          const isSelected = selectedDoctor?.id === doc.id;
+                          return (
+                            <div
+                              key={doc.id}
+                              onClick={() => {
+                                setSelectedDoctor(doc);
+                                setErrors(e => ({ ...e, doctor: undefined }));
+                              }}
+                              style={{
+                                border: isSelected ? "2.5px solid #db2777" : "1.5px solid #e2e8f0",
+                                borderRadius: 20,
+                                background: isSelected ? "#fffdfd" : "white",
+                                cursor: "pointer",
+                                padding: 14,
+                                transition: "all 0.25s",
+                                boxShadow: isSelected ? "0 10px 20px rgba(219,39,119,0.06)" : "0 4px 12px rgba(0,0,0,0.01)",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 12,
+                              }}
+                            >
+                              <img
+                                src={doc.image}
+                                alt={doc.name}
+                                style={{ width: 52, height: 52, borderRadius: 14, objectFit: "cover", border: "1px solid #f1f5f9" }}
+                              />
+                              <div style={{ textAlign: "left", flex: 1, minWidth: 0 }}>
+                                <h4 style={{ fontSize: 13, fontWeight: 800, color: "#1e293b", margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                                  {doc.name}
+                                </h4>
+                                <p style={{ fontSize: 10, color: "#e11d48", fontWeight: 700, margin: "2px 0 0 0" }}>{doc.title}</p>
+                                <p style={{ fontSize: 10, color: "#64748b", margin: "2px 0 0 0" }}>{doc.specialty}</p>
+                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 6 }}>
+                                  <span style={{ fontSize: 10, color: "#94a3b8", fontWeight: 600 }}>Fee: <strong style={{ color: "#0f172a" }}>{doc.fee}</strong></span>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                    </div>
+                    {errors.doctor && <p style={errorStyle}><FiAlertCircle size={11} /> {errors.doctor}</p>}
+                  </div>
+                )}
+
+                {/* Preferred Date + Preferred Time */}
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
                   <div>
                     <label style={labelStyle}>Preferred Date</label>
