@@ -10,7 +10,7 @@ import { api } from "../services/api";
 export default function PatientPortal() {
   const navigate = useNavigate();
 
-  const [activeTab, setActiveTab] = useState("records");
+  const [activeTab, setActiveTab] = useState("appointments");
   const [emrRecords, setEmrRecords] = useState([]);
   const [prescriptions, setPrescriptions] = useState([]);
   const [appointments, setAppointments] = useState([]);
@@ -344,9 +344,9 @@ export default function PatientPortal() {
 
               <div className="flex flex-col gap-1.5 text-left">
                 {[
+                  { id: "appointments", label: "Appointments", icon: FiCalendar },
                   { id: "records", label: "Medical History (EMR)", icon: FiActivity },
                   { id: "patient-rx", label: "My Prescriptions", icon: FiFileText },
-                  { id: "appointments", label: "Appointments", icon: FiCalendar },
                   { id: "online-consultations", label: "Online Consultations", icon: FiVideo },
                   { id: "billing", label: "Invoices & Payments", icon: FiDollarSign },
                   { id: "orders", label: "My Orders", icon: FiPackage }
@@ -389,22 +389,22 @@ export default function PatientPortal() {
             {activeTab === "records" && (
               <div className="space-y-6 text-left flex-grow">
                 <div>
-                  <h3 className="text-lg font-black text-slate-800 flex items-center gap-2">
+                  <h3 className="text-lg lg:text-xl font-black text-slate-800 flex items-center gap-2">
                     <FiActivity className="text-pink-500" /> Electronic Medical Record (EMR)
                   </h3>
-                  <p className="text-xs text-slate-400 mt-0.5">Your official clinical diagnostics and laboratory summaries.</p>
+                  <p className="text-xs lg:text-sm text-slate-400 mt-0.5 font-medium">Your official clinical diagnostics and laboratory summaries.</p>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="border border-white/50 rounded-2xl p-4 bg-white/40 text-xs space-y-1.5 font-semibold">
-                    <p className="text-[9px] text-slate-400 uppercase tracking-wider">Patient Information</p>
+                  <div className="border border-white/50 rounded-2xl p-4 lg:p-5 bg-white/40 text-xs lg:text-sm space-y-1.5 lg:space-y-2 font-semibold">
+                    <p className="text-[9px] lg:text-[11px] text-slate-400 uppercase tracking-wider">Patient Information</p>
                     <p><span className="text-slate-400">Name:</span> {patientName}</p>
                     <p><span className="text-slate-400">Age / Gender:</span> 28 / Female</p>
                     <p><span className="text-slate-400">Blood Group:</span> O positive</p>
                     <p><span className="text-slate-400">Allergies:</span> Penicillin, Peanuts</p>
                   </div>
-                  <div className="border border-white/50 rounded-2xl p-4 bg-white/40 text-xs space-y-1.5 font-semibold">
-                    <p className="text-[9px] text-slate-400 uppercase tracking-wider">Clinical Vitals (Latest)</p>
+                  <div className="border border-white/50 rounded-2xl p-4 lg:p-5 bg-white/40 text-xs lg:text-sm space-y-1.5 lg:space-y-2 font-semibold">
+                    <p className="text-[9px] lg:text-[11px] text-slate-400 uppercase tracking-wider">Clinical Vitals (Latest)</p>
                     <p><span className="text-slate-400">Blood Pressure:</span> 120/80 mmHg</p>
                     <p><span className="text-slate-400">Heart Rate:</span> 72 bpm</p>
                     <p><span className="text-slate-400">Blood Sugar:</span> 95 mg/dL</p>
@@ -413,21 +413,21 @@ export default function PatientPortal() {
                 </div>
 
                 <div className="space-y-4">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 border-b pb-1">Past Consultations & Diagnoses</p>
+                  <p className="text-[10px] lg:text-xs font-black uppercase tracking-widest text-slate-400 border-b pb-1">Past Consultations & Diagnoses</p>
                   {emrRecords.length === 0 ? (
-                    <p className="text-xs text-slate-400">No medical records on file.</p>
+                    <p className="text-xs lg:text-sm text-slate-400 font-medium">No medical records on file.</p>
                   ) : (
                     emrRecords.map(rec => (
-                      <div key={rec.id} className="border border-white/40 bg-white/30 rounded-2xl p-5 space-y-3 shadow-sm hover:shadow-md transition-all">
+                      <div key={rec.id} className="border border-white/40 bg-white/30 rounded-2xl p-5 lg:p-6 space-y-3 lg:space-y-4 shadow-sm hover:shadow-md transition-all">
                         <div className="flex justify-between items-center flex-wrap gap-2">
                           <div>
-                            <span className="text-[10px] font-bold text-slate-400 uppercase">{rec.date}</span>
-                            <h4 className="font-extrabold text-sm text-slate-800">{rec.diagnosis}</h4>
+                            <span className="text-[10px] lg:text-xs font-bold text-slate-400 uppercase">{rec.date}</span>
+                            <h4 className="font-extrabold text-sm lg:text-base text-slate-800">{rec.diagnosis}</h4>
                           </div>
-                          <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-sky-50 text-sky-700">{rec.doctor}</span>
+                          <span className="text-[10px] lg:text-xs font-bold px-2.5 py-1 rounded-full bg-sky-50 text-sky-700">{rec.doctor}</span>
                         </div>
-                        <p className="text-xs text-slate-500 leading-relaxed">{rec.assessment}</p>
-                        <div className="text-[10px] text-slate-400 font-bold bg-white/50 p-2 rounded-lg">
+                        <p className="text-xs lg:text-sm text-slate-500 leading-relaxed font-semibold">{rec.assessment}</p>
+                        <div className="text-[10px] lg:text-xs text-slate-400 font-bold bg-white/50 p-2 rounded-lg">
                           Vitals Taken: {rec.vitals}
                         </div>
                       </div>
