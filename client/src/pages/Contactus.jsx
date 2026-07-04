@@ -1971,7 +1971,7 @@ export default function ContactUs() {
       <section className="px-4 pb-16">
         <div className="max-w-6xl mx-auto">
           <motion.div variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-60px" }}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
             {[
               { icon: <FaPhone size={20} />, title: "Phone", lines: [settings.clinic_phone], color: "sky" },
               { icon: <FaEnvelope size={20} />, title: "Email", lines: [settings.clinic_email], color: "pink" },
