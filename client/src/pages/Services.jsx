@@ -1532,36 +1532,36 @@ function Banner() {
     { Icon: FiHeart,      style:{ top:"12%",right:"19%" },  size:19, delay:1.1 },
   ];
   return (
-    <section ref={ref} className="relative overflow-hidden pt-32 pb-20"
+    <section ref={ref} className="relative overflow-hidden pt-40 pb-24 text-left"
       style={{ 
-        backgroundImage: `linear-gradient(135deg, rgba(240, 249, 255, 0.9) 0%, rgba(255, 255, 255, 0.95) 45%, rgba(253, 242, 248, 0.9) 100%), url("https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=1600&q=80")`,
+        backgroundImage: `url("https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=1600&q=80")`,
         backgroundSize: "cover",
         backgroundPosition: "center"
       }}>
+      {/* Dark Overlay */}
+      <div className="absolute inset-0 z-0" style={{ background: "linear-gradient(105deg, rgba(15,23,42,0.95) 0%, rgba(15,23,42,0.80) 55%, rgba(15,23,42,0.35) 100%)" }} />
 
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute -top-32 -left-32 w-[550px] h-[550px] bg-sky-200/25 rounded-full blur-[130px] animate-pulse" style={{ animationDuration:"9s" }} />
-        <div className="absolute -bottom-32 -right-32 w-[550px] h-[550px] bg-pink-200/25 rounded-full blur-[130px] animate-pulse" style={{ animationDuration:"13s" }} />
-        <div className="absolute inset-0 opacity-[0.18]"
-          style={{ backgroundImage:`linear-gradient(rgba(14,165,233,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(219,39,119,.05) 1px,transparent 1px)`, backgroundSize:"48px 48px" }} />
+      <div className="absolute inset-0 pointer-events-none z-10">
+        <div className="absolute -top-32 -left-32 w-[550px] h-[550px] bg-sky-500/10 rounded-full blur-[130px]" />
+        <div className="absolute -bottom-32 -right-32 w-[550px] h-[550px] bg-pink-500/10 rounded-full blur-[130px]" />
       </div>
-      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 text-center">
+      <div className="relative z-20 max-w-6xl mx-auto px-4 sm:px-6">
         <motion.h1 initial={{ opacity:0,y:30 }} animate={inView ? { opacity:1,y:0 } : {}}
           transition={{ duration:1, ease:[0.16,1,0.3,1], delay:0.1 }}
-          className="text-4xl sm:text-6xl font-extrabold text-slate-900 leading-tight tracking-tight font-serif mb-8">
+          className="text-4xl sm:text-6xl font-extrabold text-white leading-tight tracking-tight font-serif mb-8 max-w-3xl">
           World-Class{" "}
-          <span style={{ background:"linear-gradient(135deg,#0ea5e9,#db2777)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent" }}>
+          <span style={{ background:"linear-gradient(90deg, #60a5fa, #f472b6)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent" }}>
             Medical Services
           </span>
           <br />Across Our Care Network
         </motion.h1>
         <motion.div initial={{ opacity:0,y:20 }} animate={inView ? { opacity:1,y:0 } : {}} transition={{ duration:0.8,delay:0.55 }}
-          className="flex flex-wrap justify-center gap-4">
-          <button onClick={() => navigate("/book-appointment")} className="px-8 py-3.5 rounded-xl font-bold text-sm text-white shadow-xl hover:opacity-90 transition-opacity flex items-center gap-2"
-            style={{ background:"linear-gradient(135deg,#0ea5e9,#db2777)" }}>
+          className="flex flex-wrap gap-4">
+          <button onClick={() => navigate("/book-appointment")} className="px-8 py-3.5 rounded-xl font-bold text-sm text-white shadow-xl hover:opacity-90 transition-opacity flex items-center gap-2 border-none"
+            style={{ background:"linear-gradient(135deg, #2563eb, #0ea5e9)" }}>
             <FiCalendar size={15} /> Book Appointment
           </button>
-          <a href="tel:+923008786187" className="px-8 py-3.5 rounded-xl font-bold text-sm text-slate-700 bg-white border border-slate-200 hover:border-slate-300 hover:shadow-md transition-all flex items-center gap-2">
+          <a href="tel:+923008786187" className="px-8 py-3.5 rounded-xl font-bold text-sm text-white bg-white/10 border border-white/20 hover:bg-white/20 hover:shadow-md transition-all flex items-center gap-2">
             <FiPhone size={15} /> Call Us Now
           </a>
         </motion.div>
