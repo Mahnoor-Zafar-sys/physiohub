@@ -433,9 +433,11 @@ export default function OnlineConsultation() {
               {/* Header */}
               <div className="p-6 border-b border-slate-150 flex items-center justify-between bg-slate-50/50">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-blue-500 flex items-center justify-center text-white">
+                  <div className="w-10 h-10 rounded-xl bg-blue-500 flex items-center justify-center text-white flex-shrink-0">
                     <TbStethoscope size={20} />
-                             <h3 className="font-black text-slate-800 text-base leading-tight">Telehealth Consultation Wizard</h3>
+                  </div>
+                  <div>
+                    <h3 className="font-black text-slate-800 text-base leading-tight">Telehealth Consultation Wizard</h3>
                     <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">
                       {booked ? "Completed" : `Step ${step} of 5 — ${step === 1 ? "Consult Channel" : step === 2 ? "Select Doctor" : step === 3 ? "Schedule" : step === 4 ? "Details" : "Payment"}`}
                     </p>
