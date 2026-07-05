@@ -1835,27 +1835,28 @@ function ContactBanner({ settings }) {
   ];
 
   return (
-    <section ref={ref} className="relative overflow-hidden pt-32 pb-16"
-      style={{ background: "linear-gradient(135deg,#f0f9ff 0%,#ffffff 45%,#fdf2f8 100%)" }}>
+    <section ref={ref} className="relative overflow-hidden pt-40 pb-24 text-left"
+      style={{ 
+        backgroundImage: `url("https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&w=1600&q=80")`,
+        backgroundSize: "cover",
+        backgroundPosition: "center"
+      }}>
+      {/* Dark Overlay */}
+      <div className="absolute inset-0 z-0" style={{ background: "linear-gradient(105deg, rgba(15,23,42,0.95) 0%, rgba(15,23,42,0.80) 55%, rgba(15,23,42,0.35) 100%)" }} />
 
       {/* Ambient orbs + grid — exact match with Services */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute -top-32 -left-32 w-[550px] h-[550px] bg-sky-200/25 rounded-full blur-[130px] animate-pulse" style={{ animationDuration: "9s" }} />
-        <div className="absolute -bottom-32 -right-32 w-[550px] h-[550px] bg-pink-200/25 rounded-full blur-[130px] animate-pulse" style={{ animationDuration: "13s" }} />
-        <div className="absolute inset-0 opacity-[0.18]"
-          style={{ backgroundImage: `linear-gradient(rgba(14,165,233,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(219,39,119,.05) 1px,transparent 1px)`, backgroundSize: "48px 48px" }} />
+      <div className="absolute inset-0 pointer-events-none z-10">
+        <div className="absolute -top-32 -left-32 w-[550px] h-[550px] bg-sky-500/10 rounded-full blur-[130px]" />
+        <div className="absolute -bottom-32 -right-32 w-[550px] h-[550px] bg-pink-500/10 rounded-full blur-[130px]" />
       </div>
 
-      {/* Floating animated icons — same motion as Services Banner */}
       {/* Main banner text content */}
-      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 text-center">
-
-
+      <div className="relative z-20 max-w-6xl mx-auto px-4 sm:px-6">
         <motion.h1 initial={{ opacity: 0, y: 30 }} animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 1, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
-          className="text-4xl sm:text-6xl font-extrabold text-slate-900 leading-tight tracking-tight font-serif mb-5">
+          className="text-4xl sm:text-6xl font-extrabold text-white leading-tight tracking-tight font-serif mb-5 max-w-3xl">
           Get In{" "}
-          <span style={{ background: "linear-gradient(135deg,#0ea5e9,#db2777)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+          <span style={{ background: "linear-gradient(90deg, #60a5fa, #f472b6)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
             Touch
           </span>
           <br />With Our Team
@@ -1863,14 +1864,14 @@ function ContactBanner({ settings }) {
 
         <motion.p initial={{ opacity: 0, y: 20 }} animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.9, delay: 0.25 }}
-          className="text-lg text-slate-500 max-w-2xl mx-auto leading-relaxed mb-10">
-          We're here for you — whether it's a routine inquiry, emergency support, or booking your next appointment.
+          className="text-lg text-slate-300 max-w-2xl leading-relaxed mb-10">
+          We are here to help you with routine inquiries, emergency support, or booking your next appointment.
         </motion.p>
 
         {/* Stats row — matches Services banner style */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8, delay: 0.4 }}
-          className="flex flex-wrap justify-center gap-6 sm:gap-10 mb-10">
+          className="flex flex-wrap gap-6 sm:gap-10 mb-10">
           {[
             { num: "3 min",  label: "Avg. Response" },
             { num: "24/7",   label: "Emergency Line" },
@@ -1878,9 +1879,9 @@ function ContactBanner({ settings }) {
             { num: "10K+",   label: "Happy Patients" },
           ].map((s, i) => (
             <motion.div key={s.label} initial={{ opacity: 0, y: 20 }} animate={inView ? { opacity: 1, y: 0 } : {}}
-              transition={{ delay: 0.4 + i * 0.08 }} className="text-center">
+              transition={{ delay: 0.4 + i * 0.08 }} className="text-left">
               <p className="text-3xl font-extrabold"
-                style={{ background: "linear-gradient(135deg,#0ea5e9,#db2777)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+                style={{ background: "linear-gradient(90deg, #60a5fa, #f472b6)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
                 {s.num}
               </p>
               <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mt-0.5">{s.label}</p>
@@ -1891,11 +1892,11 @@ function ContactBanner({ settings }) {
         {/* CTA pills */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.7, delay: 0.55 }}
-          className="flex flex-wrap justify-center gap-3">
+          className="flex flex-wrap gap-3">
           {[
-            { icon: <FaPhone />, label: "Call Now",   href: `tel:${settings.clinic_phone}`,  cls: "bg-white border-sky-200   text-sky-600   hover:bg-sky-50   hover:border-sky-400" },
-            { icon: <FaWhatsapp />, label: "WhatsApp", href: `https://wa.me/${settings.clinic_phone.replace(/[^\d]/g, "")}?text=` + encodeURIComponent("Hello Physiohub, I want to inquire about your healthcare services."), cls: "bg-white border-green-200  text-green-600  hover:bg-green-50  hover:border-green-400" },
-            { icon: <FaAmbulance />, label: "Emergency", href: `tel:${settings.ambulance_phone}`, cls: "bg-white border-red-200    text-red-500    hover:bg-red-50    hover:border-red-400" },
+            { icon: <FaPhone />, label: "Call Now",   href: `tel:${settings.clinic_phone}`,  cls: "bg-white/10 border-white/20 text-white hover:bg-white/20 hover:border-white/40" },
+            { icon: <FaWhatsapp />, label: "WhatsApp", href: `https://wa.me/${settings.clinic_phone.replace(/[^\d]/g, "")}?text=` + encodeURIComponent("Hello Physiohub, I want to inquire about your healthcare services."), cls: "bg-green-500/10 border-green-500/20 text-green-400 hover:bg-green-500/20 hover:border-green-500/40" },
+            { icon: <FaAmbulance />, label: "Emergency", href: `tel:${settings.ambulance_phone}`, cls: "bg-red-500/10 border-red-500/20 text-red-400 hover:bg-red-500/20 hover:border-red-500/40" },
           ].map((btn) => (
             <a key={btn.label} href={btn.href}
               target={btn.href.startsWith("http") ? "_blank" : undefined}
@@ -1967,10 +1968,10 @@ export default function ContactUs() {
       {/* ═══════════════════════════════════════════
           QUICK INFO CARDS
       ═══════════════════════════════════════════ */}
-      <section className="px-4 pb-16">
+      <section className="px-4 pt-12 md:pt-16 pb-16">
         <div className="max-w-6xl mx-auto">
           <motion.div variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-60px" }}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
             {[
               { icon: <FaPhone size={20} />, title: "Phone", lines: [settings.clinic_phone], color: "sky" },
               { icon: <FaEnvelope size={20} />, title: "Email", lines: [settings.clinic_email], color: "pink" },
@@ -2143,7 +2144,7 @@ export default function ContactUs() {
                   </div>
                   <p className="text-slate-400 text-xs mb-3">For life-threatening emergencies, call immediately:</p>
                   <a href={`tel:${settings.ambulance_phone}`} className="block text-3xl font-black text-red-500 hover:text-red-600 transition-colors tracking-wider">{settings.ambulance_phone}</a>
-                  <p className="text-slate-400 text-xs mt-1">Rescue / Ambulance — Free 24/7</p>
+                  <p className="text-slate-400 text-xs mt-1">Rescue and Ambulance: Free 24/7</p>
                   <a href={`tel:${settings.clinic_phone}`} className="mt-3 block text-sm text-red-400 hover:text-red-500 transition-colors font-semibold">
                     Clinic Helpline: {settings.clinic_phone}
                   </a>
@@ -2352,7 +2353,7 @@ export default function ContactUs() {
             Need Immediate Assistance?
           </h2>
           <p className="text-white/75 text-lg mb-10 max-w-xl mx-auto">
-            Our team is ready — book an appointment online, chat on WhatsApp, or call us directly.
+            Our team is ready: book an appointment online, chat on WhatsApp, or call us directly.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <motion.a href="#booking" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}

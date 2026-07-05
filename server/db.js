@@ -219,6 +219,75 @@ function runMigrations(dbPool) {
       console.log("Database migrations checked: html_content column already exists in articles table.");
     }
   });
+
+  // 6. Appointments: add consult_channel and meeting_credentials columns
+  dbPool.query("SHOW COLUMNS FROM appointments LIKE 'consult_channel'", (err, results) => {
+    if (err) { console.warn("Migration warning: appointments consult_channel check failed:", err.message); return; }
+    if (results.length === 0) {
+      console.log("Migrating database: adding consult_channel and meeting_credentials to appointments...");
+      dbPool.query(
+        "ALTER TABLE appointments ADD COLUMN consult_channel VARCHAR(100) DEFAULT NULL, ADD COLUMN meeting_credentials TEXT DEFAULT NULL",
+        (alterErr) => {
+          if (alterErr) console.error("Failed to add consult_channel/meeting_credentials:", alterErr.message);
+          else console.log("Successfully added consult_channel and meeting_credentials to appointments.");
+        }
+      );
+    } else {
+      console.log("Database migrations checked: consult_channel already exists in appointments table.");
+    }
+  });
+
+  // 7. Doctors: add whatsapp_number and whatsapp_username columns
+  dbPool.query("SHOW COLUMNS FROM doctors LIKE 'whatsapp_number'", (err, results) => {
+    if (err) { console.warn("Migration warning: doctors whatsapp_number check failed:", err.message); return; }
+    if (results.length === 0) {
+      console.log("Migrating database: adding whatsapp_number and whatsapp_username to doctors...");
+      dbPool.query(
+        "ALTER TABLE doctors ADD COLUMN whatsapp_number VARCHAR(50) DEFAULT NULL, ADD COLUMN whatsapp_username VARCHAR(255) DEFAULT NULL",
+        (alterErr) => {
+          if (alterErr) console.error("Failed to add whatsapp columns:", alterErr.message);
+          else console.log("Successfully added whatsapp_number and whatsapp_username to doctors.");
+        }
+      );
+    } else {
+      console.log("Database migrations checked: whatsapp_number already exists in doctors table.");
+    }
+  });
+
+  // 8. Branches table creation
+  dbPool.query("SHOW TABLES LIKE 'branches'", (err, results) => {
+    if (err) { console.warn("Migration warning: branches table check failed:", err.message); return; }
+    if (results.length === 0) {
+      console.log("Migrating database: creating branches table...");
+      const createBranchesQuery = `
+        CREATE TABLE IF NOT EXISTS branches (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          name VARCHAR(255) NOT NULL,
+          address VARCHAR(255) DEFAULT NULL,
+          city VARCHAR(255) DEFAULT NULL,
+          clinic_id INT DEFAULT 1,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          INDEX idx_clinic (clinic_id)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+      `;
+      dbPool.query(createBranchesQuery, (createErr) => {
+        if (createErr) {
+          console.error("Failed to create branches table:", createErr.message);
+        } else {
+          console.log("Successfully created branches table. Seeding default branches...");
+          dbPool.query(
+            "INSERT INTO branches (name, address, city, clinic_id) VALUES ('Gulberg', 'Main Boulevard, Gulberg III', 'Lahore', 1), ('DHA', 'Phase 5, Commercial Zone', 'Lahore', 1)",
+            (seedErr) => {
+              if (seedErr) console.error("Failed to seed default branches:", seedErr.message);
+              else console.log("Default branches seeded successfully.");
+            }
+          );
+        }
+      });
+    } else {
+      console.log("Database migrations checked: branches table already exists.");
+    }
+  });
 }
 
 module.exports = {

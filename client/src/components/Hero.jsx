@@ -179,7 +179,7 @@ export default function Hero() {
               maxWidth: 620, color: "#1e293b", fontSize: "1.18rem",
               fontWeight: 500, lineHeight: 1.65, margin: 0,
             }}>
-              {settings.hero_subtitle || "Book appointments, consult top doctors, and manage your health digitally — all in one beautifully designed platform."}
+              {settings.hero_subtitle || "Book appointments, consult top doctors, and manage your health digitally, all in one beautifully designed platform."}
             </motion.p>
 
             <div style={{ display: "flex", gap: 16, flexWrap: "wrap", justifyContent: "center", marginTop: "8px" }}>

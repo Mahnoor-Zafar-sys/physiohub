@@ -18,7 +18,7 @@ const IMAGES = {
   panel3:    "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=800&q=80",
   icu:       "https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&w=1400&q=80",
   surgery:   "https://images.unsplash.com/photo-1551601651-2a8555f1a136?auto=format&fit=crop&w=1400&q=80",
-  lab:       "https://images.unsplash.com/photo-1579165466520-48a896616857?auto=format&fit=crop&w=1400&q=80",
+  lab:       "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=1400&q=80",
   pharmacy:  "https://images.unsplash.com/photo-1586015555751-63bb77f4322a?auto=format&fit=crop&w=1400&q=80",
   lounge:    "https://images.unsplash.com/photo-1629909615184-74f495363b67?auto=format&fit=crop&w=1400&q=80",
   parking:   "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1400&q=80",
@@ -39,19 +39,19 @@ const storySlides = [
   {
     year: "2011",
     head: "Founded on conviction",
-    body: "Established in 2011 by a small team of three specialists, our clinic was born from a single belief — that every patient in this city deserves world-class medical care delivered with genuine compassion.",
+    body: "Established in 2011 by a small team of three specialists, our clinic was born from a single belief: that every patient in this city deserves world-class medical care delivered with genuine compassion.",
     image: "https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&w=1200&q=80",
   },
   {
     year: "2018",
     head: "Grown without compromise",
-    body: "From one operating theater, we expanded to six comprehensive departments — never once compromising on clinical excellence. Every investment was measured against patient outcomes.",
+    body: "From one operating theater, we expanded to six comprehensive departments, never once compromising on clinical excellence. Every investment was measured against patient outcomes.",
     image: "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=1200&q=80",
   },
   {
     year: "Today",
     head: "Serving 50,000+ lives annually",
-    body: "Today we serve over 50,000 patients every year. Our commitment to that founding promise has never wavered — only deepened, as our team, technology, and healing hands grow.",
+    body: "Today we serve over 50,000 patients every year. Our commitment to that founding promise has never wavered, only deepened, as our team, technology, and healing hands grow.",
     image: "https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&w=1200&q=80",
   },
 ];
@@ -220,13 +220,13 @@ export default function About() {
     { name: "Intensive Care Suite", short: "ICU", desc: "24/7 continuous monitoring with dedicated specialist teams. Every critical patient receives immediate, personalized attention in our fully equipped critical care environment.", features: ["24/7 Specialist Coverage", "Real-Time Monitoring", "Ventilator Support"], img: IMAGES.icu },
     { name: "Diagnostic Laboratory",short: "LAB", desc: "Fully automated diagnostic lab delivering precise results with rapid turnaround. ISO-certified processes covering the complete diagnostic spectrum with same-day reporting.", features: ["Automated Analysis", "Same-Day Results", "ISO QA Certified"], img: IMAGES.lab },
     { name: "In-House Pharmacy",    short: "RX",  desc: "Round-the-clock pharmacy stocked with an extensive range of branded and generic medications. Accurate dispensing, cold-chain storage, and thorough patient counseling at every visit.", features: ["Open 24/7", "Prescription Verification", "Cold Chain Storage"], img: IMAGES.pharmacy },
-    { name: "Patient Lounge",       short: "VIP", desc: "Thoughtfully designed comfort spaces with premium seating, ambient lighting, free Wi-Fi, and a dedicated concierge — creating a calm, reassuring atmosphere for patients and families.", features: ["Wi-Fi Enabled", "Dedicated Concierge", "Family Seating"], img: IMAGES.lounge },
-    { name: "Secure Parking",       short: "PKG", desc: "Covered multi-level parking with dedicated zones for patients, visitors, and emergency vehicles. CCTV-monitored and fully accessible — free of charge for all patients.", features: ["CCTV Monitored 24/7", "Accessible Bays", "Emergency Priority Lane"], img: IMAGES.parking },
+    { name: "Patient Lounge",       short: "VIP", desc: "Thoughtfully designed comfort spaces with premium seating, ambient lighting, free Wi-Fi, and a dedicated concierge, creating a calm, reassuring atmosphere for patients and families.", features: ["Wi-Fi Enabled", "Dedicated Concierge", "Family Seating"], img: IMAGES.lounge },
+    { name: "Secure Parking",       short: "PKG", desc: "Covered multi-level parking with dedicated zones for patients, visitors, and emergency vehicles. CCTV-monitored and fully accessible, free of charge for all patients.", features: ["CCTV Monitored 24/7", "Accessible Bays", "Emergency Priority Lane"], img: IMAGES.parking },
   ];
 
   const coreValues = [
-    { name: "Compassion", desc: "Every patient interaction is guided by genuine empathy. We listen, we care, and we treat each person as family — trained not just in medicine, but in humanity.", img: IMAGES.compassion },
-    { name: "Innovation", desc: "Continuously investing in the latest medical technologies, digital platforms, and clinical protocols — from AI diagnostics to robotic-assisted procedures.", img: IMAGES.innovation },
+    { name: "Compassion", desc: "Every patient interaction is guided by genuine empathy. We listen, we care, and we treat each person as family, trained not just in medicine, but in humanity.", img: IMAGES.compassion },
+    { name: "Innovation", desc: "Continuously investing in the latest medical technologies, digital platforms, and clinical protocols, from AI diagnostics to robotic-assisted procedures.", img: IMAGES.innovation },
     { name: "Trust",      desc: "Transparent communication, ethical practices, and consistent outcomes have made us the most referred clinic in the region. We simply deliver, reliably, every time.", img: IMAGES.trust },
     { name: "Excellence", desc: "From clinical outcomes to patient experience, every aspect of our practice is held to the highest possible standard. Protocols reviewed quarterly by internationally trained specialists.", img: IMAGES.excellence },
   ];
@@ -243,7 +243,7 @@ export default function About() {
       img: IMAGES.jci,
       category: "Accreditation",
       title: "JCI International Standard",
-      desc: "Clinical procedures and patient safety protocols fully aligned with Joint Commission International benchmarks — the gold standard of global healthcare accreditation.",
+      desc: "Clinical procedures and patient safety protocols fully aligned with Joint Commission International benchmarks, the gold standard of global healthcare accreditation.",
       badge: "Certified 2023",
       icon: <FiShield size={18} className="text-blue-500" />,
     },
@@ -334,7 +334,7 @@ export default function About() {
         </h2>
       </div>
       <p className="text-slate-500 text-base max-w-lg font-normal leading-relaxed pt-4 border-t border-slate-100">
-        {settings.about_description || "For over 13 years, we have built a legacy of professional medical care in Karachi — through world-class specialists, modern infrastructure, and a genuinely patient-first culture."}
+        {settings.about_description || "For over 13 years, we have built a legacy of professional medical care in Karachi through world-class specialists, modern infrastructure, and a genuinely patient-first culture."}
       </p>
       <div className="flex gap-3 flex-wrap pt-2">
         <button onClick={() => navigate("/book-appointment")} className="px-5 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 transition-colors flex items-center gap-2 shadow-md shadow-blue-200">
@@ -464,14 +464,10 @@ export default function About() {
             className="lg:col-span-7 text-left space-y-6 flex flex-col justify-between"
           >
             <div>
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-6 h-px bg-blue-500" />
-                <span className="text-[10px] font-bold text-blue-600 tracking-[0.3em] uppercase">Professional Profile</span>
-              </div>
               <h2 className="text-3xl lg:text-4xl font-black text-slate-900 tracking-tight leading-tight">
                 Dr. Ghulam Jellani, DPT
               </h2>
-              <p className="text-[#2165f4] text-xs font-black tracking-widest uppercase mt-1">Founder & Chief Executive Officer — VPH</p>
+              <p className="text-[#2165f4] text-xs font-black tracking-widest uppercase mt-1">Founder & Chief Executive Officer, VPH</p>
             </div>
 
             {/* CEO Profile Tab Switcher */}
@@ -561,7 +557,7 @@ export default function About() {
                     <div className="pt-2 border-t border-slate-100">
                       <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Registrations & Affiliations</h4>
                       <div className="flex gap-3 flex-wrap">
-                        <span className="text-[9px] font-black uppercase text-slate-600 bg-slate-100 px-2 py-1 rounded-lg border border-slate-200/40">Founder & CEO — Vital Physio Hub</span>
+                        <span className="text-[9px] font-black uppercase text-slate-600 bg-slate-100 px-2 py-1 rounded-lg border border-slate-200/40">Founder & CEO, Vital Physio Hub</span>
                         <span className="text-[9px] font-black uppercase text-slate-600 bg-slate-100 px-2 py-1 rounded-lg border border-slate-200/40">Physiotherapy Educator & Content Developer</span>
                         <span className="text-[9px] font-black uppercase text-slate-600 bg-slate-100 px-2 py-1 rounded-lg border border-slate-200/40">Evidence-Based Practice (EBP) Advocate</span>
                       </div>
@@ -580,7 +576,7 @@ export default function About() {
                   >
                     {[
                       { year: "Vital Physio Hub", title: "Founder & CEO", desc: "Building a global physiotherapy platform integrating educational resources, clinical guidance, and digital rehabilitation standards." },
-                      { year: "Clinical Experience", title: "Physiotherapist — Thrivex Physio Clinic", desc: "Managed clinical assessments, manual therapy sessions, and designed individual programs for musculoskeletal and chronic pain recovery." },
+                      { year: "Clinical Experience", title: "Physiotherapist, Thrivex Physio Clinic", desc: "Managed clinical assessments, manual therapy sessions, and designed individual programs for musculoskeletal and chronic pain recovery." },
                       { year: "Early Career", title: "Clinical Rotations & DPT Foundation", desc: "Obtained clinical training and hospital placement exposure in orthopedic, neurological, and cardiopulmonary rehabilitation science." }
                     ].map((step, idx) => (
                       <div key={idx} className="relative space-y-1">
@@ -772,7 +768,7 @@ export default function About() {
               </h3>
               <div className="w-8 h-0.5 bg-blue-200" />
               <p className="text-slate-500 leading-relaxed text-[15px]">
-                To provide every patient with healthcare that is not only medically excellent but genuinely compassionate — transparent care, advanced clinical protocols, and a patient experience that restores confidence in modern medicine.
+                To provide every patient with healthcare that is not only medically excellent but genuinely compassionate, offering transparent care, advanced clinical protocols, and a patient experience that restores confidence in modern medicine.
               </p>
               <ul className="space-y-2 pt-1">
                 {["Transparent, informed consent at every step", "Collaborative multi-specialist care teams", "Patient feedback integrated into clinical improvement"].map(f => (
@@ -789,7 +785,7 @@ export default function About() {
               </h3>
               <div className="w-8 h-0.5 bg-blue-200" />
               <p className="text-slate-500 leading-relaxed text-[15px]">
-                To be recognised as the region's most trusted healthcare institution — where world-class medical expertise meets genuine human care. Every patient leaves healthier, better informed, and fully reassured.
+                To be recognised as the region's most trusted healthcare institution, where world-class medical expertise meets genuine human care. Every patient leaves healthier, better informed, and fully reassured.
               </p>
               <ul className="space-y-2 pt-1">
                 {["AI-assisted diagnostics & symptom checking", "Digital patient portal & e-prescriptions", "Regional centre of excellence by 2027"].map(f => (
@@ -847,12 +843,12 @@ export default function About() {
               <div className="w-12 h-px bg-slate-400/60" />
             </div>
             <p className="text-slate-700 text-base lg:text-lg leading-relaxed max-w-2xl mx-auto font-semibold">
-              Our digital tools exist to free our clinicians to focus on what matters most — your health, your comfort, your complete recovery. Medicine is a relationship, not a transaction.
+              Our digital tools exist to free our clinicians to focus on what matters most: your health, your comfort, and your complete recovery. Medicine is a relationship, not a transaction.
             </p>
             <div className="grid sm:grid-cols-3 gap-5 pt-6">
               {[
                 { icon: LuStethoscope, label: "Patient First", sub: "Every decision centers the patient's wellbeing, dignity, and comfort.", grad: "from-blue-600 to-sky-500", text: "text-white", subText: "text-blue-50", iconBg: "bg-white/20", iconColor: "text-white" },
-                { icon: LuZap, label: "Precision Tech", sub: "Advanced tools amplify what our specialists can achieve — not replace them.", grad: "from-amber-500 to-orange-400", text: "text-white", subText: "text-amber-50", iconBg: "bg-white/20", iconColor: "text-white" },
+                { icon: LuZap, label: "Precision Tech", sub: "Advanced tools amplify what our specialists can achieve, rather than replacing them.", grad: "from-amber-500 to-orange-400", text: "text-white", subText: "text-amber-50", iconBg: "bg-white/20", iconColor: "text-white" },
                 { icon: LuHandshake, label: "Human Touch", sub: "Warmth and genuine connection are as vital as clinical accuracy.", grad: "from-rose-500 to-pink-400", text: "text-white", subText: "text-rose-50", iconBg: "bg-white/20", iconColor: "text-white" },
               ].map(({ icon: Icon, label, sub, grad, text, subText, iconBg, iconColor }) => (
                 <motion.div
@@ -914,7 +910,6 @@ export default function About() {
           <div className="space-y-28">
             {facilities.map((f, i) => (
               <AlternatingRow key={f.name} img={f.img} imgAlt={f.name} reverse={i % 2 === 1}>
-                <span className="text-[10px] font-bold text-slate-400 tracking-[0.3em] uppercase">{f.short}</span>
                 <h3 className="text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">{f.name}</h3>
                 <div className="w-8 h-0.5 bg-blue-200" />
                 <p className="text-slate-500 leading-relaxed text-[15px]">{f.desc}</p>
@@ -943,7 +938,7 @@ export default function About() {
               Ready to experience<br />modern healthcare?
             </h2>
             <p className="text-slate-500 text-base leading-relaxed max-w-xl mx-auto">
-              Our specialists are available to guide you from first consultation to complete recovery. Book online, WhatsApp us, or walk in — we are always here.
+              Our specialists are available to guide you from first consultation to complete recovery. Book online, WhatsApp us, or walk in. We are always here.
             </p>
           </motion.div>
           <motion.div
