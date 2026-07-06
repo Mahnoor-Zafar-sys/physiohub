@@ -611,8 +611,8 @@ export default function DoctorPortal() {
 
                 <div className="p-5 bg-gradient-to-r from-sky-50 to-pink-50 rounded-3xl border border-sky-100/60 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                   <div className="space-y-1">
-                    <h4 className="text-sm font-extrabold text-slate-800">Your application is in review.</h4>
-                    <p className="text-xs text-slate-500 font-medium">For 3 days, you will get a reply professionally with status updates.</p>
+                    <h4 className="text-sm font-extrabold text-slate-800">Clinical Verification In Progress</h4>
+                    <p className="text-xs text-slate-500 font-medium">Your credentials are under compliance review. Please allow up to 3 business days for administrative verification and response.</p>
                   </div>
                   <div className="px-4 py-2 rounded-2xl bg-white border border-slate-100 flex items-center gap-2 shadow-inner shrink-0">
                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Current Status:</span>
@@ -631,9 +631,9 @@ export default function DoctorPortal() {
                     <div className="w-16 h-16 rounded-full bg-sky-500/10 flex items-center justify-center text-sky-600 animate-pulse">
                       <FiClock size={32} />
                     </div>
-                    <h4 className="text-sm font-extrabold text-sky-850">Administrative Review In Progress</h4>
+                    <h4 className="text-sm font-extrabold text-sky-850">Credential Assessment Underway</h4>
                     <p className="text-xs text-sky-600 leading-relaxed font-medium">
-                      Your medical application is currently under clinical administrative review. Our compliance desk is verifying your credentials, certificates, and practice details. You will receive access to clinical calendars once approved.
+                      Our credentials committee is verifying your submitted certifications, medical degrees, and practice experience. You will receive a formal response regarding your status and onboarding guidelines within 3 business days.
                     </p>
                   </div>
                 )}

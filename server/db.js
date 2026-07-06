@@ -288,6 +288,21 @@ function runMigrations(dbPool) {
       console.log("Database migrations checked: branches table already exists.");
     }
   });
+
+  // 9. Sync/repair doctor registry entries (ensure doctor users have a profile in doctors table)
+  dbPool.query(
+    `INSERT INTO doctors (name, email, specialty, fee, branch, status, image, experience, title, slug)
+     SELECT name, email, 'Physical Therapy', '₨ 2,500', 'Gulberg', 'Pending', 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=400&q=80', '10 Years', 'Consultant', LOWER(REPLACE(name, ' ', '-'))
+     FROM users
+     WHERE role = 'doctor' AND NOT EXISTS (SELECT 1 FROM doctors WHERE doctors.email = users.email)`,
+    (syncErr, syncResults) => {
+      if (syncErr) {
+        console.warn("Migration warning: failed to sync/repair doctors entries from users:", syncErr.message);
+      } else if (syncResults && syncResults.affectedRows > 0) {
+        console.log(`Database sync: created ${syncResults.affectedRows} pending doctor profiles for orphan doctor accounts.`);
+      }
+    }
+  );
 }
 
 module.exports = {
