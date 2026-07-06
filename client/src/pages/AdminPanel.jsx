@@ -2745,7 +2745,6 @@ export default function AdminPanel() {
                         >
                           <option value="all">All Roles</option>
                           <option value="admin">Admins</option>
-                          <option value="doctor">Doctors</option>
                           <option value="receptionist">Staff / Reception</option>
                           <option value="patient">Patients</option>
                         </select>
@@ -2761,6 +2760,7 @@ export default function AdminPanel() {
                       ) : (
                         (() => {
                           const filtered = users.filter(u => {
+                            if (u.role === "doctor") return false; // Exclude doctors from user management registry
                             const matchesSearch = u.name.toLowerCase().includes(searchUserQuery.toLowerCase()) || u.email.toLowerCase().includes(searchUserQuery.toLowerCase());
                             const matchesRole = userRoleFilter === "all" || u.role === userRoleFilter;
                             return matchesSearch && matchesRole;

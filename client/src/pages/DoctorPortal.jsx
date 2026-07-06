@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { FiUser, FiCalendar, FiClock, FiFileText, FiActivity, FiList, FiExternalLink, FiCheckCircle, FiVideo } from "react-icons/fi";
+import { FiUser, FiCalendar, FiClock, FiFileText, FiActivity, FiList, FiExternalLink, FiCheckCircle, FiVideo, FiX } from "react-icons/fi";
 import { FaUserMd, FaWhatsapp } from "react-icons/fa";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
@@ -607,6 +607,23 @@ export default function DoctorPortal() {
                     <FiUser className="text-pink-500" /> Application Progress Portal
                   </h3>
                   <p className="text-xs text-slate-400 mt-0.5">Track your clinical registration status and submit requested amendments.</p>
+                </div>
+
+                <div className="p-5 bg-gradient-to-r from-sky-50 to-pink-50 rounded-3xl border border-sky-100/60 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                  <div className="space-y-1">
+                    <h4 className="text-sm font-extrabold text-slate-800">Your application is in review.</h4>
+                    <p className="text-xs text-slate-500 font-medium">For 3 days, you will get a reply professionally with status updates.</p>
+                  </div>
+                  <div className="px-4 py-2 rounded-2xl bg-white border border-slate-100 flex items-center gap-2 shadow-inner shrink-0">
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Current Status:</span>
+                    <span className={`text-xs font-extrabold uppercase px-2 py-0.5 rounded-full ${
+                      doctorStatus === "Pending" ? "bg-amber-55 text-amber-600" :
+                      doctorStatus === "Need More Details" ? "bg-purple-50 text-purple-600" :
+                      "bg-rose-50 text-rose-600"
+                    }`}>
+                      {doctorStatus}
+                    </span>
+                  </div>
                 </div>
 
                 {doctorStatus === "Pending" && (
