@@ -2247,9 +2247,6 @@ export default function ContactUs() {
       <section className="px-4 pb-20">
         <div className="max-w-6xl mx-auto">
           <AnimSection className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/80 border border-sky-200/70 text-sky-600 text-xs font-bold uppercase tracking-widest mb-4 shadow-sm">
-              <span className="w-1.5 h-1.5 bg-sky-500 rounded-full animate-pulse" /> Our Locations
-            </div>
             <h2 className="text-4xl font-extrabold text-slate-900 font-serif">Find Us Near You</h2>
             <p className="text-slate-400 text-sm mt-3 max-w-lg mx-auto">Multiple branches for your convenience. Walk in or book at your nearest branch.</p>
           </AnimSection>
@@ -2322,9 +2319,6 @@ export default function ContactUs() {
       <section className="px-4 pb-20">
         <div className="max-w-3xl mx-auto">
           <AnimSection className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/80 border border-pink-200/70 text-pink-600 text-xs font-bold uppercase tracking-widest mb-4 shadow-sm">
-              <span className="w-1.5 h-1.5 bg-pink-500 rounded-full animate-pulse" /> Patient Support
-            </div>
             <h2 className="text-4xl font-extrabold text-slate-900 font-serif">Frequently Asked Questions</h2>
             <p className="text-slate-400 text-sm mt-3">
               Can't find what you need?{" "}
