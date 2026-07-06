@@ -2,6 +2,8 @@ const express = require("express");
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
+const fs = require("fs");
+const path = require("path");
 require("dotenv").config();
 const db = require("./db");
 
@@ -10,6 +12,43 @@ const app = express();
 app.use(cors());
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+const uploadsDir = path.join(__dirname, "uploads");
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+function saveBase64File(base64Str, prefix = "file") {
+  if (!base64Str || typeof base64Str !== "string") return base64Str;
+  if (!base64Str.startsWith("data:")) return base64Str;
+
+  try {
+    const matches = base64Str.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+    if (!matches || matches.length !== 3) {
+      return base64Str;
+    }
+
+    const mimeType = matches[1];
+    const fileBuffer = Buffer.from(matches[2], "base64");
+    
+    let ext = "bin";
+    if (mimeType.includes("pdf")) ext = "pdf";
+    else if (mimeType.includes("jpeg") || mimeType.includes("jpg")) ext = "jpg";
+    else if (mimeType.includes("png")) ext = "png";
+    else if (mimeType.includes("word") || mimeType.includes("officedocument")) ext = "docx";
+    else if (mimeType.includes("text/plain")) ext = "txt";
+
+    const filename = `${prefix}_${Date.now()}_${Math.round(Math.random() * 1000)}.${ext}`;
+    const filepath = path.join(uploadsDir, filename);
+
+    fs.writeFileSync(filepath, fileBuffer);
+    return `/uploads/${filename}`;
+  } catch (e) {
+    console.error("Failed to save base64 file:", e);
+    return base64Str;
+  }
+}
 
 const JWT_SECRET = process.env.JWT_SECRET || "premium_secret_key";
 
@@ -273,59 +312,62 @@ mockArticles = mockArticles.map(a => ({ ...a, clinic_id: 1 }));
 mockUserLogs = mockUserLogs.map(l => ({ ...l, clinic_id: 1 }));
 let mockSettingsList = [{ clinic_id: 1, settings: mockSettings }];
 
-// 1. Auth Login Simulation (JWT generation)
 app.post("/api/auth/login", async (req, res) => {
   const { email, password, role } = req.body;
-  const clinicId = getClinicId(req);
   
   if (db.isDbEnabled()) {
     try {
-      // Check clinic status
-      const clinicRes = await db.query("SELECT status FROM clinics WHERE id = ?", [clinicId]);
-      if (clinicRes.length > 0 && clinicRes[0].status === "Suspended") {
-        return res.status(403).json({ error: "This clinic has been suspended by the platform administrator. Please contact billing support." });
-      }
-
-      const results = await db.query("SELECT * FROM users WHERE email = ? AND role = ? AND clinic_id = ?", [email, role, clinicId]);
+      // Find user by email and role across all clinics to handle multi-clinic SaaS dynamic login
+      const results = await db.query("SELECT * FROM users WHERE email = ? AND role = ?", [email, role]);
       if (results.length > 0) {
         const user = results[0];
+        const userClinicId = user.clinic_id || 1;
+
+        // Check clinic status for this user's clinic
+        const clinicRes = await db.query("SELECT status FROM clinics WHERE id = ?", [userClinicId]);
+        if (clinicRes.length > 0 && clinicRes[0].status === "Suspended") {
+          return res.status(403).json({ error: "This clinic has been suspended by the platform administrator. Please contact billing support." });
+        }
+
         // Secure password check using bcryptjs
         const isMatch = await bcrypt.compare(password, user.password);
         if (isMatch) {
           let doctorStatus = "Active";
           let adminNote = null;
           if (role === "doctor") {
-            const docProfile = await db.query("SELECT status, admin_note FROM doctors WHERE email = ? AND clinic_id = ?", [email, clinicId]);
+            const docProfile = await db.query("SELECT status, admin_note FROM doctors WHERE email = ? AND clinic_id = ?", [email, userClinicId]);
             if (docProfile.length > 0) {
               doctorStatus = docProfile[0].status;
               adminNote = docProfile[0].admin_note;
             }
           }
-          await logActivity(user.email, "User Login", `User logged in successfully with role: ${user.role}`, clinicId);
-          const token = jwt.sign({ email: user.email, role: user.role, name: user.name, status: doctorStatus, admin_note: adminNote, clinic_id: clinicId }, JWT_SECRET, { expiresIn: "24h" });
+          await logActivity(user.email, "User Login", `User logged in successfully with role: ${user.role}`, userClinicId);
+          const token = jwt.sign({ email: user.email, role: user.role, name: user.name, status: doctorStatus, admin_note: adminNote, clinic_id: userClinicId }, JWT_SECRET, { expiresIn: "24h" });
           return res.json({
             success: true,
             token,
-            user: { email: user.email, role: user.role, name: user.name, status: doctorStatus, admin_note: adminNote, clinic_id: clinicId }
+            user: { email: user.email, role: user.role, name: user.name, status: doctorStatus, admin_note: adminNote, clinic_id: userClinicId }
           });
         } else {
           return res.status(401).json({ error: "Invalid password. Please try again." });
         }
       }
-      return res.status(401).json({ error: "This email is not registered for the selected clinic & role. Please sign up first." });
+      return res.status(401).json({ error: "This email is not registered for the selected role. Please sign up first." });
     } catch (e) {
       return res.status(500).json({ error: e.message });
     }
   } else {
     // Local memory fallback credentials check
-    const clinic = mockClinics.find(c => c.id === clinicId);
+    const user = mockUsers.find(u => u.email.toLowerCase() === email.toLowerCase() && u.role === role);
+    if (!user) {
+      return res.status(401).json({ error: "This email is not registered for the selected role. Please sign up first." });
+    }
+    const userClinicId = user.clinic_id || 1;
+    const clinic = mockClinics.find(c => c.id === userClinicId);
     if (clinic && clinic.status === "Suspended") {
       return res.status(403).json({ error: "This clinic has been suspended by the platform administrator. Please contact billing support." });
     }
-    const user = mockUsers.find(u => u.email === email && u.role === role && (u.clinic_id || 1) === clinicId);
-    if (!user) {
-      return res.status(401).json({ error: "This email is not registered for the selected clinic & role. Please sign up first." });
-    }
+    
     // Secure password check using bcryptjs
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
@@ -334,14 +376,14 @@ app.post("/api/auth/login", async (req, res) => {
     let doctorStatus = "Active";
     let adminNote = null;
     if (role === "doctor") {
-      const docProfile = mockDoctors.find(d => d.email?.toLowerCase() === email.toLowerCase() && (d.clinic_id || 1) === clinicId);
+      const docProfile = mockDoctors.find(d => d.email?.toLowerCase() === email.toLowerCase() && (d.clinic_id || 1) === userClinicId);
       if (docProfile) {
         doctorStatus = docProfile.status;
         adminNote = docProfile.admin_note;
       }
     }
-    await logActivity(user.email, "User Login", `User logged in successfully with role: ${user.role} (Mock)`, clinicId);
-    const token = jwt.sign({ email: user.email, role: user.role, name: user.name, status: doctorStatus, admin_note: adminNote, clinic_id: clinicId }, JWT_SECRET, { expiresIn: "24h" });
+    await logActivity(user.email, "User Login", `User logged in successfully with role: ${user.role} (Mock)`, userClinicId);
+    const token = jwt.sign({ email: user.email, role: user.role, name: user.name, status: doctorStatus, admin_note: adminNote, clinic_id: userClinicId }, JWT_SECRET, { expiresIn: "24h" });
     res.json({
       success: true,
       token,
@@ -351,7 +393,7 @@ app.post("/api/auth/login", async (req, res) => {
         name: user.name,
         status: doctorStatus,
         admin_note: adminNote,
-        clinic_id: clinicId
+        clinic_id: userClinicId
       }
     });
   }
@@ -371,6 +413,12 @@ app.post("/api/auth/signup", async (req, res) => {
   if (role !== "patient" && role !== "doctor") {
     return res.status(403).json({ error: "Registration is restricted to Patients and Doctors only. Administrative credentials must be provisioned internally." });
   }
+
+  // Save Base64 files to disk to prevent 'max_allowed_packet' errors
+  const savedCv = saveBase64File(cv_file, "cv");
+  const savedCert = saveBase64File(certificates_file, "cert");
+  const savedDeg = saveBase64File(degrees_file, "deg");
+  const savedRew = saveBase64File(rewards_file, "rew");
 
   if (db.isDbEnabled()) {
     try {
@@ -402,7 +450,7 @@ app.post("/api/auth/signup", async (req, res) => {
           ) VALUES (?, ?, ?, ?, 'Pending', ?, ?, 4.8, ?, ?, 1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           [
             docName, specialty || "Physical Therapy", `₨ ${fee || "2,500"}`, branch || "Gulberg", docImg, experience || "10 Years", title || "Consultant", docSlug, email,
-            cv_file || null, cv_name || null, certificates_file || null, certificates_name || null, degrees_file || null, degrees_name || null, rewards_file || null, rewards_name || null,
+            savedCv || null, cv_name || null, savedCert || null, certificates_name || null, savedDeg || null, degrees_name || null, savedRew || null, rewards_name || null,
             social_linkedin || null, social_facebook || null, social_instagram || null, social_twitter || null
           ]
         );
@@ -442,13 +490,13 @@ app.post("/api/auth/signup", async (req, res) => {
         slug: docSlug,
         available: 1,
         email,
-        cv_file: cv_file || null,
+        cv_file: savedCv || null,
         cv_name: cv_name || null,
-        certificates_file: certificates_file || null,
+        certificates_file: savedCert || null,
         certificates_name: certificates_name || null,
-        degrees_file: degrees_file || null,
+        degrees_file: savedDeg || null,
         degrees_name: degrees_name || null,
-        rewards_file: rewards_file || null,
+        rewards_file: savedRew || null,
         rewards_name: rewards_name || null,
         social_linkedin: social_linkedin || null,
         social_facebook: social_facebook || null,
@@ -978,6 +1026,11 @@ app.post("/api/doctors/resubmit", async (req, res) => {
     rewards_file, rewards_name
   } = req.body;
 
+  const savedCv = saveBase64File(cv_file, "cv");
+  const savedCert = saveBase64File(certificates_file, "cert");
+  const savedDeg = saveBase64File(degrees_file, "deg");
+  const savedRew = saveBase64File(rewards_file, "rew");
+
   if (db.isDbEnabled()) {
     try {
       let queryStr = "UPDATE doctors SET status = 'Pending', admin_note = NULL";
@@ -985,19 +1038,19 @@ app.post("/api/doctors/resubmit", async (req, res) => {
       
       if (cv_file !== undefined) {
         queryStr += ", cv_file = ?, cv_name = ?";
-        params.push(cv_file, cv_name || null);
+        params.push(savedCv, cv_name || null);
       }
       if (certificates_file !== undefined) {
         queryStr += ", certificates_file = ?, certificates_name = ?";
-        params.push(certificates_file, certificates_name || null);
+        params.push(savedCert, certificates_name || null);
       }
       if (degrees_file !== undefined) {
         queryStr += ", degrees_file = ?, degrees_name = ?";
-        params.push(degrees_file, degrees_name || null);
+        params.push(savedDeg, degrees_name || null);
       }
       if (rewards_file !== undefined) {
         queryStr += ", rewards_file = ?, rewards_name = ?";
-        params.push(rewards_file, rewards_name || null);
+        params.push(savedRew, rewards_name || null);
       }
 
       if (id) {
@@ -1026,19 +1079,19 @@ app.post("/api/doctors/resubmit", async (req, res) => {
           admin_note: null
         };
         if (cv_file !== undefined) {
-          updated.cv_file = cv_file;
+          updated.cv_file = savedCv;
           updated.cv_name = cv_name || null;
         }
         if (certificates_file !== undefined) {
-          updated.certificates_file = certificates_file;
+          updated.certificates_file = savedCert;
           updated.certificates_name = certificates_name || null;
         }
         if (degrees_file !== undefined) {
-          updated.degrees_file = degrees_file;
+          updated.degrees_file = savedDeg;
           updated.degrees_name = degrees_name || null;
         }
         if (rewards_file !== undefined) {
-          updated.rewards_file = rewards_file;
+          updated.rewards_file = savedRew;
           updated.rewards_name = rewards_name || null;
         }
         return updated;
@@ -1057,6 +1110,12 @@ app.post("/api/doctors/update", async (req, res) => {
     cv_file, cv_name, certificates_file, certificates_name, degrees_file, degrees_name, rewards_file, rewards_name,
     status, admin_note, whatsapp_number, whatsapp_username
   } = req.body;
+
+  const savedCv = saveBase64File(cv_file, "cv");
+  const savedCert = saveBase64File(certificates_file, "cert");
+  const savedDeg = saveBase64File(degrees_file, "deg");
+  const savedRew = saveBase64File(rewards_file, "rew");
+
   if (db.isDbEnabled()) {
     try {
       await db.query(
@@ -1069,7 +1128,7 @@ app.post("/api/doctors/update", async (req, res) => {
         [
           name, specialty, fee, branch, image, experience, rating || null, title, slug,
           email || null, social_linkedin || null, social_facebook || null, social_instagram || null, social_twitter || null,
-          cv_file || null, cv_name || null, certificates_file || null, certificates_name || null, degrees_file || null, degrees_name || null, rewards_file || null, rewards_name || null,
+          savedCv || null, cv_name || null, savedCert || null, certificates_name || null, savedDeg || null, degrees_name || null, savedRew || null, rewards_name || null,
           status || 'Active', admin_note || null, whatsapp_number || null, whatsapp_username || null,
           id
         ]
@@ -1089,13 +1148,13 @@ app.post("/api/doctors/update", async (req, res) => {
             social_facebook: social_facebook !== undefined ? social_facebook : doc.social_facebook,
             social_instagram: social_instagram !== undefined ? social_instagram : doc.social_instagram,
             social_twitter: social_twitter !== undefined ? social_twitter : doc.social_twitter,
-            cv_file: cv_file !== undefined ? cv_file : doc.cv_file,
+            cv_file: cv_file !== undefined ? savedCv : doc.cv_file,
             cv_name: cv_name !== undefined ? cv_name : doc.cv_name,
-            certificates_file: certificates_file !== undefined ? certificates_file : doc.certificates_file,
+            certificates_file: certificates_file !== undefined ? savedCert : doc.certificates_file,
             certificates_name: certificates_name !== undefined ? certificates_name : doc.certificates_name,
-            degrees_file: degrees_file !== undefined ? degrees_file : doc.degrees_file,
+            degrees_file: degrees_file !== undefined ? savedDeg : doc.degrees_file,
             degrees_name: degrees_name !== undefined ? degrees_name : doc.degrees_name,
-            rewards_file: rewards_file !== undefined ? rewards_file : doc.rewards_file,
+            rewards_file: rewards_file !== undefined ? savedRew : doc.rewards_file,
             rewards_name: rewards_name !== undefined ? rewards_name : doc.rewards_name,
             status: status !== undefined ? status : doc.status,
             admin_note: admin_note !== undefined ? admin_note : doc.admin_note,

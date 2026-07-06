@@ -624,19 +624,22 @@ export default function AdminPanel() {
 
   const renderDocAttachmentLink = (label, fileData, fileName) => {
     if (!fileData) return <span className="text-[10px] text-slate-400">Not Uploaded</span>;
+    const fileUrl = fileData.startsWith("data:") || fileData.startsWith("http") ? fileData : `http://localhost:5000${fileData}`;
     return (
       <div className="flex items-center gap-2">
         <span className="text-[10px] text-slate-500 font-semibold">{label}:</span>
         <button 
           type="button"
-          onClick={() => setSelectedReportModal({ report: fileData, name: fileName || label })}
+          onClick={() => setSelectedReportModal({ report: fileUrl, name: fileName || label })}
           className="px-2 py-1 bg-sky-50 hover:bg-sky-100 text-sky-600 border border-sky-200/50 rounded-lg text-[9px] font-bold cursor-pointer transition-all flex items-center gap-1"
         >
           👁️ Preview
         </button>
         <a 
-          href={fileData} 
+          href={fileUrl} 
           download={fileName || label}
+          target="_blank"
+          rel="noopener noreferrer"
           className="px-2 py-1 bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200 rounded-lg text-[9px] font-bold cursor-pointer transition-all flex items-center gap-1"
           style={{ textDecoration: 'none' }}
         >
@@ -4152,32 +4155,53 @@ export default function AdminPanel() {
                 <FiFileText className="text-sky-500" /> Medical Report: {selectedReportModal.name}
               </h3>
               <div className="w-full overflow-auto max-h-[75vh] border border-slate-100 rounded-xl bg-slate-50 flex items-center justify-center p-2 min-h-[300px]">
-                {selectedReportModal.report.startsWith("data:image/") ? (
-                  <img 
-                    src={selectedReportModal.report} 
-                    alt="Patient Medical Report" 
-                    className="max-w-full max-h-[70vh] object-contain"
-                  />
-                ) : selectedReportModal.report.startsWith("data:application/pdf") ? (
-                  <iframe 
-                    src={selectedReportModal.report} 
-                    className="w-full h-[65vh] rounded-xl border-none"
-                    title="Patient Medical Report PDF"
-                  />
-                ) : (
-                  <div className="text-center py-10 flex flex-col items-center gap-4">
-                    <FiFileText size={48} className="text-slate-400" />
-                    <p className="text-sm font-semibold text-slate-600">This file type ({selectedReportModal.name}) cannot be previewed directly.</p>
-                    <a 
-                      href={selectedReportModal.report} 
-                      download={selectedReportModal.name}
-                      className="px-6 py-3 bg-slate-900 hover:bg-pink-600 text-white rounded-xl text-xs font-bold transition-all"
-                      style={{ textDecoration: "none" }}
-                    >
-                      📥 Download Attached File
-                    </a>
-                  </div>
-                )}
+                {(() => {
+                  const reportUrl = selectedReportModal.report.startsWith("data:") || selectedReportModal.report.startsWith("http")
+                    ? selectedReportModal.report
+                    : `http://localhost:5000${selectedReportModal.report}`;
+                  
+                  const isImage = reportUrl.startsWith("data:image/") ||
+                                  reportUrl.toLowerCase().endsWith(".png") ||
+                                  reportUrl.toLowerCase().endsWith(".jpg") ||
+                                  reportUrl.toLowerCase().endsWith(".jpeg") ||
+                                  reportUrl.toLowerCase().endsWith(".gif");
+
+                  const isPdf = reportUrl.startsWith("data:application/pdf") ||
+                                reportUrl.toLowerCase().includes(".pdf");
+
+                  if (isImage) {
+                    return (
+                      <img 
+                        src={reportUrl} 
+                        alt="Patient Medical Report" 
+                        className="max-w-full max-h-[70vh] object-contain"
+                      />
+                    );
+                  } else if (isPdf) {
+                    return (
+                      <iframe 
+                        src={reportUrl} 
+                        className="w-full h-[65vh] rounded-xl border-none"
+                        title="Patient Medical Report PDF"
+                      />
+                    );
+                  } else {
+                    return (
+                      <div className="text-center py-10 flex flex-col items-center gap-4">
+                        <FiFileText size={48} className="text-slate-400" />
+                        <p className="text-sm font-semibold text-slate-600">This file type ({selectedReportModal.name}) cannot be previewed directly.</p>
+                        <a 
+                          href={reportUrl} 
+                          download={selectedReportModal.name}
+                          className="px-6 py-3 bg-slate-900 hover:bg-pink-600 text-white rounded-xl text-xs font-bold transition-all"
+                          style={{ textDecoration: "none" }}
+                        >
+                          📥 Download Attached File
+                        </a>
+                      </div>
+                    );
+                  }
+                })()}
               </div>
             </motion.div>
           </div>

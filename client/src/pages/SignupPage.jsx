@@ -46,6 +46,7 @@ export default function SignupPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [clinics, setClinics] = useState([]);
+  const [branches, setBranches] = useState([]);
   const [selectedClinicId, setSelectedClinicId] = useState(() => {
     return localStorage.getItem("vph_clinic_id") || "1";
   });
@@ -72,15 +73,39 @@ export default function SignupPage() {
         console.warn("Failed to load clinics on signup start:", e);
       }
     }
+    async function loadBranches() {
+      try {
+        const list = await api.getBranches();
+        if (list && list.length > 0) {
+          setBranches(list);
+          setForm(prev => ({ ...prev, branch: list[0].name }));
+        }
+      } catch (e) {
+        console.warn("Failed to load branches on signup start:", e);
+      }
+    }
     loadClinics();
+    loadBranches();
   }, []);
 
-  const handleClinicChange = (id) => {
+  const handleClinicChange = async (id) => {
     setSelectedClinicId(id);
     localStorage.setItem("vph_clinic_id", id);
     const matched = clinics.find(c => String(c.id) === String(id));
     if (matched) {
       localStorage.setItem("vph_clinic_name", matched.name);
+    }
+    try {
+      const list = await api.getBranches();
+      if (list && list.length > 0) {
+        setBranches(list);
+        setForm(prev => ({ ...prev, branch: list[0].name }));
+      } else {
+        setBranches([]);
+        setForm(prev => ({ ...prev, branch: "" }));
+      }
+    } catch (e) {
+      console.warn("Failed to load branches for clinic:", e);
     }
   };
 
@@ -457,15 +482,22 @@ export default function SignupPage() {
               <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1.5">Practice Branches</label>
               <div className="relative">
                 <FiMapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-                <input
-                  type="text"
+                <select
                   name="branch"
                   required
                   value={form.branch}
                   onChange={handleChange}
-                  placeholder="e.g. Gulberg, DHA"
-                  className="input-field w-full bg-white/85 border border-slate-200 text-slate-800 rounded-xl pl-11 pr-4 py-3 text-sm outline-none placeholder:text-slate-400 font-semibold"
-                />
+                  className="input-field w-full bg-white/85 border border-slate-200 text-slate-800 rounded-xl pl-11 pr-10 py-3 text-sm outline-none placeholder:text-slate-400 font-semibold appearance-none cursor-pointer"
+                >
+                  <option value="" disabled>Select a branch</option>
+                  {branches.map(b => (
+                    <option key={b.id} value={b.name}>{b.name}</option>
+                  ))}
+                  {branches.length === 0 && (
+                    <option value="Main Clinic">Main Clinic</option>
+                  )}
+                </select>
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 text-xs">▼</div>
               </div>
             </div>
 
