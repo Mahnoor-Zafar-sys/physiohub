@@ -1,0 +1,35 @@
+# Physiohub Crawling & Indexing Directives
+User-agent: *
+Allow: /
+Allow: /about
+Allow: /doctors
+Allow: /services
+Allow: /shop
+Allow: /contact
+Allow: /book-appointment
+Allow: /online-consultation
+Allow: /reviews
+Allow: /gallery
+Allow: /blog
+Allow: /faq
+Allow: /careers
+Allow: /why-us
+Allow: /emergency
+Allow: /insurance
+Allow: /consultation-room
+Allow: /news
+Allow: /research
+Allow: /csr
+Allow: /privacy
+Allow: /terms
+Allow: /cookie-policy
+
+# Protected Portals & Auth Endpoints (Do Not Index)
+Disallow: /admin-secure-portal-gate-x99
+Disallow: /staff-reception-terminal-y77
+Disallow: /patient-portal
+Disallow: /doctor-portal
+Disallow: /dashboard
+
+# Sitemap Location
+Sitemap: https://physiohub.com/sitemap.xml
