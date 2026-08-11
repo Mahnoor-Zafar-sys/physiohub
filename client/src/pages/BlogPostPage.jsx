@@ -9,6 +9,7 @@ import { FaWhatsapp, FaTwitter, FaFacebook, FaLinkedin, FaStar } from "react-ico
 import { HiSparkles } from "react-icons/hi";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import SEOHead from "../components/SEOHead";
 import { api } from "../services/api";
 
 const THEME = {
@@ -577,8 +578,38 @@ export default function BlogPostPage() {
   const twitterShareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`;
   const linkedinShareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`;
 
+  const articleSchema = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": post.title,
+    "description": post.excerpt || post.title,
+    "image": post.image || "https://physiohub.com/heroimage.jpg",
+    "author": {
+      "@type": "Person",
+      "name": post.author || "Physiohub Specialist"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Physiohub",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://physiohub.com/favicon.svg"
+      }
+    },
+    "datePublished": post.created_at || "2026-07-31"
+  };
+
   return (
-    <div className="min-h-screen font-sans bg-slate-50">
+    <div className="min-h-screen font-sans" style={{ background: THEME.grad }}>
+      <SEOHead 
+        title={`${post.title} | Physiohub Blog Lahore & Islamabad`}
+        description={post.excerpt || `Read article on ${post.title} written by ${post.author || 'Physiohub Medical Specialist'} at Physiohub.`}
+        keywords={`${post.category}, ${post.title.toLowerCase()}, physical therapy Lahore, rehab guide Islamabad`}
+        canonicalUrl={`https://physiohub.com/blog/${post.id}`}
+        ogImage={post.image || "https://physiohub.com/heroimage.jpg"}
+        ogType="article"
+        schemaData={articleSchema}
+      />
       <Navbar />
 
       {/* --- HERO ARTICLE HEADER --- */}

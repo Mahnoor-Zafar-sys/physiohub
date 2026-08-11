@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import SEOHead from "../components/SEOHead";
 import { 
   FiPhoneCall, FiAlertOctagon, FiMapPin, FiTruck, 
   FiClock, FiCheck, FiHeart, FiArrowRight, FiShield
@@ -102,6 +103,12 @@ export default function Emergency() {
 
   return (
     <div className="min-h-screen bg-slate-50 font-body select-none">
+      <SEOHead 
+        title="24/7 Emergency Physical Therapy & Ambulance Dispatch | Lahore & Islamabad"
+        description="24/7 emergency trauma care, urgent rehabilitation support & ambulance dispatch in Lahore & Islamabad. Immediate triage assistance for physical trauma & acute pain."
+        keywords="emergency physical therapy Lahore, ambulance dispatch Islamabad, urgent physio care Lahore, acute trauma rehabilitation Pakistan, 24/7 emergency physio"
+        canonicalUrl="https://physiohub.com/emergency"
+      />
       <Navbar />
 
       {/* --- HERO BANNER --- */}

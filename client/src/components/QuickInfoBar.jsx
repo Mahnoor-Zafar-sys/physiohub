@@ -20,7 +20,7 @@ const infos = [
   {
     icon: FiMapPin,
     label: "Our Location",
-    value: "Plaza 56, Block L, Blue Area, Islamabad",
+    value: "2nd Floor Allegiance Tower, New Blue Area, Islamabad",
     iconBg: "rgba(16, 185, 129, 0.08)",
     iconColor: "#10b981",
   },

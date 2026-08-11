@@ -240,6 +240,8 @@ export default function SplashScreen({
             alignItems: 'center', justifyContent: 'center',
             fontFamily: "'Montserrat', sans-serif",
             overflow: 'hidden',
+            width: '100%',
+            boxSizing: 'border-box',
           }}
         >
           {/* ── Video background ── */}
@@ -288,6 +290,10 @@ export default function SplashScreen({
             position: 'relative', zIndex: 10,
             display: 'flex', flexDirection: 'column',
             alignItems: 'center', gap: 0,
+            width: '100%',
+            paddingLeft: '1rem',
+            paddingRight: '1rem',
+            boxSizing: 'border-box',
           }}>
 
             {/* Logo ring */}
@@ -306,14 +312,16 @@ export default function SplashScreen({
                 marginTop: 26,
                 fontFamily: "'Cormorant Garamond', serif",
                 fontWeight: 300,
-                fontSize: 'clamp(1.9rem, 5vw, 3.1rem)',
-                letterSpacing: '0.2em',
+                fontSize: 'clamp(1.4rem, 6vw, 3.1rem)',
+                letterSpacing: 'clamp(0.05em, 2vw, 0.2em)',
                 textTransform: 'uppercase',
                 background: 'linear-gradient(135deg, #fff 0%, #5BC8F5 40%, #F472B6 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
                 filter: 'drop-shadow(0 0 18px rgba(91,200,245,0.35))',
+                textAlign: 'center',
+                width: '100%',
               }}
             >
               {clinicName}
@@ -324,11 +332,13 @@ export default function SplashScreen({
               {...fadeUp(1.05)}
               style={{
                 marginTop: 9,
-                fontSize: 'clamp(0.62rem, 1.4vw, 0.76rem)',
-                letterSpacing: '0.34em',
+                fontSize: 'clamp(0.55rem, 2.5vw, 0.76rem)',
+                letterSpacing: 'clamp(0.08em, 1.5vw, 0.34em)',
                 textTransform: 'uppercase',
                 color: 'rgba(255,255,255,0.4)',
                 fontWeight: 300,
+                textAlign: 'center',
+                width: '100%',
               }}
             >
               {tagline}

@@ -9,6 +9,7 @@ import { HiSparkles } from "react-icons/hi";
 import { LuCircleHelp } from "react-icons/lu";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import SEOHead from "../components/SEOHead";
 import { api } from "../services/api";
 
 const THEME = {
@@ -114,8 +115,28 @@ export default function FAQ({ onBookAppointment }) {
     };
   });
 
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqs.map(f => ({
+      "@type": "Question",
+      "name": f.question || f.q,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": f.answer || f.a
+      }
+    }))
+  };
+
   return (
     <div className="min-h-screen font-sans" style={{ background: THEME.grad }}>
+      <SEOHead 
+        title="Physiotherapy FAQ & Treatment Answers | Physiohub Lahore & Islamabad"
+        description="Frequently asked questions about physical therapy consultations, appointments, insurance panel coverage & treatment plans in Lahore (Gulberg, DHA) & Islamabad."
+        keywords="physiotherapy FAQ Lahore, physical therapist consultation fee Islamabad, insurance panel physio Lahore, online physio appointment FAQ"
+        canonicalUrl="https://physiohub.com/faq"
+        schemaData={faqSchema}
+      />
       <Navbar onBookAppointment={onBookAppointment} />
 
       {/* HERO SECTION */}

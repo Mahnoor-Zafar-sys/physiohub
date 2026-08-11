@@ -1728,6 +1728,7 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import SEOHead from "../components/SEOHead";
 import { api } from "../services/api";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import {
@@ -1917,7 +1918,7 @@ export default function ContactUs() {
   const [settings, setSettings] = useState({
     clinic_phone: "+92 300 8786187",
     clinic_email: "info@physiohub.com",
-    clinic_address: "First Floor, Building 14-B, Main Boulevard, Gulberg, Lahore, Pakistan",
+    clinic_address: "2nd Floor Allegiance Tower, New Blue Area, Islamabad",
     clinic_hours: "Mon - Sat: 09:00 AM - 09:00 PM",
     ambulance_phone: "+92 (51) 111-911-273"
   });
@@ -1926,7 +1927,7 @@ export default function ContactUs() {
     let active = true;
     api.getSettings().then(res => {
       if (res && active) {
-        setSettings(prev => ({ ...prev, ...res }));
+        setSettings(prev => ({ ...prev, ...res, clinic_address: "2nd Floor Allegiance Tower, New Blue Area, Islamabad" }));
       }
     });
     return () => { active = false; };
@@ -1950,6 +1951,12 @@ export default function ContactUs() {
   return (
     <div className="min-h-screen font-body relative"
       style={{ background: "linear-gradient(135deg, #f0f9ff 0%, #ffffff 50%, #fdf2f8 100%)" }}>
+      <SEOHead 
+        title="Contact Physiohub | Physical Therapy Clinics in Lahore & Islamabad"
+        description="Contact Physiohub rehabilitation clinics in Lahore (Main Boulevard Gulberg & DHA Phase 5) and Islamabad (Sector F-7, Blue Area). Call, email or visit us for physical therapy consultations."
+        keywords="contact physiohub, physio clinic address Lahore, physical therapy clinic Islamabad location, Gulberg physio contact, DHA Lahore physical therapist phone"
+        canonicalUrl="https://physiohub.com/contact"
+      />
       <Navbar />
 
       {/* ── Ambient BG Orbs (fixed, same as rest of site) ── */}

@@ -11,6 +11,7 @@ import { FaUserMd, FaHospitalUser, FaUserCog, FaCreditCard, FaPrint, FaBriefcase
 import { MdOutlineHealthAndSafety, MdVerifiedUser } from "react-icons/md";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import SEOHead from "../components/SEOHead";
 import { api } from "../services/api";
 
 // Theme constants
@@ -406,6 +407,11 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen font-sans flex flex-col justify-between" style={{ background: "linear-gradient(135deg, #fce4ec 0%, #e0f2fe 60%, #fdf4ff 100%)" }}>
+      <SEOHead 
+        title="Clinical Management Dashboard | Physiohub"
+        description="Unified portal dashboard for patients, doctors, staff, and administration."
+        noindex={true}
+      />
       <Navbar />
 
 
@@ -443,7 +449,7 @@ export default function Dashboard() {
                 <div>
                   <h3 className="text-xl font-black text-slate-900 tracking-tight">PHYSIOHUB</h3>
                   <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Advanced rehabilitation & physio</p>
-                  <p className="text-xs text-slate-500 mt-2">Plaza 56, Block L, Blue Area, Islamabad</p>
+                  <p className="text-xs text-slate-500 mt-2">2nd Floor Allegiance Tower, New Blue Area, Islamabad</p>
                 </div>
                 <div className="text-right">
                   <h4 className="font-extrabold text-sm text-slate-800">{selectedPrescriptionPrint.doctor}</h4>

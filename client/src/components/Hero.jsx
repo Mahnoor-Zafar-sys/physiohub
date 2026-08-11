@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { FiCalendar, FiMonitor, FiPhoneCall } from "react-icons/fi";
+import { FiCalendar, FiMonitor, FiPhoneCall, FiHome } from "react-icons/fi";
 import { FaWhatsapp } from "react-icons/fa";
 import { MdFavorite, MdLocalHospital } from "react-icons/md";
 import { GiHeartBeats, GiMicroscope } from "react-icons/gi";
 import { TbStethoscope, TbAmbulance, TbActivity } from "react-icons/tb";
 import { api } from "../services/api";
+import HomeConsultationModal from "./HomeConsultationModal";
 
 const floatingIcons = [
   { Icon: MdFavorite,      color: "#3b82f6", pos: { top: "22%", left: "6%" },   dur: 7,   delay: 0,   size: "1.9rem" },
@@ -32,6 +33,7 @@ export default function Hero() {
   const navigate = useNavigate();
   const wrapRef  = useRef(null);
   const imageRef = useRef(null);
+  const [homeModalOpen, setHomeModalOpen] = useState(false);
 
   const [settings, setSettings] = useState(() => {
     const local = localStorage.getItem("pc_settings");
@@ -75,12 +77,18 @@ export default function Hero() {
           0%,100% { transform: translateY(0px) rotate(0deg); }
           50%     { transform: translateY(-12px) rotate(2deg); }
         }
-        .hbtn { font-family:'DM Sans',sans-serif !important; font-weight:600 !important; cursor:pointer !important; border:none !important; display:inline-flex !important; align-items:center !important; gap:8px !important; text-decoration:none !important; }
+        .hbtn { font-family:'DM Sans',sans-serif !important; font-weight:600 !important; cursor:pointer !important; border:none !important; display:inline-flex !important; align-items:center !important; gap:8px !important; text-decoration:none !important; white-space:nowrap !important; }
         .hbtn-primary {
           font-size:.95rem !important; color:#ffffff !important; border-radius:12px !important; padding:12px 26px !important;
           background: #2563eb !important; box-shadow: 0 4px 14px rgba(37, 99, 235, 0.25) !important; transition: all .23s ease !important;
         }
         .hbtn-primary:hover { transform:translateY(-3px) !important; background: #1d4ed8 !important; box-shadow: 0 8px 22px rgba(37, 99, 235, 0.4) !important; }
+        .hbtn-home {
+          font-size:.95rem !important; color:#ffffff !important; border-radius:12px !important; padding:12px 26px !important;
+          background: linear-gradient(135deg, #8b5cf6, #6366f1) !important;
+          box-shadow: 0 4px 14px rgba(139, 92, 246, 0.3) !important; transition: all .23s ease !important;
+        }
+        .hbtn-home:hover { transform:translateY(-3px) !important; background: linear-gradient(135deg, #7c3aed, #4f46e5) !important; box-shadow: 0 8px 22px rgba(139, 92, 246, 0.45) !important; }
         .hbtn-glass {
           font-size:.95rem !important; color:#1e293b !important; border-radius:12px !important; padding:12px 26px !important;
           background: rgba(255, 255, 255, 0.85) !important; backdrop-filter: blur(8px) !important;
@@ -102,6 +110,34 @@ export default function Hero() {
           content:'' !important; position:absolute !important; inset:-4px !important; border-radius:16px !important;
           border:2px solid rgba(239, 68, 68, 0.35) !important;
           animation: pulseRingRed 1.8s cubic-bezier(.4,0,.6,1) infinite !important; pointer-events:none !important;
+        }
+
+        @media (max-width: 640px) {
+          .hbtn {
+            font-size: 0.82rem !important;
+            padding: 9px 12px !important;
+            border-radius: 10px !important;
+            gap: 6px !important;
+          }
+          .hbtn-primary, .hbtn-home, .hbtn-glass, .hbtn-whatsapp, .hbtn-emergency {
+            font-size: 0.82rem !important;
+            padding: 9px 12px !important;
+            border-radius: 10px !important;
+          }
+        }
+
+        @media (max-width: 380px) {
+          .hbtn {
+            font-size: 0.76rem !important;
+            padding: 8px 6px !important;
+            border-radius: 8px !important;
+            gap: 4px !important;
+          }
+          .hbtn-primary, .hbtn-home, .hbtn-glass, .hbtn-whatsapp, .hbtn-emergency {
+            font-size: 0.76rem !important;
+            padding: 8px 6px !important;
+            border-radius: 8px !important;
+          }
         }
       `}</style>
 
@@ -126,28 +162,16 @@ export default function Hero() {
           <div style={{ position: "absolute", inset: 0, background: "radial-gradient(circle at 20% 30%, rgba(59,130,246,0.18) 0%, transparent 50%), radial-gradient(circle at 80% 70%, rgba(236,72,153,0.18) 0%, transparent 50%)" }} />
         </div>
 
-
-
         {/* Content */}
-        <div style={{
-          flex: 1, position: "relative", zIndex: 10,
-          display: "flex", alignItems: "center", justifyContent: "center",
-          paddingTop: "max(160px, 18vh)", paddingBottom: "80px",
-          paddingLeft: "24px", paddingRight: "24px",
-        }}>
+        <div 
+          className="relative z-10 flex items-center justify-center pt-24 sm:pt-40 lg:pt-48 pb-10 sm:pb-16 px-3 sm:px-6 lg:px-8"
+          style={{ flex: 1 }}
+        >
           <motion.div
             variants={staggerContainer} initial="hidden" whileInView="show"
             viewport={{ once: false, amount: 0.15 }}
+            className="flex flex-col items-center gap-4 sm:gap-8 text-center max-w-4xl w-full p-4 sm:p-10 md:p-12 rounded-2xl sm:rounded-3xl"
             style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: "2.2rem",
-              textAlign: "center",
-              maxWidth: 860,
-              width: "100%",
-              padding: "48px 32px",
-              borderRadius: "32px",
               background: "rgba(255, 255, 255, 0.22)",
               backdropFilter: "blur(20px)",
               WebkitBackdropFilter: "blur(20px)",
@@ -157,7 +181,7 @@ export default function Hero() {
           >
             <motion.h1 variants={fadeUpVariant} style={{
               fontFamily: "'Playfair Display',Georgia,serif",
-              fontSize: "clamp(2.6rem, 5.8vw, 4.4rem)", fontWeight: 800,
+              fontSize: "clamp(1.5rem, 5vw, 4.4rem)", fontWeight: 800,
               lineHeight: 1.15, color: "#0f172a", letterSpacing: "-0.012em", margin: 0,
               textShadow: "0 2px 12px rgba(255,255,255,0.5)",
             }}>
@@ -176,44 +200,55 @@ export default function Hero() {
             </motion.h1>
 
             <motion.p variants={fadeUpVariant} style={{
-              maxWidth: 620, color: "#1e293b", fontSize: "1.18rem",
-              fontWeight: 500, lineHeight: 1.65, margin: 0,
+              maxWidth: 620, color: "#1e293b", fontSize: "clamp(0.9rem, 2.5vw, 1.18rem)",
+              fontWeight: 500, lineHeight: 1.55, margin: 0,
             }}>
               {settings.hero_subtitle || "Book appointments, consult top doctors, and manage your health digitally, all in one beautifully designed platform."}
             </motion.p>
 
-            <div style={{ display: "flex", gap: 16, flexWrap: "wrap", justifyContent: "center", marginTop: "8px" }}>
+            <div className="grid grid-cols-2 sm:flex sm:flex-wrap justify-center gap-2 sm:gap-3.5 mt-1 sm:mt-2 w-full">
               
-              {/* ── BOOK APPOINTMENT → opens modal ────────── */}
+              {/* ── BOOK APPOINTMENT ── */}
               <motion.button
                 variants={fadeUpVariant}
-                className="hbtn hbtn-primary"
+                className="hbtn hbtn-primary col-span-1 sm:flex-initial justify-center"
                 onClick={() => navigate("/book-appointment")}
               >
                 <FiCalendar /> Book Appointment
               </motion.button>
+
+              {/* ── HOME CONSULTATION ── */}
+              <motion.button
+                variants={fadeUpVariant}
+                className="hbtn hbtn-home col-span-1 sm:flex-initial justify-center"
+                onClick={() => navigate("/home-consultation")}
+              >
+                <FiHome /> Home Consultation
+              </motion.button>
               
-              {/* ── ONLINE CONSULTATION → navigates to virtual consult page ── */}
+              {/* ── ONLINE CONSULTATION ── */}
               <motion.button 
                 variants={fadeUpVariant} 
-                className="hbtn hbtn-glass"
+                className="hbtn hbtn-glass col-span-1 sm:flex-initial justify-center"
                 onClick={() => navigate("/online-consultation")}
               >
                 <FiMonitor style={{ color: "#10b981" }} /> Online Consultation
               </motion.button>
 
+              {/* ── WHATSAPP CHAT ── */}
               <motion.a
                 variants={fadeUpVariant}
-                className="hbtn hbtn-whatsapp"
+                className="hbtn hbtn-whatsapp col-span-1 sm:flex-initial justify-center"
                 href="https://wa.me/923008786187?text=Hello%20Physiohub%2C%20I%20want%20to%20inquire%20about%20your%20healthcare%20services."
                 target="_blank" rel="noopener noreferrer"
               >
                 <FaWhatsapp size="1.1rem" /> WhatsApp Chat
               </motion.a>
 
+              {/* ── CALL NOW / EMERGENCY ── */}
               <motion.a
                 variants={fadeUpVariant}
-                className="hbtn hbtn-emergency"
+                className="hbtn hbtn-emergency col-span-2 sm:col-span-1 sm:flex-initial justify-center"
                 href="tel:+923417388830"
               >
                 <FiPhoneCall /> Call Now / Emergency
@@ -221,6 +256,12 @@ export default function Hero() {
             </div>
           </motion.div>
         </div>
+
+        {/* Home Consultation Modal */}
+        <HomeConsultationModal
+          isOpen={homeModalOpen}
+          onClose={() => setHomeModalOpen(false)}
+        />
       </section>
     </>
   );

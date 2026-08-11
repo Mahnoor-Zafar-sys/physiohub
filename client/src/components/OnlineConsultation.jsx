@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Footer from "./Footer";
 import Navbar from "./Navbar";
+import SEOHead from "./SEOHead";
 import {
   FiVideo, FiPhone, FiMessageCircle, FiX,
   FiCalendar, FiCheck, FiUpload, FiShield,
@@ -236,6 +237,12 @@ export default function OnlineConsultation() {
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans antialiased text-slate-800 flex flex-col justify-between">
+      <SEOHead 
+        title="Online Physical Therapy Consultation Pakistan | Tele-Physio Lahore & Islamabad"
+        description="Book HD video physical therapy consultations online with expert physiotherapists in Lahore & Islamabad. Receive clinical diagnoses, exercise plans & authorized digital Rx."
+        keywords="online physical therapy Pakistan, tele physio Lahore, online doctor consultation Islamabad, virtual physio consultation Pakistan, online back pain consultation"
+        canonicalUrl="https://physiohub.com/online-consultation"
+      />
       <Navbar />
 
       {/* ── HERO SECTION ── */}
@@ -430,24 +437,31 @@ export default function OnlineConsultation() {
               style={{ maxHeight: "88vh" }}
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Header */}
-              <div className="p-6 border-b border-slate-150 flex items-center justify-between bg-slate-50/50">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-blue-500 flex items-center justify-center text-white flex-shrink-0">
-                    <TbStethoscope size={20} />
+              {/* Colorful Vibrant Header */}
+              <div className="p-6 border-b border-slate-200/50 flex items-center justify-between bg-gradient-to-r from-blue-900 via-indigo-900 to-sky-900 text-white relative overflow-hidden shrink-0 shadow-md">
+                <div className="absolute inset-0 opacity-20 pointer-events-none bg-[radial-gradient(circle_at_30%_20%,#38bdf8_0%,transparent_60%)]" />
+                <div className="flex items-center gap-3.5 relative z-10">
+                  <div className="w-12 h-12 rounded-2xl bg-white/15 border border-white/25 backdrop-blur-md flex items-center justify-center text-white flex-shrink-0 shadow-inner">
+                    <TbStethoscope size={22} className="text-sky-300 animate-pulse" />
                   </div>
                   <div>
-                    <h3 className="font-black text-slate-800 text-base leading-tight">Telehealth Consultation Wizard</h3>
-                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] font-black uppercase tracking-widest bg-emerald-400/20 text-emerald-300 border border-emerald-400/30 px-2.5 py-0.5 rounded-full">
+                        Live Telehealth
+                      </span>
+                    </div>
+                    <h3 className="font-black text-white text-lg tracking-tight leading-tight mt-0.5">Telehealth Consultation Wizard</h3>
+                    <p className="text-[11px] text-sky-200 font-semibold tracking-wide mt-0.5">
                       {booked ? "Completed" : `Step ${step} of 5 — ${step === 1 ? "Consult Channel" : step === 2 ? "Select Doctor" : step === 3 ? "Schedule" : step === 4 ? "Details" : "Payment"}`}
                     </p>
                   </div>
                 </div>
                 <button 
                   onClick={resetWizard} 
-                  className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center hover:bg-slate-200 transition-colors border-none cursor-pointer"
+                  className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors border-none cursor-pointer relative z-10 shrink-0 shadow-sm"
+                  aria-label="Close modal"
                 >
-                  <FiX size={16} className="text-slate-500" />
+                  <FiX size={18} />
                 </button>
               </div>
 

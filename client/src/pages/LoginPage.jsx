@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { FiShield, FiMail, FiLock, FiPhone, FiUser, FiArrowRight, FiAlertTriangle, FiEye, FiEyeOff } from "react-icons/fi";
 import { FaUserMd, FaHospitalUser } from "react-icons/fa";
 import { api } from "../services/api";
+import SEOHead from "../components/SEOHead";
 
 const TABS = [
   { id: "patient", label: "Patient", icon: FiUser, color: "#0ea5e9" },
@@ -171,9 +172,7 @@ export default function LoginPage() {
     <div className="space-y-7">
       {/* Logo & Title */}
       <div className="text-center">
-        <div className="w-14 h-14 mx-auto rounded-2xl flex items-center justify-center mb-4 shadow" style={{ background: "linear-gradient(135deg, #0ea5e9, #e91e8c)" }}>
-          <FiShield size={28} className="text-white" />
-        </div>
+        <img src="/logo.jpeg" alt="Vital Physio Hub Logo" className="w-16 h-16 mx-auto rounded-2xl object-contain bg-white p-1 mb-4 shadow border border-slate-200" />
         <h1 className="text-2xl font-black text-slate-900 tracking-tight">Welcome Back</h1>
         <p className="text-sm text-slate-500 mt-1.5 font-medium">
           Sign in to {clinics.find(c => String(c.id) === String(selectedClinicId))?.name || "Vital Physio Hub"}
@@ -439,6 +438,11 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden py-12" style={{ background: "linear-gradient(135deg, #fce4ec 0%, #e0f2fe 60%, #fdf4ff 100%)" }}>
+      <SEOHead 
+        title="Secure Portal Login | Physiohub Lahore & Islamabad"
+        description="Patient, Doctor, and Administrative portal login for Physiohub rehabilitation ecosystem in Lahore and Islamabad."
+        noindex={true}
+      />
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
         .login-card { font-family: 'Inter', system-ui, sans-serif; }

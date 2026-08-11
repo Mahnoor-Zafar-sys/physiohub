@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiMessageSquare, FiX, FiSend, FiCpu, FiInfo, FiActivity } from "react-icons/fi";
-import { FaUserMd, FaHospital, FaPhoneAlt } from "react-icons/fa";
+import { FaUserMd, FaHospital, FaPhoneAlt, FaWhatsapp } from "react-icons/fa";
 
 export default function AIChatbot() {
   const [isOpen, setIsOpen] = useState(false);
@@ -98,7 +98,7 @@ export default function AIChatbot() {
   };
 
   return (
-    <div className="fixed bottom-6 right-24 z-[200] font-sans text-left">
+    <div className="fixed bottom-4 sm:bottom-6 right-4 sm:right-6 z-[200] font-sans text-left flex flex-col items-end gap-3">
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -106,7 +106,7 @@ export default function AIChatbot() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
             transition={{ type: "spring", damping: 25, stiffness: 220 }}
-            className="w-[360px] sm:w-[400px] h-[550px] bg-white/90 backdrop-blur-md rounded-3xl border border-slate-200 shadow-2xl flex flex-col overflow-hidden mb-4"
+            className="w-[340px] sm:w-[400px] h-[520px] sm:h-[550px] bg-white/90 backdrop-blur-md rounded-3xl border border-slate-200 shadow-2xl flex flex-col overflow-hidden mb-1"
           >
             {/* Header */}
             <div className="p-4 bg-gradient-to-r from-sky-500 to-pink-500 text-white flex justify-between items-center relative">
@@ -236,45 +236,71 @@ export default function AIChatbot() {
         )}
       </AnimatePresence>
 
-      {/* Floating Toggle Button */}
-      <motion.button
-        whileHover={{ scale: 1.08 }}
-        whileTap={{ scale: 0.95 }}
-        onClick={() => setIsOpen(!isOpen)}
-        className="w-14 h-14 bg-gradient-to-br from-sky-500 to-pink-500 rounded-full flex items-center justify-center text-white border border-white/20 shadow-2xl relative cursor-pointer"
-        style={{
-          boxShadow: "0 10px 30px -5px rgba(233, 30, 140, 0.4), inset 0 2px 4px rgba(255,255,255,0.4)"
-        }}
-      >
-        <AnimatePresence mode="wait">
-          {isOpen ? (
-            <motion.div
-              key="close"
-              initial={{ rotate: -45, opacity: 0 }}
-              animate={{ rotate: 0, opacity: 1 }}
-              exit={{ rotate: 45, opacity: 0 }}
-              transition={{ duration: 0.15 }}
-            >
-              <FiX size={24} />
-            </motion.div>
-          ) : (
-            <motion.div
-              key="message"
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.8, opacity: 0 }}
-              transition={{ duration: 0.15 }}
-              className="flex items-center justify-center"
-            >
-              <FiMessageSquare size={24} />
-              {/* Sparkle badge */}
-              <div className="absolute -top-1 -right-1 w-5 h-5 bg-yellow-400 rounded-full flex items-center justify-center text-[10px] text-slate-900 border-2 border-white font-extrabold animate-bounce">
-                ✨
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.button>
+      {/* Vertical Stack of Floating Action Buttons */}
+      <div className="flex flex-col items-center gap-3">
+        {/* 1st Icon (Top): WhatsApp Button */}
+        <div className="relative flex items-center justify-center">
+          <div className="absolute w-14 h-14 bg-green-500 rounded-full animate-ping opacity-35 pointer-events-none" />
+          <motion.a
+            href="https://wa.me/923008786187?text=Hello%20Vital%20Physio%20Hub%2C%20I%20want%20to%20inquire%20about%20your%20physical%20therapy%20services."
+            target="_blank"
+            rel="noopener noreferrer"
+            whileHover={{ scale: 1.08 }}
+            whileTap={{ scale: 0.95 }}
+            className="relative w-14 h-14 bg-[#25D366] text-white rounded-full flex items-center justify-center shadow-2xl hover:bg-[#20ba5a] transition-colors cursor-pointer group"
+            style={{
+              boxShadow: "0 8px 24px -4px rgba(37, 211, 102, 0.45)"
+            }}
+            aria-label="WhatsApp Chat"
+          >
+            <FaWhatsapp size={28} />
+            <span className="absolute right-16 px-3 py-1.5 bg-slate-900 text-white text-xs font-bold rounded-xl whitespace-nowrap shadow-xl opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 pointer-events-none transition-all duration-200">
+              WhatsApp Chat
+            </span>
+          </motion.a>
+        </div>
+
+        {/* 2nd Icon (Bottom): AI Chatbot Message Button */}
+        <motion.button
+          whileHover={{ scale: 1.08 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => setIsOpen(!isOpen)}
+          className="w-14 h-14 bg-gradient-to-br from-sky-500 to-pink-500 rounded-full flex items-center justify-center text-white border border-white/20 shadow-2xl relative cursor-pointer"
+          style={{
+            boxShadow: "0 10px 30px -5px rgba(233, 30, 140, 0.4), inset 0 2px 4px rgba(255,255,255,0.4)"
+          }}
+          aria-label="AI Chat Assistant"
+        >
+          <AnimatePresence mode="wait">
+            {isOpen ? (
+              <motion.div
+                key="close"
+                initial={{ rotate: -45, opacity: 0 }}
+                animate={{ rotate: 0, opacity: 1 }}
+                exit={{ rotate: 45, opacity: 0 }}
+                transition={{ duration: 0.15 }}
+              >
+                <FiX size={24} />
+              </motion.div>
+            ) : (
+              <motion.div
+                key="message"
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.8, opacity: 0 }}
+                transition={{ duration: 0.15 }}
+                className="flex items-center justify-center"
+              >
+                <FiMessageSquare size={24} />
+                {/* Sparkle badge */}
+                <div className="absolute -top-1 -right-1 w-5 h-5 bg-yellow-400 rounded-full flex items-center justify-center text-[10px] text-slate-900 border-2 border-white font-extrabold animate-bounce">
+                  ✨
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.button>
+      </div>
     </div>
   );
 }

@@ -1098,6 +1098,7 @@
 // }
 
 import { useState, useRef, useEffect } from "react";
+import SEOHead from "../components/SEOHead";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import {
   FiSearch, FiShoppingCart, FiHeart, FiX, FiChevronLeft,
@@ -1691,6 +1692,12 @@ export default function EquipmentsStore({ onNavigate, onBookAppointment }) {
 
   return (
     <div className="min-h-screen bg-white font-sans">
+      <SEOHead 
+        title="Medical & Physical Therapy Equipment Store | Physiohub Lahore & Islamabad"
+        description="Buy & order certified medical, physical therapy, rehabilitation, and clinical equipment in Lahore (Gulberg, DHA) and Islamabad. TENS units, ultrasound therapy, traction tables & mobility aids."
+        keywords="physical therapy equipment Lahore, medical supplies Islamabad, buy rehabilitation equipment Pakistan, TENS machine Lahore, physio clinic supplies"
+        canonicalUrl="https://physiohub.com/equipments"
+      />
 
       {/* PRODUCT MODAL */}
       <AnimatePresence>

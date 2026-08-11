@@ -1,11 +1,18 @@
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import SEOHead from "../components/SEOHead";
 import { FiShield, FiLock, FiInfo, FiChevronRight } from "react-icons/fi";
 import { motion } from "framer-motion";
 
 export default function Privacy() {
   return (
     <div className="min-h-screen bg-slate-50 font-body select-none">
+      <SEOHead 
+        title="Privacy Policy & HIPAA Data Protection | Physiohub Pakistan"
+        description="Read Physiohub's privacy policy, medical data protection measures, patient confidentiality guarantees and HIPAA compliance protocols."
+        keywords="physiohub privacy policy, medical data privacy Pakistan, HIPAA patient privacy Lahore Islamabad"
+        canonicalUrl="https://physiohub.com/privacy"
+      />
       <Navbar />
 
       {/* --- HERO BANNER --- */}

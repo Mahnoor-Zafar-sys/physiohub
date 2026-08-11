@@ -8,6 +8,7 @@ import { HiSparkles } from "react-icons/hi";
 import { LuCoins, LuBookOpen, LuHospital, LuClock, LuRocket, LuHandshake, LuBriefcase, LuPartyPopper } from "react-icons/lu";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import SEOHead from "../components/SEOHead";
 import { api } from "../services/api";
 
 const THEME = {
@@ -181,6 +182,12 @@ export default function Careers({ onBookAppointment }) {
 
   return (
     <div className="min-h-screen font-sans" style={{ background: THEME.grad }}>
+      <SEOHead 
+        title="Careers & Medical Job Opportunities | Physiohub Lahore & Islamabad"
+        description="Join Physiohub's physical therapy & clinical team in Lahore (Gulberg, DHA) & Islamabad. Explore job openings for physiotherapists, clinical assistants & staff."
+        keywords="physiotherapy jobs Lahore, physical therapist careers Islamabad, clinical jobs Gulberg Lahore, healthcare vacancies Pakistan"
+        canonicalUrl="https://physiohub.com/careers"
+      />
       <Navbar onBookAppointment={onBookAppointment} />
 
       {/* Apply Modal */}

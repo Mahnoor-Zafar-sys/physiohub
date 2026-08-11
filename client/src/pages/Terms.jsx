@@ -1,11 +1,18 @@
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import SEOHead from "../components/SEOHead";
 import { FiFileText, FiAlertTriangle, FiCalendar, FiMapPin } from "react-icons/fi";
 import { motion } from "framer-motion";
 
 export default function Terms() {
   return (
     <div className="min-h-screen bg-slate-50 font-body select-none">
+      <SEOHead 
+        title="Terms & Conditions of Physical Therapy Services | Physiohub Pakistan"
+        description="Read Physiohub's terms and conditions for physical therapy consultations, appointment policies, cancellation rules, and digital prescription guidelines in Lahore & Islamabad."
+        keywords="physiohub terms conditions, physical therapy service terms Lahore, rehabilitation clinic policy Islamabad"
+        canonicalUrl="https://physiohub.com/terms"
+      />
       <Navbar />
 
       {/* --- HERO BANNER --- */}

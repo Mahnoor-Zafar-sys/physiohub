@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import SEOHead from "../components/SEOHead";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import {
   FiStar, FiCalendar, FiMessageCircle, FiVideo,
@@ -961,6 +962,12 @@ export default function DoctorsPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 font-body">
+      <SEOHead 
+        title="Top Physiotherapists & Rehabilitation Specialists in Lahore & Islamabad | Physiohub"
+        description="Find top physical therapists in Lahore (Gulberg, DHA) and Islamabad (Blue Area, F-7). Consult verified specialists for sports injury recovery, stroke rehab, spine & back pain therapy."
+        keywords="best physiotherapist Lahore, top physical therapist Islamabad, physio doctor Gulberg Lahore, rehabilitation specialist DHA Lahore, sports physio doctor Islamabad"
+        canonicalUrl="https://physiohub.com/doctors"
+      />
       <Navbar />
       {selected && <DoctorModal doctor={selected} onClose={() => setSelected(null)} />}
 

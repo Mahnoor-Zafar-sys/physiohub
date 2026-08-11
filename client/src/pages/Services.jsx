@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import SEOHead from "../components/SEOHead";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import {
   FiSearch, FiArrowRight, FiPhone, FiCalendar, FiX,
@@ -1640,6 +1641,12 @@ export default function ServicesPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 font-body">
+      <SEOHead 
+        title="Physical Therapy & Sports Rehabilitation Services in Lahore & Islamabad | Physiohub"
+        description="Comprehensive physical therapy services in Lahore (Gulberg, DHA) & Islamabad (Blue Area, F-7). Specialized treatments for back pain, joint mobilization, stroke rehabilitation, pediatric physio & dry needling."
+        keywords="physical therapy services Lahore, sports rehabilitation Islamabad, stroke recovery Lahore, pediatric physical therapy Islamabad, back pain relief Gulberg, dry needling DHA Lahore"
+        canonicalUrl="https://physiohub.com/services"
+      />
       <Navbar />
       {selected && <ServiceModal service={selected} onClose={() => setSelected(null)} />}
 

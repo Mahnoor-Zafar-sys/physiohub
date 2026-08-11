@@ -10,6 +10,7 @@ import { MdOutlineHealthAndSafety } from "react-icons/md";
 import { LuHospital, LuGlobe } from "react-icons/lu";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import SEOHead from "../components/SEOHead";
 import { api } from "../services/api";
 
 const THEME = {
@@ -252,6 +253,12 @@ export default function GalleryPage({ onBookAppointment }) {
 
   return (
     <div className="min-h-screen font-sans" style={{ background: THEME.grad }}>
+      <SEOHead 
+        title="Facility Virtual Tour & Patient Recovery Outcomes | Physiohub Lahore & Islamabad"
+        description="Explore 360 virtual tours of Physiohub physical therapy facilities, consultation suites & before/after patient recovery outcomes in Lahore & Islamabad."
+        keywords="physical therapy facility tour Lahore, rehab clinic pictures Islamabad, patient recovery outcomes Lahore, physio clinic photos DHA Lahore"
+        canonicalUrl="https://physiohub.com/gallery"
+      />
       <Navbar onBookAppointment={onBookAppointment} />
 
       {/* LIGHTBOX */}

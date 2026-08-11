@@ -8,6 +8,7 @@ import { HiSparkles } from "react-icons/hi";
 import { LuBuilding, LuHeart, LuShield, LuStar, LuHospital, LuCircle, LuContact, LuCircleCheck, LuStethoscope, LuFileText } from "react-icons/lu";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import SEOHead from "../components/SEOHead";
 
 const THEME = {
   pink:    "#e91e8c",
@@ -78,6 +79,12 @@ export default function Insurance({ onBookAppointment }) {
 
   return (
     <div className="min-h-screen font-sans" style={{ background: THEME.grad }}>
+      <SEOHead 
+        title="Insurance Panel Partners & Cashless Coverage | Physiohub Lahore & Islamabad"
+        description="Physiohub accepts leading insurance panels (State Life, Jubilee, EFU, Adamjee, TPL). Cashless physical therapy treatments & reimbursement support in Lahore & Islamabad."
+        keywords="physiotherapy insurance coverage Lahore, insurance panel physical therapy Islamabad, Jubilee health physio Lahore, State life panel clinic Islamabad"
+        canonicalUrl="https://physiohub.com/insurance"
+      />
       <Navbar onBookAppointment={onBookAppointment} />
 
       {/* HERO SECTION */}

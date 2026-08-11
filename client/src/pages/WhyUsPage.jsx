@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import SEOHead from "../components/SEOHead";
 import { api } from "../services/api";
 import { 
   FiAward, FiShield, FiActivity, FiDollarSign, FiVideo, 
@@ -115,6 +116,12 @@ export default function WhyUsPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 font-body select-none">
+      <SEOHead 
+        title="Why Choose Physiohub | Best Rehabilitation Clinic in Lahore & Islamabad"
+        description="Discover why Physiohub is the leading physical therapy choice in Lahore (Gulberg, DHA) and Islamabad. Experienced certified physiotherapists, 24/7 emergency care, JCI protocols & affordable fees."
+        keywords="best physical therapy clinic Lahore, top rehabilitation center Islamabad, why choose physiohub, JCI certified physio clinic Pakistan"
+        canonicalUrl="https://physiohub.com/why-us"
+      />
       <Navbar />
 
       {styleInjection()}

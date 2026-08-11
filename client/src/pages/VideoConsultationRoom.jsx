@@ -6,6 +6,7 @@ import {
   FiSend, FiDownload, FiFileText, FiActivity, FiUser, FiInfo, FiShield 
 } from "react-icons/fi";
 import Navbar from "../components/Navbar";
+import SEOHead from "../components/SEOHead";
 
 export default function VideoConsultationRoom() {
   const navigate = useNavigate();
@@ -139,6 +140,11 @@ export default function VideoConsultationRoom() {
 
   return (
     <div className="min-h-screen bg-slate-900 font-body select-none text-slate-100 flex flex-col justify-between">
+      <SEOHead 
+        title="HD Telemedicine & Video Consultation Room | Physiohub"
+        description="Encrypted virtual physical therapy consultation room & online medical diagnosis portal."
+        noindex={true}
+      />
       <Navbar />
 
       <style dangerouslySetInnerHTML={{__html: `
@@ -312,7 +318,7 @@ export default function VideoConsultationRoom() {
               <div className="text-left">
                 <h2 className="text-2xl font-black tracking-tight text-slate-900">VITAL PHYSIO HUB</h2>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">Advanced Rehabilitation & Physio</p>
-                <p className="text-xs text-slate-500 mt-2">Plaza 56, Block L, Blue Area, Islamabad</p>
+                <p className="text-xs text-slate-500 mt-2">2nd Floor Allegiance Tower, New Blue Area, Islamabad</p>
                 <p className="text-xs text-slate-500">Helpline: +92 (51) 111-911-273</p>
               </div>
               <div className="text-right">

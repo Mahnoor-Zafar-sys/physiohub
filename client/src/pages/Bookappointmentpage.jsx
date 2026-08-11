@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import Navbar from "../components/Navbar";
+import SEOHead from "../components/SEOHead";
 import {
   FiCalendar, FiClock, FiUser, FiPhone, FiMail,
   FiCheck, FiMapPin, FiChevronDown,
@@ -423,7 +424,7 @@ function SuccessView({ doctor, day, time, consultType, form }) {
     startFormat = `${apptDate.getFullYear()}${pad(apptDate.getMonth() + 1)}${pad(apptDate.getDate())}T${pad(apptDate.getHours())}${pad(apptDate.getMinutes())}00`;
     const endDate = new Date(apptDate.getTime() + 30 * 60 * 1000);
     endFormat = `${endDate.getFullYear()}${pad(endDate.getMonth() + 1)}${pad(endDate.getDate())}T${pad(endDate.getHours())}${pad(endDate.getMinutes())}00`;
-    googleCalendarUrl = `https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(`Appointment with ${doctor.name}`)}&dates=${startFormat}/${endFormat}&details=${encodeURIComponent(`Consultation with ${doctor.name}\nPatient: ${form.name}\nRef: ${bookingRef}\nMode: ${consultType}`)}&location=${encodeURIComponent(consultType === "in-person" ? "Vital Physio Hub, Plaza 56, Block L, Blue Area, Islamabad" : "Online HD Video Consult")}`;
+    googleCalendarUrl = `https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(`Appointment with ${doctor.name}`)}&dates=${startFormat}/${endFormat}&details=${encodeURIComponent(`Consultation with ${doctor.name}\nPatient: ${form.name}\nRef: ${bookingRef}\nMode: ${consultType}`)}&location=${encodeURIComponent(consultType === "in-person" ? "Vital Physio Hub, 2nd Floor Allegiance Tower, New Blue Area, Islamabad" : "Online HD Video Consult")}`;
   } catch (err) {
     console.error("Error generating calendar links:", err);
   }
@@ -436,7 +437,7 @@ function SuccessView({ doctor, day, time, consultType, form }) {
         `UID:${bookingRef}-${Date.now()}@vitalphysiohub.com`,
         `SUMMARY:Doctor Appointment: ${doctor.name}`,
         `DESCRIPTION:Your appointment is scheduled with ${doctor.name} (${doctor.specialty}). Patient: ${form.name}. Reference: ${bookingRef}.`,
-        `LOCATION:${consultType === "in-person" ? "Vital Physio Hub, Plaza 56, Block L, Blue Area, Islamabad" : "Online Video Consult"}`,
+        `LOCATION:${consultType === "in-person" ? "Vital Physio Hub, 2nd Floor Allegiance Tower, New Blue Area, Islamabad" : "Online Video Consult"}`,
         `DTSTART:${startFormat}`, `DTEND:${endFormat}`,
         "END:VEVENT", "END:VCALENDAR"
       ].join("\n");
@@ -839,6 +840,12 @@ export default function BookAppointmentPage() {
      ═══════════════════════════════════════════════════════ */
   return (
     <div style={{ minHeight: "100vh", fontFamily: "'Inter', 'Segoe UI', sans-serif", background: "#f8fafc" }}>
+      <SEOHead 
+        title="Book Physical Therapy Appointment in Lahore & Islamabad | Physiohub"
+        description="Schedule a physical therapy consultation in Lahore (Gulberg, DHA) or Islamabad (Blue Area, F-7). Select your preferred physiotherapist, date, slot & clinic location online."
+        keywords="book physical therapy Lahore, physio appointment Islamabad, physical therapist consultation Gulberg, book physio DHA Lahore, online appointment Lahore physio"
+        canonicalUrl="https://physiohub.com/book-appointment"
+      />
       <Navbar />
 
       {/* ════════════════════════════════════════════════════
@@ -1403,7 +1410,7 @@ export default function BookAppointmentPage() {
                     <FiMapPin size={16} style={{ color: "#0ea5e9" }} /> Our Location
                   </h3>
                   <p style={{ fontSize: 14, color: "#64748b", margin: 0 }}>
-                    Plaza 56, Block L, Blue Area,<br />Islamabad, Pakistan
+                    2nd Floor Allegiance Tower, New Blue Area,<br />Islamabad, Pakistan
                   </p>
                 </div>
                 <div>

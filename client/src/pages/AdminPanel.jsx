@@ -11,6 +11,7 @@ import { FaUserMd, FaHospitalUser, FaUserCog, FaCreditCard, FaPrint } from "reac
 import { MdOutlineHealthAndSafety, MdVerifiedUser } from "react-icons/md";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import SEOHead from "../components/SEOHead";
 import { api } from "../services/api";
 
 export default function AdminPanel() {
@@ -1109,6 +1110,11 @@ export default function AdminPanel() {
 
   return (
     <div className="min-h-screen font-sans flex flex-col justify-between" style={{ background: "linear-gradient(135deg, #fce4ec 0%, #e0f2fe 60%, #fdf4ff 100%)" }}>
+      <SEOHead 
+        title="Administrative Secure Portal & Reception Terminal | Physiohub"
+        description="Executive administration, reception queue management, staff management and clinic diagnostics dashboard."
+        noindex={true}
+      />
       <Navbar />
 
       <div className="flex-grow pt-28 pb-16 px-4">

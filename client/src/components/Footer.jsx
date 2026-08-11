@@ -61,14 +61,14 @@ export default function Footer() {
   const [settings, setSettings] = useState({
     clinic_phone: "+92 300 8786187",
     clinic_email: "jellaniphysio@gmail.com",
-    clinic_address: "Plaza 56, Block L, Blue Area, Islamabad"
+    clinic_address: "2nd Floor Allegiance Tower, New Blue Area, Islamabad"
   });
 
   useEffect(() => {
     let active = true;
     api.getSettings().then(res => {
       if (res && active) {
-        setSettings(prev => ({ ...prev, ...res }));
+        setSettings(prev => ({ ...prev, ...res, clinic_address: "2nd Floor Allegiance Tower, New Blue Area, Islamabad" }));
       }
     });
     return () => { active = false; };
@@ -82,9 +82,11 @@ export default function Footer() {
           {/* Brand & Left Details */}
           <div className="col-span-2 md:col-span-3 lg:col-span-2">
             <div className="flex items-center gap-3 mb-5">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#1e3a8a] to-[#0ea5e9] flex items-center justify-center shadow-md shadow-blue-500/10">
-                <MdLocalHospital className="text-white text-xl" />
-              </div>
+              <img
+                src="/logo.jpeg"
+                alt="Physiohub Logo"
+                className="w-14 h-14 object-contain rounded-xl bg-white p-1 shadow-md border border-slate-700/60"
+              />
               <div>
                 <span className="text-white font-display font-black text-xl tracking-tight">
                   Physio<span style={{ background: "linear-gradient(90deg, #38bdf8, #f472b6)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>hub</span>

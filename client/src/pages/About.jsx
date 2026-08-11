@@ -3,6 +3,7 @@ import { useRef, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import SEOHead from "../components/SEOHead";
 import { api } from "../services/api";
 import {
   FiArrowRight, FiCheckCircle, FiChevronRight,
@@ -278,6 +279,12 @@ export default function About() {
 
   return (
     <div className="min-h-screen bg-[#f8f9fb] text-slate-800 antialiased font-sans selection:bg-blue-600 selection:text-white">
+      <SEOHead 
+        title="About Physiohub | Leading Physical Therapy & Rehabilitation Center in Lahore & Islamabad"
+        description="Learn about Physiohub's state-of-the-art physical therapy facilities, JCI-aligned protocols, ISO certified labs, and top rehabilitation specialists in Lahore & Islamabad."
+        keywords="about physiohub, rehabilitation center Lahore, physical therapy clinic Islamabad, physiotherapist qualifications Lahore, sports rehab facility Islamabad"
+        canonicalUrl="https://physiohub.com/about"
+      />
       <Navbar />
       <style>{`
         @keyframes marquee {

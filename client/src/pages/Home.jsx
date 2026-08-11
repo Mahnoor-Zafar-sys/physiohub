@@ -10,6 +10,7 @@ import WhyUs from "../components/WhyUs";
 import Doctors from "../components/Doctors";
 import Testimonials from "../components/Testimonials";
 import Footer from "../components/Footer";
+import SEOHead from "../components/SEOHead";
 
 export default function Home() {
   const whatsappNumber = "923008786187";
@@ -32,6 +33,12 @@ export default function Home() {
 
   return (
     <div className="min-h-screen font-body relative" style={{ background: "linear-gradient(135deg, #fce4ec 0%, #e0f2fe 60%, #fdf4ff 100%)" }}>
+      <SEOHead 
+        title="Physiohub | Best Physical Therapy & Rehabilitation Clinic in Lahore & Islamabad"
+        description="Leading physical therapy & rehabilitation clinic in Lahore (Gulberg, DHA) & Islamabad (Blue Area, F-7). Expert treatment for back pain, sports injuries, stroke rehab & pediatric physical therapy."
+        keywords="physical therapy clinic Lahore, physical therapy Islamabad, best physiotherapist Lahore, physio clinic Islamabad, sports rehabilitation Lahore, back pain treatment Islamabad, pediatric physiotherapy Lahore, stroke recovery Islamabad, physiohub Pakistan"
+        canonicalUrl="https://physiohub.com/"
+      />
       <AnimatePresence>
         {showNavbar && (
           <motion.div
@@ -98,26 +105,6 @@ export default function Home() {
       <Doctors />
       <Testimonials />
       <Footer />
-
-      <div className="fixed bottom-6 right-6 z-50 flex items-center justify-center">
-        <div className="absolute w-16 h-16 bg-green-500 rounded-full animate-ping opacity-40 pointer-events-none" />
-        <motion.a
-          href={`https://wa.me/${whatsappNumber}?text=${welcomeMessage}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.95 }}
-          initial={{ opacity: 0, scale: 0.6 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ type: "spring", stiffness: 260, damping: 20 }}
-          className="relative w-16 h-16 bg-[#25D366] text-white rounded-full flex items-center justify-center shadow-2xl hover:bg-[#20ba5a] transition-colors cursor-pointer group"
-        >
-          <FaWhatsapp size={36} />
-          <span className="absolute right-20 px-3 py-1.5 bg-slate-900 text-white text-xs font-bold rounded-xl whitespace-nowrap shadow-xl opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 pointer-events-none transition-all duration-200">
-            Chat With Us
-          </span>
-        </motion.a>
-      </div>
     </div>
   );
 }

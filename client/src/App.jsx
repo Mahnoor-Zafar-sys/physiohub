@@ -34,6 +34,7 @@ import CookiePolicy from "./pages/CookiePolicy";
 import NewsArticlePage from "./pages/NewsArticlePage";
 import Shop from "./pages/Shop";
 import Insurance from "./pages/Insurance";
+import HomeConsultationPage from "./pages/HomeConsultationPage";
 
 function DashboardRedirect() {
   const role = localStorage.getItem("vph_user_role");
@@ -71,6 +72,7 @@ export default function App() {
           </AuthGuard>
         } />
         <Route path="/online-consultation" element={<OnlineConsultation />} />
+        <Route path="/home-consultation" element={<HomeConsultationPage />} />
         <Route path="/reviews" element={<Reviews />} />
         <Route path="/gallery" element={<GalleryPage />} />
         <Route path="/blog" element={<Blog />} />

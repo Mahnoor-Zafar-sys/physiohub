@@ -9,6 +9,7 @@ import { FaPrint, FaRegClipboard } from "react-icons/fa";
 import { MdOutlineHealthAndSafety, MdLocalHospital } from "react-icons/md";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import SEOHead from "../components/SEOHead";
 import { api } from "../services/api";
 
 export default function Shop() {
@@ -279,6 +280,12 @@ export default function Shop() {
 
   return (
     <div className="min-h-screen font-sans flex flex-col justify-between" style={{ background: "linear-gradient(135deg, #fce4ec 0%, #e0f2fe 60%, #fdf4ff 100%)" }}>
+      <SEOHead 
+        title="Physical Therapy & Medical Equipment Store | Physiohub Pakistan"
+        description="Buy certified physical therapy equipment, rehabilitation bands, TENS machines, spine supports & posture correctors with home delivery in Lahore & Islamabad."
+        keywords="physical therapy equipment store Lahore, medical rehab supplies Islamabad, posture corrector Pakistan, TENS machine Lahore, physio store Pakistan"
+        canonicalUrl="https://physiohub.com/shop"
+      />
       <Navbar />
 
       <style dangerouslySetInnerHTML={{__html: `
@@ -727,10 +734,10 @@ export default function Shop() {
                 <div className="flex justify-between items-start border-b-2 border-slate-100 pb-5 mb-6 text-left">
                   <div>
                     <h3 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-1.5">
-                      <MdLocalHospital className="text-blue-600 shrink-0" /> VITAL PHYSIO HUB
+                      <img src="/logo.jpeg" alt="Logo" className="w-7 h-7 object-contain rounded-md shrink-0 inline-block border border-slate-200" /> VITAL PHYSIO HUB
                     </h3>
                     <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Physiotherapy & Rehab E-commerce</p>
-                    <p className="text-xs text-slate-500 mt-2">Plaza 56, Block L, Blue Area, Islamabad</p>
+                    <p className="text-xs text-slate-500 mt-2">2nd Floor Allegiance Tower, New Blue Area, Islamabad</p>
                   </div>
                   <div className="text-right">
                     <h4 className="font-extrabold text-xs text-slate-800 bg-emerald-50 text-emerald-700 border border-emerald-100 px-2.5 py-0.5 rounded-full inline-block">Order Placed</h4>

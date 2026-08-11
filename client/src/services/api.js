@@ -992,14 +992,17 @@ export const api = {
       return res;
     }
     const local = localStorage.getItem("pc_settings");
-    return local ? JSON.parse(local) : {
+    const parsed = local ? JSON.parse(local) : {};
+    return {
       clinic_phone: "+92 300 8786187",
       clinic_email: "info@vitalphysiohub.com",
-      clinic_address: "First Floor, Building 14-B, Main Boulevard, Gulberg, Lahore, Pakistan",
+      clinic_address: "2nd Floor Allegiance Tower, New Blue Area, Islamabad",
       clinic_hours: "Mon - Sat: 09:00 AM - 09:00 PM",
       ambulance_phone: "+92 (51) 111-911-273",
       why_us_headline: "Why Choose Vital Physio Hub?",
-      why_us_description: "We combine gold-standard physical adjustments with dynamic clinical technologies to ensure faster, safer, and complete muscular rehabilitation."
+      why_us_description: "We combine gold-standard physical adjustments with dynamic clinical technologies to ensure faster, safer, and complete muscular rehabilitation.",
+      ...parsed,
+      clinic_address: "2nd Floor Allegiance Tower, New Blue Area, Islamabad"
     };
   },
 

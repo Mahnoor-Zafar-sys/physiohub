@@ -5,6 +5,7 @@ import { FiUser, FiCalendar, FiClock, FiFileText, FiActivity, FiList, FiExternal
 import { FaUserMd, FaWhatsapp } from "react-icons/fa";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import SEOHead from "../components/SEOHead";
 import { api } from "../services/api";
 
 export default function DoctorPortal() {
@@ -218,6 +219,11 @@ export default function DoctorPortal() {
 
   return (
     <div className="min-h-screen font-sans flex flex-col justify-between" style={{ background: "linear-gradient(135deg, #fce4ec 0%, #e0f2fe 60%, #fdf4ff 100%)" }}>
+      <SEOHead 
+        title="Doctor Clinical Terminal & Patient Queue | Physiohub"
+        description="Specialist clinical portal, consultation queue management and prescription generation."
+        noindex={true}
+      />
       <Navbar />
 
       <div className="flex-grow pt-28 pb-16 px-4">
