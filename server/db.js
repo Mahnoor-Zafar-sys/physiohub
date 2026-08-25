@@ -7,7 +7,8 @@ const poolConfig = {
   database: process.env.DB_NAME || "vital_physio_hub",
   connectionLimit: 150,
   queueLimit: 0,
-  waitForConnections: true
+  waitForConnections: true,
+  connectTimeout: 2000
 };
 
 let pool;

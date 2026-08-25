@@ -1774,20 +1774,20 @@ const faqs = [
 // ── Branch Data ───────────────────────────────────────────────────────────────
 const branches = [
   {
-    name: "Main Branch – Gulberg",
-    address: "123 Medical Avenue, Gulberg III, Lahore",
-    phone: "+92 300 123 4567",
+    name: "Main Branch – Blue Area, Islamabad",
+    address: "2nd Floor Allegiance Tower, New Blue Area, Islamabad",
+    phone: "+92 300 8786187",
     hours: "Mon–Sat: 9AM–9PM",
     emergency: "24/7 Emergency",
-    mapSrc: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3402.3!2d74.3587!3d31.5204!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzHCsDMxJzEzLjQiTiA3NMKwMjEnMzEuMyJF!5e0!3m2!1sen!2s!4v1234567890",
+    mapSrc: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3318.8!2d73.0551!3d33.7217!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzPCsDQzJzE4LjIiTiA3M8KwMDMnMTguNCJF!5e0!3m2!1sen!2s!4v1234567890",
   },
   {
-    name: "Branch 2 – DHA",
-    address: "45 Healthcare Blvd, DHA Phase 5, Lahore",
-    phone: "+92 300 765 4321",
+    name: "Branch 2 – DHA Phase 2, Islamabad",
+    address: "Central Commercial Plaza, DHA Phase 2, Islamabad",
+    phone: "+92 300 8786187",
     hours: "Mon–Sat: 10AM–8PM",
     emergency: "Emergency Referral",
-    mapSrc: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3402.3!2d74.3587!3d31.5204!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzHCsDMxJzEzLjQiTiA3NMKwMjEnMzEuMyJF!5e0!3m2!1sen!2s!4v1234567890",
+    mapSrc: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3318.8!2d73.0551!3d33.7217!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzPCsDQzJzE4LjIiTiA3M8KwMDMnMTguNCJF!5e0!3m2!1sen!2s!4v1234567890",
   },
 ];
 
@@ -1952,9 +1952,9 @@ export default function ContactUs() {
     <div className="min-h-screen font-body relative"
       style={{ background: "linear-gradient(135deg, #f0f9ff 0%, #ffffff 50%, #fdf2f8 100%)" }}>
       <SEOHead 
-        title="Contact Physiohub | Physical Therapy Clinics in Lahore & Islamabad"
-        description="Contact Physiohub rehabilitation clinics in Lahore (Main Boulevard Gulberg & DHA Phase 5) and Islamabad (Sector F-7, Blue Area). Call, email or visit us for physical therapy consultations."
-        keywords="contact physiohub, physio clinic address Lahore, physical therapy clinic Islamabad location, Gulberg physio contact, DHA Lahore physical therapist phone"
+        title="Contact Vital Physio Hub | Physical Therapy Clinics in Islamabad"
+        description="Contact Vital Physio Hub rehabilitation clinics in Islamabad (Blue Area, F-8 Markaz & DHA Phase 2). Call, email or visit us for physical therapy consultations."
+        keywords="contact physiohub Islamabad, physio clinic address Islamabad, physical therapy clinic Blue Area Islamabad, DHA Islamabad physical therapist phone"
         canonicalUrl="https://physiohub.com/contact"
       />
       <Navbar />

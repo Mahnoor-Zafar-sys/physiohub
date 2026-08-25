@@ -7,7 +7,6 @@ import {
 import { HiSparkles } from "react-icons/hi";
 import { LuMailOpen } from "react-icons/lu";
 import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
 import SEOHead from "../components/SEOHead";
 import { api } from "../services/api";
 
@@ -312,9 +311,9 @@ export default function Blog({ onBookAppointment }) {
   return (
     <div className="min-h-screen font-sans" style={{ background: THEME.grad }}>
       <SEOHead 
-        title="Physical Therapy & Health Recovery Blog | Physiohub Lahore & Islamabad"
-        description="Read expert physical therapy articles, injury prevention guides, back pain treatment tips & stroke rehabilitation advice by top specialists in Lahore & Islamabad."
-        keywords="physical therapy blog Pakistan, back pain tips Lahore, sports injury rehabilitation guide Islamabad, stroke recovery advice physio, posture exercise blog"
+        title="Physical Therapy & Health Recovery Blog | Vital Physio Hub Islamabad"
+        description="Read expert physical therapy articles, injury prevention guides, back pain treatment tips & stroke rehabilitation advice by top specialists in Islamabad."
+        keywords="physical therapy blog Pakistan, back pain tips Islamabad, sports injury rehabilitation guide Islamabad, stroke recovery advice physio, posture exercise blog"
         canonicalUrl="https://physiohub.com/blog"
       />
       <Navbar onBookAppointment={onBookAppointment} />
@@ -425,7 +424,7 @@ export default function Blog({ onBookAppointment }) {
         </motion.div>
       </section>
 
-      <Footer />
+      
     </div>
   );
 }

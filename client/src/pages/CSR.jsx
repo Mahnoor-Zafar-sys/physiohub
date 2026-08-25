@@ -1,5 +1,4 @@
 import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
 import SEOHead from "../components/SEOHead";
 import { motion } from "framer-motion";
 import { FiHeart, FiActivity, FiGlobe, FiUsers, FiAward } from "react-icons/fi";
@@ -43,9 +42,9 @@ export default function CSR() {
   return (
     <div className="min-h-screen bg-slate-50 font-body select-none">
       <SEOHead 
-        title="Community Health & CSR Programs | Physiohub Lahore & Islamabad"
-        description="Learn about Physiohub's community service programs: free health camps, subsidized physical therapy, rural tele-physio booths & patient welfare funds in Lahore & Islamabad."
-        keywords="physiohub CSR programs Pakistan, free health camp Lahore, community physical therapy Islamabad, patient welfare fund physio"
+        title="Community Health & CSR Programs | Vital Physio Hub Islamabad"
+        description="Learn about Vital Physio Hub's community service programs: free health camps, subsidized physical therapy, rural tele-physio booths & patient welfare funds in Islamabad."
+        keywords="physiohub CSR programs Pakistan, free health camp Islamabad, community physical therapy Islamabad, patient welfare fund physio"
         canonicalUrl="https://physiohub.com/csr"
       />
       <Navbar />
@@ -174,7 +173,7 @@ export default function CSR() {
         </div>
       </section>
 
-      <Footer />
+      
     </div>
   );
 }

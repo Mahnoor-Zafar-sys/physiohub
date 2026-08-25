@@ -10,7 +10,6 @@ import {
 import { FaUserMd, FaHospitalUser, FaUserCog, FaCreditCard, FaPrint, FaBriefcaseMedical } from "react-icons/fa";
 import { MdOutlineHealthAndSafety, MdVerifiedUser } from "react-icons/md";
 import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
 import SEOHead from "../components/SEOHead";
 import { api } from "../services/api";
 
@@ -35,7 +34,7 @@ const INITIAL_PRESCRIPTIONS = [
 
 const INITIAL_APPOINTMENTS = [
   { id: "PC-88201", doctor: "Dr. Sarah Ahmed", date: "15 Jun, 2026", time: "04:30 PM", type: "Video Consultation", branch: "Online", status: "Confirmed", patient: "Jane Doe" },
-  { id: "PC-88202", doctor: "Dr. Omar Farooq", date: "18 Jun, 2026", time: "11:30 AM", type: "In-Person Visit", branch: "Gulberg Branch", status: "Pending", patient: "Jane Doe" }
+  { id: "PC-88202", doctor: "Dr. Omar Farooq", date: "18 Jun, 2026", time: "11:30 AM", type: "In-Person Visit", branch: "F-8 Markaz, Islamabad", status: "Pending", patient: "Jane Doe" }
 ];
 
 const INITIAL_INVOICES = [
@@ -44,9 +43,9 @@ const INITIAL_INVOICES = [
 ];
 
 const INITIAL_DOCTORS = [
-  { id: 1, name: "Dr. Sarah Ahmed", specialty: "Skin & Dermatology", fee: "₨ 3,000", branch: "Gulberg, DHA", status: "Active" },
-  { id: 2, name: "Dr. Omar Farooq", specialty: "Dental Care", fee: "₨ 2,500", branch: "Gulberg", status: "Active" },
-  { id: 3, name: "Dr. Fatima Malik", specialty: "Gynecology & Obstetrics", fee: "₨ 3,500", branch: "DHA", status: "Active" }
+  { id: 1, name: "Dr. Sarah Ahmed", specialty: "Skin & Dermatology", fee: "₨ 3,000", branch: "Blue Area, Islamabad", status: "Active" },
+  { id: 2, name: "Dr. Omar Farooq", specialty: "Dental Care", fee: "₨ 2,500", branch: "F-8 Markaz, Islamabad", status: "Active" },
+  { id: 3, name: "Dr. Fatima Malik", specialty: "Gynecology & Obstetrics", fee: "₨ 3,500", branch: "DHA Phase 2, Islamabad", status: "Active" }
 ];
 
 export default function Dashboard() {
@@ -81,7 +80,7 @@ export default function Dashboard() {
   const [checkoutCard, setCheckoutCard] = useState({ number: "", expiry: "", cvc: "" });
   const [rescheduleAppt, setRescheduleAppt] = useState(null);
   const [rescheduleData, setRescheduleData] = useState({ date: "", time: "09:00 AM" });
-  const [newDoctor, setNewDoctor] = useState({ name: "", specialty: "", fee: "", branch: "Gulberg", image: "", experience: "", title: "" });
+  const [newDoctor, setNewDoctor] = useState({ name: "", specialty: "", fee: "", branch: "Blue Area, Islamabad", image: "", experience: "", title: "" });
   const [articleForm, setArticleForm] = useState({ title: "", excerpt: "", content: "", category: "General Health", image: "" });
   const [adminDocFilter, setAdminDocFilter] = useState("all");
   const [adminPatientSearch, setAdminPatientSearch] = useState("");
@@ -327,7 +326,7 @@ export default function Dashboard() {
         const docs = await api.getDoctors();
         setDoctorsList(docs);
         addSystemLog(`New specialist ${docName} registered under ${newDoctor.specialty}.`);
-        setNewDoctor({ name: "", specialty: "", fee: "", branch: "Gulberg", image: "", experience: "", title: "" });
+        setNewDoctor({ name: "", specialty: "", fee: "", branch: "Blue Area, Islamabad", image: "", experience: "", title: "" });
         alert("New specialist added to registry!");
       }
     }
@@ -769,7 +768,7 @@ export default function Dashboard() {
                       <p><span className="text-slate-400">Blood Pressure:</span> 120/80 mmHg</p>
                       <p><span className="text-slate-400">Heart Rate:</span> 72 bpm</p>
                       <p><span className="text-slate-400">Blood Sugar:</span> 95 mg/dL</p>
-                      <p><span className="text-slate-400">Primary Branch:</span> Gulberg Center</p>
+                      <p><span className="text-slate-400">Primary Branch:</span> Blue Area, Islamabad</p>
                     </div>
                   </div>
 
@@ -1248,10 +1247,10 @@ export default function Dashboard() {
 
                   <div className="space-y-4 max-w-md">
                     {[
-                      { day: "Monday", time: "10:00 AM – 2:00 PM", branch: "Gulberg Branch" },
-                      { day: "Wednesday", time: "3:00 PM – 7:00 PM", branch: "DHA Branch" },
-                      { day: "Friday", time: "10:00 AM – 1:00 PM", branch: "Gulberg Branch" },
-                      { day: "Saturday", time: "4:00 PM – 8:00 PM", branch: "DHA Branch" },
+                      { day: "Monday", time: "10:00 AM – 2:00 PM", branch: "Blue Area Branch" },
+                      { day: "Wednesday", time: "3:00 PM – 7:00 PM", branch: "F-8 Markaz Branch" },
+                      { day: "Friday", time: "10:00 AM – 1:00 PM", branch: "Blue Area Branch" },
+                      { day: "Saturday", time: "4:00 PM – 8:00 PM", branch: "DHA Phase 2 Branch" },
                     ].map((slot, idx) => (
                       <div key={idx} className="border border-slate-100 rounded-2xl p-4 flex justify-between items-center bg-slate-50">
                         <div>
@@ -1422,7 +1421,7 @@ export default function Dashboard() {
                             required
                             value={newDoctor.branch}
                             onChange={e => setNewDoctor({...newDoctor, branch: e.target.value})}
-                            placeholder="e.g. Gulberg, DHA" 
+                            placeholder="e.g. Blue Area, Islamabad" 
                             className="w-full border border-slate-200 bg-white rounded-xl p-2.5 text-xs outline-none focus:border-pink-400"
                           />
                         </div>
@@ -1867,7 +1866,7 @@ export default function Dashboard() {
 
       </div>
 
-      <Footer />
+      
 
       {/* Full Screenshot Preview Modal */}
       <AnimatePresence>

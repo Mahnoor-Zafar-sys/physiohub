@@ -8,7 +8,6 @@ import { FaWhatsapp, FaStar, FaRegStar, FaStarHalfAlt, FaQuoteLeft, FaGoogle } f
 import { HiOutlineBadgeCheck, HiSparkles } from "react-icons/hi";
 import { MdVerified } from "react-icons/md";
 import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
 import SEOHead from "../components/SEOHead";
 import { api } from "../services/api";
 
@@ -316,9 +315,9 @@ export default function Reviews({ onBookAppointment }) {
   return (
     <div className="min-h-screen font-sans" style={{ background: THEME.grad }}>
       <SEOHead 
-        title="Verified Patient Reviews & Recovery Outcomes | Physiohub Lahore & Islamabad"
-        description="Read real patient reviews, video testimonials & verified treatment outcomes for back pain recovery, stroke rehab & physical therapy at Physiohub in Lahore & Islamabad."
-        keywords="physiotherapy patient reviews Lahore, best physical therapist reviews Islamabad, stroke recovery testimonials Lahore, back pain treatment success stories"
+        title="Verified Patient Reviews & Recovery Outcomes | Vital Physio Hub Islamabad"
+        description="Read real patient reviews, video testimonials & verified treatment outcomes for back pain recovery, stroke rehab & physical therapy at Vital Physio Hub in Islamabad."
+        keywords="physiotherapy patient reviews Islamabad, best physical therapist reviews Islamabad, stroke recovery testimonials Islamabad, back pain treatment success stories"
         canonicalUrl="https://physiohub.com/reviews"
       />
       <Navbar onBookAppointment={onBookAppointment} />
@@ -534,7 +533,7 @@ export default function Reviews({ onBookAppointment }) {
         )}
       </AnimatePresence>
 
-      <Footer />
+      
     </div>
   );
 }

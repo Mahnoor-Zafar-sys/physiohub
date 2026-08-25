@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
 import SEOHead from "../components/SEOHead";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import {
@@ -796,48 +795,10 @@ import { api } from "../services/api";
 //       {/* Cards Grid */}
 //       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
 //         <div className="flex items-center justify-between mb-7">
-//           <div>
-//             <h2 className="text-xl font-extrabold text-slate-900">
-//               {activeTag === "all" ? "All Services" : TAGS.find(t => t.value === activeTag)?.label}
-//             </h2>
-//             <p className="text-sm text-slate-400 mt-0.5">
-//               {filtered.length} result{filtered.length !== 1 ? "s" : ""} · click any card for full details
-//             </p>
-//           </div>
-//         </div>
-
-//         <AnimatePresence mode="popLayout">
-//           {filtered.length > 0 ? (
-//             <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-//               {filtered.map((svc, i) => (
-//                 <ServiceCard key={svc.id} service={svc} onOpen={setSelected} index={i} />
-//               ))}
-//             </motion.div>
-//           ) : (
-//             <motion.div initial={{ opacity:0,y:20 }} animate={{ opacity:1,y:0 }}
-//               className="text-center py-24 bg-white rounded-3xl border border-slate-100 shadow-sm">
-//               <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-4">
-//                 <FiSearch size={26} className="text-slate-300" />
-//               </div>
-//               <h3 className="text-xl font-bold text-slate-600 mb-2">No services found</h3>
-//               <p className="text-slate-400 text-sm mb-5">Try adjusting your search or filters.</p>
-//               <button onClick={() => { setActiveTag("all"); setActiveType("all"); setSearch(""); }}
-//                 className="px-6 py-2.5 rounded-xl text-sm font-bold text-white shadow"
-//                 style={{ background:"linear-gradient(135deg,#0ea5e9,#db2777)" }}>
-//                 Reset All Filters
-//               </button>
-//             </motion.div>
-//           )}
-//         </AnimatePresence>
-//       </div>
-
-//       {/* Bottom CTA */}
-//       <section className="relative overflow-hidden py-20 mt-4"
-//         style={{ background:"linear-gradient(135deg,#0ea5e9 0%,#7c3aed 50%,#db2777 100%)" }}>
 const DEFAULT_SERVICES = [
   {
-    id: "physiotherapy",
-    category: "Physiotherapy",
+    id: "post-surgical-rehab",
+    category: "Post-Surgical Rehabilitation",
     icon: FiActivity,
     image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=800&q=80",
     gradient: "from-sky-600 to-cyan-400",
@@ -847,27 +808,56 @@ const DEFAULT_SERVICES = [
     accent: "text-sky-600",
     badgeBg: "bg-sky-100",
     badgeText: "text-sky-700",
-    tag: "physiotherapy",
+    tag: "post-surgical",
     type: "therapy",
     popular: true,
-    tagline: "Restoring Movement, Improving Quality of Life",
-    shortDesc: "Comprehensive physical rehabilitation to recover mobility, strength, and function after injury.",
-    overview: "Physiotherapy is the core clinical facility at Vital Physio Hub, specializing in dynamic movement restoration. Our certified manual therapists design custom physical rehabilitation programs to target skeletal stiffness, neurological path retraining, and post-surgical functional delays.",
-    symptoms: ["Post-surgical stiffness", "Chronic joint dysfunction", "Arthritis limitations", "Muscle weakness", "Gait & balance instability"],
-    benefits: ["Custom recovery timeline", "Manual therapy adjustments", "Skilled guidance & home planning", "Safe non-pharmacological pain relief"],
-    treatments: ["Joint Mobilization", "Therapeutic Exercise", "Postural Correction", "Gait Retraining", "Manual Stretch Therapy"],
-    procedure: "Clinical evaluation → Biomechanical mapping → Custom rehab plan → Supervised session → Independent home regime",
+    tagline: "Safe & Fast Recovery After Surgery",
+    shortDesc: "Specialized rehabilitation protocols to restore joint mobility, muscle strength, and functional independence after surgery.",
+    overview: "Post-Surgical Rehabilitation is essential for restoring joint range of motion, muscle strength, and normal function following orthopedic, spinal, or joint surgeries. At Vital Physio Hub, our specialists design tailored recovery programs targeting scar tissue release, gait training, and progressive strengthening.",
+    symptoms: ["Post-operative joint stiffness", "Muscle weakness & atrophy", "Surgical swelling & edema", "Restricted mobility", "Post-op pain & scar tightness"],
+    benefits: ["Faster return to daily activities", "Prevention of scar tissue adhesions", "Safe progressive loading protocols", "Reduced reliance on pain medications"],
+    treatments: ["Joint Mobilization", "Scar Tissue Massage", "Progressive Resistance Exercise", "Swelling Management", "Gait & Mobility Retraining"],
+    procedure: "Surgical report evaluation → Range of motion assessment → Customized rehab protocol → Supervised therapy sessions → Home exercise plan",
     duration: "45 – 60 min",
-    recovery: "2 – 12 weeks",
+    recovery: "4 – 16 weeks",
     fee: "From PKR 2,500",
     faqs: [
-      { q: "What should I expect in my first physical therapy session?", a: "An in-depth biomechanical assessment of your joint range, posture, and motor control, followed by a personalized rehabilitation plan." },
-      { q: "How many sessions will I need?", a: "This depends on your condition, but most patients see noticeable functional improvement within 4-6 sessions." }
+      { q: "When should post-surgical rehab start?", a: "Rehabilitation often begins within days after surgery, depending on your surgeon's protocol and clinical evaluation." },
+      { q: "Will post-op physical therapy be painful?", a: "Therapy is carefully paced within your comfort zone to promote healing without aggravating surgical sites." }
     ],
   },
   {
-    id: "chiropractic",
-    category: "Chiropractic Adjustments",
+    id: "sports-injury-management",
+    category: "Sports Injury Management",
+    icon: FiZap,
+    image: "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80",
+    gradient: "from-emerald-500 to-teal-400",
+    solidColor: "#10b981",
+    lightBg: "from-emerald-50 to-teal-50",
+    border: "border-emerald-200",
+    accent: "text-emerald-600",
+    badgeBg: "bg-emerald-100",
+    badgeText: "text-emerald-700",
+    tag: "sports-injury",
+    type: "therapy",
+    popular: true,
+    tagline: "Get Back in the Game Stronger & Faster",
+    shortDesc: "Advanced sports injury treatment, ligament rehab, and athletic conditioning for athletes and active individuals.",
+    overview: "Sports Injury Management targets ligament tears (ACL/MCL), sprains, muscle strains, tendonitis, and joint dislocations. Our certified sports physiotherapists use functional movement screening, Kinesio taping, and sports-specific drills to restore peak athletic performance.",
+    symptoms: ["Ligament sprains & muscle tears", "Joint swelling & bruising", "Sharp pain during athletic movement", "Joint instability or giving way", "Tendonitis (Runner's knee, Tennis elbow)"],
+    benefits: ["Accelerated recovery timeline", "Biomechanical movement correction", "Prevention of recurring injuries", "Sports-specific return-to-play testing"],
+    treatments: ["Soft Tissue Release", "Kinesio Taping", "Agility & Proprioceptive Drills", "ECCENTRIC Muscle Conditioning", "Laser & Ultrasound Modalities"],
+    procedure: "Injury biomechanical screening → Acute inflammation reduction → Functional conditioning → Athletic return-to-play testing",
+    duration: "45 – 60 min",
+    recovery: "2 – 12 weeks",
+    fee: "From PKR 3,000",
+    faqs: [
+      { q: "How soon can I return to sports?", a: "Return-to-play timeline depends on injury severity and passing functional biomechanical benchmarks." }
+    ],
+  },
+  {
+    id: "back-neck-pain",
+    category: "Back and Neck Pain Therapy",
     icon: TbBone,
     image: "https://images.unsplash.com/photo-1597764690523-15bea4c581c9?auto=format&fit=crop&w=800&q=80",
     gradient: "from-violet-500 to-purple-400",
@@ -877,87 +867,142 @@ const DEFAULT_SERVICES = [
     accent: "text-violet-600",
     badgeBg: "bg-violet-100",
     badgeText: "text-violet-700",
-    tag: "chiropractic",
+    tag: "back-neck",
     type: "therapy",
     popular: true,
-    tagline: "Precision Spinal Alignment & Nerve Relief",
-    shortDesc: "Spinal adjustments and manual manipulation to relieve pressure on the nervous system and restore alignment.",
-    overview: "Chiropractic Adjustments focus on the diagnosis, treatment, and prevention of neuromuscular disorders, with a primary emphasis on manual manipulation of the spine. Dr. Haseeb Ur Rehman utilizes advanced Italian osteopathy and chiropractic techniques to treat joint dysfunction and alleviate radiating nerve pain.",
-    symptoms: ["Sciatica & radiating leg pain", "Lumbar instability & back pain", "Cervical stiffness & neck pain", "Postural headaches", "Joint subluxation"],
-    benefits: ["Instant spinal pressure release", "Enhanced joint range of motion", "Painless mechanical adjustments", "Long-term spine health and posture"],
-    treatments: ["Spinal Manipulation", "Joint Decompression", "Manual Adjustments", "Posture Correction Therapy", "Flexion-Distraction Technique"],
-    procedure: "Spine alignment check → Joint palpation → Decompression therapy → Manual adjustments",
+    tagline: "Targeted Spine Decompression & Cervical Relief",
+    shortDesc: "Evidence-based spinal adjustments, traction, and therapy for disc herniation, sciatica, and chronic cervical pain.",
+    overview: "Back and Neck Pain Therapy targets lumbar disc bulges, nerve compressions, sciatica, cervical spondylosis, and postural tension. Utilizing hands-on spinal manipulation, decompression, and core stabilization, we eliminate radiating pain and restore spinal mobility.",
+    symptoms: ["Sciatica & radiating leg pain", "Lumbar back stiffness", "Cervical neck tightness & tension headaches", "Numbness or tingling in arms or legs", "Postural slumping pain"],
+    benefits: ["Instant spinal pressure release", "Restored nerve conduction & range of motion", "Non-surgical, drug-free pain relief", "Long-term posture & spinal maintenance"],
+    treatments: ["Spinal Manipulation", "Lumbar & Cervical Decompression", "McKenzie Extension Therapy", "Core Stabilization Exercises", "Myofascial Trigger Point Release"],
+    procedure: "Postural & neurological screening → Spinal palpation → Targeted adjustments & decompression → Ergonomic correction",
     duration: "30 – 45 min",
     recovery: "1 – 6 weeks",
     fee: "From PKR 3,000",
     faqs: [
-      { q: "Are chiropractic adjustments safe?", a: "Yes, when performed by a classified chiropractor (like Dr. Haseeb who is trained in advanced Italian manual techniques), adjustments are highly safe and effective." },
-      { q: "Do chiropractic adjustments hurt?", a: "No, adjustments are generally painless. Many patients experience immediate relief from tension and pressure." }
+      { q: "Can physical therapy help avoid spinal surgery?", a: "Yes, conservative spinal rehabilitation successfully resolves most disc herniations and nerve compressions without surgery." }
     ],
   },
   {
-    id: "cupping",
-    category: "Cupping Therapy",
-    icon: GiHeartBeats,
-    image: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=800&q=80",
-    gradient: "from-teal-500 to-emerald-400",
-    solidColor: "#0d9488",
-    lightBg: "from-teal-50 to-emerald-50",
-    border: "border-teal-200",
-    accent: "text-teal-600",
-    badgeBg: "bg-teal-100",
-    badgeText: "text-teal-700",
-    tag: "cupping",
+    id: "joint-muscle-strengthening",
+    category: "Joint and Muscle Strengthening",
+    icon: FiActivity,
+    image: "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80",
+    gradient: "from-amber-500 to-orange-400",
+    solidColor: "#d97706",
+    lightBg: "from-amber-50 to-orange-50",
+    border: "border-amber-200",
+    accent: "text-amber-600",
+    badgeBg: "bg-amber-100",
+    badgeText: "text-amber-700",
+    tag: "strengthening",
     type: "therapy",
     popular: false,
-    tagline: "Deep Tissue Detoxification & Muscle Relaxation",
-    shortDesc: "Dry and massage cupping to improve localized blood flow and relieve chronic myofascial trigger points.",
-    overview: "Cupping therapy is an ancient form of alternative medicine in which a therapist puts special cups on your skin for a few minutes to create suction. We use dry and massage cupping to stimulate blood circulation, enhance lymphatic drainage, and release deep myofascial trigger points.",
-    symptoms: ["Deep muscle spasms", "Persistent shoulder & back knots", "Poor localized circulation", "Chronic muscular fatigue"],
-    benefits: ["Deep tissue myofascial release", "Rapid muscle recovery", "Reduced muscle inflammation", "Relaxation of the nervous system"],
-    treatments: ["Dry Cupping", "Massage Cupping", "Myofascial Trigger Point Release", "Detox Circulation Therapy"],
-    procedure: "Trigger point identification → Skin preparation → Cup suction application → Myofascial massage",
-    duration: "30 – 40 min",
-    recovery: "1 – 3 days (marks fade quickly)",
-    fee: "From PKR 2,000",
+    tagline: "Rebuild Core Power & Muscular Stability",
+    shortDesc: "Medically supervised progressive exercise therapy to build weak muscles, stabilize joints, and prevent recurring strain.",
+    overview: "Joint and Muscle Strengthening is designed to address muscle imbalances, post-injury weakness, and joint instability. Our clinical conditioning programs focus on progressive resistance, core stabilization, and joint alignment to ensure long-term physical resilience.",
+    symptoms: ["Muscle weakness after injury or casting", "Recurrent joint sprains", "Core imbalance & poor endurance", "Physical deconditioning"],
+    benefits: ["Custom progressive resistance load", "Improved joint stability & protection", "Enhanced physical stamina", "Medically supervised by physiotherapists"],
+    treatments: ["Progressive Resistance Training", "Isokinetic Muscle Strengthening", "Core Stabilization", "Proprioceptive Balance Loading"],
+    procedure: "Muscle strength mapping → Baseline assessment → Progressive resistance load → Functional re-evaluation",
+    duration: "45 – 60 min",
+    recovery: "Ongoing progressive improvement",
+    fee: "From PKR 2,500",
     faqs: [
-      { q: "What are the round marks left after cupping?", a: "These are superficial discolorations caused by blood drawn to the skin surface. They are painless and fade in 3-7 days." },
-      { q: "Who can benefit from cupping?", a: "Athletes, office workers with stiff shoulders, and anyone suffering from chronic muscular tension." }
+      { q: "Is this suitable for beginners or post-injury patients?", a: "Yes, every exercise load is calibrated to your individual strength baseline." }
     ],
   },
   {
-    id: "hijama",
-    category: "Hijama Therapy",
-    icon: GiHeartBeats,
-    image: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=800&q=80",
-    gradient: "from-indigo-500 to-purple-400",
+    id: "arthritis-joint-mobility",
+    category: "Arthritis and Joint Mobility Treatment",
+    icon: TbBone,
+    image: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=800&q=80",
+    gradient: "from-rose-500 to-pink-400",
+    solidColor: "#f43f5e",
+    lightBg: "from-rose-50 to-pink-50",
+    border: "border-rose-200",
+    accent: "text-rose-600",
+    badgeBg: "bg-rose-100",
+    badgeText: "text-rose-700",
+    tag: "arthritis",
+    type: "therapy",
+    popular: true,
+    tagline: "Relieve Joint Stiffness & Restore Smooth Mobility",
+    shortDesc: "Gentle joint mobilization, hydro-thermal therapy, and exercise protocols for osteoarthritis and rheumatoid joint pain.",
+    overview: "Arthritis and Joint Mobility Treatment focuses on reducing joint inflammation, preserving articular cartilage, and improving flexibility in knee, hip, shoulder, and hand joints. We combine gentle mobilization, electrotherapy, and low-impact strengthening.",
+    symptoms: ["Morning joint stiffness & cracking", "Knee, hip, or shoulder osteoarthritis pain", "Swollen & tender joints", "Limited walking range"],
+    benefits: ["Reduced joint friction & pain", "Enhanced lubricating fluid circulation", "Protection of cartilage & joint space", "Preserved independence in daily living"],
+    treatments: ["Gentle Passive Joint Mobilization", "Therapeutic Ultrasound", "Hydro-Thermal Packs", "Low-Impact Cartilage Loading"],
+    procedure: "Joint range testing → Anti-inflammatory thermal prep → Manual mobilization → Joint lubrication guidance",
+    duration: "35 – 50 min",
+    recovery: "Long-term joint care & relief",
+    fee: "From PKR 2,500",
+    faqs: [
+      { q: "Can physical therapy delay knee replacement surgery?", a: "Yes, joint mobility therapy and quad strengthening significantly delay or avoid total knee replacements in many osteoarthritis patients." }
+    ],
+  },
+  {
+    id: "stroke-neuro-rehab",
+    category: "Stroke and Neurological Rehab",
+    icon: GiBrain,
+    image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=800&q=80",
+    gradient: "from-indigo-600 to-blue-500",
     solidColor: "#4f46e5",
-    lightBg: "from-indigo-50 to-purple-50",
+    lightBg: "from-indigo-50 to-blue-50",
     border: "border-indigo-200",
     accent: "text-indigo-600",
     badgeBg: "bg-indigo-100",
     badgeText: "text-indigo-700",
-    tag: "hijama",
+    tag: "neuro-rehab",
     type: "therapy",
     popular: true,
-    tagline: "Traditional Wet Cupping for Blood Purification",
-    shortDesc: "Clinical wet cupping (Hijama) for systemic detoxification and immune system revitalization.",
-    overview: "Hijama Therapy, or wet cupping, is a clinical procedure that draws out toxic blood and metabolic waste from the body through superficial micro-scratches on the skin. Dr. Ghulam Jellani is a certified Hijama expert, combining traditional healing with clinical sterile standards.",
-    symptoms: ["Chronic fatigue syndrome", "Inflammatory disorders", "Persistent body aches", "High blood pressure", "Migraines"],
-    benefits: ["Blood detoxification", "Immune system boost", "Chronic pain mitigation", "Stress & tension relief"],
-    treatments: ["Clinical Wet Cupping", "Hijama Detox Therapy", "Sterile Skin Care", "Immunological Revitalization"],
-    procedure: "Initial dry suction → Superficial micro-scratching → Targeted wet extraction → Sterilization & dressing",
-    duration: "45 – 60 min",
-    recovery: "3 – 5 days (micro-scratches heal fully)",
-    fee: "From PKR 2,500",
+    tagline: "Rewiring Neurological Movement & Independence",
+    shortDesc: "Neuro-physiotherapy for stroke recovery, Parkinson's disease, nerve injuries, paralysis, and motor control retraining.",
+    overview: "Stroke and Neurological Rehab harnesses neuroplasticity — the brain's ability to rewire motor pathways after neurological injury. Our neuro-physiotherapists work with stroke survivors, facial palsy patients, and nerve injury cases to rebuild walking balance, hand grip, and motor control.",
+    symptoms: ["One-sided weakness or paralysis (Hemiplegia)", "Loss of balance & motor control", "Muscle spasticity & rigidity", "Facial nerve palsy (Bell's Palsy)", "Tremors or gait freezing"],
+    benefits: ["Re-education of brain-to-muscle nerve pathways", "Reduction of painful muscle spasticity", "Restoration of independent walking & transfer", "Dedicated compassionate 1-on-1 care"],
+    treatments: ["Neuro-Developmental Therapy (NDT/Bobath)", "Proprioceptive Neuromuscular Facilitation (PNF)", "Functional Electrical Stimulation (FES)", "Constraint-Induced Movement Therapy"],
+    procedure: "Neurological assessment → Motor pathway facilitation → Balance & transfer retraining → Functional daily living drills",
+    duration: "50 – 75 min",
+    recovery: "3 – 12+ months progressive rehabilitation",
+    fee: "From PKR 3,500",
     faqs: [
-      { q: "Is Hijama performed under sterile conditions?", a: "Yes, we use 100% disposable, single-use sterile cups, surgical blades, and strict clinical protocols to ensure zero infection risk." },
-      { q: "How often should I get Hijama?", a: "For general wellness and detox, every 3-6 months. For chronic pain management, a tailored monthly protocol may be recommended." }
+      { q: "Can stroke survivors regain mobility months after a stroke?", a: "Yes! Through neuroplasticity and intensive physical therapy, patients continue regaining functional movement long after a stroke." }
     ],
   },
   {
-    id: "electrotherapy",
-    category: "Electrotherapy",
+    id: "chronic-pain-postural",
+    category: "Chronic Pain and Postural Correction",
+    icon: FiShield,
+    image: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=800&q=80",
+    gradient: "from-purple-600 to-indigo-500",
+    solidColor: "#9333ea",
+    lightBg: "from-purple-50 to-indigo-50",
+    border: "border-purple-200",
+    accent: "text-purple-600",
+    badgeBg: "bg-purple-100",
+    badgeText: "text-purple-700",
+    tag: "postural-correction",
+    type: "therapy",
+    popular: false,
+    tagline: "Realign Your Posture & Eliminate Chronic Strain",
+    shortDesc: "Comprehensive postural assessment, ergonomic alignment, and myofascial release for desk workers and chronic pain sufferers.",
+    overview: "Chronic Pain and Postural Correction addresses text neck, forward head posture, rounded shoulders, and persistent desk-job muscle aches. We combine posture alignment mapping, ergonomic adjustments, and deep tissue trigger point therapy.",
+    symptoms: ["Forward head posture & text neck", "Rounded shoulder girdle stiffness", "Upper back burning sensation", "Chronic tension headaches", "Fibromyalgia pain"],
+    benefits: ["Alignment of spinal curvature", "Elimination of chronic fatigue & muscle knots", "Ergonomic workspace recommendations", "Long-term posture habits"],
+    treatments: ["Posture Alignment Mapping", "Myofascial Trigger Point Deactivation", "Scapular Retraction Training", "Ergonomic Assessment"],
+    procedure: "Digital posture screening → Myofascial trigger point release → Postural muscle activation → Ergonomic workstation setup",
+    duration: "35 – 50 min",
+    recovery: "2 – 8 weeks",
+    fee: "From PKR 2,500",
+    faqs: [
+      { q: "How long does it take to fix rounded shoulders or text neck?", a: "With consistent posture therapy and daily exercise cues, noticeable posture correction occurs within 3-6 weeks." }
+    ],
+  },
+  {
+    id: "electrotherapy-ultrasound",
+    category: "Electrotherapy and Ultrasound Therapy",
     icon: FiZap,
     image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&q=80",
     gradient: "from-red-500 to-rose-400",
@@ -969,121 +1014,63 @@ const DEFAULT_SERVICES = [
     badgeText: "text-red-700",
     tag: "electrotherapy",
     type: "therapy",
-    popular: false,
-    tagline: "Advanced Electronic Modalities for Pain & Healing",
-    shortDesc: "Non-invasive electrical stimulation to block pain pathways and stimulate muscle recovery.",
-    overview: "Electrotherapy is a gentle, non-invasive clinical facility utilizing modern electrical modalities like TENS (Transcutaneous Electrical Nerve Stimulation), EMS (Electrical Muscle Stimulation), and therapeutic ultrasound. These modalities block pain signals to the brain and stimulate deep cellular tissue repair.",
-    symptoms: ["Acute inflammatory pain", "Muscle atrophy and wasting", "Severe muscle spasms", "Post-surgical swelling"],
-    benefits: ["Non-invasive pain block", "Accelerated tissue repair", "Improved local blood flow", "Restoration of muscle tone"],
-    treatments: ["TENS Therapy", "Electrical Muscle Stimulation (EMS)", "Therapeutic Ultrasound", "Interferential Current (IFC)"],
-    procedure: "Symptom check → Modality selection → Electrode pad placement → Controlled electrical dosage → Healing review",
-    duration: "20 – 30 min",
-    recovery: "Immediate pain relief",
-    fee: "From PKR 1,500",
-    faqs: [
-      { q: "Does electrotherapy shock you?", a: "No. You will feel a pleasant, tingling, or pulsing sensation, but it is not painful and is completely controlled by the therapist." }
-    ],
-  },
-  {
-    id: "kinesio",
-    category: "Kinesio Taping",
-    icon: FiActivity,
-    image: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=800&q=80",
-    gradient: "from-pink-500 to-rose-400",
-    solidColor: "#ec4899",
-    lightBg: "from-pink-50 to-rose-50",
-    border: "border-pink-200",
-    accent: "text-pink-600",
-    badgeBg: "bg-pink-100",
-    badgeText: "text-pink-700",
-    tag: "kinesio",
-    type: "therapy",
-    popular: false,
-    tagline: "Elastic Therapeutic Taping for Joint Support",
-    shortDesc: "Elastic taping to support joints, muscles, and facilitate lymphatic flow during activity.",
-    overview: "Kinesio Taping involves applying a specialized elastic therapeutic tape to joints and muscles to reduce pain, facilitate lymphatic drainage, and provide structural support without restricting range of motion. It is an excellent sports therapy modality used by Dr. Ghulam Jellani and Dr. Haseeb.",
-    symptoms: ["Ligament sprains & muscle strains", "Joint instability", "Sports-induced swelling", "Muscle tracking issues"],
-    benefits: ["Structural joint support", "Unrestricted natural movement", "Reduced muscle fatigue & bruising", "Improved lymphatic drainage"],
-    treatments: ["Sports Taping", "Lymphatic Taping", "Joint Stability Taping", "Muscle Tracking Taping"],
-    procedure: "Muscle assessment → Skin preparation → Customized tape stretching → Functional activation check",
-    duration: "15 – 25 min",
-    recovery: "Tape remains active for 3-5 days",
-    fee: "From PKR 1,200",
-    faqs: [
-      { q: "Can I shower with the Kinesio tape on?", a: "Yes, the tape is highly water-resistant and breathable, allowing you to shower normally." }
-    ],
-  },
-  {
-    id: "fitness",
-    category: "Fitness Training",
-    icon: FiActivity,
-    image: "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80",
-    gradient: "from-amber-500 to-orange-400",
-    solidColor: "#d97706",
-    lightBg: "from-amber-50 to-orange-50",
-    border: "border-amber-200",
-    accent: "text-amber-600",
-    badgeBg: "bg-amber-100",
-    badgeText: "text-amber-700",
-    tag: "fitness",
-    type: "therapy",
-    popular: false,
-    tagline: "Medical Fitness & Physical Conditioning",
-    shortDesc: "Supervised exercise planning to build core strength, endurance, and target biomechanical alignment.",
-    overview: "Fitness Training at Vital Physio Hub bridges the gap between rehabilitation and active lifestyle. Designed by Dr. Haseeb Ur Rehman (certified fitness trainer and sports coach), we offer medically supervised physical conditioning programs tailored to your specific biomechanical needs and goals.",
-    symptoms: ["General physical deconditioning", "Core muscle weakness", "Poor physical endurance", "Post-rehab strength maintenance need"],
-    benefits: ["Medically supervised by clinical experts", "Fully custom progressive programming", "Core and posture-focused targets", "Safe transition from injury to active sport"],
-    treatments: ["Medical Strength Training", "Cardiovascular Conditioning", "Core Stabilization Programs", "Post-Rehab Maintenance Training"],
-    procedure: "Physical baseline assessment → Goal mapping → Customized exercise prescription → Supervised training cycles",
-    duration: "45 – 60 min",
-    recovery: "Ongoing wellness",
-    fee: "From PKR 3,000",
-    faqs: [
-      { q: "How is medical fitness training different from a regular gym?", a: "Our training is designed and supervised directly by physiotherapists and certified coaches, ensuring that every movement is biomechanically safe for your joints." }
-    ],
-  },
-  {
-    id: "needling",
-    category: "Dry Needling",
-    icon: TbStethoscope,
-    image: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&w=800&q=80",
-    gradient: "from-emerald-500 to-teal-400",
-    solidColor: "#10b981",
-    lightBg: "from-emerald-50 to-teal-50",
-    border: "border-emerald-200",
-    accent: "text-emerald-600",
-    badgeBg: "bg-emerald-100",
-    badgeText: "text-emerald-700",
-    tag: "needling",
-    type: "therapy",
     popular: true,
-    tagline: "Intramuscular Stimulation & Pain Deactivation",
-    shortDesc: "Thin acupuncture-style needles targeted at myofascial trigger points to deactivate deep muscle pain.",
-    overview: "Dry Needling involves inserting thin, sterile monofilament needles directly into myofascial trigger points (muscle knots). This creates a local twitch response that disrupts the pain cycle, releases muscular tension, and increases localized micro-circulation. Dr. Ghulam Jellani is a certified practitioner who safely performs this treatment.",
-    symptoms: ["Chronic tension headaches", "Deep muscle knots & myofascial pain", "Radiating muscle tightness", "Temporomandibular joint (TMJ) stiffness"],
-    benefits: ["Immediate deep muscle release", "Highly precise trigger point targeting", "Rapid restoration of range of motion", "Painless insertion process"],
-    treatments: ["Trigger Point Dry Needling", "Intramuscular Stimulation", "Myofascial Release Needling", "Neuromuscular Pain Deactivation"],
-    procedure: "Muscle palpation to identify trigger point → Sterile skin preparation → Needle insertion & stimulation → Muscle relaxation check",
-    duration: "25 – 40 min",
-    recovery: "1 – 2 days (mild local soreness is normal)",
+    tagline: "Deep Cellular Pain Relief & Tissue Micro-Healing",
+    shortDesc: "Advanced TENS, EMS, Interferential Current (IFT), and therapeutic ultrasound to block pain signals and accelerate tissue repair.",
+    overview: "Electrotherapy and Ultrasound Therapy utilize controlled electrical and sound wave frequencies to penetrate deep muscle and joint layers. TENS blocks acute pain signals to the brain, EMS prevents muscle wasting, and Ultrasound speeds up deep tendon and tissue healing.",
+    symptoms: ["Severe acute muscle spasms", "Deep tendon inflammation (Tendinitis)", "Post-traumatic swelling & hematomas", "Neuropathic pain & nerve irritation"],
+    benefits: ["100% drug-free non-invasive pain block", "Accelerated deep tissue micro-repair", "Rapid reduction of swelling & edema", "Comfortable relaxing therapy session"],
+    treatments: ["TENS Pain Blocking", "EMS Muscle Stimulation", "Therapeutic Ultrasound (1MHz & 3MHz)", "Interferential Current (IFC) Therapy"],
+    procedure: "Target area cleaning → Gel/Electrode pad application → Frequency calibration → Active therapeutic cycle",
+    duration: "20 – 35 min",
+    recovery: "Immediate pain reduction",
+    fee: "From PKR 1,800",
+    faqs: [
+      { q: "Is ultrasound therapy warm or painful?", a: "Ultrasound is completely painless! You will feel only a soothing warm sensation as sound waves stimulate deep tissue repair." }
+    ],
+  },
+  {
+    id: "gait-training-balance",
+    category: "Gait Training and Balance Therapy",
+    icon: FiActivity,
+    image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=800&q=80",
+    gradient: "from-teal-600 to-cyan-500",
+    solidColor: "#0d9488",
+    lightBg: "from-teal-50 to-cyan-50",
+    border: "border-teal-200",
+    accent: "text-teal-600",
+    badgeBg: "bg-teal-100",
+    badgeText: "text-teal-700",
+    tag: "gait-balance",
+    type: "therapy",
+    popular: false,
+    tagline: "Walk with Confidence, Stability & Zero Fear of Falling",
+    shortDesc: "Fall prevention, gait biomechanics correction, and vestibular balance retraining for seniors and post-injury patients.",
+    overview: "Gait Training and Balance Therapy helps individuals recover steady, confident walking after neurological conditions, joint replacements, or age-related balance loss. We utilize parallel bars, balance boards, vestibular exercises, and gait analysis to ensure stability.",
+    symptoms: ["Unsteady walking or staggering", "Fear of falling in elderly patients", "Dizziness or vestibular vertigo", "Limping due to leg length or joint pain"],
+    benefits: ["Significant fall prevention & confidence", "Corrected walking cadence & stride length", "Improved inner ear vestibular balance", "Enhanced safety on stairs & uneven surfaces"],
+    treatments: ["Parallel Bar Gait Retraining", "Proprioceptive Balance Board Drills", "Vestibular Rehabilitation (Epley & habituation)", "Weight-Bearing Stride Correction"],
+    procedure: "Gait video & pressure assessment → Balance confidence evaluation → Supervised stride drills → Home safety plan",
+    duration: "40 – 55 min",
+    recovery: "3 – 10 weeks",
     fee: "From PKR 2,500",
     faqs: [
-      { q: "Is dry needling the same as acupuncture?", a: "No. While they use similar needles, acupuncture is based on traditional Chinese medicine energy channels, whereas dry needling is based on modern Western neuroanatomy and muscular trigger points." },
-      { q: "Does dry needling hurt?", a: "You may feel a brief 'cramp' or twitch sensation when the trigger point is deactivated, which can be slightly intense but lasts only a second. Most patients find it highly tolerable." }
+      { q: "Can balance therapy help elderly patients prevent falls?", a: "Absoluty! Targeted balance drills and strength loading reduce fall risk by over 70% in senior patients." }
     ],
-  },
+  }
 ];
 
 const TAGS = [
-  { value: "all",            label: "All Services",            color: null },
-  { value: "physiotherapy",  label: "Physiotherapy",           color: "#0ea5e9" },
-  { value: "chiropractic",   label: "Chiropractic Adjustments",color: "#8b5cf6" },
-  { value: "cupping",        label: "Cupping Therapy",         color: "#0d9488" },
-  { value: "hijama",         label: "Hijama Therapy",          color: "#4f46e5" },
-  { value: "electrotherapy", label: "Electrotherapy",          color: "#dc2626" },
-  { value: "kinesio",        label: "Kinesio Taping",          color: "#ec4899" },
-  { value: "fitness",        label: "Fitness Training",        color: "#d97706" },
-  { value: "needling",       label: "Dry Needling",            color: "#10b981" },
+  { value: "all",                 label: "All Services",                   color: null },
+  { value: "post-surgical",       label: "Post-Surgical Rehab",            color: "#0ea5e9" },
+  { value: "sports-injury",       label: "Sports Injury",                  color: "#10b981" },
+  { value: "back-neck",           label: "Back & Neck Pain",               color: "#8b5cf6" },
+  { value: "strengthening",       label: "Muscle Strengthening",           color: "#d97706" },
+  { value: "arthritis",           label: "Arthritis & Joint Mobility",     color: "#f43f5e" },
+  { value: "neuro-rehab",         label: "Stroke & Neuro Rehab",           color: "#4f46e5" },
+  { value: "postural-correction", label: "Postural Correction",            color: "#9333ea" },
+  { value: "electrotherapy",      label: "Electrotherapy & Ultrasound",    color: "#dc2626" },
+  { value: "gait-balance",        label: "Gait & Balance",                 color: "#0d9488" },
 ];
 
 const TYPES = [
@@ -1550,7 +1537,7 @@ function Banner() {
         <motion.h1 initial={{ opacity:0,y:30 }} animate={inView ? { opacity:1,y:0 } : {}}
           transition={{ duration:1, ease:[0.16,1,0.3,1], delay:0.1 }}
           className="text-4xl sm:text-6xl font-extrabold text-white leading-tight tracking-tight font-serif mb-8 max-w-3xl">
-          World-Class{" "}
+          Premier{" "}
           <span style={{ background:"linear-gradient(90deg, #60a5fa, #f472b6)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent" }}>
             Medical Services
           </span>
@@ -1642,9 +1629,9 @@ export default function ServicesPage() {
   return (
     <div className="min-h-screen bg-slate-50 font-body">
       <SEOHead 
-        title="Physical Therapy & Sports Rehabilitation Services in Lahore & Islamabad | Physiohub"
-        description="Comprehensive physical therapy services in Lahore (Gulberg, DHA) & Islamabad (Blue Area, F-7). Specialized treatments for back pain, joint mobilization, stroke rehabilitation, pediatric physio & dry needling."
-        keywords="physical therapy services Lahore, sports rehabilitation Islamabad, stroke recovery Lahore, pediatric physical therapy Islamabad, back pain relief Gulberg, dry needling DHA Lahore"
+        title="Physical Therapy & Sports Rehabilitation Services in Islamabad | Vital Physio Hub"
+        description="Comprehensive physical therapy services in Islamabad (Blue Area, F-8 Markaz, DHA Phase 2). Specialized treatments for back pain, joint mobilization, stroke rehabilitation & dry needling."
+        keywords="physical therapy services Islamabad, sports rehabilitation Islamabad, stroke recovery Islamabad, physiotherapy Blue Area Islamabad, back pain relief Islamabad, dry needling DHA Islamabad"
         canonicalUrl="https://physiohub.com/services"
       />
       <Navbar />
@@ -1724,7 +1711,7 @@ export default function ServicesPage() {
           </div>
         </div>
       </section>
-      <Footer />
+      
     </div>
   );
 }

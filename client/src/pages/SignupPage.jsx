@@ -810,8 +810,8 @@ export default function SignupPage() {
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden py-12" style={{ background: "linear-gradient(135deg, #fce4ec 0%, #e0f2fe 60%, #fdf4ff 100%)" }}>
       <SEOHead 
-        title="Create Patient & Specialist Account | Physiohub Lahore & Islamabad"
-        description="Register for Physiohub patient portal or apply as a certified physical therapy specialist in Lahore and Islamabad."
+        title="Create Patient & Specialist Account | Vital Physio Hub Islamabad"
+        description="Register for Vital Physio Hub patient portal or apply as a certified physical therapy specialist in Islamabad."
         noindex={true}
       />
       <style>{`

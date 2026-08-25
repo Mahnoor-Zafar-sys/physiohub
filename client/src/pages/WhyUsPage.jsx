@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
 import SEOHead from "../components/SEOHead";
 import { api } from "../services/api";
 import { 
@@ -16,7 +15,7 @@ const reasonsData = [
     id: "doctors",
     icon: FiUserCheck,
     title: "Experienced Doctors & Certified Specialists",
-    subtitle: "World-Class Clinical Expertise",
+    subtitle: "Premier Clinical Expertise",
     metric: "120+",
     label: "Certified Consultants",
     summary: "Our clinic is home to highly qualified, international fellowship-trained medical consultants and certified clinical specialists who deliver unmatched patient care with precision, accuracy, and clinical excellence.",
@@ -40,7 +39,7 @@ const reasonsData = [
     details: [
       "Next-generation 3T MRI, Ultra-HD CT scanners, and diagnostic imaging suites.",
       "Advanced robotic surgical setups (e.g., da Vinci surgical systems) for minimally invasive precision.",
-      "Modern pathology labs enabling rapid, highly accurate blood work and molecular testing.",
+      "Modern rehabilitation suites enabling targeted physical therapy and recovery protocols.",
       "Digital-first infrastructure for real-time symptom tracking and diagnostics reports."
     ],
     media: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=1400&q=80",
@@ -117,9 +116,9 @@ export default function WhyUsPage() {
   return (
     <div className="min-h-screen bg-slate-50 font-body select-none">
       <SEOHead 
-        title="Why Choose Physiohub | Best Rehabilitation Clinic in Lahore & Islamabad"
-        description="Discover why Physiohub is the leading physical therapy choice in Lahore (Gulberg, DHA) and Islamabad. Experienced certified physiotherapists, 24/7 emergency care, JCI protocols & affordable fees."
-        keywords="best physical therapy clinic Lahore, top rehabilitation center Islamabad, why choose physiohub, JCI certified physio clinic Pakistan"
+        title="Why Choose Us | Vital Physio Hub Islamabad"
+        description="Discover why Vital Physio Hub is the leading physical therapy choice in Islamabad (Blue Area, DHA Phase 2). Experienced certified physiotherapists, emergency care, JCI protocols & affordable fees."
+        keywords="best physical therapy clinic Islamabad, top rehabilitation center Islamabad, why choose physiohub, JCI certified physio clinic Pakistan"
         canonicalUrl="https://physiohub.com/why-us"
       />
       <Navbar />
@@ -346,7 +345,7 @@ export default function WhyUsPage() {
         </div>
       </section>
 
-      <Footer />
+      
     </div>
   );
 }

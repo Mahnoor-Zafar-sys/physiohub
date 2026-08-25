@@ -8,7 +8,6 @@ import {
 import { FaPrint, FaRegClipboard } from "react-icons/fa";
 import { MdOutlineHealthAndSafety, MdLocalHospital } from "react-icons/md";
 import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
 import SEOHead from "../components/SEOHead";
 import { api } from "../services/api";
 
@@ -281,9 +280,9 @@ export default function Shop() {
   return (
     <div className="min-h-screen font-sans flex flex-col justify-between" style={{ background: "linear-gradient(135deg, #fce4ec 0%, #e0f2fe 60%, #fdf4ff 100%)" }}>
       <SEOHead 
-        title="Physical Therapy & Medical Equipment Store | Physiohub Pakistan"
-        description="Buy certified physical therapy equipment, rehabilitation bands, TENS machines, spine supports & posture correctors with home delivery in Lahore & Islamabad."
-        keywords="physical therapy equipment store Lahore, medical rehab supplies Islamabad, posture corrector Pakistan, TENS machine Lahore, physio store Pakistan"
+        title="Physical Therapy & Medical Equipment Store | Vital Physio Hub Islamabad"
+        description="Buy certified physical therapy equipment, rehabilitation bands, TENS machines, spine supports & posture correctors with home delivery in Islamabad."
+        keywords="physical therapy equipment store Islamabad, medical rehab supplies Islamabad, posture corrector Pakistan, TENS machine Islamabad, physio store Pakistan"
         canonicalUrl="https://physiohub.com/shop"
       />
       <Navbar />
@@ -654,12 +653,30 @@ export default function Shop() {
                     <div className="border border-blue-100 rounded-2xl p-4 bg-slate-50/60 space-y-3">
                       <div className="flex gap-2 text-xs font-semibold text-slate-650">
                         <FiInfo className="text-blue-500 shrink-0 mt-0.5" />
-                        <div>
-                          <p className="font-bold text-slate-800">Direct Deposit Credentials</p>
+                        <div className="w-full">
+                          <p className="font-bold text-slate-800 mb-1">Direct Deposit Credentials</p>
                           {checkoutForm.paymentMethod === "Bank Transfer" ? (
-                            <p className="mt-0.5">HBL Bank · Account Number: 1234567890 · Title: Vital Physio Hub</p>
+                            <div className="bg-white p-2.5 rounded-xl border border-slate-200 text-slate-800 space-y-0.5">
+                              <p><span className="font-bold text-slate-500">Bank:</span> <strong>Allied Bank Limited (ABL)</strong></p>
+                              <p><span className="font-bold text-slate-500">Account Title:</span> <strong>Ghulam Jellani</strong></p>
+                              <p><span className="font-bold text-slate-500">Account No:</span> <strong className="font-mono text-blue-700 select-all">08390010161147740027</strong></p>
+                            </div>
+                          ) : checkoutForm.paymentMethod === "JazzCash" ? (
+                            <div className="bg-white p-2.5 rounded-xl border border-rose-200 text-center space-y-1">
+                              <p><span className="font-bold text-slate-500">JazzCash Title:</span> <strong>Ghulam Jellani</strong></p>
+                              <p><span className="font-bold text-slate-500">Mobile No:</span> <strong className="font-mono text-rose-600 select-all">03008786187</strong></p>
+                              <div className="w-24 h-24 mx-auto border border-slate-200 rounded-lg p-0.5 bg-white">
+                                <img src="/jazzcash-qr.jpg" alt="JazzCash QR Code" className="w-full h-full object-contain" />
+                              </div>
+                            </div>
                           ) : (
-                            <p className="mt-0.5">{checkoutForm.paymentMethod} account: 0341-7388830 (Dr. Syed Jellan Shah)</p>
+                            <div className="bg-white p-2.5 rounded-xl border border-emerald-200 text-center space-y-1">
+                              <p><span className="font-bold text-slate-500">EasyPaisa Title:</span> <strong>Ghulam Jellani</strong></p>
+                              <p><span className="font-bold text-slate-500">Mobile No:</span> <strong className="font-mono text-emerald-600 select-all">03008786187</strong></p>
+                              <div className="w-24 h-24 mx-auto border border-slate-200 rounded-lg p-0.5 bg-white">
+                                <img src="/easypaisa-qr.jpg" alt="EasyPaisa QR Code" className="w-full h-full object-contain" />
+                              </div>
+                            </div>
                           )}
                         </div>
                       </div>

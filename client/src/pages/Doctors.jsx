@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
 import SEOHead from "../components/SEOHead";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import {
@@ -37,7 +36,7 @@ const TAGS = [
 ];
 
 const GENDERS  = ["all", "Male", "Female"];
-const BRANCHES = ["all", "Gulberg", "DHA"];
+const BRANCHES = ["all", "Blue Area", "F-8 Markaz", "DHA Phase 2"];
 
 // ─── Star Rating ──────────────────────────────────────────────────────────────
 function StarRating({ rating, color = "#f59e0b" }) {
@@ -872,7 +871,7 @@ export default function DoctorsPage() {
       const mergedDocs = dbDocs.map(dbDoc => {
         const mockDoc = doctors.find(m => m.name.toLowerCase() === dbDoc.name.toLowerCase());
         
-        let branches = ["Gulberg", "DHA"];
+        let branches = ["Blue Area, Islamabad"];
         if (typeof dbDoc.branch === "string") {
           branches = dbDoc.branch.split(",").map(b => b.trim());
         } else if (Array.isArray(dbDoc.branch)) {
@@ -963,9 +962,9 @@ export default function DoctorsPage() {
   return (
     <div className="min-h-screen bg-slate-50 font-body">
       <SEOHead 
-        title="Top Physiotherapists & Rehabilitation Specialists in Lahore & Islamabad | Physiohub"
-        description="Find top physical therapists in Lahore (Gulberg, DHA) and Islamabad (Blue Area, F-7). Consult verified specialists for sports injury recovery, stroke rehab, spine & back pain therapy."
-        keywords="best physiotherapist Lahore, top physical therapist Islamabad, physio doctor Gulberg Lahore, rehabilitation specialist DHA Lahore, sports physio doctor Islamabad"
+        title="Top Physiotherapists & Rehabilitation Specialists in Islamabad | Vital Physio Hub"
+        description="Find top physical therapists in Islamabad (Blue Area, F-8 Markaz, DHA Phase 2). Consult verified specialists for sports injury recovery, stroke rehab, spine & back pain therapy."
+        keywords="best physiotherapist Islamabad, top physical therapist Islamabad, physio doctor Blue Area Islamabad, rehabilitation specialist DHA Islamabad, sports physio doctor Islamabad"
         canonicalUrl="https://physiohub.com/doctors"
       />
       <Navbar />
@@ -1064,7 +1063,7 @@ export default function DoctorsPage() {
           </span>
         </motion.a>
       </div>
-      <Footer />
+      
     </div>
   );
 }

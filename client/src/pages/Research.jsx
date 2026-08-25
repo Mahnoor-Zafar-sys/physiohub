@@ -1,6 +1,5 @@
 import { useState } from "react";
 import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
 import SEOHead from "../components/SEOHead";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiTrendingUp, FiLayers, FiFileText, FiAward, FiSearch, FiBookOpen, FiChevronDown, FiUserCheck } from "react-icons/fi";
@@ -96,9 +95,9 @@ export default function Research() {
   return (
     <div className="min-h-screen bg-slate-50 font-body select-none">
       <SEOHead 
-        title="Physical Therapy Research & Clinical Trials | Physiohub Lahore & Islamabad"
-        description="Explore ongoing physical therapy research, active clinical trials for neurological recovery, stroke rehabilitation & orthopedic physiotherapy conducted by Physiohub in Lahore & Islamabad."
-        keywords="physical therapy research Pakistan, clinical trials physiotherapy Lahore, stroke rehab clinical research Islamabad, orthopedic rehabilitation study Pakistan"
+        title="Physical Therapy Research & Clinical Trials | Vital Physio Hub Islamabad"
+        description="Explore ongoing physical therapy research, active clinical trials for neurological recovery, stroke rehabilitation & orthopedic physiotherapy conducted by Vital Physio Hub in Islamabad."
+        keywords="physical therapy research Pakistan, clinical trials physiotherapy Islamabad, stroke rehab clinical research Islamabad, orthopedic rehabilitation study Pakistan"
         canonicalUrl="https://physiohub.com/research"
       />
       <Navbar />
@@ -260,7 +259,7 @@ export default function Research() {
         </div>
       </section>
 
-      <Footer />
+      
     </div>
   );
 }

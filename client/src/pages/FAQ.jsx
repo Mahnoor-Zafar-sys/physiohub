@@ -8,7 +8,6 @@ import { TbStethoscope } from "react-icons/tb";
 import { HiSparkles } from "react-icons/hi";
 import { LuCircleHelp } from "react-icons/lu";
 import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
 import SEOHead from "../components/SEOHead";
 import { api } from "../services/api";
 
@@ -131,9 +130,9 @@ export default function FAQ({ onBookAppointment }) {
   return (
     <div className="min-h-screen font-sans" style={{ background: THEME.grad }}>
       <SEOHead 
-        title="Physiotherapy FAQ & Treatment Answers | Physiohub Lahore & Islamabad"
-        description="Frequently asked questions about physical therapy consultations, appointments, insurance panel coverage & treatment plans in Lahore (Gulberg, DHA) & Islamabad."
-        keywords="physiotherapy FAQ Lahore, physical therapist consultation fee Islamabad, insurance panel physio Lahore, online physio appointment FAQ"
+        title="Physiotherapy FAQ & Treatment Answers | Vital Physio Hub Islamabad"
+        description="Frequently asked questions about physical therapy consultations, appointments, insurance panel coverage & treatment plans in Islamabad (Blue Area, F-8 Markaz, DHA Phase 2)."
+        keywords="physiotherapy FAQ Islamabad, physical therapist consultation fee Islamabad, insurance panel physio Islamabad, online physio appointment FAQ Islamabad"
         canonicalUrl="https://physiohub.com/faq"
         schemaData={faqSchema}
       />
@@ -232,7 +231,7 @@ export default function FAQ({ onBookAppointment }) {
         </motion.div>
       </section>
 
-      <Footer />
+      
     </div>
   );
 }

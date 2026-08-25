@@ -34,9 +34,9 @@ export default function Home() {
   return (
     <div className="min-h-screen font-body relative" style={{ background: "linear-gradient(135deg, #fce4ec 0%, #e0f2fe 60%, #fdf4ff 100%)" }}>
       <SEOHead 
-        title="Physiohub | Best Physical Therapy & Rehabilitation Clinic in Lahore & Islamabad"
-        description="Leading physical therapy & rehabilitation clinic in Lahore (Gulberg, DHA) & Islamabad (Blue Area, F-7). Expert treatment for back pain, sports injuries, stroke rehab & pediatric physical therapy."
-        keywords="physical therapy clinic Lahore, physical therapy Islamabad, best physiotherapist Lahore, physio clinic Islamabad, sports rehabilitation Lahore, back pain treatment Islamabad, pediatric physiotherapy Lahore, stroke recovery Islamabad, physiohub Pakistan"
+        title="Vital Physio Hub | Best Physical Therapy & Rehabilitation Clinic in Islamabad"
+        description="Leading physical therapy & rehabilitation clinic in Islamabad (Blue Area, F-8 Markaz, DHA Phase 2). Expert treatment for back pain, sports injuries, stroke rehab & physiotherapy."
+        keywords="physical therapy clinic Islamabad, best physiotherapist Islamabad, physio clinic Blue Area, sports rehabilitation Islamabad, back pain treatment Islamabad, stroke recovery physiotherapy Islamabad, physiohub Pakistan"
         canonicalUrl="https://physiohub.com/"
       />
       <AnimatePresence>

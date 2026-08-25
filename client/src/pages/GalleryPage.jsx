@@ -9,7 +9,6 @@ import { TbStethoscope } from "react-icons/tb";
 import { MdOutlineHealthAndSafety } from "react-icons/md";
 import { LuHospital, LuGlobe } from "react-icons/lu";
 import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
 import SEOHead from "../components/SEOHead";
 import { api } from "../services/api";
 
@@ -220,7 +219,7 @@ const TOUR_SCENES = [
   { id: 1, name: "Clinic Main Reception & Waiting Area", url: "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=1200&q=100", desc: "A spacious, premium glassmorphic reception lobby with healing botanical aesthetics and ambient light lines." },
   { id: 2, name: "Consultation & Examination Cabin", url: "https://images.unsplash.com/photo-1584820927498-cfe5211fd8bf?auto=format&fit=crop&w=1200&q=100", desc: "Private clinical examination area equipped with secure diagnostics terminals and patient comfort modules." },
   { id: 3, name: "Sterile Modular Operating Theater", url: "https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&w=1200&q=100", desc: "Advanced sterile surgery ward outfitted with modern surgical tools and robotic system integration hooks." },
-  { id: 4, name: "Modern High-End Pathology & Diagnostic Lab", url: "https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?auto=format&fit=crop&w=1200&q=100", desc: "High-throughput laboratory facilitating automated molecular, hematology, and genetic sequencing panels." }
+  { id: 4, name: "Advanced Rehabilitation & Recovery Suite", url: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=1200&q=100", desc: "State-of-the-art physical therapy unit equipped with targeted biomechanical movement systems and recovery modules." }
 ];
 
 export default function GalleryPage({ onBookAppointment }) {
@@ -254,9 +253,9 @@ export default function GalleryPage({ onBookAppointment }) {
   return (
     <div className="min-h-screen font-sans" style={{ background: THEME.grad }}>
       <SEOHead 
-        title="Facility Virtual Tour & Patient Recovery Outcomes | Physiohub Lahore & Islamabad"
-        description="Explore 360 virtual tours of Physiohub physical therapy facilities, consultation suites & before/after patient recovery outcomes in Lahore & Islamabad."
-        keywords="physical therapy facility tour Lahore, rehab clinic pictures Islamabad, patient recovery outcomes Lahore, physio clinic photos DHA Lahore"
+        title="Facility Virtual Tour & Patient Recovery Outcomes | Vital Physio Hub Islamabad"
+        description="Explore 360 virtual tours of Vital Physio Hub physical therapy facilities, consultation suites & before/after patient recovery outcomes in Islamabad."
+        keywords="physical therapy facility tour Islamabad, rehab clinic pictures Islamabad, patient recovery outcomes Islamabad, physio clinic photos Blue Area Islamabad"
         canonicalUrl="https://physiohub.com/gallery"
       />
       <Navbar onBookAppointment={onBookAppointment} />
@@ -283,7 +282,7 @@ export default function GalleryPage({ onBookAppointment }) {
           </motion.h1>
 
           <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25, duration: 0.7 }} className="text-slate-500 text-lg max-w-2xl mx-auto mb-8">
-            Take a virtual tour through our modern treatment spaces, operating theaters, recovery lounges, and diagnostics facilities.
+            Take a virtual tour through our modern treatment spaces, operating theaters, recovery lounges, and rehabilitation suites.
           </motion.p>
         </div>
       </section>
@@ -334,7 +333,7 @@ export default function GalleryPage({ onBookAppointment }) {
         )}
       </section>
 
-      <Footer />
+      
     </div>
   );
 }

@@ -75,9 +75,9 @@ export default function Navbar({ onBookAppointment }) {
         dropdownItems: [
           ...(userRole !== "doctor" ? [{ name: "Equipment Store", path: "/shop" }] : []),
           { name: "Gallery",                path: "/gallery" },
-          { name: "Insurance Info",         path: "/insurance" },
+          { name: "Insurance / Membership",    path: "/insurance" },
           { name: "FAQ",                    path: "/faq" },
-          { name: "Careers / Jobs",         path: "/careers" },
+          { name: "Jobs / Internship",      path: "/careers" },
           { name: "Blog & Health Articles", path: "/blog" },
           { name: "Patient Reviews",        path: "/reviews" },
         ],
@@ -91,8 +91,6 @@ export default function Navbar({ onBookAppointment }) {
         dynamicLinks.push({ name: "Patient Portal", path: "/patient-portal" });
       } else if (userRole === "doctor") {
         dynamicLinks.push({ name: "Doctor Portal", path: "/doctor-portal" });
-      } else if (userRole === "admin") {
-        dynamicLinks.push({ name: "Admin Panel", path: "/admin-secure-portal-gate-x99" });
       } else if (userRole === "receptionist") {
         dynamicLinks.push({ name: "Staff Desk", path: "/staff-reception-terminal-y77" });
       }
@@ -153,7 +151,7 @@ export default function Navbar({ onBookAppointment }) {
         }
       `}</style>
  
-      <div className="fixed top-0 left-0 right-0 z-50 px-3 sm:px-6 lg:px-8 pt-3 sm:pt-4">
+      <div className="fixed top-0 left-0 right-0 z-50 px-2 sm:px-6 lg:px-8 pt-2 sm:pt-4">
         <motion.nav
           initial={{ y: -80, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -164,53 +162,34 @@ export default function Navbar({ onBookAppointment }) {
             <div className="absolute inset-0 rounded-2xl opacity-30 pointer-events-none"
               style={{ background:"radial-gradient(circle at 15% 50%,rgba(59,130,246,0.15),transparent 40%),radial-gradient(circle at 85% 50%,rgba(236,72,153,0.12),transparent 40%)" }} />
           )}
- 
-          <div className="relative z-10 flex items-center justify-between h-[60px] sm:h-[68px] px-3 sm:px-4 lg:px-5 gap-2 lg:gap-2.5 xl:gap-4 w-full">
- 
-            {/* ── Logo Mark (Far Left) ── */}
+
+          <div className="relative z-10 flex items-center justify-between h-[54px] sm:h-[68px] px-2.5 sm:px-4 lg:px-5 gap-1.5 sm:gap-2 lg:gap-2.5 xl:gap-4 w-full">
+
+            {/* ── Logo + Brand Lockup (Far Left) ── */}
             <motion.div
               whileHover={{ scale: 1.02 }}
               onClick={() => handlePageNav("/", false)}
-              className="flex items-center gap-2 cursor-pointer shrink-0"
+              className="flex items-center gap-2 sm:gap-2.5 cursor-pointer shrink-0 min-w-0"
             >
               <div className="relative shrink-0 flex items-center">
                 <img
                   src="/logo.jpeg"
                   alt="Vital Physio Hub Logo"
-                  className="w-14 h-14 sm:w-16 sm:h-16 lg:w-[56px] lg:h-[56px] object-contain transition-all hover:scale-105"
+                  className="w-10 h-10 sm:w-12 sm:h-12 lg:w-[52px] lg:h-[52px] object-contain transition-all hover:scale-105"
                 />
               </div>
 
-              {/* Vertical divider line on desktop only */}
-              <div className="hidden lg:block h-7 sm:h-9 w-[1.5px] bg-slate-300/80 my-auto rounded-full shrink-0 mx-0.5 sm:mx-1" />
-
-              {/* Brand Text block on Desktop */}
-              <div className="hidden lg:flex flex-col justify-center items-start text-left leading-none">
-                <span className="text-slate-900 font-black text-[0.88rem] sm:text-[1.12rem] tracking-tight leading-none whitespace-nowrap block w-full">
+              <div className="flex flex-col justify-center items-start text-left leading-none min-w-0">
+                <span className="text-slate-900 font-black text-[0.84rem] sm:text-[1.08rem] tracking-tight leading-none whitespace-nowrap block">
                   Vital Physio<span className="text-blue-600"> Hub</span>
                 </span>
-                <div className="w-full flex items-center gap-1 text-slate-400 text-[6px] sm:text-[7.2px] font-black tracking-wider uppercase leading-none mt-1">
+                <div className="w-full flex items-center gap-0.5 sm:gap-1 text-slate-400 text-[5px] sm:text-[7px] font-black tracking-wider uppercase leading-none mt-0.5 sm:mt-1">
                   <span className="h-[1px] bg-slate-300 flex-1"></span>
                   <span className="shrink-0">PHYSICAL THERAPY & REHAB</span>
                   <span className="h-[1px] bg-slate-300 flex-1"></span>
                 </div>
               </div>
             </motion.div>
-
-            {/* ── Brand Text (Centered on Mobile) ── */}
-            <div 
-              onClick={() => handlePageNav("/", false)}
-              className="flex lg:hidden flex-1 flex-col items-center justify-center text-center leading-none px-1 cursor-pointer select-none"
-            >
-              <span className="text-slate-900 font-black text-[0.92rem] sm:text-[1.08rem] tracking-tight leading-none whitespace-nowrap block">
-                Vital Physio<span className="text-blue-600"> Hub</span>
-              </span>
-              <div className="w-full max-w-[170px] sm:max-w-[200px] flex items-center justify-center gap-1 text-slate-400 text-[5.8px] sm:text-[6.8px] font-black tracking-wider uppercase leading-none mt-1">
-                <span className="h-[1px] bg-slate-300 flex-1"></span>
-                <span className="shrink-0">PHYSICAL THERAPY & REHAB</span>
-                <span className="h-[1px] bg-slate-300 flex-1"></span>
-              </div>
-            </div>
  
             {/* ── Desktop Nav Links — centered, shrinkable ── */}
             <div className="hidden lg:flex flex-1 items-center justify-center min-w-0 px-1">
@@ -305,10 +284,10 @@ export default function Navbar({ onBookAppointment }) {
  
             {/* ── Mobile Hamburger (Far Right) ── */}
             <button
-              className="lg:hidden p-2 rounded-xl text-slate-800 hover:bg-white/60 border border-transparent hover:border-white/40 transition-all cursor-pointer shrink-0"
+              className="lg:hidden ml-auto p-1.5 sm:p-2 rounded-xl text-slate-800 hover:bg-white/60 border border-transparent hover:border-white/40 transition-all cursor-pointer shrink-0"
               onClick={() => setMobileOpen(!mobileOpen)}
             >
-              {mobileOpen ? <FiX size={22} /> : <FiMenu size={22} />}
+              {mobileOpen ? <FiX size={20} /> : <FiMenu size={20} />}
             </button>
           </div>
  

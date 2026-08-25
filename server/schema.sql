@@ -142,9 +142,9 @@ ON DUPLICATE KEY UPDATE id=id;
 
 -- Seed Doctors List with extended attributes
 INSERT INTO doctors (name, specialty, fee, branch, status, image, experience, rating, title, slug, available, email, social_linkedin, social_facebook, social_instagram) VALUES
-('Dr. Sarah Ahmed', 'Skin & Dermatology', '₨ 3,000', 'Gulberg, DHA', 'Active', 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=400&q=80', '14 Years', 4.90, 'MBBS, FCPS (Dermatology)', 'dr-sarah-ahmed', 1, 'doctor@physiohub.com', 'https://linkedin.com/in/dr-sarah', 'https://facebook.com/dr-sarah', 'https://instagram.com/dr-sarah'),
-('Dr. Omar Farooq', 'Dental Care', '₨ 2,500', 'Gulberg', 'Active', 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=400&q=80', '11 Years', 4.80, 'BDS, FCPS (Oral Surgery)', 'dr-omar-farooq', 1, 'doctor-omar@physiohub.com', 'https://linkedin.com/in/dr-omar', 'https://facebook.com/dr-omar', 'https://instagram.com/dr-omar'),
-('Dr. Fatima Malik', 'Gynecology & Obstetrics', '₨ 3,500', 'DHA', 'Active', 'https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&w=400&q=80', '16 Years', 5.00, 'MBBS, MRCOG (Gynecology)', 'dr-fatima-malik', 1, 'doctor-fatima@physiohub.com', 'https://linkedin.com/in/dr-fatima', 'https://facebook.com/dr-fatima', 'https://instagram.com/dr-fatima')
+('Dr. Sarah Ahmed', 'Skin & Dermatology', '₨ 3,000', 'Blue Area, Islamabad', 'Active', 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=400&q=80', '14 Years', 4.90, 'MBBS, FCPS (Dermatology)', 'dr-sarah-ahmed', 1, 'doctor@physiohub.com', 'https://linkedin.com/in/dr-sarah', 'https://facebook.com/dr-sarah', 'https://instagram.com/dr-sarah'),
+('Dr. Omar Farooq', 'Dental Care', '₨ 2,500', 'F-8, Islamabad', 'Active', 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=400&q=80', '11 Years', 4.80, 'BDS, FCPS (Oral Surgery)', 'dr-omar-farooq', 1, 'doctor-omar@physiohub.com', 'https://linkedin.com/in/dr-omar', 'https://facebook.com/dr-omar', 'https://instagram.com/dr-omar'),
+('Dr. Fatima Malik', 'Gynecology & Obstetrics', '₨ 3,500', 'DHA Phase 2, Islamabad', 'Active', 'https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&w=400&q=80', '16 Years', 5.00, 'MBBS, MRCOG (Gynecology)', 'dr-fatima-malik', 1, 'doctor-fatima@physiohub.com', 'https://linkedin.com/in/dr-fatima', 'https://facebook.com/dr-fatima', 'https://instagram.com/dr-fatima')
 ON DUPLICATE KEY UPDATE id=id;
 
 -- Seed EMR records
@@ -162,7 +162,7 @@ ON DUPLICATE KEY UPDATE id=id;
 -- Seed Appointments (starts as Pending and Pending Verification)
 INSERT INTO appointments (id, doctor_name, date, time, type, branch, status, patient_name, payment_status) VALUES
 ('PC-88201', 'Dr. Sarah Ahmed', '15 Jun, 2026', '04:30 PM', 'Video Consultation', 'Online', 'Confirmed', 'Jane Doe', 'Paid'),
-('PC-88202', 'Dr. Omar Farooq', '18 Jun, 2026', '11:30 AM', 'In-Person Visit', 'Gulberg Branch', 'Pending', 'Jane Doe', 'Pending Verification')
+('PC-88202', 'Dr. Omar Farooq', '18 Jun, 2026', '11:30 AM', 'In-Person Visit', 'Islamabad Branch', 'Pending', 'Jane Doe', 'Pending Verification')
 ON DUPLICATE KEY UPDATE id=id;
 
 -- Seed Invoices
@@ -339,8 +339,8 @@ CREATE TABLE IF NOT EXISTS careers_jobs (
 
 -- Seed Careers
 INSERT INTO careers_jobs (title, department, type, location, experience, salary, deadline, description, requirements) VALUES
-('Senior Physiotherapist', 'Physiotherapy', 'Full-Time', 'Lahore (Gulberg)', '5+ years', 'PKR 1,50,000 - 2,50,000', 'July 25, 2026', 'We are looking for a senior manual physical therapist to lead our sports rehab and skeletal adjustments wing. Master''s degree or equivalent clinical training required.', '["DPT or equivalent degree", "Demonstrated experience in manual therapy adjustive techniques", "Excellent diagnostic and patient care abilities", "Strong team coordination skills"]'),
-('Chiropractor', 'Chiropractic', 'Full-Time', 'Lahore (DHA)', '3+ years', 'PKR 2,00,000 - 3,50,000', 'July 30, 2026', 'Seeking a certified Chiropractor with hands-on expertise in spinal manipulation, decompression therapy, and posture correction.', '["Doctor of Chiropractic (DC) or equivalent board certification", "3+ years clinical experience", "Active registration with PMDC", "Familiarity with biomechanical posture mapping"]');
+('Senior Physiotherapist', 'Physiotherapy', 'Full-Time', 'Islamabad (Blue Area)', '5+ years', 'PKR 1,50,000 - 2,50,000', 'July 25, 2026', 'We are looking for a senior manual physical therapist to lead our sports rehab and skeletal adjustments wing. Master''s degree or equivalent clinical training required.', '["DPT or equivalent degree", "Demonstrated experience in manual therapy adjustive techniques", "Excellent diagnostic and patient care abilities", "Strong team coordination skills"]'),
+('Chiropractor', 'Chiropractic', 'Full-Time', 'Islamabad (F-8 Markaz)', '3+ years', 'PKR 2,00,000 - 3,50,000', 'July 30, 2026', 'Seeking a certified Chiropractor with hands-on expertise in spinal manipulation, decompression therapy, and posture correction.', '["Doctor of Chiropractic (DC) or equivalent board certification", "3+ years clinical experience", "Active registration with PMDC", "Familiarity with biomechanical posture mapping"]');
 
 -- 17. Verified Reviews / Testimonials Table
 CREATE TABLE IF NOT EXISTS reviews_list (
@@ -374,7 +374,7 @@ CREATE TABLE IF NOT EXISTS clinic_settings (
 INSERT INTO clinic_settings (setting_key, setting_value) VALUES
 ('clinic_phone', '+92 300 8786187'),
 ('clinic_email', 'info@vitalphysiohub.com'),
-('clinic_address', 'First Floor, Building 14-B, Main Boulevard, Gulberg, Lahore, Pakistan'),
+('clinic_address', '2nd Floor Allegiance Tower, New Blue Area, Islamabad, Pakistan'),
 ('clinic_hours', 'Mon - Sat: 09:00 AM - 09:00 PM'),
 ('ambulance_phone', '+92 (51) 111-911-273'),
 ('why_us_headline', 'Why Choose Vital Physio Hub?'),
@@ -406,6 +406,26 @@ CREATE TABLE IF NOT EXISTS clinics (
 
 -- Seed Default Master Clinic
 INSERT INTO clinics (id, name, subdomain, address, status) VALUES
-(1, 'Vital Physio Hub', 'vitalphysio', 'Lahore, Pakistan', 'Active')
+(1, 'Vital Physio Hub', 'vitalphysio', 'Islamabad, Pakistan', 'Active')
 ON DUPLICATE KEY UPDATE id=id;
+
+-- 21. Membership & Internship Applications Table
+CREATE TABLE IF NOT EXISTS applications (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  type ENUM('membership', 'internship') NOT NULL,
+  full_name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  phone VARCHAR(100) NOT NULL,
+  qualification VARCHAR(255) DEFAULT NULL,
+  institution VARCHAR(255) DEFAULT NULL,
+  plan_tier VARCHAR(100) DEFAULT NULL,
+  duration VARCHAR(100) DEFAULT NULL,
+  resume_file LONGTEXT DEFAULT NULL,
+  resume_name VARCHAR(255) DEFAULT NULL,
+  cover_letter TEXT DEFAULT NULL,
+  status ENUM('Pending', 'Approved', 'Rejected') DEFAULT 'Pending',
+  clinic_id INT DEFAULT 1,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 

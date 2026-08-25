@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import Footer from "./Footer";
 import Navbar from "./Navbar";
 import SEOHead from "./SEOHead";
 import {
@@ -238,9 +237,9 @@ export default function OnlineConsultation() {
   return (
     <div className="min-h-screen bg-slate-50 font-sans antialiased text-slate-800 flex flex-col justify-between">
       <SEOHead 
-        title="Online Physical Therapy Consultation Pakistan | Tele-Physio Lahore & Islamabad"
-        description="Book HD video physical therapy consultations online with expert physiotherapists in Lahore & Islamabad. Receive clinical diagnoses, exercise plans & authorized digital Rx."
-        keywords="online physical therapy Pakistan, tele physio Lahore, online doctor consultation Islamabad, virtual physio consultation Pakistan, online back pain consultation"
+        title="Online Physical Therapy Consultation Pakistan | Tele-Physio Islamabad"
+        description="Book HD video physical therapy consultations online with expert physiotherapists in Islamabad. Receive clinical diagnoses, exercise plans & authorized digital Rx."
+        keywords="online physical therapy Pakistan, tele physio Islamabad, online doctor consultation Islamabad, virtual physio consultation Pakistan, online back pain consultation"
         canonicalUrl="https://physiohub.com/online-consultation"
       />
       <Navbar />
@@ -799,21 +798,36 @@ export default function OnlineConsultation() {
                             </div>
                           </div>
 
-                          <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 text-xs text-slate-655 space-y-1">
-                            <div className="flex justify-between items-center mb-1">
-                              <span className="text-slate-400 font-bold uppercase tracking-wider text-[9px]">Recipient Info</span>
-                              <span className="px-2 py-0.5 bg-blue-100 text-blue-800 rounded text-[9px] font-bold">{selectedMethod}</span>
+                          <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 text-xs text-slate-700 space-y-2.5">
+                            <div className="flex justify-between items-center pb-2 border-b border-slate-200">
+                              <span className="text-slate-500 font-extrabold uppercase tracking-wider text-[10px]">Payment Receiver Info</span>
+                              <span className="px-2 py-0.5 bg-blue-100 text-blue-800 rounded font-bold text-[10px]">{selectedMethod}</span>
                             </div>
                             {selectedMethod === "Bank Transfer" ? (
-                              <div className="space-y-1 text-slate-700 text-xs">
-                                <p className="font-bold text-slate-900">Bank: <span className="font-normal text-slate-600">Allied Bank Limited (ABL)</span></p>
-                                <p className="font-bold text-slate-900">Account Title: <span className="font-normal text-slate-600">Vital Physio Hub (Pvt) Ltd</span></p>
-                                <p className="font-bold text-slate-900">IBAN / Account #: <span className="font-mono bg-white px-1.5 py-0.5 border border-slate-200 rounded text-pink-600 font-bold select-all">PK12ALBL0012345678901234</span></p>
+                              <div className="space-y-1.5 text-slate-800 text-xs bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+                                <p><span className="font-bold text-slate-500">Bank Name:</span> <strong className="text-slate-900">Allied Bank Limited (ABL)</strong></p>
+                                <p><span className="font-bold text-slate-500">Account Title:</span> <strong className="text-blue-700">Ghulam Jellani</strong></p>
+                                <p><span className="font-bold text-slate-500">Account Number:</span> <span className="font-mono bg-slate-100 px-2 py-0.5 border border-slate-200 rounded text-pink-600 font-extrabold select-all text-xs">08390010161147740027</span></p>
+                              </div>
+                            ) : selectedMethod === "JazzCash" ? (
+                              <div className="space-y-2 text-slate-800 text-xs bg-white p-3 rounded-xl border border-rose-200 text-center shadow-xs">
+                                <p className="text-[10px] font-black text-rose-600 uppercase tracking-widest">JazzCash Account</p>
+                                <p><span className="font-bold text-slate-500">Account Title:</span> <strong className="text-slate-900">Ghulam Jellani</strong></p>
+                                <p><span className="font-bold text-slate-500">Mobile Number:</span> <span className="font-mono bg-rose-50 px-2 py-0.5 border border-rose-200 rounded text-rose-700 font-black select-all text-xs">03008786187</span></p>
+                                <div className="w-32 h-32 mx-auto border border-slate-200 rounded-xl overflow-hidden p-1 bg-white shadow-xs mt-1">
+                                  <img src="/jazzcash-qr.jpg" alt="JazzCash QR Code - Ghulam Jellani" className="w-full h-full object-contain" />
+                                </div>
+                                <span className="text-[9px] text-slate-400 block font-semibold">Scan QR code in JazzCash App</span>
                               </div>
                             ) : (
-                              <div className="space-y-1 text-slate-700 text-xs">
-                                <p className="font-bold text-slate-900">Account Title: <span className="font-normal text-slate-600">Vital Physio Hub</span></p>
-                                <p className="font-bold text-slate-900">Mobile Wallet Number: <span className="font-mono bg-white px-1.5 py-0.5 border border-slate-200 rounded text-pink-600 font-bold select-all">0300-8786187</span></p>
+                              <div className="space-y-2 text-slate-800 text-xs bg-white p-3 rounded-xl border border-emerald-200 text-center shadow-xs">
+                                <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">EasyPaisa Account</p>
+                                <p><span className="font-bold text-slate-500">Account Title:</span> <strong className="text-slate-900">Ghulam Jellani</strong></p>
+                                <p><span className="font-bold text-slate-500">Mobile Number:</span> <span className="font-mono bg-emerald-50 px-2 py-0.5 border border-emerald-200 rounded text-emerald-700 font-black select-all text-xs">03008786187</span></p>
+                                <div className="w-32 h-32 mx-auto border border-slate-200 rounded-xl overflow-hidden p-1 bg-white shadow-xs mt-1">
+                                  <img src="/easypaisa-qr.jpg" alt="EasyPaisa QR Code - Ghulam Jellani" className="w-full h-full object-contain" />
+                                </div>
+                                <span className="text-[9px] text-slate-400 block font-semibold">Scan QR code in EasyPaisa App</span>
                               </div>
                             )}
                           </div>
@@ -924,7 +938,7 @@ export default function OnlineConsultation() {
         )}
       </AnimatePresence>
 
-      <Footer />
+      
     </div>
   );
 }

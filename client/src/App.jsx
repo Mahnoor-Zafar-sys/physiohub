@@ -25,7 +25,7 @@ import SignupPage from "./pages/SignupPage";
 import PatientPortal from "./pages/PatientPortal";
 import DoctorPortal from "./pages/DoctorPortal";
 import AdminPanel from "./pages/AdminPanel";
-import AuthGuard from "./components/AuthGuard";
+import AuthGuard from "./components/AuthGuard"; 
 import AIChatbot from "./components/AIChatbot";
 import NewsPress from "./pages/NewsPress";
 import ResearchPage from "./pages/Research";
@@ -35,6 +35,7 @@ import NewsArticlePage from "./pages/NewsArticlePage";
 import Shop from "./pages/Shop";
 import Insurance from "./pages/Insurance";
 import HomeConsultationPage from "./pages/HomeConsultationPage";
+import MembershipInternship from "./pages/MembershipInternship";
 
 function DashboardRedirect() {
   const role = localStorage.getItem("vph_user_role");
@@ -66,6 +67,7 @@ export default function App() {
         <Route path="/services" element={<ServicesPage />} />
         <Route path="/shop" element={<Shop />} />
         <Route path="/contact" element={<ContactUs />} />
+        <Route path="/membership-internship" element={<MembershipInternship />} />
         <Route path="/book-appointment" element={
           <AuthGuard allowedRoles={["patient"]}>
             <BookAppointmentPage />

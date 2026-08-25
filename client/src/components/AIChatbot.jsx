@@ -34,8 +34,8 @@ export default function AIChatbot() {
       action: { label: "Go to Booking Portal", path: "/book-appointment" }
     },
     branches: {
-      keywords: ["branch", "location", "address", "where", "islamabad", "lahore", "karachi"],
-      text: "Physiohub has branches in major cities:\n• Islamabad: Plaza 56, Block L, Blue Area\n• Lahore: Gulberg Center\n• Karachi: DHA Phase VI\nWould you like to contact a specific branch?",
+      keywords: ["branch", "location", "address", "where", "islamabad", "blue area", "dha"],
+      text: "Vital Physio Hub is conveniently located in Islamabad:\n• Main Branch: 2nd Floor Allegiance Tower, New Blue Area, Islamabad\n• DHA Branch: DHA Phase 2, Islamabad\nWould you like to contact us?",
       action: { label: "Contact Us", path: "/contact" }
     },
     fallback: "I understand. As an AI health assistant, I can provide general health information, but cannot replace a doctor's diagnosis. If you have active health concerns, we strongly recommend consulting our specialists."

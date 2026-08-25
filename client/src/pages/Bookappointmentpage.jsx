@@ -15,7 +15,6 @@ import { LuCalendar, LuClock, LuCreditCard, LuMapPin } from "react-icons/lu";
 
 import { doctors as MOCK_DOCTORS } from "../data/mockData";
 import { api } from "../services/api";
-import Footer from "../components/Footer";
 
 /* ─── CONSTANTS ──────────────────────────────────────────── */
 const TIME_SLOTS = [
@@ -27,7 +26,7 @@ const TIME_SLOTS = [
 ];
 
 const CONSULTATION_TYPES = [
-  { value: "in-person", label: "In-Person Visit", icon: FiUser, desc: "Visit our clinic branches" },
+  { value: "in-person", label: "In-Person Visit", icon: FiUser, desc: "Visit our clinic location" },
   { value: "online", label: "Online Consultation", icon: FiVideo, desc: "Telehealth consult channels" },
   { value: "home-visit", label: "Doctor Home Visit", icon: FaAmbulance, desc: "Specialist visits you at home" },
 ];
@@ -666,7 +665,7 @@ export default function BookAppointmentPage() {
   const [selectedCustomDate, setSelectedCustomDate] = useState(null);
   const [selectedTime, setSelectedTime] = useState(null);
   const [consultType, setConsultType] = useState("in-person");
-  const [selectedBranch, setSelectedBranch] = useState("Gulberg");
+  const [selectedBranch, setSelectedBranch] = useState("2nd Floor Allegiance Tower, New Blue Area, Islamabad");
 
   // Payment modal state
   const [showPaymentModal, setShowPaymentModal] = useState(false);
@@ -705,16 +704,9 @@ export default function BookAppointmentPage() {
   const handleRemoveReport = () => { setReportBase64(""); setReportName(""); };
 
   useEffect(() => {
+    localStorage.removeItem("pc_branches");
     api.getAppointments().then(res => { if (res) setAppointments(res); });
-    api.getBranches().then(res => {
-      if (res && res.length > 0) {
-        setBranchesList(res);
-        setSelectedBranch(res[0].name);
-      } else {
-        setBranchesList([{ id: 1, name: "Gulberg", city: "Lahore" }, { id: 2, name: "DHA", city: "Lahore" }]);
-        setSelectedBranch("Gulberg");
-      }
-    });
+    setSelectedBranch("2nd Floor Allegiance Tower, New Blue Area, Islamabad");
   }, []);
 
   useEffect(() => {
@@ -722,7 +714,7 @@ export default function BookAppointmentPage() {
       const dbDocs = await api.getDoctors();
       const mergedDocs = dbDocs.map(dbDoc => {
         const mockDoc = MOCK_DOCTORS.find(m => m.name.toLowerCase() === dbDoc.name.toLowerCase());
-        let branches = ["Gulberg", "DHA"];
+        let branches = ["Blue Area", "DHA Phase 2"];
         if (typeof dbDoc.branch === "string") branches = dbDoc.branch.split(",").map(b => b.trim());
         else if (Array.isArray(dbDoc.branch)) branches = dbDoc.branch;
         return {
@@ -841,9 +833,9 @@ export default function BookAppointmentPage() {
   return (
     <div style={{ minHeight: "100vh", fontFamily: "'Inter', 'Segoe UI', sans-serif", background: "#f8fafc" }}>
       <SEOHead 
-        title="Book Physical Therapy Appointment in Lahore & Islamabad | Physiohub"
-        description="Schedule a physical therapy consultation in Lahore (Gulberg, DHA) or Islamabad (Blue Area, F-7). Select your preferred physiotherapist, date, slot & clinic location online."
-        keywords="book physical therapy Lahore, physio appointment Islamabad, physical therapist consultation Gulberg, book physio DHA Lahore, online appointment Lahore physio"
+        title="Book Physical Therapy Appointment in Islamabad | Vital Physio Hub"
+        description="Schedule a physical therapy consultation in Islamabad (Blue Area, F-8, DHA Phase 2). Select your preferred physiotherapist, date, slot & clinic location online."
+        keywords="book physical therapy Islamabad, physio appointment Islamabad, physical therapist consultation Blue Area Islamabad, book physio DHA Islamabad"
         canonicalUrl="https://physiohub.com/book-appointment"
       />
       <Navbar />
@@ -1092,32 +1084,40 @@ export default function BookAppointmentPage() {
                   </div>
                 </div>
 
-                {/* Branch Selector (In-Person Visit) */}
+                {/* Clinic Location (In-Person Visit) */}
                 {consultType === "in-person" && (
                   <div>
-                    <label style={labelStyle}>Select Clinic Branch</label>
-                    <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-                      {branchesList.map(b => (
-                        <button
-                          key={b.id}
-                          type="button"
-                          onClick={() => {
-                            setSelectedBranch(b.name);
-                            setSelectedDoctor(null);
-                          }}
-                          style={{
-                            flex: "1 1 calc(50% - 6px)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-                            padding: "12px 16px", borderRadius: 14,
-                            border: selectedBranch === b.name ? "2.5px solid #db2777" : "1.5px solid #e2e8f0",
-                            background: selectedBranch === b.name ? "#fff1f2" : "white",
-                            cursor: "pointer", fontSize: 13, fontWeight: 750,
-                            color: selectedBranch === b.name ? "#be185d" : "#64748b",
-                            transition: "all 0.2s",
-                          }}
-                        >
-                          <FiMapPin size={14} /> {b.name}
-                        </button>
-                      ))}
+                    <label style={labelStyle}>Clinic Location</label>
+                    <div style={{
+                      display: "flex", alignItems: "center", gap: 14,
+                      padding: "14px 18px", borderRadius: 16,
+                      border: "2px solid #db2777",
+                      background: "linear-gradient(135deg, #fff1f2 0%, #ffffff 100%)",
+                      boxShadow: "0 4px 14px rgba(219, 39, 119, 0.08)",
+                    }}>
+                      <div style={{
+                        width: 42, height: 42, borderRadius: 12,
+                        background: "linear-gradient(135deg, #db2777, #be185d)",
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        color: "white", flexShrink: 0, boxShadow: "0 3px 10px rgba(219, 39, 119, 0.3)"
+                      }}>
+                        <FiMapPin size={22} />
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: 14, fontWeight: 800, color: "#9f1239" }}>
+                          2nd Floor Allegiance Tower, Blue Area
+                        </div>
+                        <div style={{ fontSize: 12, color: "#64748b", marginTop: 2, fontWeight: 600 }}>
+                          New Blue Area, Islamabad, Pakistan
+                        </div>
+                      </div>
+                      <div style={{
+                        padding: "4px 10px", borderRadius: 20,
+                        background: "#ffe4e6", color: "#be185d",
+                        fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.5px"
+                      }}>
+                        Clinic Location
+                      </div>
                     </div>
                   </div>
                 )}
@@ -1215,9 +1215,6 @@ export default function BookAppointmentPage() {
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 14, marginTop: 8 }}>
                       {doctors
                         .filter(d => {
-                          if (consultType === "in-person" && selectedBranch) {
-                            return d.branch.some(b => b.toLowerCase() === selectedBranch.toLowerCase());
-                          }
                           return true;
                         })
                         .map(doc => {
@@ -1458,9 +1455,23 @@ export default function BookAppointmentPage() {
               <button onClick={() => setShowPaymentModal(false)}
                 className="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 hover:bg-rose-100 hover:text-rose-600 flex items-center justify-center text-slate-500 transition-colors border-none cursor-pointer"
               >✕</button>
-              <div className="text-center pb-4 border-b border-slate-100">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-pink-500 rounded-2xl flex items-center justify-center mx-auto text-white shadow-lg mb-3">
-                  <FiShield size={22} />
+              <div className="text-center pb-5 border-b border-slate-100 relative">
+                {/* Professional Trust & Security Icon Badge */}
+                <div className="relative inline-flex items-center justify-center mb-3">
+                  <div className="absolute -inset-1 rounded-2xl bg-emerald-500/20 blur-sm"></div>
+                  <div className="relative w-14 h-14 bg-slate-900 rounded-2xl flex items-center justify-center text-emerald-400 shadow-xl border border-slate-700/60">
+                    <svg className="w-7 h-7 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="rgba(16, 185, 129, 0.15)" stroke="#10b981" />
+                      <path d="M9 12l2 2 4-4" stroke="#34d399" strokeWidth="2.2" />
+                    </svg>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-center gap-1.5 mb-1.5">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200/80 uppercase tracking-wider">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    256-Bit Encrypted & Verified
+                  </span>
                 </div>
                 <h3 className="font-extrabold text-slate-900 text-lg">Secure Local Payment Gateway</h3>
                 <p className="text-xs text-slate-400 mt-1 uppercase tracking-wider">Fee Amount: <span className="font-black text-pink-600">{selectedDoctor?.fee || "Rs. 3,000"}</span></p>
@@ -1496,22 +1507,32 @@ export default function BookAppointmentPage() {
                     <span className="px-2 py-0.5 bg-slate-200 rounded text-[9px] font-bold text-slate-600">{selectedMethod}</span>
                   </div>
                   {selectedMethod === "Bank Transfer" ? (
-                    <div className="space-y-1 text-slate-700 text-xs">
-                      <p className="font-extrabold text-slate-900">Bank: <span className="font-normal text-slate-600">Allied Bank Limited (ABL)</span></p>
-                      <p className="font-extrabold text-slate-900">Account Title: <span className="font-normal text-slate-600">Vital Physio Hub (Pvt) Ltd</span></p>
-                      <p className="font-extrabold text-slate-900">IBAN / Account #: <span className="font-mono bg-white px-1.5 py-0.5 border border-slate-200 rounded text-pink-600 font-bold select-all">PK12ALBL0012345678901234</span></p>
+                    <div className="space-y-1.5 text-slate-800 text-xs bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+                      <p><span className="font-bold text-slate-500">Bank Name:</span> <strong className="text-slate-900">Allied Bank Limited (ABL)</strong></p>
+                      <p><span className="font-bold text-slate-500">Account Title:</span> <strong className="text-blue-700">Ghulam Jellani</strong></p>
+                      <p><span className="font-bold text-slate-500">Account Number:</span> <span className="font-mono bg-slate-100 px-2 py-0.5 border border-slate-200 rounded text-pink-600 font-extrabold select-all text-xs">08390010161147740027</span></p>
+                    </div>
+                  ) : selectedMethod === "JazzCash" ? (
+                    <div className="space-y-2 text-slate-800 text-xs bg-white p-3 rounded-xl border border-rose-200 text-center shadow-xs">
+                      <p className="text-[10px] font-black text-rose-600 uppercase tracking-widest">JazzCash Account</p>
+                      <p><span className="font-bold text-slate-500">Account Title:</span> <strong className="text-slate-900">Ghulam Jellani</strong></p>
+                      <p><span className="font-bold text-slate-500">Mobile Number:</span> <span className="font-mono bg-rose-50 px-2 py-0.5 border border-rose-200 rounded text-rose-700 font-black select-all text-xs">03008786187</span></p>
+                      <div className="w-32 h-32 mx-auto border border-slate-200 rounded-xl overflow-hidden p-1 bg-white shadow-xs mt-1">
+                        <img src="/jazzcash-qr.jpg" alt="JazzCash QR Code - Ghulam Jellani" className="w-full h-full object-contain" />
+                      </div>
+                      <span className="text-[9px] text-slate-400 block font-semibold">Scan QR code in JazzCash App</span>
                     </div>
                   ) : (
-                    <div className="space-y-1 text-slate-700 text-xs">
-                      <p className="font-extrabold text-slate-900">Account Title: <span className="font-normal text-slate-600">Vital Physio Hub</span></p>
-                      <p className="font-extrabold text-slate-900">Mobile Wallet Number: <span className="font-mono bg-white px-1.5 py-0.5 border border-slate-200 rounded text-pink-600 font-bold select-all">0300-8786187</span></p>
+                    <div className="space-y-2 text-slate-800 text-xs bg-white p-3 rounded-xl border border-emerald-200 text-center shadow-xs">
+                      <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">EasyPaisa Account</p>
+                      <p><span className="font-bold text-slate-500">Account Title:</span> <strong className="text-slate-900">Ghulam Jellani</strong></p>
+                      <p><span className="font-bold text-slate-500">Mobile Number:</span> <span className="font-mono bg-emerald-50 px-2 py-0.5 border border-emerald-200 rounded text-emerald-700 font-black select-all text-xs">03008786187</span></p>
+                      <div className="w-32 h-32 mx-auto border border-slate-200 rounded-xl overflow-hidden p-1 bg-white shadow-xs mt-1">
+                        <img src="/easypaisa-qr.jpg" alt="EasyPaisa QR Code - Ghulam Jellani" className="w-full h-full object-contain" />
+                      </div>
+                      <span className="text-[9px] text-slate-400 block font-semibold">Scan QR code in EasyPaisa App</span>
                     </div>
                   )}
-                  <p className="text-[10px] text-slate-400 mt-1 italic">
-                    {selectedMethod === "Bank Transfer"
-                      ? "Please perform an IBAN bank transfer from your mobile banking app."
-                      : `Please send the consultation fee (${selectedDoctor?.fee || "Rs. 3,000"}) to the wallet number above.`}
-                  </p>
                 </div>
                 <div>
                   <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wide block mb-2">Verification Protocol</label>
@@ -1568,7 +1589,7 @@ export default function BookAppointmentPage() {
         )}
       </AnimatePresence>
 
-      <Footer />
+      
     </div>
   );
 }

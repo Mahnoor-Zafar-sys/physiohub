@@ -4,7 +4,6 @@ import { motion } from "framer-motion";
 import { FiUser, FiCalendar, FiClock, FiFileText, FiActivity, FiList, FiExternalLink, FiCheckCircle, FiVideo, FiX } from "react-icons/fi";
 import { FaUserMd, FaWhatsapp } from "react-icons/fa";
 import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
 import SEOHead from "../components/SEOHead";
 import { api } from "../services/api";
 
@@ -587,10 +586,10 @@ export default function DoctorPortal() {
 
                     <div className="space-y-4 max-w-md">
                       {[
-                        { day: "Monday", time: "10:00 AM – 2:00 PM", branch: "Gulberg Branch" },
-                        { day: "Wednesday", time: "3:00 PM – 7:00 PM", branch: "DHA Branch" },
-                        { day: "Friday", time: "10:00 AM – 1:00 PM", branch: "Gulberg Branch" },
-                        { day: "Saturday", time: "4:00 PM – 8:00 PM", branch: "DHA Branch" },
+                        { day: "Monday", time: "10:00 AM – 2:00 PM", branch: "Blue Area Branch" },
+                        { day: "Wednesday", time: "3:00 PM – 7:00 PM", branch: "F-8 Markaz Branch" },
+                        { day: "Friday", time: "10:00 AM – 1:00 PM", branch: "Blue Area Branch" },
+                        { day: "Saturday", time: "4:00 PM – 8:00 PM", branch: "DHA Phase 2 Branch" },
                       ].map((slot, idx) => (
                         <div key={idx} className="border border-slate-100 rounded-2xl p-4 flex justify-between items-center bg-slate-50">
                           <div>
@@ -744,7 +743,7 @@ export default function DoctorPortal() {
         </div>
       </div>
 
-      <Footer />
+      
     </div>
   );
 }

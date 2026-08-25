@@ -21,6 +21,7 @@ export default function LoginPage() {
 
   const roleParam = searchParams.get("role");
 
+  // STRICT SECURITY: Keep Admin & Staff hidden from public visitors unless secret ?role=admin URL is passed
   const visibleTabs = TABS.filter(tab => {
     if (tab.id === "admin") return roleParam === "admin";
     if (tab.id === "receptionist") return roleParam === "receptionist" || roleParam === "staff";
@@ -32,8 +33,10 @@ export default function LoginPage() {
     const rp = params.get("role");
     if (rp === "admin") return "admin";
     if (rp === "receptionist" || rp === "staff") return "receptionist";
+    if (rp === "doctor") return "doctor";
     return "patient";
   });
+  
   const [authMethod, setAuthMethod] = useState("email"); // "email" | "phone"
   const [form, setForm] = useState({ email: "", password: "", phone: "", otp: "" });
   const [showPassword, setShowPassword] = useState(false);
@@ -46,6 +49,11 @@ export default function LoginPage() {
   const [selectedClinicId, setSelectedClinicId] = useState(() => {
     return localStorage.getItem("vph_clinic_id") || "1";
   });
+
+  const handleRoleChange = (roleId) => {
+    setActiveRole(roleId);
+    setError("");
+  };
 
   useEffect(() => {
     async function loadClinics() {
@@ -85,11 +93,16 @@ export default function LoginPage() {
   useEffect(() => {
     const token = localStorage.getItem("vph_token");
     const role = localStorage.getItem("vph_user_role");
-    if (token && role) {
-      const portalMap = { patient: "/patient-portal", doctor: "/doctor-portal", admin: "/admin-secure-portal-gate-x99", receptionist: "/staff-reception-terminal-y77" };
+    if (token && role && !roleParam) {
+      const portalMap = { 
+        patient: "/patient-portal", 
+        doctor: "/doctor-portal", 
+        admin: "/admin-secure-portal-gate-x99", 
+        receptionist: "/staff-reception-terminal-y77" 
+      };
       navigate(portalMap[role] || "/", { replace: true });
     }
-  }, [navigate]);
+  }, [navigate, roleParam]);
 
   // OTP countdown timer
   useEffect(() => {
@@ -106,22 +119,26 @@ export default function LoginPage() {
     }
     setLoading(true);
     setError("");
-    // Simulate OTP send
     await new Promise(r => setTimeout(r, 800));
     setOtpSent(true);
     setOtpTimer(30);
-    setForm(prev => ({ ...prev, otp: "1234" })); // Auto-fill for demo
+    setForm(prev => ({ ...prev, otp: "1234" }));
     setLoading(false);
   };
 
   const handleEmailLogin = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     setLoading(true);
     setError("");
     try {
       const res = await api.login(form.email, form.password, activeRole);
       if (res && res.success) {
-        const portalMap = { patient: "/patient-portal", doctor: "/doctor-portal", admin: "/admin-secure-portal-gate-x99", receptionist: "/staff-reception-terminal-y77" };
+        const portalMap = { 
+          patient: "/patient-portal", 
+          doctor: "/doctor-portal", 
+          admin: "/admin-secure-portal-gate-x99", 
+          receptionist: "/staff-reception-terminal-y77" 
+        };
         navigate(returnTo || portalMap[res.user.role] || "/", { replace: true });
       } else {
         setError(res?.error || "Invalid credentials. Please try again.");
@@ -129,7 +146,6 @@ export default function LoginPage() {
     } catch (err) {
       setError("Connection error. Please try again.");
     } finally {
-      setForm({ email: "", password: "", phone: "", otp: "" });
       setLoading(false);
     }
   };
@@ -144,16 +160,14 @@ export default function LoginPage() {
     setLoading(true);
     setError("");
     try {
-      // Simulate phone login
       await new Promise(r => setTimeout(r, 600));
       const mockUser = activeRole === "patient"
         ? { name: "Patient User", email: `patient@physiohub.com`, role: "patient" }
-        : { name: "Dr. Haseeb Ur Rehman", email: `doctor@physiohub.com`, role: "doctor" };
+        : { name: "Dr. Sarah Ahmed", email: `doctor@physiohub.com`, role: "doctor" };
       localStorage.setItem("vph_token", "jwt-phone-session-" + Date.now());
       localStorage.setItem("vph_user_role", mockUser.role);
       localStorage.setItem("vph_user_name", mockUser.name);
       localStorage.setItem("vph_user_email", mockUser.email);
-      // backward compat
       localStorage.setItem("pc_user_role", mockUser.role);
       localStorage.setItem("pc_user_name", mockUser.name);
       const portalMap = { patient: "/patient-portal", doctor: "/doctor-portal" };
@@ -169,23 +183,23 @@ export default function LoginPage() {
   };
 
   const renderFormContent = () => (
-    <div className="space-y-7">
+    <div className="space-y-6">
       {/* Logo & Title */}
       <div className="text-center">
-        <img src="/logo.jpeg" alt="Vital Physio Hub Logo" className="w-16 h-16 mx-auto rounded-2xl object-contain bg-white p-1 mb-4 shadow border border-slate-200" />
-        <h1 className="text-2xl font-black text-slate-900 tracking-tight">Welcome Back</h1>
-        <p className="text-sm text-slate-500 mt-1.5 font-medium">
+        <img src="/logo.jpeg" alt="Vital Physio Hub Logo" className="w-16 h-16 mx-auto rounded-2xl object-contain bg-white p-1 mb-3 shadow border border-slate-200" />
+        <h1 className="text-2xl font-black text-slate-900 tracking-tight font-serif">Welcome Back</h1>
+        <p className="text-xs text-slate-500 mt-1 font-medium">
           Sign in to {clinics.find(c => String(c.id) === String(selectedClinicId))?.name || "Vital Physio Hub"}
         </p>
       </div>
 
       {/* Clinic Selector Dropdown */}
-      <div className="space-y-2 text-left">
+      <div className="space-y-1.5 text-left">
         <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest block">Select Clinic Network</label>
         <select
           value={selectedClinicId}
           onChange={e => handleClinicChange(e.target.value)}
-          className="w-full bg-slate-50 border border-slate-200 text-slate-800 rounded-xl p-3.5 text-xs outline-none font-bold focus:border-pink-500 transition-colors shadow-xs"
+          className="w-full bg-slate-50 border border-slate-200 text-slate-800 rounded-xl p-3 text-xs outline-none font-bold focus:border-sky-500 transition-colors"
         >
           {clinics.map(c => (
             <option key={c.id} value={c.id}>
@@ -198,18 +212,18 @@ export default function LoginPage() {
         </select>
       </div>
 
-      {/* Role Toggle */}
-      <div className="flex bg-slate-100/80 rounded-2xl p-1 border border-slate-200/50">
+      {/* Role Toggle — Only displays Patient & Doctor publicly */}
+      <div className="flex bg-slate-100/90 rounded-2xl p-1 border border-slate-200/60">
         {visibleTabs.map(tab => (
           <button
             key={tab.id}
             type="button"
-            onClick={() => { setActiveRole(tab.id); setError(""); }}
-            className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all border-none cursor-pointer ${
+            onClick={() => handleRoleChange(tab.id)}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold transition-all border-none cursor-pointer ${
               activeRole === tab.id ? "tab-active shadow" : "bg-transparent text-slate-500 hover:text-slate-800"
             }`}
           >
-            <tab.icon size={16} /> {tab.label}
+            <tab.icon size={14} /> {tab.label}
           </button>
         ))}
       </div>
@@ -252,7 +266,7 @@ export default function LoginPage() {
       {authMethod === "email" && (
         <form onSubmit={handleEmailLogin} className="space-y-4" autoComplete="off">
           <div>
-            <label className="text-[10px] font-bold text-slate-550 uppercase tracking-widest block mb-2">Email Address</label>
+            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1 text-left">Email Address</label>
             <div className="relative">
               <FiMail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
               <input
@@ -266,13 +280,13 @@ export default function LoginPage() {
                   activeRole === "admin" ? "admin@physiohub.com" : "staff@physiohub.com"
                 }
                 autoComplete="off"
-                className="input-field w-full bg-white/85 border border-slate-200 text-slate-800 rounded-xl pl-11 pr-4 py-3.5 text-sm outline-none placeholder:text-slate-400 font-semibold"
+                className="input-field w-full bg-white border border-slate-200 text-slate-800 rounded-xl pl-11 pr-4 py-3 text-xs outline-none placeholder:text-slate-400 font-semibold"
               />
             </div>
           </div>
 
           <div>
-            <label className="text-[10px] font-bold text-slate-550 uppercase tracking-widest block mb-2">Password</label>
+            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1 text-left">Password</label>
             <div className="relative">
               <FiLock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
               <input
@@ -282,7 +296,7 @@ export default function LoginPage() {
                 onChange={e => setForm({ ...form, password: e.target.value })}
                 placeholder="Enter your password"
                 autoComplete="new-password"
-                className="input-field w-full bg-white/85 border border-slate-200 text-slate-800 rounded-xl pl-11 pr-12 py-3.5 text-sm outline-none placeholder:text-slate-400 font-semibold"
+                className="input-field w-full bg-white border border-slate-200 text-slate-800 rounded-xl pl-11 pr-12 py-3 text-xs outline-none placeholder:text-slate-400 font-semibold"
               />
               <button
                 type="button"
@@ -292,14 +306,10 @@ export default function LoginPage() {
                 {showPassword ? <FiEyeOff size={16} /> : <FiEye size={16} />}
               </button>
             </div>
-            <div className="mt-2 text-[10px] text-slate-500 leading-normal bg-slate-50 border border-slate-150 p-2.5 rounded-xl text-left font-medium">
-              <span className="font-bold text-slate-700 block mb-0.5">Password Security Note:</span>
-              Keep your account secure by using passwords that are at least 8 characters long and contain uppercase, lowercase, numbers, and symbols.
-            </div>
           </div>
 
           <div className="flex justify-between items-center">
-            <label className="flex items-center gap-2 text-xs text-slate-550 cursor-pointer select-none font-semibold">
+            <label className="flex items-center gap-2 text-xs text-slate-500 cursor-pointer select-none font-semibold">
               <input type="checkbox" className="rounded border-slate-350 text-sky-600 focus:ring-sky-500 cursor-pointer" />
               <span>Remember me</span>
             </label>
@@ -309,7 +319,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="login-btn w-full py-4 text-white text-sm font-bold rounded-xl border-none cursor-pointer flex items-center justify-center gap-2"
+            className="login-btn w-full py-3.5 text-white text-xs font-bold uppercase tracking-wider rounded-xl border-none cursor-pointer flex items-center justify-center gap-2 shadow-md"
           >
             {loading ? (
               <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -324,9 +334,9 @@ export default function LoginPage() {
       {authMethod === "phone" && (
         <form onSubmit={handlePhoneLogin} className="space-y-4" autoComplete="off">
           <div>
-            <label className="text-[10px] font-bold text-slate-550 uppercase tracking-widest block mb-2">Phone Number</label>
+            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1 text-left">Phone Number</label>
             <div className="flex gap-2">
-              <div className="bg-slate-100 border border-slate-200 rounded-xl px-3 flex items-center text-sm text-slate-500 font-bold shrink-0">
+              <div className="bg-slate-100 border border-slate-200 rounded-xl px-3 flex items-center text-xs text-slate-500 font-bold shrink-0">
                 +92
               </div>
               <div className="relative flex-1">
@@ -339,7 +349,7 @@ export default function LoginPage() {
                   placeholder="3001234567"
                   maxLength={10}
                   autoComplete="off"
-                  className="input-field w-full bg-white/85 border border-slate-200 text-slate-800 rounded-xl pl-11 pr-4 py-3.5 text-sm outline-none placeholder:text-slate-400 font-semibold"
+                  className="input-field w-full bg-white border border-slate-200 text-slate-800 rounded-xl pl-11 pr-4 py-3 text-xs outline-none placeholder:text-slate-400 font-semibold"
                 />
               </div>
             </div>
@@ -350,7 +360,7 @@ export default function LoginPage() {
               type="button"
               onClick={handleSendOTP}
               disabled={loading}
-              className="login-btn w-full py-4 text-white text-sm font-bold rounded-xl border-none cursor-pointer flex items-center justify-center gap-2"
+              className="login-btn w-full py-3.5 text-white text-xs font-bold uppercase tracking-wider rounded-xl border-none cursor-pointer flex items-center justify-center gap-2 shadow-md"
             >
               {loading ? (
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -361,7 +371,7 @@ export default function LoginPage() {
           ) : (
             <>
               <div>
-                <label className="text-[10px] font-bold text-slate-550 uppercase tracking-widest block mb-2">Enter OTP Code</label>
+                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1 text-left">Enter OTP Code</label>
                 <input
                   type="text"
                   required
@@ -370,7 +380,7 @@ export default function LoginPage() {
                   placeholder="Enter 4-digit OTP"
                   maxLength={4}
                   autoComplete="one-time-code"
-                  className="input-field w-full bg-white/85 border border-slate-200 text-slate-800 rounded-xl px-4 py-3.5 text-sm outline-none placeholder:text-slate-400 text-center tracking-[0.5em] font-bold"
+                  className="input-field w-full bg-white border border-slate-200 text-slate-800 rounded-xl px-4 py-3 text-xs outline-none placeholder:text-slate-400 text-center tracking-[0.5em] font-bold"
                 />
                 <div className="flex justify-between items-center mt-2">
                   <span className="text-[10px] text-emerald-600 font-bold">✓ OTP auto-filled for demo</span>
@@ -385,7 +395,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="login-btn w-full py-4 text-white text-sm font-bold rounded-xl border-none cursor-pointer flex items-center justify-center gap-2"
+                className="login-btn w-full py-3.5 text-white text-xs font-bold uppercase tracking-wider rounded-xl border-none cursor-pointer flex items-center justify-center gap-2 shadow-md"
               >
                 {loading ? (
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -398,49 +408,23 @@ export default function LoginPage() {
         </form>
       )}
 
-      {activeRole === "patient" || activeRole === "doctor" ? (
-        <>
-          {/* Divider */}
-          <div className="flex items-center gap-4">
-            <div className="flex-1 h-px bg-slate-200" />
-            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">New here?</span>
-            <div className="flex-1 h-px bg-slate-200" />
-          </div>
-
-          {/* Sign Up Link */}
-          <div className="text-center space-y-3">
-            <Link
-              to="/signup"
-              className="block w-full py-3.5 border border-slate-200 hover:bg-slate-50 text-slate-800 text-sm font-bold rounded-xl transition-colors text-center no-underline"
-            >
-              Create an Account
-            </Link>
-            <Link to="/" className="text-xs text-slate-400 hover:text-slate-700 transition-colors no-underline font-semibold inline-flex items-center gap-1">
-              ← Back to Homepage
-            </Link>
-          </div>
-        </>
-      ) : (
-        <div className="text-center space-y-4">
-          <div className="p-4 rounded-2xl bg-slate-50 border border-slate-150 text-[11px] text-slate-500 leading-normal text-left font-medium">
-            <span className="font-bold text-amber-600 block mb-1">🔐 Administrative Notice:</span>
-            Administrative and staff portal credentials cannot be provisioned publicly. Accounts must be authorized and created internally by the system administrator.
-          </div>
-          <Link to="/" className="text-xs text-slate-400 hover:text-slate-700 transition-colors no-underline font-semibold inline-flex items-center gap-1">
-            ← Back to Homepage
-          </Link>
-        </div>
-      )}
+      {/* Navigation Footer Links */}
+      <div className="text-center space-y-3 pt-2">
+        <Link to="/signup" className="block text-xs text-sky-600 hover:text-sky-700 font-bold no-underline">
+          Need an account? Sign up here →
+        </Link>
+        <Link to="/" className="text-xs text-slate-400 hover:text-slate-700 transition-colors no-underline font-semibold inline-flex items-center gap-1">
+          ← Back to Homepage
+        </Link>
+      </div>
     </div>
   );
-
-  const isSplitLayout = activeRole === "patient" || activeRole === "doctor";
 
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden py-12" style={{ background: "linear-gradient(135deg, #fce4ec 0%, #e0f2fe 60%, #fdf4ff 100%)" }}>
       <SEOHead 
-        title="Secure Portal Login | Physiohub Lahore & Islamabad"
-        description="Patient, Doctor, and Administrative portal login for Physiohub rehabilitation ecosystem in Lahore and Islamabad."
+        title="Secure Portal Login | Vital Physio Hub Islamabad"
+        description="Patient and Doctor portal login for Vital Physio Hub rehabilitation ecosystem in Islamabad."
         noindex={true}
       />
       <style>{`
@@ -469,62 +453,14 @@ export default function LoginPage() {
         initial={{ opacity: 0, y: 30, scale: 0.98 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className="login-card relative z-10 w-full max-w-5xl mx-4"
+        className="login-card relative z-10 w-full max-w-lg mx-4"
       >
-        {isSplitLayout ? (
-          <div className="bg-white/55 backdrop-blur-xl rounded-3xl border border-white/70 glow-border overflow-hidden grid grid-cols-1 lg:grid-cols-12 min-h-[640px]">
-            {/* Left Side: Premium Image Panel */}
-            <div className="hidden lg:flex lg:col-span-5 flex-col justify-between p-10 relative text-white overflow-hidden">
-              {/* Background Image */}
-              <div className="absolute inset-0 z-0">
-                <img 
-                  src={activeRole === "patient" 
-                    ? "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=800&q=80" 
-                    : "https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=800&q=80"
-                  } 
-                  alt="Healthcare Background" 
-                  className="w-full h-full object-cover brightness-[0.55] saturate-[0.85]"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-blue-950/80 via-blue-900/25 to-transparent" />
-              </div>
-              
-              {/* Top Text Content */}
-              <div className="relative z-10 space-y-4">
-                <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-[10px] font-bold uppercase tracking-widest">
-                  <FiShield className="text-sky-300" /> Vital Physio Hub
-                </div>
-                <h2 className="text-3xl font-extrabold tracking-tight font-serif leading-tight">
-                  {activeRole === "patient" ? "Your Path to Pain-Free Living Starts Here" : "Join Our Global Network of Rehabilitation Specialists"}
-                </h2>
-                <p className="text-xs text-slate-200 leading-relaxed font-medium">
-                  {activeRole === "patient" 
-                    ? "Access your electronic medical records, book consultations with top fellowship-trained specialists, and track your rehab progress in real-time."
-                    : "Manage patient appointments, write secure digital prescriptions, update medical histories, and collaborate with our medical desk."
-                  }
-                </p>
-              </div>
-
-              {/* Bottom Quote */}
-              <div className="relative z-10 text-left pt-6 border-t border-white/20">
-                <p className="text-[10px] font-black text-sky-300 uppercase tracking-widest">Patient First Care</p>
-                <p className="text-xs italic text-slate-300 mt-1.5 font-serif">"Healing is a matter of time, but it is sometimes also a matter of opportunity."</p>
-              </div>
-            </div>
-
-            {/* Right Side: Form Panel */}
-            <div className="col-span-1 lg:col-span-7 p-8 sm:p-10 flex flex-col justify-center bg-white/30">
-              {renderFormContent()}
-            </div>
+        <div className="bg-white/65 backdrop-blur-xl rounded-3xl border border-white/80 glow-border overflow-hidden">
+          <div className="h-1.5 w-full" style={{ background: "linear-gradient(90deg, #0ea5e9, #e91e8c, #0ea5e9)" }} />
+          <div className="p-6 sm:p-8 space-y-6">
+            {renderFormContent()}
           </div>
-        ) : (
-          <div className="bg-white/55 backdrop-blur-xl rounded-3xl border border-white/70 glow-border overflow-hidden max-w-md mx-auto">
-            {/* Top gradient line */}
-            <div className="h-1 w-full" style={{ background: "linear-gradient(90deg, #0ea5e9, #e91e8c, #0ea5e9)" }} />
-            <div className="p-8 space-y-7 bg-white/30">
-              {renderFormContent()}
-            </div>
-          </div>
-        )}
+        </div>
       </motion.div>
     </div>
   );

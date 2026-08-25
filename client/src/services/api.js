@@ -97,6 +97,45 @@ export const api = {
     return { success: true };
   },
 
+  // Applications (Membership & Internship)
+  submitApplication: async (data) => {
+    const res = await apiCall("/applications", "POST", data);
+    if (res && res.isHttpError) return res;
+    if (res && res.success) return res;
+    // Fallback local storage saving
+    const existing = JSON.parse(localStorage.getItem("vph_applications") || "[]");
+    const newApp = { id: Date.now(), ...data, status: "Pending", created_at: new Date().toISOString() };
+    existing.unshift(newApp);
+    localStorage.setItem("vph_applications", JSON.stringify(existing));
+    return { success: true, application: newApp };
+  },
+
+  getApplications: async () => {
+    const res = await apiCall("/applications");
+    if (res && Array.isArray(res)) return res;
+    // Fallback local storage
+    const existing = JSON.parse(localStorage.getItem("vph_applications") || "[]");
+    return existing;
+  },
+
+  updateApplicationStatus: async (id, status) => {
+    const res = await apiCall("/applications/status", "POST", { id, status });
+    if (res && res.success) return true;
+    const existing = JSON.parse(localStorage.getItem("vph_applications") || "[]");
+    const updated = existing.map(a => a.id === id ? { ...a, status } : a);
+    localStorage.setItem("vph_applications", JSON.stringify(updated));
+    return true;
+  },
+
+  deleteApplication: async (id) => {
+    const res = await apiCall(`/applications/${id}`, "DELETE");
+    if (res && res.success) return true;
+    const existing = JSON.parse(localStorage.getItem("vph_applications") || "[]");
+    const updated = existing.filter(a => a.id !== id);
+    localStorage.setItem("vph_applications", JSON.stringify(updated));
+    return true;
+  },
+
   updateAppointmentPaymentProof: async (id, method, screenshot) => {
     const res = await apiCall("/appointments/proof", "POST", { id, method, screenshot });
     if (res && res.success) return true;
@@ -198,8 +237,9 @@ export const api = {
     }
     const local = localStorage.getItem("pc_branches");
     return local ? JSON.parse(local) : [
-      { id: 1, name: "Gulberg", address: "Main Boulevard, Gulberg III", city: "Lahore" },
-      { id: 2, name: "DHA", address: "Phase 5, Commercial Zone", city: "Lahore" }
+      { id: 1, name: "Blue Area, Islamabad", address: "2nd Floor Allegiance Tower, New Blue Area", city: "Islamabad" },
+      { id: 2, name: "F-8 Markaz, Islamabad", address: "Executive Medical Suites, F-8 Markaz", city: "Islamabad" },
+      { id: 3, name: "DHA Phase 2, Islamabad", address: "Central Commercial Plaza, DHA Phase 2", city: "Islamabad" }
     ];
   },
 
@@ -1087,7 +1127,7 @@ export const api = {
     }
     const local = localStorage.getItem("pc_clinics");
     return local ? JSON.parse(local) : [
-      { id: 1, name: "Vital Physio Hub", subdomain: "vitalphysio", address: "Lahore, Pakistan", status: "Active" }
+      { id: 1, name: "Vital Physio Hub", subdomain: "vitalphysio", address: "New Blue Area, Islamabad, Pakistan", status: "Active" }
     ];
   },
 

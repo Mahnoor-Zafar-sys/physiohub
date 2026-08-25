@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
 import SEOHead from "../components/SEOHead";
 import { FiCalendar, FiArrowLeft, FiMail, FiShare2, FiShield, FiAward, FiCpu, FiTrendingUp, FiVolume2 } from "react-icons/fi";
 import { motion } from "framer-motion";
@@ -181,7 +180,7 @@ export default function NewsArticlePage() {
             <FiArrowLeft /> Back to News & Press
           </Link>
         </div>
-        <Footer />
+        
       </div>
     );
   }
@@ -191,9 +190,9 @@ export default function NewsArticlePage() {
   return (
     <div className="min-h-screen bg-slate-50 font-body select-none">
       <SEOHead 
-        title={`${article.title} | Physiohub News`}
-        description={article.summary || `${article.title} - Latest news from Physiohub physical therapy clinics in Lahore and Islamabad.`}
-        keywords={`${article.category}, physical therapy news Lahore, rehabilitation news Islamabad`}
+        title={`${article.title} | Vital Physio Hub News Islamabad`}
+        description={article.summary || `${article.title} - Latest news from Vital Physio Hub physical therapy clinic in Islamabad.`}
+        keywords={`${article.category}, physical therapy news Islamabad, rehabilitation news Islamabad`}
         canonicalUrl={`https://physiohub.com/news/${article.id}`}
       />
       <Navbar />
@@ -304,7 +303,7 @@ export default function NewsArticlePage() {
         </div>
       </section>
 
-      <Footer />
+      
     </div>
   );
 }

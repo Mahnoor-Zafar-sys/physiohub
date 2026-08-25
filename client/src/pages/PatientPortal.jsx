@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { FiUser, FiCalendar, FiClock, FiFileText, FiDollarSign, FiActivity, FiUpload, FiAlertTriangle, FiCheckCircle, FiPackage, FiVideo } from "react-icons/fi";
 import { FaPrint, FaWhatsapp } from "react-icons/fa";
 import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
 import SEOHead from "../components/SEOHead";
 import { api } from "../services/api";
 
@@ -414,7 +413,7 @@ export default function PatientPortal() {
                     <p><span className="text-slate-400">Blood Pressure:</span> 120/80 mmHg</p>
                     <p><span className="text-slate-400">Heart Rate:</span> 72 bpm</p>
                     <p><span className="text-slate-400">Blood Sugar:</span> 95 mg/dL</p>
-                    <p><span className="text-slate-400">Primary Branch:</span> Gulberg Center</p>
+                    <p><span className="text-slate-400">Primary Branch:</span> Blue Area Center, Islamabad</p>
                   </div>
                 </div>
 
@@ -1003,7 +1002,7 @@ export default function PatientPortal() {
         </div>
       </div>
 
-      <Footer />
+      
       
       {/* Medical Report Viewer Modal */}
       <AnimatePresence>

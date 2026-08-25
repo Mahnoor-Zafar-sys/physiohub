@@ -1693,9 +1693,9 @@ export default function EquipmentsStore({ onNavigate, onBookAppointment }) {
   return (
     <div className="min-h-screen bg-white font-sans">
       <SEOHead 
-        title="Medical & Physical Therapy Equipment Store | Physiohub Lahore & Islamabad"
-        description="Buy & order certified medical, physical therapy, rehabilitation, and clinical equipment in Lahore (Gulberg, DHA) and Islamabad. TENS units, ultrasound therapy, traction tables & mobility aids."
-        keywords="physical therapy equipment Lahore, medical supplies Islamabad, buy rehabilitation equipment Pakistan, TENS machine Lahore, physio clinic supplies"
+        title="Medical & Physical Therapy Equipment Store | Vital Physio Hub Islamabad"
+        description="Buy & order certified medical, physical therapy, rehabilitation, and clinical equipment in Islamabad (Blue Area, F-8, DHA Phase 2). TENS units, ultrasound therapy, traction tables & mobility aids."
+        keywords="physical therapy equipment Islamabad, medical supplies Islamabad, buy rehabilitation equipment Pakistan, TENS machine Islamabad, physio clinic supplies"
         canonicalUrl="https://physiohub.com/equipments"
       />
 
@@ -1756,7 +1756,7 @@ export default function EquipmentsStore({ onNavigate, onBookAppointment }) {
             className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold mb-6 border shadow-sm"
             style={{ background:"rgba(14,165,233,0.06)", borderColor:"rgba(14,165,233,0.2)", color:T.sky }}
           >
-            <HiSparkles size={12} /> Premium Medical Equipment Supply — Lahore, Pakistan
+            <HiSparkles size={12} /> Premium Medical Equipment Supply — Islamabad, Pakistan
           </motion.div>
 
           {/* Headline */}
@@ -1781,7 +1781,7 @@ export default function EquipmentsStore({ onNavigate, onBookAppointment }) {
             transition={{ duration:0.7, delay:0.22 }}
             className="text-slate-500 text-lg max-w-2xl mb-10 leading-relaxed"
           >
-            Source world-class diagnostic, surgical, monitoring, and imaging equipment from top global brands — with full installation, training, and after-sales support.
+            Source certified diagnostic, surgical, monitoring, and imaging equipment from top global brands — with full installation, training, and after-sales support.
           </motion.p>
 
           {/* Stats */}

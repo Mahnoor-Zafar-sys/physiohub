@@ -1,779 +1,575 @@
-// src/components/BookAppointmentModal.jsx
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  FiX, FiCalendar, FiClock, FiUser, FiPhone, FiMail,
-  FiChevronRight, FiChevronLeft, FiCheck, FiMapPin,
-  FiVideo, FiSearch, FiStar, FiAlertCircle,
+  FiX, FiCalendar, FiHome, FiMonitor, FiArrowLeft, FiArrowRight,
+  FiCheck, FiUser, FiPhone, FiMail, FiMapPin, FiClock,
+  FiVideo, FiMic, FiUpload, FiShield, FiChevronDown, FiCreditCard, FiFileText
 } from "react-icons/fi";
-import { FaWhatsapp } from "react-icons/fa";
-import { LuCalendar, LuClock, LuCreditCard, LuMapPin } from "react-icons/lu";
 
-// ─── DOCTORS DATA (synced from Doctors.jsx) ────────────────────────────────────
-import { doctors as DOCTORS } from "../data/mockData";
+/* ─── CONSTANTS ─────────────────────────────────────────────── */
+const DOCTORS = ["Dr. Ghulam Jellani (PT)", "Dr. Sara Ahmed (PT)", "Dr. Usman Malik (PT)"];
+const SERVICES = ["Physiotherapy", "Cupping Therapy", "Dry Needling", "Kinesio Taping", "Electrotherapy", "Chiropractic", "Fitness Training"];
+const TIME_SLOTS = ["09:00 AM", "10:00 AM", "11:00 AM", "12:00 PM", "02:00 PM", "03:00 PM", "04:00 PM", "05:00 PM", "06:00 PM"];
+const CONSULTATION_FEE = 1500; // PKR
+const HOME_VISIT_FEE = 2500;
 
-const TIME_SLOTS = [
-  "09:00 AM", "09:30 AM", "10:00 AM", "10:30 AM",
-  "11:00 AM", "11:30 AM", "12:00 PM", "12:30 PM",
-  "02:00 PM", "02:30 PM", "03:00 PM", "03:30 PM",
-  "04:00 PM", "04:30 PM", "05:00 PM", "05:30 PM",
-  "06:00 PM", "06:30 PM", "07:00 PM",
-];
-
-const CONSULTATION_TYPES = [
-  { value: "in-person", label: "In-Person Visit", icon: FiUser, desc: "Visit us at our clinic" },
-  { value: "video", label: "Video Consultation", icon: FiVideo, desc: "Online video call" },
-  { value: "whatsapp", label: "WhatsApp Consult", icon: FaWhatsapp, desc: "Chat or call on WhatsApp" },
-];
-
-const BRANCHES = ["Gulberg", "DHA"];
-
-const SPECIALTIES = [
-  { label: "All Specialties", value: "all" },
-  { label: "Physiotherapy", value: "physiotherapy" },
-  { label: "Chiropractic Adjustments", value: "chiropractic" },
-  { label: "Cupping Therapy", value: "cupping" },
-  { label: "Hijama Therapy", value: "hijama" },
-  { label: "Electrotherapy", value: "electrotherapy" },
-  { label: "Kinesio Taping", value: "kinesio" },
-  { label: "Fitness Training", value: "fitness" },
-  { label: "Dry Needling", value: "needling" },
-];
-
-// Generate next 7 days
-function getNext7Days() {
+const getTodayStr = () => new Date().toISOString().split("T")[0];
+const getNext7Days = () => {
   const days = [];
-  const today = new Date();
-  const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-  const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   for (let i = 0; i < 7; i++) {
-    const d = new Date(today);
-    d.setDate(today.getDate() + i);
+    const d = new Date();
+    d.setDate(d.getDate() + i);
     days.push({
-      label: i === 0 ? "Today" : i === 1 ? "Tomorrow" : dayNames[d.getDay()],
-      date: `${d.getDate()} ${monthNames[d.getMonth()]}`,
-      full: d.toLocaleDateString("en-PK", { weekday: "long", year: "numeric", month: "long", day: "numeric" }),
-      dayIndex: d.getDay(),
+      date: d.toISOString().split("T")[0],
+      day: d.toLocaleDateString("en-US", { weekday: "short" }),
+      num: d.getDate(),
+      month: d.toLocaleDateString("en-US", { month: "short" }),
     });
   }
   return days;
-}
+};
 
-// Step indicator component
-function StepDot({ step, current, label }) {
-  const done = current > step;
-  const active = current === step;
+/* ─── SMALL ATOMS ───────────────────────────────────────────── */
+const Field = ({ label, icon: Icon, children }) => (
+  <label className="flex flex-col gap-1">
+    <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1">
+      {Icon && <Icon size={10} />} {label}
+    </span>
+    {children}
+  </label>
+);
+
+const Input = (props) => (
+  <input {...props} className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-800 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-50 transition-all bg-slate-50" />
+);
+
+const Select = ({ children, ...props }) => (
+  <div className="relative">
+    <select {...props} className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-800 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-50 transition-all bg-slate-50 appearance-none pr-8">
+      {children}
+    </select>
+    <FiChevronDown size={13} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+  </div>
+);
+
+/* ─── STEP BAR ──────────────────────────────────────────────── */
+const StepBar = ({ steps, current }) => (
+  <div className="flex items-center justify-between px-2 mb-6">
+    {steps.map((label, idx) => {
+      const active = idx === current;
+      const done = idx < current;
+      return (
+        <div key={label} className="flex items-center gap-2 flex-1 last:flex-none">
+          <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-black transition-all ${done ? "bg-green-500 text-white" : active ? "bg-blue-600 text-white shadow-md shadow-blue-200" : "bg-slate-100 text-slate-400"}`}>
+            {done ? <FiCheck size={14} /> : idx + 1}
+          </div>
+          <span className={`text-xs font-bold hidden sm:inline ${active ? "text-slate-900" : "text-slate-400"}`}>{label}</span>
+          {idx < steps.length - 1 && <div className={`h-0.5 flex-1 mx-2 rounded-full ${done ? "bg-green-400" : "bg-slate-100"}`} />}
+        </div>
+      );
+    })}
+  </div>
+);
+
+/* ─── PAYMENT UPLOAD STEP ───────────────────────────────────── */
+function PaymentStep({ fee, onPaid, onBack, accentColor = "blue" }) {
+  const [method, setMethod] = useState("online"); // "online" | "challan"
+  const [file, setFile] = useState(null);
+  const [preview, setPreview] = useState(null);
+  const fileRef = useRef(null);
+
+  const colors = {
+    blue: { btn: "bg-blue-600 hover:bg-blue-700", ring: "ring-blue-200", border: "border-blue-500 bg-blue-50 text-blue-700" },
+    purple: { btn: "bg-purple-600 hover:bg-purple-700", ring: "ring-purple-200", border: "border-purple-500 bg-purple-50 text-purple-700" },
+    emerald: { btn: "bg-emerald-600 hover:bg-emerald-700", ring: "ring-emerald-200", border: "border-emerald-500 bg-emerald-50 text-emerald-700" },
+  }[accentColor];
+
+  const handleFile = (e) => {
+    const f = e.target.files[0];
+    if (!f) return;
+    setFile(f);
+    setPreview(URL.createObjectURL(f));
+  };
+
   return (
-    <div className="flex flex-col items-center gap-1.5">
-      <motion.div
-        animate={{
-          scale: active ? 1.15 : 1,
-          backgroundColor: done ? "#0ea5e9" : active ? "#db2777" : "#e2e8f0",
-        }}
-        className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold"
-        style={{ color: done || active ? "white" : "#94a3b8" }}
-      >
-        {done ? <FiCheck size={14} /> : step}
-      </motion.div>
-      <span className={`text-[10px] font-semibold hidden sm:block ${active ? "text-pink-600" : done ? "text-sky-500" : "text-slate-400"}`}>
-        {label}
-      </span>
+    <div className="space-y-4">
+      <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200">
+        <p className="text-xs text-slate-500 font-bold uppercase tracking-wide mb-1">Consultation Fee</p>
+        <p className="text-2xl font-black text-slate-900">PKR {fee.toLocaleString()}</p>
+      </div>
+
+      <p className="text-sm font-bold text-slate-700">Choose Payment Method</p>
+      <div className="grid grid-cols-2 gap-3">
+        {[
+          { id: "online", icon: FiCreditCard, label: "JazzCash / EasyPaisa QR", sub: "Scan QR code or Transfer" },
+          { id: "challan", icon: FiFileText, label: "ABL Bank Transfer", sub: "Allied Bank Limited" },
+        ].map(({ id, icon: Icon, label, sub }) => (
+          <button key={id} onClick={() => setMethod(id)}
+            className={`p-3 rounded-xl border-2 text-left cursor-pointer transition-all ${method === id ? colors.border : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"}`}>
+            <Icon size={18} className="mb-1.5" />
+            <p className="text-xs font-bold leading-tight">{label}</p>
+            <p className="text-[10px] text-slate-400 mt-0.5 leading-tight">{sub}</p>
+          </button>
+        ))}
+      </div>
+
+      {method && (
+        <AnimatePresence mode="wait">
+          <motion.div key={method} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-3">
+            {method === "online" && (
+              <div className="bg-gradient-to-br from-slate-50 to-pink-50/40 border border-slate-200 rounded-xl p-3.5 text-xs text-slate-800 space-y-3">
+                <div className="flex items-center justify-between pb-2 border-b border-slate-200">
+                  <span className="font-extrabold text-slate-900">Account Title:</span>
+                  <span className="font-bold text-pink-600 bg-white px-2 py-0.5 rounded border border-slate-200">Ghulam Jellani</span>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="bg-white p-2.5 rounded-xl border border-rose-200 text-center space-y-1.5 shadow-xs">
+                    <span className="text-[10px] font-black text-rose-600 uppercase tracking-wider block">JazzCash</span>
+                    <p className="font-mono text-xs font-black text-slate-900 select-all">03008786187</p>
+                    <div className="w-28 h-28 mx-auto border border-slate-200 rounded-lg overflow-hidden p-1 bg-white">
+                      <img src="/jazzcash-qr.jpg" alt="JazzCash QR Code - Ghulam Jellani" className="w-full h-full object-contain" />
+                    </div>
+                    <span className="text-[9px] text-slate-400 block font-semibold">Scan with JazzCash App</span>
+                  </div>
+                  <div className="bg-white p-2.5 rounded-xl border border-emerald-200 text-center space-y-1.5 shadow-xs">
+                    <span className="text-[10px] font-black text-emerald-600 uppercase tracking-wider block">EasyPaisa</span>
+                    <p className="font-mono text-xs font-black text-slate-900 select-all">03008786187</p>
+                    <div className="w-28 h-28 mx-auto border border-slate-200 rounded-lg overflow-hidden p-1 bg-white">
+                      <img src="/easypaisa-qr.jpg" alt="EasyPaisa QR Code - Ghulam Jellani" className="w-full h-full object-contain" />
+                    </div>
+                    <span className="text-[9px] text-slate-400 block font-semibold">Scan with EasyPaisa App</span>
+                  </div>
+                </div>
+              </div>
+            )}
+            {method === "challan" && (
+              <div className="bg-blue-50 border border-blue-200 rounded-xl p-3.5 text-xs text-blue-900 space-y-2">
+                <p className="font-extrabold text-blue-950 uppercase tracking-wider text-[11px]">ABL — Allied Bank Limited</p>
+                <div className="bg-white p-3 rounded-lg border border-blue-150 space-y-1">
+                  <p><span className="font-bold text-slate-500">Bank Name:</span> <strong className="text-slate-800">Allied Bank Limited (ABL)</strong></p>
+                  <p><span className="font-bold text-slate-500">Account Number:</span> <strong className="font-mono text-blue-700 font-bold select-all">08390010161147740027</strong></p>
+                  <p><span className="font-bold text-slate-500">Account Title:</span> <strong className="text-slate-900">Ghulam Jellani</strong></p>
+                  <p><span className="font-bold text-slate-500">Amount:</span> <strong className="text-emerald-700">PKR {fee.toLocaleString()}</strong></p>
+                </div>
+              </div>
+            )}
+
+            <div>
+              <p className="text-xs font-bold text-slate-700 mb-2">Upload Payment Proof</p>
+              <div
+                onClick={() => fileRef.current?.click()}
+                className={`border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition-all ${preview ? "border-green-300 bg-green-50" : "border-slate-300 bg-slate-50 hover:border-blue-300 hover:bg-blue-50/30"}`}>
+                {preview ? (
+                  <div className="space-y-2">
+                    <img src={preview} alt="Payment proof" className="max-h-28 mx-auto rounded-lg object-contain" />
+                    <p className="text-xs text-green-600 font-bold">{file?.name}</p>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center gap-2 py-2">
+                    <FiUpload size={22} className="text-slate-400" />
+                    <p className="text-xs text-slate-500 font-semibold">Click to upload screenshot / photo</p>
+                    <p className="text-[10px] text-slate-400">JPG, PNG, PDF supported</p>
+                  </div>
+                )}
+                <input ref={fileRef} type="file" accept="image/*,application/pdf" className="hidden" onChange={handleFile} />
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <button onClick={onBack} className="flex items-center gap-2 px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-bold text-slate-600 cursor-pointer bg-white hover:bg-slate-50 transition-colors">
+                <FiArrowLeft size={13} /> Back
+              </button>
+              <button onClick={() => file && onPaid()} disabled={!file}
+                className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-white rounded-xl text-sm font-bold cursor-pointer border-none transition-all ${file ? colors.btn : "bg-slate-300 cursor-not-allowed"}`}>
+                <FiCheck size={14} /> Verify & Confirm
+              </button>
+            </div>
+          </motion.div>
+        </AnimatePresence>
+      )}
+
+      {!method && (
+        <button onClick={onBack} className="flex items-center gap-2 px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-bold text-slate-600 cursor-pointer bg-white hover:bg-slate-50 transition-colors w-full justify-center">
+          <FiArrowLeft size={13} /> Back
+        </button>
+      )}
     </div>
   );
 }
 
-// Doctor card in selector
-function DoctorSelectCard({ doctor, selected, onSelect }) {
-  const isSelected = selected?.id === doctor.id;
+/* ─── CONFIRMED SCREEN ──────────────────────────────────────── */
+function ConfirmedScreen({ icon: Icon, iconBg, title, details, onClose }) {
   return (
-    <motion.button
-      whileHover={{ y: -2, scale: 1.01 }}
-      whileTap={{ scale: 0.98 }}
-      onClick={() => onSelect(doctor)}
-      className={`w-full text-left rounded-2xl border-2 p-3 transition-all duration-200 relative overflow-hidden ${
-        isSelected
-          ? "border-transparent shadow-lg shadow-pink-200/50"
-          : "border-slate-100 hover:border-slate-200 bg-white"
-      }`}
-      style={isSelected ? { background: `linear-gradient(135deg, ${doctor.solidColor}15, #db277715)`, borderColor: doctor.solidColor } : {}}
-    >
-      <div className="flex items-center gap-3">
-        <div className="relative flex-shrink-0">
-          <img src={doctor.image} alt={doctor.name}
-            className="w-12 h-12 rounded-xl object-cover object-top" />
-          {doctor.available && (
-            <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-400 border-2 border-white rounded-full" />
-          )}
-        </div>
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center justify-between gap-1">
-            <p className="font-bold text-slate-800 text-sm truncate">{doctor.name}</p>
-            <span className="flex items-center gap-0.5 text-[10px] font-bold text-amber-500 flex-shrink-0">
-              <FiStar size={9} fill="currentColor" /> {doctor.rating}
-            </span>
-          </div>
-          <p className="text-[11px] text-slate-500 truncate">{doctor.specialty}</p>
-          <div className="flex items-center gap-2 mt-1">
-            <span className="text-[10px] font-semibold text-slate-400">{doctor.experience}</span>
-            <span className="text-slate-200">·</span>
-            <span className={`text-[10px] font-bold ${doctor.available ? "text-emerald-500" : "text-slate-400"}`}>
-              {doctor.available ? "Available" : doctor.nextSlot}
-            </span>
-          </div>
-        </div>
-        {isSelected && (
-          <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
-            style={{ backgroundColor: doctor.solidColor }}>
-            <FiCheck size={11} className="text-white" />
-          </div>
-        )}
+    <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center text-center gap-4 py-6">
+      <div className={`w-20 h-20 rounded-full flex items-center justify-center ${iconBg}`}>
+        <FiShield size={36} className="text-white" />
       </div>
-      <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-100">
-        <span className="text-[10px] font-semibold text-slate-400 flex items-center gap-1">
-          <FiMapPin size={9} /> {doctor.branch.join(" · ")}
-        </span>
-        <span className="text-[10px] font-bold text-slate-600">{doctor.fee}</span>
+      <div className="space-y-1">
+        <div className="inline-flex items-center gap-1.5 bg-green-100 text-green-700 text-xs font-black px-3 py-1 rounded-full uppercase tracking-wide">
+          <FiCheck size={12} /> Payment Verified
+        </div>
+        <h3 className="text-xl font-black text-slate-900 mt-2">{title}</h3>
       </div>
-    </motion.button>
+      <div className="w-full bg-slate-50 rounded-2xl p-4 border border-slate-200 text-left space-y-2">
+        {details.map(({ label, val }) => (
+          <div key={label} className="flex justify-between items-start gap-3 text-sm">
+            <span className="text-slate-400 font-bold text-xs uppercase tracking-wide shrink-0">{label}</span>
+            <span className="text-slate-800 font-semibold text-right">{val}</span>
+          </div>
+        ))}
+      </div>
+      <p className="text-slate-500 text-xs">We will call you shortly to confirm. Thank you for choosing Vital Physio Hub!</p>
+      <button onClick={onClose} className="px-8 py-3 bg-blue-600 text-white font-bold rounded-xl text-sm cursor-pointer border-none hover:bg-blue-700 transition-colors">
+        Done
+      </button>
+    </motion.div>
   );
 }
 
-// ─── MAIN MODAL ─────────────────────────────────────────────────────────────────
-export default function BookAppointmentModal({ isOpen, onClose, preselectedDoctor = null }) {
-  const [step, setStep] = useState(1);
-  const [searchQ, setSearchQ] = useState("");
-  const [specFilter, setSpecFilter] = useState("all");
-  const [selectedDoctor, setSelectedDoctor] = useState(preselectedDoctor);
-  const [consultType, setConsultType] = useState("in-person");
-  const [selectedBranch, setSelectedBranch] = useState("Gulberg");
-  const [selectedDay, setSelectedDay] = useState(0);
-  const [selectedTime, setSelectedTime] = useState(null);
-  const [form, setForm] = useState({ name: "", phone: "", email: "", age: "", gender: "", notes: "", isNew: "new" });
-  const [submitted, setSubmitted] = useState(false);
-  const [errors, setErrors] = useState({});
-  const scrollRef = useRef(null);
-  const days = getNext7Days();
-
-  // Reset when preselectedDoctor changes
-  useEffect(() => {
-    if (preselectedDoctor) {
-      setSelectedDoctor(preselectedDoctor);
-      setStep(2);
-    }
-  }, [preselectedDoctor]);
-
-  // Reset fully on close
-  useEffect(() => {
-    if (!isOpen) {
-      setTimeout(() => {
-        setStep(preselectedDoctor ? 2 : 1);
-        setSubmitted(false);
-        setSelectedTime(null);
-        setErrors({});
-        if (!preselectedDoctor) setSelectedDoctor(null);
-      }, 400);
-    }
-  }, [isOpen]);
-
-  useEffect(() => {
-    scrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
-  }, [step]);
-
-  const filteredDoctors = DOCTORS.filter(d => {
-    const q = searchQ.toLowerCase();
-    const matchSpec = specFilter === "all" || d.tag === specFilter || (d.tags && d.tags.includes(specFilter));
-    const matchQ = !q || d.name.toLowerCase().includes(q) || d.specialty.toLowerCase().includes(q);
-    return matchSpec && matchQ;
+/* ─── FLOW 1: BOOKING FORM ──────────────────────────────────── */
+function BookingFormFlow({ onBack, onClose }) {
+  const [step, setStep] = useState(0); // 0=form, 1=review, 2=confirmed
+  const [form, setForm] = useState({
+    name: "", age: "", gender: "", phone: "", email: "",
+    address: "", doctor: DOCTORS[0], service: SERVICES[0],
+    date: getTodayStr(), time: TIME_SLOTS[0], notes: "",
   });
+  const set = (k, v) => setForm(p => ({ ...p, [k]: v }));
 
-  function validateStep3() {
-    const e = {};
-    if (!form.name.trim()) e.name = "Name is required";
-    if (!form.phone.trim()) e.phone = "Phone is required";
-    else if (!/^(\+92|0)3[0-9]{9}$/.test(form.phone.replace(/\s/g, ""))) e.phone = "Enter a valid Pakistani number";
-    if (form.email && !/\S+@\S+\.\S+/.test(form.email)) e.email = "Enter a valid email";
-    setErrors(e);
-    return Object.keys(e).length === 0;
-  }
+  if (step === 2) return (
+    <ConfirmedScreen
+      title="Appointment Booked!"
+      iconBg="bg-blue-600"
+      details={[
+        { label: "Name", val: form.name || "—" },
+        { label: "Doctor", val: form.doctor },
+        { label: "Service", val: form.service },
+        { label: "Date", val: form.date },
+        { label: "Time", val: form.time },
+        { label: "Location", val: "Vital Physio Hub, Islamabad" },
+      ]}
+      onClose={onClose}
+    />
+  );
 
-  function handleSubmit() {
-    if (!validateStep3()) return;
-    setSubmitted(true);
-  }
+  return (
+    <div>
+      <StepBar steps={["Patient Info", "Review", "Confirmed"]} current={step} />
+      {step === 0 && (
+        <div className="space-y-3">
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="Full Name" icon={FiUser}><Input value={form.name} onChange={e => set("name", e.target.value)} placeholder="Your name" /></Field>
+            <Field label="Age"><Input type="number" value={form.age} onChange={e => set("age", e.target.value)} placeholder="e.g. 28" /></Field>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="Gender"><Select value={form.gender} onChange={e => set("gender", e.target.value)}><option value="">Select</option><option>Male</option><option>Female</option><option>Other</option></Select></Field>
+            <Field label="Phone" icon={FiPhone}><Input type="tel" value={form.phone} onChange={e => set("phone", e.target.value)} placeholder="+92 300..." /></Field>
+          </div>
+          <Field label="Email" icon={FiMail}><Input type="email" value={form.email} onChange={e => set("email", e.target.value)} placeholder="you@email.com" /></Field>
+          <Field label="Address" icon={FiMapPin}><Input value={form.address} onChange={e => set("address", e.target.value)} placeholder="Your address" /></Field>
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="Doctor"><Select value={form.doctor} onChange={e => set("doctor", e.target.value)}>{DOCTORS.map(d => <option key={d}>{d}</option>)}</Select></Field>
+            <Field label="Service"><Select value={form.service} onChange={e => set("service", e.target.value)}>{SERVICES.map(s => <option key={s}>{s}</option>)}</Select></Field>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="Date" icon={FiCalendar}><Input type="date" value={form.date} min={getTodayStr()} onChange={e => set("date", e.target.value)} /></Field>
+            <Field label="Time" icon={FiClock}><Select value={form.time} onChange={e => set("time", e.target.value)}>{TIME_SLOTS.map(t => <option key={t}>{t}</option>)}</Select></Field>
+          </div>
+          <Field label="Notes">
+            <textarea value={form.notes} onChange={e => set("notes", e.target.value)} placeholder="Symptoms or requirements..." rows={2} className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-800 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-50 transition-all bg-slate-50 resize-none" />
+          </Field>
+          <div className="flex gap-3 pt-1">
+            <button onClick={onBack} className="flex items-center gap-2 px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-bold text-slate-600 cursor-pointer bg-white hover:bg-slate-50 transition-colors"><FiArrowLeft size={13} /> Back</button>
+            <button onClick={() => setStep(1)} className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-bold cursor-pointer border-none hover:bg-blue-700 transition-colors">Review <FiArrowRight size={13} /></button>
+          </div>
+        </div>
+      )}
+      {step === 1 && (
+        <div className="space-y-4">
+          <h3 className="font-black text-slate-900 text-sm">Review Your Information</h3>
+          <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200 space-y-2">
+            {[
+              { label: "Name", val: form.name || "—" }, { label: "Age/Gender", val: `${form.age || "—"} / ${form.gender || "—"}` },
+              { label: "Phone", val: form.phone || "—" }, { label: "Email", val: form.email || "—" },
+              { label: "Address", val: form.address || "—" }, { label: "Doctor", val: form.doctor },
+              { label: "Service", val: form.service }, { label: "Date", val: form.date },
+              { label: "Time", val: form.time }, { label: "Notes", val: form.notes || "None" },
+            ].map(({ label, val }) => (
+              <div key={label} className="flex justify-between items-start gap-3 text-sm">
+                <span className="text-slate-400 font-bold text-xs uppercase tracking-wide shrink-0">{label}</span>
+                <span className="text-slate-800 font-semibold text-right text-xs">{val}</span>
+              </div>
+            ))}
+          </div>
+          <div className="flex gap-3">
+            <button onClick={() => setStep(0)} className="flex items-center gap-2 px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-bold text-slate-600 cursor-pointer bg-white hover:bg-slate-50 transition-colors"><FiArrowLeft size={13} /> Edit</button>
+            <button onClick={() => setStep(2)} className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-green-600 text-white rounded-xl text-sm font-bold cursor-pointer border-none hover:bg-green-700 transition-colors"><FiCheck size={13} /> Confirm Appointment</button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
-  const canNext1 = !!selectedDoctor;
-  const canNext2 = !!selectedTime;
+/* ─── FLOW 2: ONLINE CONSULTATION ──────────────────────────── */
+function OnlineConsultationFlow({ onBack, onClose }) {
+  const [step, setStep] = useState(0); // 0=mode, 1=details, 2=payment, 3=confirmed
+  const [mode, setMode] = useState(null);
+  const [form, setForm] = useState({ name: "", phone: "", email: "", doctor: DOCTORS[0], date: getTodayStr(), time: TIME_SLOTS[0], concern: "" });
+  const set = (k, v) => setForm(p => ({ ...p, [k]: v }));
 
-  const stepLabels = ["Doctor", "Schedule", "Details", "Confirm"];
+  if (step === 3) return (
+    <ConfirmedScreen
+      title="Online Session Booked!"
+      iconBg="bg-emerald-600"
+      details={[
+        { label: "Name", val: form.name || "—" },
+        { label: "Mode", val: mode === "video" ? "📹 Video Call" : "🎤 Audio Call" },
+        { label: "Doctor", val: form.doctor },
+        { label: "Date", val: form.date },
+        { label: "Time", val: form.time },
+        { label: "Fee Paid", val: `PKR ${CONSULTATION_FEE.toLocaleString()}` },
+        { label: "Join via", val: "WhatsApp / Zoom (link sent to your phone)" },
+      ]}
+      onClose={onClose}
+    />
+  );
+
+  return (
+    <div>
+      <StepBar steps={["Mode", "Details", "Payment", "Confirmed"]} current={step} />
+      {step === 0 && (
+        <div className="space-y-4">
+          <h3 className="font-black text-slate-900 text-sm mb-3">Select Consultation Type</h3>
+          <div className="grid grid-cols-2 gap-3">
+            {[
+              { id: "video", icon: FiVideo, label: "Video Call", sub: "Face-to-face via Zoom / WhatsApp", color: "border-blue-500 bg-blue-50 text-blue-700" },
+              { id: "audio", icon: FiMic, label: "Audio Call", sub: "Voice consultation via phone", color: "border-purple-500 bg-purple-50 text-purple-700" },
+            ].map(({ id, icon: Icon, label, sub, color }) => (
+              <button key={id} onClick={() => setMode(id)}
+                className={`p-4 rounded-2xl border-2 text-left cursor-pointer transition-all ${mode === id ? color : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"}`}>
+                <Icon size={22} className="mb-2" />
+                <p className="text-sm font-bold">{label}</p>
+                <p className="text-[11px] text-slate-400 mt-0.5 leading-tight">{sub}</p>
+              </button>
+            ))}
+          </div>
+          <div className="flex gap-3 pt-2">
+            <button onClick={onBack} className="flex items-center gap-2 px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-bold text-slate-600 cursor-pointer bg-white hover:bg-slate-50 transition-colors"><FiArrowLeft size={13} /> Back</button>
+            <button onClick={() => mode && setStep(1)} disabled={!mode}
+              className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold border-none transition-all ${mode ? "bg-emerald-600 text-white cursor-pointer hover:bg-emerald-700" : "bg-slate-200 text-slate-400 cursor-not-allowed"}`}>
+              Continue <FiArrowRight size={13} />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {step === 1 && (
+        <div className="space-y-3">
+          <div className="inline-flex items-center gap-2 bg-emerald-50 text-emerald-700 text-xs font-bold px-3 py-1.5 rounded-full border border-emerald-200 mb-1">
+            {mode === "video" ? <FiVideo size={12} /> : <FiMic size={12} />} {mode === "video" ? "Video Call" : "Audio Call"} Selected
+          </div>
+          <Field label="Full Name" icon={FiUser}><Input value={form.name} onChange={e => set("name", e.target.value)} placeholder="Your full name" /></Field>
+          <Field label="Phone / WhatsApp" icon={FiPhone}><Input type="tel" value={form.phone} onChange={e => set("phone", e.target.value)} placeholder="+92 300 0000000" /></Field>
+          <Field label="Email" icon={FiMail}><Input type="email" value={form.email} onChange={e => set("email", e.target.value)} placeholder="you@email.com" /></Field>
+          <Field label="Select Doctor"><Select value={form.doctor} onChange={e => set("doctor", e.target.value)}>{DOCTORS.map(d => <option key={d}>{d}</option>)}</Select></Field>
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="Date" icon={FiCalendar}><Input type="date" value={form.date} min={getTodayStr()} onChange={e => set("date", e.target.value)} /></Field>
+            <Field label="Time" icon={FiClock}><Select value={form.time} onChange={e => set("time", e.target.value)}>{TIME_SLOTS.map(t => <option key={t}>{t}</option>)}</Select></Field>
+          </div>
+          <Field label="Main Health Concern">
+            <textarea value={form.concern} onChange={e => set("concern", e.target.value)} placeholder="Describe your issue briefly..." rows={2}
+              className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-800 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-50 transition-all bg-slate-50 resize-none" />
+          </Field>
+          <div className="flex gap-3 pt-1">
+            <button onClick={() => setStep(0)} className="flex items-center gap-2 px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-bold text-slate-600 cursor-pointer bg-white hover:bg-slate-50 transition-colors"><FiArrowLeft size={13} /> Back</button>
+            <button onClick={() => setStep(2)} className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 text-white rounded-xl text-sm font-bold cursor-pointer border-none hover:bg-emerald-700 transition-colors">Proceed to Payment <FiArrowRight size={13} /></button>
+          </div>
+        </div>
+      )}
+
+      {step === 2 && (
+        <PaymentStep fee={CONSULTATION_FEE} accentColor="emerald"
+          onBack={() => setStep(1)} onPaid={() => setStep(3)} />
+      )}
+    </div>
+  );
+}
+
+/* ─── FLOW 3: HOME CONSULTATION ─────────────────────────────── */
+function HomeConsultationFlow({ onBack, onClose }) {
+  const [step, setStep] = useState(0); // 0=calendar, 1=service+doctor+details, 2=payment, 3=confirmed
+  const days = getNext7Days();
+  const [selectedDay, setSelectedDay] = useState(days[0].date);
+  const [selectedTime, setSelectedTime] = useState(TIME_SLOTS[0]);
+  const [form, setForm] = useState({ name: "", phone: "", address: "", doctor: DOCTORS[0], service: SERVICES[0] });
+  const set = (k, v) => setForm(p => ({ ...p, [k]: v }));
+
+  if (step === 3) return (
+    <ConfirmedScreen
+      title="Home Visit Scheduled!"
+      iconBg="bg-purple-600"
+      details={[
+        { label: "Name", val: form.name || "—" },
+        { label: "Address", val: form.address || "—" },
+        { label: "Doctor", val: form.doctor },
+        { label: "Service", val: form.service },
+        { label: "Date", val: selectedDay },
+        { label: "Time", val: selectedTime },
+        { label: "Fee Paid", val: `PKR ${HOME_VISIT_FEE.toLocaleString()}` },
+        { label: "Note", val: "Our specialist will arrive at your address on time." },
+      ]}
+      onClose={onClose}
+    />
+  );
+
+  return (
+    <div>
+      <StepBar steps={["Schedule", "Details", "Payment", "Confirmed"]} current={step} />
+
+      {step === 0 && (
+        <div className="space-y-4">
+          <h3 className="font-black text-slate-900 text-sm">Choose Date</h3>
+          <div className="flex gap-2 overflow-x-auto scrollbar-none pb-1">
+            {days.map(({ date, day, num, month }) => (
+              <button key={date} onClick={() => setSelectedDay(date)}
+                className={`flex flex-col items-center px-3 py-2.5 rounded-xl border-2 min-w-[56px] cursor-pointer transition-all ${selectedDay === date ? "border-purple-500 bg-purple-600 text-white" : "border-slate-200 bg-white text-slate-600 hover:border-purple-300"}`}>
+                <span className="text-[10px] font-bold uppercase">{day}</span>
+                <span className="text-lg font-black leading-tight">{num}</span>
+                <span className="text-[10px] font-semibold">{month}</span>
+              </button>
+            ))}
+          </div>
+
+          <h3 className="font-black text-slate-900 text-sm">Choose Time Slot</h3>
+          <div className="grid grid-cols-3 gap-2">
+            {TIME_SLOTS.map(t => (
+              <button key={t} onClick={() => setSelectedTime(t)}
+                className={`py-2 px-2 rounded-xl border-2 text-xs font-bold cursor-pointer transition-all ${selectedTime === t ? "border-purple-500 bg-purple-600 text-white" : "border-slate-200 bg-white text-slate-600 hover:border-purple-300"}`}>
+                {t}
+              </button>
+            ))}
+          </div>
+          <div className="flex gap-3 pt-2">
+            <button onClick={onBack} className="flex items-center gap-2 px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-bold text-slate-600 cursor-pointer bg-white hover:bg-slate-50 transition-colors"><FiArrowLeft size={13} /> Back</button>
+            <button onClick={() => setStep(1)} className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-purple-600 text-white rounded-xl text-sm font-bold cursor-pointer border-none hover:bg-purple-700 transition-colors">Continue <FiArrowRight size={13} /></button>
+          </div>
+        </div>
+      )}
+
+      {step === 1 && (
+        <div className="space-y-3">
+          <div className="bg-purple-50 border border-purple-200 rounded-xl p-3 text-xs text-purple-800">
+            📅 <strong>{selectedDay}</strong> at <strong>{selectedTime}</strong>
+          </div>
+          <Field label="Full Name" icon={FiUser}><Input value={form.name} onChange={e => set("name", e.target.value)} placeholder="Patient name" /></Field>
+          <Field label="Phone" icon={FiPhone}><Input type="tel" value={form.phone} onChange={e => set("phone", e.target.value)} placeholder="+92 300 0000000" /></Field>
+          <Field label="Home Address" icon={FiMapPin}><Input value={form.address} onChange={e => set("address", e.target.value)} placeholder="Complete address for the visit" /></Field>
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="Service"><Select value={form.service} onChange={e => set("service", e.target.value)}>{SERVICES.map(s => <option key={s}>{s}</option>)}</Select></Field>
+            <Field label="Doctor"><Select value={form.doctor} onChange={e => set("doctor", e.target.value)}>{DOCTORS.map(d => <option key={d}>{d}</option>)}</Select></Field>
+          </div>
+          <div className="flex gap-3 pt-1">
+            <button onClick={() => setStep(0)} className="flex items-center gap-2 px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-bold text-slate-600 cursor-pointer bg-white hover:bg-slate-50 transition-colors"><FiArrowLeft size={13} /> Back</button>
+            <button onClick={() => setStep(2)} className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-purple-600 text-white rounded-xl text-sm font-bold cursor-pointer border-none hover:bg-purple-700 transition-colors">Proceed to Payment <FiArrowRight size={13} /></button>
+          </div>
+        </div>
+      )}
+
+      {step === 2 && (
+        <PaymentStep fee={HOME_VISIT_FEE} accentColor="purple"
+          onBack={() => setStep(1)} onPaid={() => setStep(3)} />
+      )}
+    </div>
+  );
+}
+
+/* ─── MAIN MODAL ────────────────────────────────────────────── */
+export default function BookAppointmentModal({ isOpen, onClose }) {
+  const [view, setView] = useState("menu"); // "menu" | "booking" | "online" | "home"
+
+  const handleClose = () => { setView("menu"); onClose(); };
+
+  const HEADER_TITLES = {
+    menu: "Book an Appointment",
+    booking: "In-Clinic Booking",
+    online: "Online Consultation",
+    home: "Home Consultation",
+  };
 
   return (
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Backdrop */}
-          <motion.div
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100]"
-            onClick={onClose}
-          />
+          <motion.div key="bd" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[998] bg-slate-900/60 backdrop-blur-sm" onClick={handleClose} />
 
-          {/* Modal */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.92, y: 30 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.92, y: 30 }}
-            transition={{ type: "spring", stiffness: 300, damping: 28 }}
-            className="fixed inset-0 z-[101] flex items-center justify-center p-3 sm:p-6 pointer-events-none"
-          >
-            <div className="w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden pointer-events-auto flex flex-col"
-              style={{ maxHeight: "92vh" }}>
+          <motion.div key="md" initial={{ opacity: 0, scale: 0.94, y: 28 }} animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.94, y: 28 }} transition={{ type: "spring", stiffness: 300, damping: 28 }}
+            className="fixed inset-0 z-[999] flex items-center justify-center p-3 sm:p-6 pointer-events-none">
+            <div className="relative w-full max-w-[520px] bg-white rounded-3xl shadow-2xl pointer-events-auto flex flex-col" style={{ maxHeight: "92vh" }} onClick={e => e.stopPropagation()}>
 
               {/* Header */}
-              <div className="relative px-6 pt-6 pb-4 flex-shrink-0"
-                style={{ background: "linear-gradient(135deg, #e0f2fe 0%, #fce7f3 100%)" }}>
-                {/* Decorative circles */}
-                <div className="absolute top-0 right-0 w-40 h-40 rounded-full opacity-20"
-                  style={{ background: "radial-gradient(circle, #db2777, transparent)", transform: "translate(30%, -30%)" }} />
-                <div className="absolute bottom-0 left-0 w-32 h-32 rounded-full opacity-15"
-                  style={{ background: "radial-gradient(circle, #0ea5e9, transparent)", transform: "translate(-30%, 30%)" }} />
-
-                <div className="relative flex items-start justify-between">
-                  <div>
-                    <div className="flex items-center gap-2 mb-1">
-                      <div className="w-7 h-7 rounded-lg flex items-center justify-center"
-                        style={{ background: "linear-gradient(135deg, #0ea5e9, #db2777)" }}>
-                        <FiCalendar size={13} className="text-white" />
-                      </div>
-                      <h2 className="text-lg font-extrabold text-slate-800">Book Appointment</h2>
-                    </div>
-                    <p className="text-xs text-slate-500 ml-9">Physiohub · Physical Therapy & Rehab</p>
-                  </div>
-                  <motion.button
-                    whileHover={{ scale: 1.1, rotate: 90 }} whileTap={{ scale: 0.9 }}
-                    onClick={onClose}
-                    className="w-8 h-8 rounded-full bg-white/70 hover:bg-white flex items-center justify-center shadow-sm transition-colors">
-                    <FiX size={16} className="text-slate-500" />
-                  </motion.button>
+              <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-slate-100 shrink-0">
+                <div className="flex items-center gap-2">
+                  {view !== "menu" && (
+                    <button onClick={() => setView("menu")} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500 cursor-pointer border-none bg-transparent transition-colors">
+                      <FiArrowLeft size={17} />
+                    </button>
+                  )}
+                  <h2 className="font-black text-slate-900 text-base">{HEADER_TITLES[view]}</h2>
                 </div>
-
-                {/* Step indicator */}
-                {!submitted && (
-                  <div className="relative mt-5 flex items-center justify-between">
-                    {/* Connector line */}
-                    <div className="absolute top-4 left-4 right-4 h-0.5 bg-slate-200 z-0" />
-                    <motion.div
-                      className="absolute top-4 left-4 h-0.5 z-0 rounded-full"
-                      style={{ background: "linear-gradient(90deg, #0ea5e9, #db2777)" }}
-                      animate={{ width: `${((step - 1) / 3) * (100 - 8)}%` }}
-                      transition={{ duration: 0.4 }}
-                    />
-                    {stepLabels.map((label, i) => (
-                      <div key={i} className="relative z-10">
-                        <StepDot step={i + 1} current={step} label={label} />
-                      </div>
-                    ))}
-                  </div>
-                )}
+                <button onClick={handleClose} className="p-1.5 rounded-xl hover:bg-slate-100 text-slate-400 hover:text-slate-600 cursor-pointer border-none bg-transparent transition-colors">
+                  <FiX size={19} />
+                </button>
               </div>
 
-              {/* Body */}
-              <div ref={scrollRef} className="flex-1 overflow-y-auto px-6 py-5">
+              {/* Scrollable body */}
+              <div className="overflow-y-auto flex-1 px-5 py-4">
                 <AnimatePresence mode="wait">
-                  {submitted ? (
-                    <SuccessView key="success" doctor={selectedDoctor} day={days[selectedDay]} time={selectedTime}
-                      consultType={consultType} branch={selectedBranch} form={form} onClose={onClose} />
-                  ) : step === 1 ? (
-                    <Step1 key="s1" doctors={filteredDoctors} selectedDoctor={selectedDoctor}
-                      setSelectedDoctor={setSelectedDoctor} searchQ={searchQ} setSearchQ={setSearchQ}
-                      specFilter={specFilter} setSpecFilter={setSpecFilter} />
-                  ) : step === 2 ? (
-                    <Step2 key="s2" doctor={selectedDoctor} days={days} selectedDay={selectedDay}
-                      setSelectedDay={setSelectedDay} selectedTime={selectedTime} setSelectedTime={setSelectedTime}
-                      consultType={consultType} setConsultType={setConsultType}
-                      selectedBranch={selectedBranch} setSelectedBranch={setSelectedBranch} />
-                  ) : step === 3 ? (
-                    <Step3 key="s3" form={form} setForm={setForm} errors={errors} setErrors={setErrors} />
-                  ) : (
-                    <Step4 key="s4" doctor={selectedDoctor} day={days[selectedDay]} time={selectedTime}
-                      consultType={consultType} branch={selectedBranch} form={form} />
+                  {view === "menu" && (
+                    <motion.div key="menu" initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -16 }} transition={{ duration: 0.18 }} className="space-y-3">
+                      <p className="text-slate-500 text-sm mb-4">How would you like to connect with our specialists?</p>
+                      {[
+                        { id: "booking", icon: FiCalendar, color: "bg-blue-600", label: "Booking Form", sub: "Book an in-clinic appointment with complete patient info." },
+                        { id: "online", icon: FiMonitor, color: "bg-emerald-600", label: "Online Consultation", sub: "Connect via Video or Audio call with our physiotherapy experts." },
+                        { id: "home", icon: FiHome, color: "bg-purple-600", label: "Home Consultation", sub: "Schedule a specialist home visit at your preferred date & time." },
+                      ].map(({ id, icon: Icon, color, label, sub }) => (
+                        <button key={id} onClick={() => setView(id)}
+                          className="w-full flex items-center gap-4 p-4 rounded-2xl border border-slate-200 hover:border-blue-200 hover:shadow-md bg-white hover:bg-slate-50/50 text-left cursor-pointer transition-all group">
+                          <div className={`w-11 h-11 rounded-xl ${color} flex items-center justify-center text-white shrink-0`}>
+                            <Icon size={20} />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-bold text-slate-900 text-sm">{label}</p>
+                            <p className="text-slate-500 text-xs mt-0.5 leading-relaxed">{sub}</p>
+                          </div>
+                          <FiArrowRight size={15} className="text-slate-300 group-hover:text-blue-400 shrink-0 transition-colors" />
+                        </button>
+                      ))}
+                    </motion.div>
+                  )}
+                  {view === "booking" && (
+                    <motion.div key="booking" initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -16 }} transition={{ duration: 0.18 }}>
+                      <BookingFormFlow onBack={() => setView("menu")} onClose={handleClose} />
+                    </motion.div>
+                  )}
+                  {view === "online" && (
+                    <motion.div key="online" initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -16 }} transition={{ duration: 0.18 }}>
+                      <OnlineConsultationFlow onBack={() => setView("menu")} onClose={handleClose} />
+                    </motion.div>
+                  )}
+                  {view === "home" && (
+                    <motion.div key="home" initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -16 }} transition={{ duration: 0.18 }}>
+                      <HomeConsultationFlow onBack={() => setView("menu")} onClose={handleClose} />
+                    </motion.div>
                   )}
                 </AnimatePresence>
               </div>
-
-              {/* Footer nav */}
-              {!submitted && (
-                <div className="px-6 py-4 border-t border-slate-100 flex items-center justify-between gap-3 flex-shrink-0 bg-slate-50/80">
-                  <motion.button
-                    whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
-                    onClick={() => step > 1 ? setStep(s => s - 1) : onClose()}
-                    className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl border-2 border-slate-200 text-slate-600 text-sm font-bold hover:border-slate-300 transition-colors bg-white">
-                    <FiChevronLeft size={15} />
-                    {step === 1 ? "Cancel" : "Back"}
-                  </motion.button>
-
-                  <div className="flex items-center gap-1.5">
-                    {[1,2,3,4].map(i => (
-                      <div key={i} className={`h-1.5 rounded-full transition-all duration-300 ${
-                        i === step ? "w-6 bg-pink-500" : i < step ? "w-3 bg-sky-400" : "w-3 bg-slate-200"
-                      }`} />
-                    ))}
-                  </div>
-
-                  {step < 4 ? (
-                    <motion.button
-                      whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
-                      disabled={(step === 1 && !canNext1) || (step === 2 && !canNext2)}
-                      onClick={() => {
-                        if (step === 1 && canNext1) setStep(2);
-                        else if (step === 2 && canNext2) setStep(3);
-                        else if (step === 3) { if (validateStep3()) setStep(4); }
-                      }}
-                      className="flex items-center gap-1.5 px-6 py-2.5 rounded-xl text-white text-sm font-bold shadow-md disabled:opacity-40 disabled:cursor-not-allowed transition-all"
-                      style={{ background: "linear-gradient(135deg, #0ea5e9, #db2777)" }}>
-                      Continue
-                      <FiChevronRight size={15} />
-                    </motion.button>
-                  ) : (
-                    <motion.button
-                      whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
-                      onClick={handleSubmit}
-                      className="flex items-center gap-1.5 px-6 py-2.5 rounded-xl text-white text-sm font-bold shadow-lg"
-                      style={{ background: "linear-gradient(135deg, #0ea5e9, #db2777)" }}>
-                      <FiCheck size={15} /> Confirm Booking
-                    </motion.button>
-                  )}
-                </div>
-              )}
             </div>
           </motion.div>
         </>
       )}
     </AnimatePresence>
-  );
-}
-
-// ─── STEP 1: Choose Doctor ───────────────────────────────────────────────────
-function Step1({ doctors, selectedDoctor, setSelectedDoctor, searchQ, setSearchQ, specFilter, setSpecFilter }) {
-  return (
-    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
-      transition={{ duration: 0.25 }}>
-      <div className="mb-4">
-        <h3 className="text-base font-extrabold text-slate-800">Choose Your Doctor</h3>
-        <p className="text-xs text-slate-400 mt-0.5">Select a specialist for your appointment</p>
-      </div>
-
-      {/* Search */}
-      <div className="relative mb-3">
-        <FiSearch size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-        <input
-          value={searchQ} onChange={e => setSearchQ(e.target.value)}
-          placeholder="Search doctor or specialty…"
-          className="w-full pl-9 pr-4 py-2.5 rounded-xl border-2 border-slate-100 focus:border-sky-300 outline-none text-sm text-slate-700 bg-slate-50 focus:bg-white transition-all"
-        />
-      </div>
-
-      {/* Specialty filter chips */}
-      <div className="flex gap-2 overflow-x-auto pb-2 mb-4 scrollbar-hide">
-        {SPECIALTIES.map(s => (
-          <button key={s.value}
-            onClick={() => setSpecFilter(s.value)}
-            className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-bold transition-all duration-200 border ${
-              specFilter === s.value
-                ? "text-white border-transparent shadow-md"
-                : "border-slate-200 text-slate-500 bg-white hover:border-sky-200"
-            }`}
-            style={specFilter === s.value ? { background: "linear-gradient(135deg,#0ea5e9,#db2777)" } : {}}>
-            {s.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Doctor list */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {doctors.map(doc => (
-          <DoctorSelectCard key={doc.id} doctor={doc} selected={selectedDoctor} onSelect={setSelectedDoctor} />
-        ))}
-        {doctors.length === 0 && (
-          <div className="col-span-2 text-center py-10 text-slate-400 text-sm">
-            No doctors found. Try clearing the search.
-          </div>
-        )}
-      </div>
-    </motion.div>
-  );
-}
-
-// ─── STEP 2: Date, Time & Consultation Type ─────────────────────────────────
-function Step2({ doctor, days, selectedDay, setSelectedDay, selectedTime, setSelectedTime,
-  consultType, setConsultType, selectedBranch, setSelectedBranch }) {
-
-  // Randomly mark some slots as unavailable for realism
-  const unavailable = ["09:30 AM", "11:00 AM", "02:30 PM", "05:00 PM", "06:30 PM"];
-
-  return (
-    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
-      transition={{ duration: 0.25 }}>
-
-      {/* Selected doctor recap */}
-      <div className="flex items-center gap-3 p-3 rounded-2xl mb-5"
-        style={{ background: `linear-gradient(135deg, ${doctor.solidColor}12, ${doctor.solidColor}06)`, border: `1.5px solid ${doctor.solidColor}30` }}>
-        <img src={doctor.image} alt={doctor.name} className="w-11 h-11 rounded-xl object-cover object-top flex-shrink-0" />
-        <div>
-          <p className="font-bold text-slate-800 text-sm">{doctor.name}</p>
-          <p className="text-xs text-slate-500">{doctor.specialty} · {doctor.fee}</p>
-        </div>
-      </div>
-
-      {/* Consultation type */}
-      <div className="mb-5">
-        <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Consultation Type</p>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-          {CONSULTATION_TYPES.map(ct => {
-            const Icon = ct.icon;
-            const active = consultType === ct.value;
-            return (
-              <motion.button key={ct.value} whileTap={{ scale: 0.96 }}
-                onClick={() => setConsultType(ct.value)}
-                className={`flex flex-col items-center gap-1.5 p-3 rounded-2xl border-2 transition-all text-center ${
-                  active ? "border-transparent shadow-md" : "border-slate-100 bg-white hover:border-slate-200"
-                }`}
-                style={active ? { background: "linear-gradient(135deg,#e0f2fe,#fce7f3)", borderColor: "#0ea5e9" } : {}}>
-                <Icon size={18} style={{ color: active ? "#0ea5e9" : "#94a3b8" }} />
-                <span className={`text-[10px] font-bold leading-tight ${active ? "text-sky-600" : "text-slate-500"}`}>{ct.label}</span>
-              </motion.button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Branch (only for in-person) */}
-      {consultType === "in-person" && (
-        <div className="mb-5">
-          <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Select Branch</p>
-          <div className="flex gap-2">
-            {BRANCHES.filter(b => doctor.branch.includes(b)).map(b => (
-              <button key={b}
-                onClick={() => setSelectedBranch(b)}
-                className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold border-2 transition-all ${
-                  selectedBranch === b ? "text-sky-600 border-sky-400 bg-sky-50" : "border-slate-200 text-slate-500 bg-white"
-                }`}>
-                <FiMapPin size={11} /> {b}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Date selection */}
-      <div className="mb-5">
-        <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Select Date</p>
-        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-          {days.map((d, i) => (
-            <motion.button key={i} whileTap={{ scale: 0.95 }}
-              onClick={() => { setSelectedDay(i); setSelectedTime(null); }}
-              className={`flex-shrink-0 flex flex-col items-center gap-0.5 px-3 py-2.5 rounded-2xl border-2 transition-all min-w-[58px] ${
-                selectedDay === i
-                  ? "border-transparent text-white shadow-md"
-                  : "border-slate-100 bg-white text-slate-600 hover:border-slate-200"
-              }`}
-              style={selectedDay === i ? { background: "linear-gradient(135deg,#0ea5e9,#db2777)" } : {}}>
-              <span className="text-[9px] font-bold opacity-80">{d.label}</span>
-              <span className="text-sm font-extrabold">{d.date}</span>
-            </motion.button>
-          ))}
-        </div>
-      </div>
-
-      {/* Time slots */}
-      <div>
-        <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Available Time Slots</p>
-        <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
-          {TIME_SLOTS.map(slot => {
-            const busy = unavailable.includes(slot);
-            const active = selectedTime === slot;
-            return (
-              <motion.button key={slot} whileTap={{ scale: 0.93 }}
-                disabled={busy}
-                onClick={() => setSelectedTime(slot)}
-                className={`py-2 rounded-xl text-[11px] font-bold border-2 transition-all ${
-                  busy ? "border-slate-100 text-slate-300 bg-slate-50 cursor-not-allowed line-through"
-                  : active ? "border-transparent text-white shadow-md"
-                  : "border-slate-100 text-slate-600 bg-white hover:border-sky-200 hover:text-sky-600"
-                }`}
-                style={active ? { background: "linear-gradient(135deg,#0ea5e9,#db2777)" } : {}}>
-                {slot}
-              </motion.button>
-            );
-          })}
-        </div>
-        {!selectedTime && (
-          <p className="text-[11px] text-slate-400 mt-2 flex items-center gap-1">
-            <FiClock size={10} /> Please select a time slot to continue
-          </p>
-        )}
-      </div>
-    </motion.div>
-  );
-}
-
-// ─── STEP 3: Patient Info ─────────────────────────────────────────────────────
-function Step3({ form, setForm, errors, setErrors }) {
-  const update = (key, val) => {
-    setForm(f => ({ ...f, [key]: val }));
-    setErrors(e => ({ ...e, [key]: undefined }));
-  };
-
-  return (
-    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
-      transition={{ duration: 0.25 }}>
-      <div className="mb-4">
-        <h3 className="text-base font-extrabold text-slate-800">Patient Information</h3>
-        <p className="text-xs text-slate-400 mt-0.5">Please fill in your details for the appointment</p>
-      </div>
-
-      {/* New / Returning */}
-      <div className="flex gap-2 mb-5">
-        {[{ v: "new", l: "New Patient" }, { v: "returning", l: "Returning Patient" }].map(o => (
-          <button key={o.v} onClick={() => update("isNew", o.v)}
-            className={`flex-1 py-2.5 rounded-xl text-xs font-bold border-2 transition-all ${
-              form.isNew === o.v ? "border-transparent text-white shadow-sm" : "border-slate-200 text-slate-500 bg-white"
-            }`}
-            style={form.isNew === o.v ? { background: "linear-gradient(135deg,#0ea5e9,#db2777)" } : {}}>
-            {o.l}
-          </button>
-        ))}
-      </div>
-
-      <div className="space-y-3">
-        {/* Name */}
-        <div>
-          <label className="text-xs font-bold text-slate-600 mb-1 block">
-            Full Name <span className="text-pink-500">*</span>
-          </label>
-          <div className="relative">
-            <FiUser size={13} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-            <input value={form.name} onChange={e => update("name", e.target.value)}
-              placeholder="Enter your full name"
-              className={`w-full pl-9 pr-4 py-2.5 rounded-xl border-2 outline-none text-sm transition-all ${
-                errors.name ? "border-red-300 bg-red-50" : "border-slate-100 focus:border-sky-300 bg-slate-50 focus:bg-white"
-              }`} />
-          </div>
-          {errors.name && <p className="text-[11px] text-red-500 mt-1 flex items-center gap-1"><FiAlertCircle size={10} />{errors.name}</p>}
-        </div>
-
-        {/* Phone */}
-        <div>
-          <label className="text-xs font-bold text-slate-600 mb-1 block">
-            Phone Number <span className="text-pink-500">*</span>
-          </label>
-          <div className="relative">
-            <FiPhone size={13} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-            <input value={form.phone} onChange={e => update("phone", e.target.value)}
-              placeholder="03XX XXXXXXX"
-              className={`w-full pl-9 pr-4 py-2.5 rounded-xl border-2 outline-none text-sm transition-all ${
-                errors.phone ? "border-red-300 bg-red-50" : "border-slate-100 focus:border-sky-300 bg-slate-50 focus:bg-white"
-              }`} />
-          </div>
-          {errors.phone && <p className="text-[11px] text-red-500 mt-1 flex items-center gap-1"><FiAlertCircle size={10} />{errors.phone}</p>}
-        </div>
-
-        {/* Email */}
-        <div>
-          <label className="text-xs font-bold text-slate-600 mb-1 block">Email Address <span className="text-slate-400 font-normal">(optional)</span></label>
-          <div className="relative">
-            <FiMail size={13} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-            <input value={form.email} onChange={e => update("email", e.target.value)}
-              placeholder="your@email.com"
-              className={`w-full pl-9 pr-4 py-2.5 rounded-xl border-2 outline-none text-sm transition-all ${
-                errors.email ? "border-red-300 bg-red-50" : "border-slate-100 focus:border-sky-300 bg-slate-50 focus:bg-white"
-              }`} />
-          </div>
-          {errors.email && <p className="text-[11px] text-red-500 mt-1 flex items-center gap-1"><FiAlertCircle size={10} />{errors.email}</p>}
-        </div>
-
-        {/* Age + Gender row */}
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="text-xs font-bold text-slate-600 mb-1 block">Age</label>
-            <input value={form.age} onChange={e => update("age", e.target.value)}
-              placeholder="e.g. 32" type="number" min="1" max="120"
-              className="w-full px-4 py-2.5 rounded-xl border-2 border-slate-100 focus:border-sky-300 outline-none text-sm bg-slate-50 focus:bg-white transition-all" />
-          </div>
-          <div>
-            <label className="text-xs font-bold text-slate-600 mb-1 block">Gender</label>
-            <select value={form.gender} onChange={e => update("gender", e.target.value)}
-              className="w-full px-4 py-2.5 rounded-xl border-2 border-slate-100 focus:border-sky-300 outline-none text-sm bg-slate-50 focus:bg-white transition-all">
-              <option value="">Select</option>
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
-              <option value="Other">Other</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Notes */}
-        <div>
-          <label className="text-xs font-bold text-slate-600 mb-1 block">Symptoms / Notes <span className="text-slate-400 font-normal">(optional)</span></label>
-          <textarea value={form.notes} onChange={e => update("notes", e.target.value)}
-            rows={3} placeholder="Briefly describe your symptoms or reason for visit…"
-            className="w-full px-4 py-2.5 rounded-xl border-2 border-slate-100 focus:border-sky-300 outline-none text-sm bg-slate-50 focus:bg-white transition-all resize-none" />
-        </div>
-      </div>
-    </motion.div>
-  );
-}
-
-// ─── STEP 4: Confirm ─────────────────────────────────────────────────────────
-function Step4({ doctor, day, time, consultType, branch, form }) {
-  const ctLabel = CONSULTATION_TYPES.find(c => c.value === consultType)?.label;
-  return (
-    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
-      transition={{ duration: 0.25 }}>
-      <div className="mb-4">
-        <h3 className="text-base font-extrabold text-slate-800">Review & Confirm</h3>
-        <p className="text-xs text-slate-400 mt-0.5">Please confirm your appointment details</p>
-      </div>
-
-      {/* Doctor */}
-      <div className="flex items-center gap-3 p-4 rounded-2xl mb-4"
-        style={{ background: `linear-gradient(135deg, ${doctor.solidColor}15, transparent)`, border: `1.5px solid ${doctor.solidColor}25` }}>
-        <img src={doctor.image} alt={doctor.name} className="w-14 h-14 rounded-2xl object-cover object-top flex-shrink-0 shadow-md" />
-        <div>
-          <p className="font-extrabold text-slate-800">{doctor.name}</p>
-          <p className="text-xs text-slate-500">{doctor.title}</p>
-          <p className="text-xs font-bold mt-0.5" style={{ color: doctor.solidColor }}>{doctor.specialty}</p>
-        </div>
-      </div>
-
-      {/* Details grid */}
-      <div className="grid grid-cols-2 gap-3 mb-4">
-        {[
-          { icon: FiCalendar, label: "Date", value: `${day.label}, ${day.date}` },
-          { icon: FiClock, label: "Time", value: time },
-          { icon: FiVideo, label: "Type", value: ctLabel },
-          { icon: FiMapPin, label: "Branch", value: consultType === "in-person" ? branch : "—" },
-        ].map(({ icon: Icon, label, value }) => (
-          <div key={label} className="p-3 rounded-2xl bg-slate-50 border border-slate-100">
-            <div className="flex items-center gap-1.5 mb-0.5">
-              <Icon size={12} className="text-slate-400" />
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{label}</span>
-            </div>
-            <p className="text-sm font-bold text-slate-700">{value}</p>
-          </div>
-        ))}
-      </div>
-
-      {/* Patient */}
-      <div className="p-4 rounded-2xl bg-gradient-to-br from-sky-50 to-pink-50 border border-sky-100">
-        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Patient Info</p>
-        <div className="grid grid-cols-2 gap-x-6 gap-y-1.5">
-          {[
-            ["Name", form.name || "—"],
-            ["Phone", form.phone || "—"],
-            form.email ? ["Email", form.email] : null,
-            form.age ? ["Age", form.age] : null,
-            form.gender ? ["Gender", form.gender] : null,
-            ["Status", form.isNew === "new" ? "New Patient" : "Returning"],
-          ].filter(Boolean).map(([k, v]) => (
-            <div key={k}>
-              <span className="text-[10px] text-slate-400 font-semibold">{k}: </span>
-              <span className="text-[11px] font-bold text-slate-700">{v}</span>
-            </div>
-          ))}
-        </div>
-        {form.notes && (
-          <div className="mt-2 pt-2 border-t border-sky-100">
-            <p className="text-[10px] text-slate-400 font-semibold mb-0.5">Notes:</p>
-            <p className="text-xs text-slate-600">{form.notes}</p>
-          </div>
-        )}
-      </div>
-
-      {/* Fee */}
-      <div className="mt-4 p-3 rounded-2xl flex items-center justify-between"
-        style={{ background: "linear-gradient(135deg, #e0f2fe, #fce7f3)" }}>
-        <span className="text-sm font-bold text-slate-600">Consultation Fee</span>
-        <span className="text-base font-extrabold" style={{ color: doctor.solidColor }}>{doctor.fee}</span>
-      </div>
-    </motion.div>
-  );
-}
-
-// ─── SUCCESS VIEW ─────────────────────────────────────────────────────────────
-function SuccessView({ doctor, day, time, consultType, branch, form, onClose }) {
-  const bookingRef = `PC-${Date.now().toString().slice(-6)}`;
-  return (
-    <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
-      transition={{ type: "spring", stiffness: 250, damping: 22 }}
-      className="flex flex-col items-center text-center py-4">
-
-      {/* Success icon */}
-      <div className="relative mb-6">
-        <motion.div
-          initial={{ scale: 0 }} animate={{ scale: 1 }}
-          transition={{ delay: 0.1, type: "spring", stiffness: 300 }}
-          className="w-20 h-20 rounded-full flex items-center justify-center shadow-xl"
-          style={{ background: "linear-gradient(135deg, #0ea5e9, #db2777)" }}>
-          <FiCheck size={36} className="text-white" strokeWidth={3} />
-        </motion.div>
-        {/* Rings */}
-        {[1, 2].map(i => (
-          <motion.div key={i}
-            initial={{ scale: 0, opacity: 0.5 }} animate={{ scale: 1.5 + i * 0.5, opacity: 0 }}
-            transition={{ delay: 0.3 + i * 0.15, duration: 0.8 }}
-            className="absolute inset-0 rounded-full border-2 border-pink-400" />
-        ))}
-      </div>
-
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-        <h3 className="text-xl font-extrabold text-slate-800 mb-1">Appointment Confirmed!</h3>
-        <p className="text-xs text-slate-400 mb-1">Booking Reference: <span className="font-bold text-sky-600">{bookingRef}</span></p>
-        <p className="text-sm text-slate-500 mb-6">Our team will contact you shortly to confirm your slot.</p>
-
-        {/* Summary card */}
-        <div className="w-full p-4 rounded-2xl text-left mb-5"
-          style={{ background: "linear-gradient(135deg, #e0f2fe 0%, #fce7f3 100%)" }}>
-          <div className="flex items-center gap-3 mb-3">
-            <img src={doctor.image} alt={doctor.name} className="w-10 h-10 rounded-xl object-cover object-top" />
-            <div>
-              <p className="font-bold text-slate-800 text-sm">{doctor.name}</p>
-              <p className="text-[11px] text-slate-500">{doctor.specialty}</p>
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            {[
-              { icon: LuCalendar, label: "Date", value: `${day.label}, ${day.date}` },
-              { icon: LuClock, label: "Time", value: time },
-              { icon: LuCreditCard, label: "Fee", value: doctor.fee },
-              { icon: LuMapPin, label: "Mode", value: CONSULTATION_TYPES.find(c => c.value === consultType)?.label },
-            ].map(({ icon: Icon, label, value }) => (
-              <div key={label} className="bg-white/70 rounded-xl px-3 py-2">
-                <div className="flex items-center gap-1.5 text-slate-400 mb-0.5">
-                  <Icon size={12} className="text-sky-500" />
-                  <p className="text-[9px] font-bold uppercase">{label}</p>
-                </div>
-                <p className="text-xs font-bold text-slate-700">{value}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Actions */}
-        <div className="flex gap-3 w-full">
-          <motion.a whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
-            href={`https://wa.me/923008786187?text=${encodeURIComponent(`Hello! I just booked an appointment.\nRef: ${bookingRef}\nDoctor: ${doctor.name}\nDate: ${day.label}, ${day.date}\nTime: ${time}\nName: ${form.name}\nPhone: ${form.phone}`)}`}
-            target="_blank" rel="noopener noreferrer"
-            className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-[#25D366] text-white text-sm font-bold shadow-md">
-            <FaWhatsapp size={16} /> WhatsApp Confirm
-          </motion.a>
-          <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
-            onClick={onClose}
-            className="flex-1 py-3 rounded-xl text-white text-sm font-bold shadow-md"
-            style={{ background: "linear-gradient(135deg,#0ea5e9,#db2777)" }}>
-            Done
-          </motion.button>
-        </div>
-      </motion.div>
-    </motion.div>
   );
 }

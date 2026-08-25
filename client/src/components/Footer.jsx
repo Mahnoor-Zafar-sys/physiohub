@@ -33,27 +33,35 @@ const links = {
   ],
 };
 
-// Social Icons configuration as it is from your original code setup
+// Social Icons configuration with official VitalPhysioHub accounts
 const socials = [
   { 
     icon: FiInstagram, 
     baseColor: "text-white border-white/10", 
-    hoverStyles: "hover:bg-white/10 hover:border-white/30" 
+    hoverStyles: "hover:bg-pink-500/20 hover:border-pink-500/50 hover:text-pink-400",
+    url: "https://www.instagram.com/vitalphysiohub/",
+    title: "Instagram"
   },
   { 
     icon: FiTwitter, 
     baseColor: "text-white border-white/10", 
-    hoverStyles: "hover:bg-white/10 hover:border-white/30" 
+    hoverStyles: "hover:bg-sky-500/20 hover:border-sky-500/50 hover:text-sky-400",
+    url: "#",
+    title: "Twitter (X)"
   },
   { 
     icon: FiFacebook, 
     baseColor: "text-white border-white/10", 
-    hoverStyles: "hover:bg-white/10 hover:border-white/30" 
+    hoverStyles: "hover:bg-blue-600/20 hover:border-blue-600/50 hover:text-blue-400",
+    url: "https://web.facebook.com/profile.php?id=61593115965405",
+    title: "Facebook"
   },
   { 
     icon: FiLinkedin, 
     baseColor: "text-white border-white/10", 
-    hoverStyles: "hover:bg-white/10 hover:border-white/30" 
+    hoverStyles: "hover:bg-sky-600/20 hover:border-sky-600/50 hover:text-sky-400",
+    url: "https://www.linkedin.com/in/dr-ghulam-jellani-pt?utm_source=share_via&utm_content=profile&utm_medium=member_android",
+    title: "LinkedIn"
   },
 ];
 
@@ -84,19 +92,19 @@ export default function Footer() {
             <div className="flex items-center gap-3 mb-5">
               <img
                 src="/logo.jpeg"
-                alt="Physiohub Logo"
+                alt="Vital Physiohub Logo"
                 className="w-14 h-14 object-contain rounded-xl bg-white p-1 shadow-md border border-slate-700/60"
               />
               <div>
                 <span className="text-white font-display font-black text-xl tracking-tight">
-                  Physio<span style={{ background: "linear-gradient(90deg, #38bdf8, #f472b6)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>hub</span>
+                  Vital Physio<span style={{ background: "linear-gradient(90deg, #38bdf8, #f472b6)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>hub</span>
                 </span>
                 <p className="text-slate-400 text-[10px] font-body font-bold tracking-widest uppercase mt-0.5">Advanced Physical Therapy & Rehabilitation</p>
               </div>
             </div>
             
             <p className="text-slate-300 text-sm font-body leading-relaxed max-w-sm mb-6">
-              Redefining healthcare through innovation, compassion, and technology. Our mission is to make world-class medical care accessible to all.
+              Redefining healthcare through innovation, compassion, and technology. Our mission is to provide accessible, premier healthcare for every patient.
             </p>
             
             {/* Corrected & Synced Information Section */}
@@ -113,17 +121,21 @@ export default function Footer() {
               ))}
             </div>
 
-            {/* Social Buttons Rendered As It Is From Your Input */}
+            {/* Social Buttons */}
             <div className="flex gap-3 mt-7">
-              {socials.map(({ icon: Icon, baseColor, hoverStyles }, i) => (
-                <motion.button
+              {socials.map(({ icon: Icon, baseColor, hoverStyles, url, title }, i) => (
+                <motion.a
                   key={i}
+                  href={url}
+                  title={title}
+                  target={url !== "#" ? "_blank" : "_self"}
+                  rel="noopener noreferrer"
                   whileHover={{ scale: 1.15, y: -3 }}
                   whileTap={{ scale: 0.95 }}
                   className={`w-10 h-10 rounded-xl border border-slate-800 bg-slate-900/50 flex items-center justify-center transition-all duration-300 shadow-sm ${baseColor} ${hoverStyles}`}
                 >
                   <Icon size={18} className="stroke-[2.5]" />
-                </motion.button>
+                </motion.a>
               ))}
             </div>
           </div>
@@ -156,7 +168,7 @@ export default function Footer() {
       <div className="bg-[#0b0f19] py-6 shadow-[inner_0_2px_4px_rgba(0,0,0,0.06)] border-t border-slate-800/60">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-slate-400 text-xs font-body font-semibold tracking-wide">
-            © {new Date().getFullYear()} Physiohub. All rights reserved.
+            © {new Date().getFullYear()} Vital Physiohub. All rights reserved.
           </p>
           <div className="flex gap-6">
             <Link 

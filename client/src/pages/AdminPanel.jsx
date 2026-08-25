@@ -3,14 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   FiUser, FiUsers, FiSearch, FiCalendar, FiClock, FiFileText, FiDollarSign, 
-  FiCheckCircle, FiXCircle, FiTrendingUp, FiActivity, 
+  FiCheckCircle, FiXCircle, FiTrendingUp, FiActivity, FiAward,
   FiPlus, FiTrash, FiShield, FiAlertTriangle, FiCheck, FiChevronRight, FiList, FiPackage, FiShoppingCart,
   FiMapPin, FiVideo, FiPhone, FiMessageCircle
 } from "react-icons/fi";
 import { FaUserMd, FaHospitalUser, FaUserCog, FaCreditCard, FaPrint } from "react-icons/fa";
 import { MdOutlineHealthAndSafety, MdVerifiedUser } from "react-icons/md";
 import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
 import SEOHead from "../components/SEOHead";
 import { api } from "../services/api";
 
@@ -33,6 +32,10 @@ export default function AdminPanel() {
   const [comments, setComments] = useState([]);
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
+  const [applications, setApplications] = useState([]);
+  const [appFilterType, setAppFilterType] = useState("all");
+  const [appFilterStatus, setAppFilterStatus] = useState("all");
+  const [selectedAppModal, setSelectedAppModal] = useState(null);
   const [logs, setLogs] = useState([
     { time: "10:30 AM", event: "Billing Invoice INV-5002 marked as paid." },
     { time: "11:00 AM", event: "Appointment scheduled with Dr. Omar Farooq." }
@@ -235,6 +238,9 @@ export default function AdminPanel() {
 
       const fetchedUsers = await api.getUsers();
       setUsers(fetchedUsers);
+
+      const fetchedApps = await api.getApplications();
+      setApplications(fetchedApps || []);
 
       const fetchedLogs = await api.getUserLogs();
       setUserLogs(fetchedLogs);
@@ -864,6 +870,37 @@ export default function AdminPanel() {
     }
   };
 
+  const handleUpdateAppStatus = async (id, status) => {
+    try {
+      setLoading(true);
+      const success = await api.updateApplicationStatus(id, status);
+      if (success) {
+        addSystemLog(`Application ID ${id} status set to ${status}.`);
+        loadData();
+      }
+    } catch (err) {
+      alert("Error updating application status.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteApp = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this application record?")) return;
+    try {
+      setLoading(true);
+      const success = await api.deleteApplication(id);
+      if (success) {
+        addSystemLog(`Application ID ${id} deleted.`);
+        loadData();
+      }
+    } catch (err) {
+      alert("Error deleting application.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // --- Website CMS Handlers ---
   const handleSettingsSubmit = async (e) => {
     e.preventDefault();
@@ -1143,6 +1180,7 @@ export default function AdminPanel() {
                   { id: "doctor-crud", label: "Doctor Registry", icon: FaUserMd },
                   { id: "branches", label: "Manage Branches", icon: FiMapPin },
                   { id: "users", label: "User Management", icon: FiUsers },
+                  { id: "memberships-internships", label: "Memberships & Internships", icon: FiAward },
                   ...(isSuperAdmin ? [{ id: "saas-clinics", label: "Super Admin Center", icon: FiShield }] : []),
                   { id: "articles", label: "Clinical Articles", icon: FiFileText },
                   { id: "comments", label: "Comments Moderation", icon: FiAlertTriangle },
@@ -1373,10 +1411,10 @@ export default function AdminPanel() {
               const linePath = svgPoints.map((p, idx) => `${idx === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(" ");
               const fillPath = `${linePath} L ${svgPoints[segmentCount-1].x} 130 L ${svgPoints[0].x} 130 Z`;
 
-              // Aggregate branch comparisons (Gulberg, DHA, Online Consultations, Shop Sales)
+              // Aggregate branch comparisons (Blue Area, DHA Phase 2, Online Consultations, Shop Sales)
               const branchRevenue = {
-                Gulberg: 0,
-                DHA: 0,
+                BlueArea: 0,
+                DHAPhase2: 0,
                 Online: 0,
                 ShopSales: shopRevenue
               };
@@ -1390,20 +1428,20 @@ export default function AdminPanel() {
                 }
                 
                 const bStr = String(a.branch || "").toLowerCase();
-                if (bStr.includes("gulberg")) {
-                  branchRevenue.Gulberg += feeNum;
+                if (bStr.includes("blue area") || bStr.includes("gulberg")) {
+                  branchRevenue.BlueArea += feeNum;
                 } else if (bStr.includes("dha")) {
-                  branchRevenue.DHA += feeNum;
+                  branchRevenue.DHAPhase2 += feeNum;
                 } else if (bStr.includes("online") || bStr.includes("virtual")) {
                   branchRevenue.Online += feeNum;
                 } else {
-                  branchRevenue.Gulberg += feeNum;
+                  branchRevenue.BlueArea += feeNum;
                 }
               });
 
               const branchData = [
-                { name: "Gulberg Branch", revenue: branchRevenue.Gulberg, color: "#0ea5e9" },
-                { name: "DHA Branch", revenue: branchRevenue.DHA, color: "#a855f7" },
+                { name: "Blue Area Branch", revenue: branchRevenue.BlueArea, color: "#0ea5e9" },
+                { name: "DHA Phase 2 Branch", revenue: branchRevenue.DHAPhase2, color: "#a855f7" },
                 { name: "Online Clinic", revenue: branchRevenue.Online, color: "#10b981" },
                 { name: "Shop Sales", revenue: branchRevenue.ShopSales, color: "#ec4899" }
               ];
@@ -1758,7 +1796,7 @@ export default function AdminPanel() {
                             required
                             value={newDoctor.branch}
                             onChange={e => setNewDoctor({...newDoctor, branch: e.target.value})}
-                            placeholder="Gulberg, DHA" 
+                            placeholder="Blue Area, F-8" 
                             className="w-full border border-slate-200 bg-white rounded-xl p-2.5 text-xs outline-none focus:border-pink-400"
                           />
                         </div>
@@ -2918,6 +2956,153 @@ export default function AdminPanel() {
               </div>
             )}
 
+            {/* MEMBERSHIPS & INTERNSHIPS DESK */}
+            {activeTab === "memberships-internships" && (
+              <div className="space-y-6 text-left flex-grow">
+                <div>
+                  <h3 className="text-lg font-black text-slate-800 flex items-center gap-2">
+                    <FiAward className="text-pink-500" /> Memberships & Internship Applications Desk
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-0.5">Review incoming clinical membership requests and internship rotation applications from the website.</p>
+                </div>
+
+                {/* Stat Overview Cards */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="bg-white/50 border border-slate-100 rounded-3xl p-4 shadow-xs">
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider block">Total Applications</span>
+                    <h2 className="text-2xl font-black text-slate-800 mt-1">{applications.length}</h2>
+                    <span className="text-[9px] text-slate-400 font-bold block mt-0.5">Website Submissions</span>
+                  </div>
+                  <div className="bg-white/50 border border-slate-100 rounded-3xl p-4 shadow-xs">
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider block">Pending Review</span>
+                    <h2 className="text-2xl font-black text-amber-600 mt-1">{applications.filter(a => a.status === "Pending").length}</h2>
+                    <span className="text-[9px] text-amber-500 font-bold block mt-0.5">Awaiting Decision</span>
+                  </div>
+                  <div className="bg-white/50 border border-slate-100 rounded-3xl p-4 shadow-xs">
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider block">Approved Memberships</span>
+                    <h2 className="text-2xl font-black text-emerald-600 mt-1">{applications.filter(a => a.type === "membership" && a.status === "Approved").length}</h2>
+                    <span className="text-[9px] text-emerald-500 font-bold block mt-0.5">Active Passes</span>
+                  </div>
+                  <div className="bg-white/50 border border-slate-100 rounded-3xl p-4 shadow-xs">
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider block">Active Interns</span>
+                    <h2 className="text-2xl font-black text-sky-600 mt-1">{applications.filter(a => a.type === "internship" && a.status === "Approved").length}</h2>
+                    <span className="text-[9px] text-sky-500 font-bold block mt-0.5">Accepted Rotations</span>
+                  </div>
+                </div>
+
+                {/* Filter Pills */}
+                <div className="flex justify-between items-center flex-wrap gap-2 pt-2 border-t border-slate-100">
+                  <div className="flex items-center gap-1.5 bg-slate-100/80 p-1 rounded-2xl">
+                    {["all", "membership", "internship"].map(t => (
+                      <button
+                        key={t}
+                        onClick={() => setAppFilterType(t)}
+                        className={`px-3 py-1.5 rounded-xl text-[10px] font-extrabold capitalize border-none cursor-pointer transition-all ${
+                          appFilterType === t ? "bg-white text-slate-900 shadow-sm" : "bg-transparent text-slate-500"
+                        }`}
+                      >
+                        {t === "all" ? "All Programs" : t === "membership" ? "Memberships" : "Internships"}
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase">Status:</span>
+                    <select
+                      value={appFilterStatus}
+                      onChange={e => setAppFilterStatus(e.target.value)}
+                      className="border border-slate-200 bg-white rounded-xl p-1.5 text-xs font-bold text-slate-700 outline-none"
+                    >
+                      <option value="all">All Statuses</option>
+                      <option value="Pending">Pending</option>
+                      <option value="Approved">Approved</option>
+                      <option value="Rejected">Rejected</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Applications Table / Cards */}
+                <div className="space-y-3 max-h-[550px] overflow-y-auto pr-1 scrollbar-none">
+                  {(() => {
+                    const filtered = applications.filter(a => {
+                      const matchType = appFilterType === "all" || a.type === appFilterType;
+                      const matchStatus = appFilterStatus === "all" || a.status === appFilterStatus;
+                      return matchType && matchStatus;
+                    });
+
+                    if (filtered.length === 0) {
+                      return (
+                        <div className="p-10 text-center bg-slate-50 border border-dashed rounded-3xl text-slate-400 text-xs font-semibold">
+                          No application submissions match the selected filter.
+                        </div>
+                      );
+                    }
+
+                    return filtered.map(app => (
+                      <div key={app.id} className="border border-slate-100 bg-white/40 backdrop-blur-sm rounded-2xl p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-sm text-left">
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className={`text-[9px] font-black uppercase px-2.5 py-0.5 rounded ${
+                              app.type === "membership" ? "bg-purple-100 text-purple-700" : "bg-sky-100 text-sky-700"
+                            }`}>
+                              {app.type === "membership" ? "Clinical Membership" : "Clinical Internship"}
+                            </span>
+                            <h4 className="font-extrabold text-sm text-slate-850">{app.full_name}</h4>
+                            <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full ${
+                              app.status === "Approved" ? "bg-emerald-100 text-emerald-700" :
+                              app.status === "Rejected" ? "bg-rose-100 text-rose-700" : "bg-amber-100 text-amber-700"
+                            }`}>
+                              {app.status}
+                            </span>
+                          </div>
+                          <p className="text-xs text-slate-600 font-medium">
+                            Email: <span className="font-bold">{app.email}</span> · Phone: <span className="font-bold">{app.phone}</span>
+                          </p>
+                          <div className="text-[10px] text-slate-400 font-semibold space-x-3">
+                            {app.plan_tier && <span>Plan: <strong className="text-slate-700">{app.plan_tier}</strong></span>}
+                            {app.duration && <span>Duration: <strong className="text-slate-700">{app.duration}</strong></span>}
+                            {app.qualification && <span>Qualification: <strong className="text-slate-700">{app.qualification}</strong></span>}
+                            {app.institution && <span>Institution: <strong className="text-slate-700">{app.institution}</strong></span>}
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 self-end md:self-auto shrink-0 flex-wrap">
+                          <button
+                            onClick={() => setSelectedAppModal(app)}
+                            className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-[10px] font-bold border-none cursor-pointer"
+                          >
+                            View Details
+                          </button>
+                          {app.status !== "Approved" && (
+                            <button
+                              onClick={() => handleUpdateAppStatus(app.id, "Approved")}
+                              className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-[10px] font-bold border-none cursor-pointer flex items-center gap-1 shadow-xs"
+                            >
+                              <FiCheck size={11} /> Approve
+                            </button>
+                          )}
+                          {app.status !== "Rejected" && (
+                            <button
+                              onClick={() => handleUpdateAppStatus(app.id, "Rejected")}
+                              className="px-3 py-1.5 bg-rose-500 hover:bg-rose-600 text-white rounded-xl text-[10px] font-bold border-none cursor-pointer flex items-center gap-1 shadow-xs"
+                            >
+                              <FiXCircle size={11} /> Reject
+                            </button>
+                          )}
+                          <button
+                            onClick={() => handleDeleteApp(app.id)}
+                            className="p-1.5 bg-slate-100 hover:bg-rose-50 hover:text-rose-600 text-slate-400 rounded-lg text-xs font-bold border-none cursor-pointer"
+                          >
+                            <FiTrash size={12} />
+                          </button>
+                        </div>
+                      </div>
+                    ));
+                  })()}
+                </div>
+              </div>
+            )}
+
             {/* SUPER ADMIN CLINIC NETWORKS MANAGEMENT CENTER */}
             {activeTab === "saas-clinics" && isSuperAdmin && (
               <div className="space-y-6 text-left flex-grow flex flex-col animate-fadeIn">
@@ -3077,7 +3262,7 @@ export default function AdminPanel() {
                           type="text"
                           value={newBranch.city}
                           onChange={e => setNewBranch({ ...newBranch, city: e.target.value })}
-                          placeholder="e.g. Lahore"
+                          placeholder="e.g. Islamabad"
                           className="w-full border border-slate-200 bg-white rounded-xl p-2.5 text-xs outline-none focus:border-pink-400"
                         />
                       </div>
@@ -3118,7 +3303,7 @@ export default function AdminPanel() {
                         <div key={b.id} className="border border-slate-100 bg-white rounded-2xl p-4 flex flex-col justify-between gap-3 shadow-sm animate-fade-in">
                           <div>
                             <h4 className="font-extrabold text-sm text-slate-850">{b.name}</h4>
-                            <p className="text-[10px] text-slate-400 font-bold tracking-wide uppercase mt-0.5">{b.city || "Lahore"}</p>
+                            <p className="text-[10px] text-slate-400 font-bold tracking-wide uppercase mt-0.5">{b.city || "Islamabad"}</p>
                             <p className="text-xs text-slate-550 mt-1.5 leading-relaxed font-semibold">{b.address || "N/A"}</p>
                           </div>
                           <div className="flex gap-2 pt-2 border-t border-slate-50 justify-end">
@@ -3685,7 +3870,7 @@ export default function AdminPanel() {
                                 required
                                 value={careerForm.location}
                                 onChange={e => setCareerForm({ ...careerForm, location: e.target.value })}
-                                placeholder="Gulberg, Lahore"
+                                placeholder="Blue Area, Islamabad"
                                 className="w-full border border-slate-200 bg-white rounded-xl p-2 outline-none focus:border-pink-400 font-semibold"
                               />
                             </div>
@@ -4110,7 +4295,7 @@ export default function AdminPanel() {
         </div>
       </div>
 
-      <Footer />
+      
 
       {/* Screen receipt viewer modal */}
       <AnimatePresence>
@@ -4401,10 +4586,12 @@ export default function AdminPanel() {
                       <div className="space-y-1">
                         <label className="text-[10px] text-slate-400 font-bold uppercase">Branch</label>
                         <select
-                          value={Array.isArray(mgmtForm.branch) ? mgmtForm.branch[0] : (mgmtForm.branch || "Gulberg")}
+                          value={Array.isArray(mgmtForm.branch) ? mgmtForm.branch[0] : (mgmtForm.branch || "Blue Area")}
                           onChange={e => setMgmtForm(prev => ({ ...prev, branch: [e.target.value] }))}
                           className="w-full border border-slate-200 rounded-xl p-2.5 text-xs bg-slate-50 outline-none focus:border-pink-400"
                         >
+                          <option value="Blue Area">Blue Area</option>
+                          <option value="Blue Area, F-8">Both (Blue Area & F-8)</option>
                           <option value="Gulberg">Gulberg</option>
                           <option value="DHA">DHA</option>
                           <option value="Gulberg, DHA">Both (Gulberg & DHA)</option>
@@ -4916,7 +5103,7 @@ export default function AdminPanel() {
                 <label className="text-[10px] font-bold text-slate-400 uppercase">Clinic Address</label>
                 <input
                   type="text"
-                  placeholder="e.g. DHA Phase 5, Lahore, Pakistan"
+                  placeholder="e.g. DHA Phase 2, Islamabad, Pakistan"
                   value={addClinicForm.address}
                   onChange={e => setAddClinicForm(prev => ({ ...prev, address: e.target.value }))}
                   className="w-full border border-slate-200 bg-slate-50/50 focus:bg-white rounded-xl p-3 text-xs outline-none font-semibold text-slate-700 focus:border-pink-500 transition-colors"
@@ -4983,6 +5170,99 @@ export default function AdminPanel() {
           </div>
         </div>
       )}
+      {/* Application Details Modal */}
+      <AnimatePresence>
+        {selectedAppModal && (
+          <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm" onClick={() => setSelectedAppModal(null)}>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full text-slate-800 shadow-2xl relative border border-slate-100 text-left"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                onClick={() => setSelectedAppModal(null)}
+                className="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 hover:bg-rose-100 hover:text-rose-600 flex items-center justify-center text-slate-500 border-none cursor-pointer font-bold"
+              >
+                ✕
+              </button>
+
+              <div className="flex items-center gap-2 mb-4">
+                <span className={`text-[10px] font-black uppercase px-2.5 py-1 rounded-full ${
+                  selectedAppModal.type === "membership" ? "bg-purple-100 text-purple-700" : "bg-sky-100 text-sky-700"
+                }`}>
+                  {selectedAppModal.type === "membership" ? "Clinical Membership Application" : "Physical Therapy Internship Application"}
+                </span>
+              </div>
+
+              <h3 className="text-xl font-extrabold text-slate-900 mb-1">{selectedAppModal.full_name}</h3>
+              <p className="text-xs text-slate-500 mb-4">{selectedAppModal.email} · {selectedAppModal.phone}</p>
+
+              <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-4 text-xs space-y-2 mb-4">
+                {selectedAppModal.plan_tier && <p><span className="text-slate-400 font-semibold">Selected Tier:</span> <strong>{selectedAppModal.plan_tier}</strong></p>}
+                {selectedAppModal.duration && <p><span className="text-slate-400 font-semibold">Rotation Duration:</span> <strong>{selectedAppModal.duration}</strong></p>}
+                {selectedAppModal.qualification && <p><span className="text-slate-400 font-semibold">Qualification:</span> <strong>{selectedAppModal.qualification}</strong></p>}
+                {selectedAppModal.institution && <p><span className="text-slate-400 font-semibold">Institution:</span> <strong>{selectedAppModal.institution}</strong></p>}
+                <p><span className="text-slate-400 font-semibold">Status:</span> <strong className="uppercase text-sky-600">{selectedAppModal.status}</strong></p>
+              </div>
+
+              {selectedAppModal.cover_letter && (
+                <div className="mb-4 space-y-1">
+                  <h4 className="text-xs font-black text-slate-700 uppercase">Statement / Notes:</h4>
+                  <p className="text-xs text-slate-600 bg-slate-50 p-3 rounded-xl leading-relaxed italic">{selectedAppModal.cover_letter}</p>
+                </div>
+              )}
+
+              {selectedAppModal.resume_file && (
+                <div className="mb-4">
+                  <h4 className="text-xs font-black text-slate-700 uppercase mb-2">Resume / CV Attachment:</h4>
+                  <a
+                    href={selectedAppModal.resume_file.startsWith("data:") ? selectedAppModal.resume_file : `http://localhost:5000${selectedAppModal.resume_file}`}
+                    download={selectedAppModal.resume_name || "Resume.pdf"}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-2.5 bg-slate-900 hover:bg-sky-600 text-white rounded-xl text-xs font-bold no-underline transition-colors shadow-xs"
+                  >
+                    📥 Download {selectedAppModal.resume_name || "CV File"}
+                  </a>
+                </div>
+              )}
+
+              <div className="flex justify-end gap-2 pt-4 border-t border-slate-100">
+                {selectedAppModal.status !== "Approved" && (
+                  <button
+                    onClick={() => {
+                      handleUpdateAppStatus(selectedAppModal.id, "Approved");
+                      setSelectedAppModal(null);
+                    }}
+                    className="px-4 py-2 bg-emerald-600 text-white text-xs font-bold rounded-xl border-none cursor-pointer"
+                  >
+                    Approve Candidate
+                  </button>
+                )}
+                {selectedAppModal.status !== "Rejected" && (
+                  <button
+                    onClick={() => {
+                      handleUpdateAppStatus(selectedAppModal.id, "Rejected");
+                      setSelectedAppModal(null);
+                    }}
+                    className="px-4 py-2 bg-rose-500 text-white text-xs font-bold rounded-xl border-none cursor-pointer"
+                  >
+                    Reject Candidate
+                  </button>
+                )}
+                <button
+                  onClick={() => setSelectedAppModal(null)}
+                  className="px-4 py-2 bg-slate-100 text-slate-700 text-xs font-bold rounded-xl border-none cursor-pointer"
+                >
+                  Close
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

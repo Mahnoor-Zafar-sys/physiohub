@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import Footer from "./Footer";
 import Navbar from "./Navbar";
 import SEOHead from "./SEOHead";
 import {
@@ -1169,7 +1168,7 @@ export default function HomeConsultation() {
 
       </main>
 
-      <Footer />
+      
     </div>
   );
 }

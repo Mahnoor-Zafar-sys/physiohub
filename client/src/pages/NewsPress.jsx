@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FiCalendar, FiArrowRight, FiVolume2, FiAward, FiCpu, FiTrendingUp } from "react-icons/fi";
 import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
 import SEOHead from "../components/SEOHead";
 import { api } from "../services/api";
 
@@ -152,9 +151,9 @@ export default function NewsPress() {
   return (
     <div className="min-h-screen bg-slate-50 font-body select-none">
       <SEOHead 
-        title="Physiohub News & Press Releases | Physical Therapy Updates Lahore & Islamabad"
-        description="Latest news, press releases, accreditation updates & awards for Physiohub rehabilitation clinic in Lahore and Islamabad, Pakistan."
-        keywords="physiohub news Pakistan, physical therapy clinic press release Lahore, rehabilitation news Islamabad"
+        title="Vital Physio Hub News & Press Releases | Physical Therapy Updates Islamabad"
+        description="Latest news, press releases, accreditation updates & awards for Vital Physio Hub rehabilitation clinic in Islamabad, Pakistan."
+        keywords="physiohub news Pakistan, physical therapy clinic press release Islamabad, rehabilitation news Islamabad"
         canonicalUrl="https://physiohub.com/news"
       />
       <Navbar />
@@ -248,7 +247,7 @@ export default function NewsPress() {
         )}
       </section>
 
-      <Footer />
+      
     </div>
   );
 }

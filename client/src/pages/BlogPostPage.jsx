@@ -8,7 +8,6 @@ import {
 import { FaWhatsapp, FaTwitter, FaFacebook, FaLinkedin, FaStar } from "react-icons/fa";
 import { HiSparkles } from "react-icons/hi";
 import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
 import SEOHead from "../components/SEOHead";
 import { api } from "../services/api";
 
@@ -602,9 +601,9 @@ export default function BlogPostPage() {
   return (
     <div className="min-h-screen font-sans" style={{ background: THEME.grad }}>
       <SEOHead 
-        title={`${post.title} | Physiohub Blog Lahore & Islamabad`}
-        description={post.excerpt || `Read article on ${post.title} written by ${post.author || 'Physiohub Medical Specialist'} at Physiohub.`}
-        keywords={`${post.category}, ${post.title.toLowerCase()}, physical therapy Lahore, rehab guide Islamabad`}
+        title={`${post.title} | Vital Physio Hub Islamabad`}
+        description={post.excerpt || `Read article on ${post.title} written by ${post.author || 'Vital Physio Hub Specialist'} at Vital Physio Hub.`}
+        keywords={`${post.category}, ${post.title.toLowerCase()}, physical therapy Islamabad, rehab guide Islamabad`}
         canonicalUrl={`https://physiohub.com/blog/${post.id}`}
         ogImage={post.image || "https://physiohub.com/heroimage.jpg"}
         ogType="article"
@@ -966,7 +965,7 @@ export default function BlogPostPage() {
         </div>
       </section>
 
-      <Footer />
+      
     </div>
   );
 }

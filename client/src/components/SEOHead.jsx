@@ -2,12 +2,12 @@ import { useEffect } from "react";
 
 /**
  * SEOHead - Zero-dependency dynamic meta tag, OpenGraph, Twitter, canonical, and Schema.org injector.
- * Tailored for localized SEO in Lahore & Islamabad, Pakistan.
+ * Tailored for localized SEO in Islamabad, Pakistan.
  */
 export default function SEOHead({
-  title = "Physiohub | Best Physical Therapy & Rehabilitation Clinic in Lahore & Islamabad",
-  description = "Physiohub offers premier physical therapy, sports rehabilitation, neurological recovery, and back pain treatments in Lahore (Gulberg, DHA) and Islamabad (Blue Area, F-7). Book expert physiotherapists today.",
-  keywords = "physical therapy clinic Lahore, best physiotherapist in Islamabad, physical therapy Lahore, stroke rehab Islamabad, sports injury physiotherapy Gulberg, back pain treatment DHA Lahore, physiohub Pakistan",
+  title = "Vital Physio Hub | Best Physical Therapy & Rehabilitation Clinic in Islamabad",
+  description = "Vital Physio Hub offers premier physical therapy, sports rehabilitation, neurological recovery, and back pain treatments in Islamabad (Blue Area, F-8, DHA Phase 2). Book expert physiotherapists today.",
+  keywords = "physical therapy clinic Islamabad, best physiotherapist in Islamabad, physical therapy Islamabad, stroke rehab Islamabad, sports injury physiotherapy Islamabad, back pain treatment Islamabad, vital physio hub Pakistan",
   canonicalUrl = "https://physiohub.com/",
   ogImage = "https://physiohub.com/og-image.jpg",
   ogType = "website",
@@ -33,13 +33,13 @@ export default function SEOHead({
     updateMetaTag('meta[name="description"]', "name", "description", description);
     updateMetaTag('meta[name="keywords"]', "name", "keywords", keywords);
     updateMetaTag('meta[name="robots"]', "name", "robots", robots);
-    updateMetaTag('meta[name="author"]', "name", "author", "Physiohub Medical Team");
+    updateMetaTag('meta[name="author"]', "name", "author", "Vital Physio Hub Medical Team");
 
-    // Geo-targeting Meta Tags for Lahore & Islamabad, Pakistan
-    updateMetaTag('meta[name="geo.region"]', "name", "geo.region", "PK-PB");
-    updateMetaTag('meta[name="geo.placename"]', "name", "geo.placename", "Lahore, Islamabad, Pakistan");
-    updateMetaTag('meta[name="geo.position"]', "name", "geo.position", "31.5204;74.3587");
-    updateMetaTag('meta[name="ICBM"]', "name", "ICBM", "31.5204, 74.3587");
+    // Geo-targeting Meta Tags for Islamabad, Pakistan
+    updateMetaTag('meta[name="geo.region"]', "name", "geo.region", "PK-IS");
+    updateMetaTag('meta[name="geo.placename"]', "name", "geo.placename", "Islamabad, Pakistan");
+    updateMetaTag('meta[name="geo.position"]', "name", "geo.position", "33.7217;73.0551");
+    updateMetaTag('meta[name="ICBM"]', "name", "ICBM", "33.7217, 73.0551");
 
     // 3. Open Graph Tags
     updateMetaTag('meta[property="og:title"]', "property", "og:title", title);
@@ -47,7 +47,7 @@ export default function SEOHead({
     updateMetaTag('meta[property="og:image"]', "property", "og:image", ogImage);
     updateMetaTag('meta[property="og:url"]', "property", "og:url", canonicalUrl);
     updateMetaTag('meta[property="og:type"]', "property", "og:type", ogType);
-    updateMetaTag('meta[property="og:site_name"]', "property", "og:site_name", "Physiohub");
+    updateMetaTag('meta[property="og:site_name"]', "property", "og:site_name", "Vital Physio Hub");
     updateMetaTag('meta[property="og:locale"]', "property", "og:locale", "en_PK");
 
     // 4. Twitter Card Tags
@@ -81,11 +81,11 @@ export default function SEOHead({
         {
           "@type": "MedicalClinic",
           "@id": "https://physiohub.com/#clinic",
-          "name": "Physiohub Physical Therapy & Rehabilitation Clinic",
+          "name": "Vital Physio Hub Physical Therapy & Rehabilitation Clinic",
           "url": "https://physiohub.com",
           "logo": "https://physiohub.com/favicon.svg",
           "image": "https://physiohub.com/heroimage.jpg",
-          "description": "Premier physical therapy, sports injury rehabilitation, pediatric physio, and neurological recovery center located in Lahore and Islamabad, Pakistan.",
+          "description": "Premier physical therapy, sports injury rehabilitation, pediatric physio, and neurological recovery center located in Islamabad, Pakistan.",
           "telePhone": "+923008786187",
           "priceRange": "$$",
           "medicalSpecialty": [
@@ -99,23 +99,15 @@ export default function SEOHead({
           "address": [
             {
               "@type": "PostalAddress",
-              "streetAddress": "Main Boulevard, Gulberg III",
-              "addressLocality": "Lahore",
-              "addressRegion": "Punjab",
-              "postalCode": "54600",
+              "streetAddress": "2nd Floor Allegiance Tower, New Blue Area",
+              "addressLocality": "Islamabad",
+              "addressRegion": "ICT",
+              "postalCode": "44000",
               "addressCountry": "PK"
             },
             {
               "@type": "PostalAddress",
-              "streetAddress": "Phase 5, Commercial Zone, DHA",
-              "addressLocality": "Lahore",
-              "addressRegion": "Punjab",
-              "postalCode": "54792",
-              "addressCountry": "PK"
-            },
-            {
-              "@type": "PostalAddress",
-              "streetAddress": "Blue Area, Sector F-7",
+              "streetAddress": "Central Commercial Plaza, DHA Phase 2",
               "addressLocality": "Islamabad",
               "addressRegion": "ICT",
               "postalCode": "44000",
@@ -125,13 +117,8 @@ export default function SEOHead({
           "geo": [
             {
               "@type": "GeoCoordinates",
-              "latitude": 31.5204,
-              "longitude": 74.3587
-            },
-            {
-              "@type": "GeoCoordinates",
-              "latitude": 33.6844,
-              "longitude": 73.0479
+              "latitude": 33.7217,
+              "longitude": 73.0551
             }
           ],
           "openingHoursSpecification": [
@@ -145,7 +132,7 @@ export default function SEOHead({
                 "Friday",
                 "Saturday"
               ],
-              "opens": "08:00",
+              "opens": "09:00",
               "closes": "21:00"
             }
           ],
@@ -159,8 +146,8 @@ export default function SEOHead({
           "@type": "WebSite",
           "@id": "https://physiohub.com/#website",
           "url": "https://physiohub.com/",
-          "name": "Physiohub",
-          "description": "Advanced Physical Therapy & Rehabilitation Ecosystem in Lahore & Islamabad",
+          "name": "Vital Physio Hub",
+          "description": "Advanced Physical Therapy & Rehabilitation Ecosystem in Islamabad",
           "publisher": {
             "@id": "https://physiohub.com/#clinic"
           },

@@ -1,5 +1,4 @@
 import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
 import SEOHead from "../components/SEOHead";
 import { FiShield, FiLock, FiInfo, FiChevronRight, FiGrid } from "react-icons/fi";
 import { motion } from "framer-motion";
@@ -8,9 +7,9 @@ export default function CookiePolicy() {
   return (
     <div className="min-h-screen bg-slate-50 font-body select-none">
       <SEOHead 
-        title="Cookie Policy | Physiohub Physical Therapy Pakistan"
-        description="Understand how Physiohub uses cookies and tracking technology on our physical therapy platform. Control your data preferences in Lahore & Islamabad."
-        keywords="physiohub cookie policy, physical therapy website cookies Pakistan, clinic data privacy"
+        title="Cookie Policy | Vital Physio Hub Islamabad"
+        description="Understand how Vital Physio Hub uses cookies and tracking technology on our physical therapy platform. Control your data preferences in Islamabad."
+        keywords="physiohub cookie policy, physical therapy website cookies Pakistan, clinic data privacy Islamabad"
         canonicalUrl="https://physiohub.com/cookie-policy"
       />
       <Navbar />
@@ -101,7 +100,7 @@ export default function CookiePolicy() {
         </div>
       </section>
 
-      <Footer />
+      
     </div>
   );
 }

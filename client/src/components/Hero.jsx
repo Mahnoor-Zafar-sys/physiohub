@@ -1,13 +1,11 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { FiCalendar, FiMonitor, FiPhoneCall, FiHome } from "react-icons/fi";
-import { FaWhatsapp } from "react-icons/fa";
+import { FiCalendar, FiPhoneCall, FiUser } from "react-icons/fi";
 import { MdFavorite, MdLocalHospital } from "react-icons/md";
 import { GiHeartBeats, GiMicroscope } from "react-icons/gi";
 import { TbStethoscope, TbAmbulance, TbActivity } from "react-icons/tb";
 import { api } from "../services/api";
-import HomeConsultationModal from "./HomeConsultationModal";
+import BookAppointmentModal from "./BookAppointmentModal";
 
 const floatingIcons = [
   { Icon: MdFavorite,      color: "#3b82f6", pos: { top: "22%", left: "6%" },   dur: 7,   delay: 0,   size: "1.9rem" },
@@ -30,10 +28,9 @@ const fadeUpVariant = {
 };
 
 export default function Hero() {
-  const navigate = useNavigate();
   const wrapRef  = useRef(null);
   const imageRef = useRef(null);
-  const [homeModalOpen, setHomeModalOpen] = useState(false);
+  const [bookModalOpen, setBookModalOpen] = useState(false);
 
   const [settings, setSettings] = useState(() => {
     const local = localStorage.getItem("pc_settings");
@@ -77,32 +74,36 @@ export default function Hero() {
           0%,100% { transform: translateY(0px) rotate(0deg); }
           50%     { transform: translateY(-12px) rotate(2deg); }
         }
-        .hbtn { font-family:'DM Sans',sans-serif !important; font-weight:600 !important; cursor:pointer !important; border:none !important; display:inline-flex !important; align-items:center !important; gap:8px !important; text-decoration:none !important; white-space:nowrap !important; }
+        .hbtn { font-family:'DM Sans',sans-serif !important; font-weight:600 !important; cursor:pointer !important; border:none !important; display:inline-flex !important; align-items:center !important; justify-content:center !important; gap:8px !important; text-decoration:none !important; white-space:nowrap !important; box-sizing:border-box !important; }
+        .hero-action-btn {
+          width: 220px !important;
+          height: 48px !important;
+        }
         .hbtn-primary {
-          font-size:.95rem !important; color:#ffffff !important; border-radius:12px !important; padding:12px 26px !important;
+          font-size:.95rem !important; color:#ffffff !important; border-radius:12px !important;
           background: #2563eb !important; box-shadow: 0 4px 14px rgba(37, 99, 235, 0.25) !important; transition: all .23s ease !important;
         }
         .hbtn-primary:hover { transform:translateY(-3px) !important; background: #1d4ed8 !important; box-shadow: 0 8px 22px rgba(37, 99, 235, 0.4) !important; }
         .hbtn-home {
-          font-size:.95rem !important; color:#ffffff !important; border-radius:12px !important; padding:12px 26px !important;
-          background: linear-gradient(135deg, #8b5cf6, #6366f1) !important;
-          box-shadow: 0 4px 14px rgba(139, 92, 246, 0.3) !important; transition: all .23s ease !important;
+          font-size:.95rem !important; color:#ffffff !important; border-radius:12px !important;
+          background: linear-gradient(135deg, #0d9488, #059669) !important;
+          box-shadow: 0 4px 14px rgba(13, 148, 136, 0.3) !important; transition: all .23s ease !important;
         }
-        .hbtn-home:hover { transform:translateY(-3px) !important; background: linear-gradient(135deg, #7c3aed, #4f46e5) !important; box-shadow: 0 8px 22px rgba(139, 92, 246, 0.45) !important; }
+        .hbtn-home:hover { transform:translateY(-3px) !important; background: linear-gradient(135deg, #0f766e, #047857) !important; box-shadow: 0 8px 22px rgba(13, 148, 136, 0.45) !important; }
         .hbtn-glass {
-          font-size:.95rem !important; color:#1e293b !important; border-radius:12px !important; padding:12px 26px !important;
+          font-size:.95rem !important; color:#1e293b !important; border-radius:12px !important;
           background: rgba(255, 255, 255, 0.85) !important; backdrop-filter: blur(8px) !important;
           border: 1.5px solid #e2e8f0 !important; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02) !important; transition: all .23s ease !important;
         }
         .hbtn-glass:hover { transform:translateY(-3px) !important; background: #ffffff !important; border-color: #cbd5e1 !important; }
         .hbtn-whatsapp {
-          font-size:.95rem !important; color:#ffffff !important; border-radius:12px !important; padding:12px 26px !important;
+          font-size:.95rem !important; color:#ffffff !important; border-radius:12px !important;
           background: #25d366 !important; box-shadow: 0 4px 14px rgba(37, 211, 102, 0.25) !important; transition: all .23s ease !important;
         }
         .hbtn-whatsapp:hover { transform:translateY(-3px) !important; background: #20ba5a !important; }
         .hbtn-emergency {
           position:relative !important; overflow:visible !important;
-          font-size:.95rem !important; color:#ffffff !important; border-radius:12px !important; padding:12px 26px !important;
+          font-size:.95rem !important; color:#ffffff !important; border-radius:12px !important;
           background: #ef4444 !important; box-shadow: 0 4px 14px rgba(239, 68, 68, 0.25) !important; transition: all .23s ease !important;
         }
         .hbtn-emergency:hover { transform:translateY(-3px) !important; background: #dc2626 !important; }
@@ -113,29 +114,33 @@ export default function Hero() {
         }
 
         @media (max-width: 640px) {
+          .hero-action-btn {
+            width: 170px !important;
+            height: 42px !important;
+          }
           .hbtn {
             font-size: 0.82rem !important;
-            padding: 9px 12px !important;
             border-radius: 10px !important;
             gap: 6px !important;
           }
           .hbtn-primary, .hbtn-home, .hbtn-glass, .hbtn-whatsapp, .hbtn-emergency {
             font-size: 0.82rem !important;
-            padding: 9px 12px !important;
             border-radius: 10px !important;
           }
         }
 
-        @media (max-width: 380px) {
+        @media (max-width: 420px) {
+          .hero-action-btn {
+            width: 140px !important;
+            height: 38px !important;
+          }
           .hbtn {
-            font-size: 0.76rem !important;
-            padding: 8px 6px !important;
+            font-size: 0.75rem !important;
             border-radius: 8px !important;
             gap: 4px !important;
           }
           .hbtn-primary, .hbtn-home, .hbtn-glass, .hbtn-whatsapp, .hbtn-emergency {
-            font-size: 0.76rem !important;
-            padding: 8px 6px !important;
+            font-size: 0.75rem !important;
             border-radius: 8px !important;
           }
         }
@@ -206,61 +211,51 @@ export default function Hero() {
               {settings.hero_subtitle || "Book appointments, consult top doctors, and manage your health digitally, all in one beautifully designed platform."}
             </motion.p>
 
-            <div className="grid grid-cols-2 sm:flex sm:flex-wrap justify-center gap-2 sm:gap-3.5 mt-1 sm:mt-2 w-full">
-              
-              {/* ── BOOK APPOINTMENT ── */}
-              <motion.button
-                variants={fadeUpVariant}
-                className="hbtn hbtn-primary col-span-1 sm:flex-initial justify-center"
-                onClick={() => navigate("/book-appointment")}
-              >
-                <FiCalendar /> Book Appointment
-              </motion.button>
+            <div className="flex flex-col items-center gap-3.5 mt-1 sm:mt-2 w-full">
+              {/* ── Line 1: Book Appointment & Emergency Call side-by-side ── */}
+              <div className="flex flex-wrap justify-center items-center gap-3 sm:gap-4 w-full">
+                <motion.button
+                  variants={fadeUpVariant}
+                  className="hbtn hbtn-primary hero-action-btn"
+                  onClick={() => setBookModalOpen(true)}
+                >
+                  <FiCalendar /> Book Appointment
+                </motion.button>
 
-              {/* ── HOME CONSULTATION ── */}
-              <motion.button
-                variants={fadeUpVariant}
-                className="hbtn hbtn-home col-span-1 sm:flex-initial justify-center"
-                onClick={() => navigate("/home-consultation")}
-              >
-                <FiHome /> Home Consultation
-              </motion.button>
-              
-              {/* ── ONLINE CONSULTATION ── */}
-              <motion.button 
-                variants={fadeUpVariant} 
-                className="hbtn hbtn-glass col-span-1 sm:flex-initial justify-center"
-                onClick={() => navigate("/online-consultation")}
-              >
-                <FiMonitor style={{ color: "#10b981" }} /> Online Consultation
-              </motion.button>
+                <motion.a
+                  variants={fadeUpVariant}
+                  className="hbtn hbtn-emergency hero-action-btn"
+                  href="tel:+923417388830"
+                >
+                  <FiPhoneCall /> Emergency Call
+                </motion.a>
+              </div>
 
-              {/* ── WHATSAPP CHAT ── */}
-              <motion.a
-                variants={fadeUpVariant}
-                className="hbtn hbtn-whatsapp col-span-1 sm:flex-initial justify-center"
-                href="https://wa.me/923008786187?text=Hello%20Physiohub%2C%20I%20want%20to%20inquire%20about%20your%20healthcare%20services."
-                target="_blank" rel="noopener noreferrer"
-              >
-                <FaWhatsapp size="1.1rem" /> WhatsApp Chat
-              </motion.a>
-
-              {/* ── CALL NOW / EMERGENCY ── */}
-              <motion.a
-                variants={fadeUpVariant}
-                className="hbtn hbtn-emergency col-span-2 sm:col-span-1 sm:flex-initial justify-center"
-                href="tel:+923417388830"
-              >
-                <FiPhoneCall /> Call Now / Emergency
-              </motion.a>
+              {/* ── Line 2: Patient Portal centered below ── */}
+              <div className="flex justify-center items-center w-full">
+                <motion.button
+                  variants={fadeUpVariant}
+                  className="hbtn hbtn-home hero-action-btn"
+                  onClick={() => {
+                    const role = localStorage.getItem("vph_user_role");
+                    if (role === "patient") {
+                      window.location.href = "/patient-portal";
+                    } else {
+                      window.location.href = "/login";
+                    }
+                  }}
+                >
+                  <FiUser /> Patient Portal
+                </motion.button>
+              </div>
             </div>
           </motion.div>
         </div>
 
-        {/* Home Consultation Modal */}
-        <HomeConsultationModal
-          isOpen={homeModalOpen}
-          onClose={() => setHomeModalOpen(false)}
+        {/* Book Appointment Modal */}
+        <BookAppointmentModal
+          isOpen={bookModalOpen}
+          onClose={() => setBookModalOpen(false)}
         />
       </section>
     </>

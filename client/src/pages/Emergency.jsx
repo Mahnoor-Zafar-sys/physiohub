@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
 import SEOHead from "../components/SEOHead";
 import { 
   FiPhoneCall, FiAlertOctagon, FiMapPin, FiTruck, 
@@ -95,7 +94,7 @@ export default function Emergency() {
   const getProgressLabel = () => {
     if (progress === 0) return "Ambulance Request Dispatched";
     if (progress === 20) return "Emergency Coordinator Assigned";
-    if (progress === 40) return "Ambulance Dispatched from DHA Branch";
+    if (progress === 40) return "Ambulance Dispatched from Blue Area Branch";
     if (progress === 60) return "Paramedic Team In Route";
     if (progress === 80) return "Ambulance Near Location (1 min away)";
     return "Ambulance Arrived at Scene";
@@ -104,9 +103,9 @@ export default function Emergency() {
   return (
     <div className="min-h-screen bg-slate-50 font-body select-none">
       <SEOHead 
-        title="24/7 Emergency Physical Therapy & Ambulance Dispatch | Lahore & Islamabad"
-        description="24/7 emergency trauma care, urgent rehabilitation support & ambulance dispatch in Lahore & Islamabad. Immediate triage assistance for physical trauma & acute pain."
-        keywords="emergency physical therapy Lahore, ambulance dispatch Islamabad, urgent physio care Lahore, acute trauma rehabilitation Pakistan, 24/7 emergency physio"
+        title="24/7 Emergency Physical Therapy & Ambulance Dispatch | Islamabad"
+        description="24/7 emergency trauma care, urgent rehabilitation support & ambulance dispatch in Islamabad. Immediate triage assistance for physical trauma & acute pain."
+        keywords="emergency physical therapy Islamabad, ambulance dispatch Islamabad, urgent physio care Islamabad, acute trauma rehabilitation Pakistan, 24/7 emergency physio Islamabad"
         canonicalUrl="https://physiohub.com/emergency"
       />
       <Navbar />
@@ -307,7 +306,7 @@ export default function Emergency() {
         </div>
       </section>
 
-      <Footer />
+      
     </div>
   );
 }
