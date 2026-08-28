@@ -1978,12 +1978,11 @@ export default function ContactUs() {
       <section className="px-4 pt-12 md:pt-16 pb-16">
         <div className="max-w-6xl mx-auto">
           <motion.div variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-60px" }}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+            className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-3 gap-6 lg:gap-8">
             {[
               { icon: <FaPhone size={20} />, title: "Phone", lines: [settings.clinic_phone], color: "sky" },
               { icon: <FaEnvelope size={20} />, title: "Email", lines: [settings.clinic_email], color: "pink" },
               { icon: <FaClock size={20} />, title: "Opening Hours", lines: [settings.clinic_hours], color: "amber" },
-              { icon: <MdEmergency size={20} />, title: "Emergency", lines: [settings.ambulance_phone, "24/7 Available"], color: "red", urgent: true },
             ].map((card, i) => {
               const colorMap = {
                 sky:   { bg: "bg-sky-50",   border: "border-sky-200",   icon: "text-sky-500",   gIcon: "bg-sky-100",   hover: "hover:border-sky-300 hover:shadow-sky-100" },
@@ -2137,26 +2136,6 @@ export default function ContactUs() {
                   </div>
                   <div className="absolute inset-0 bg-green-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl" />
                 </motion.a>
-              </AnimSection>
-
-              {/* Emergency Card */}
-              <AnimSection delay={2}>
-                <div className="relative p-6 rounded-2xl border border-red-200 bg-white shadow-sm overflow-hidden">
-                  <div className="absolute top-3 right-3 w-2.5 h-2.5 rounded-full bg-red-400 animate-ping" />
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center">
-                      <FaAmbulance className="text-red-500 text-xl" />
-                    </div>
-                    <span className="text-slate-800 font-bold text-base">Emergency Line</span>
-                  </div>
-                  <p className="text-slate-400 text-xs mb-3">For life-threatening emergencies, call immediately:</p>
-                  <a href={`tel:${settings.ambulance_phone}`} className="block text-3xl font-black text-red-500 hover:text-red-600 transition-colors tracking-wider">{settings.ambulance_phone}</a>
-                  <p className="text-slate-400 text-xs mt-1">Rescue and Ambulance: Free 24/7</p>
-                  <a href={`tel:${settings.clinic_phone}`} className="mt-3 block text-sm text-red-400 hover:text-red-500 transition-colors font-semibold">
-                    Clinic Helpline: {settings.clinic_phone}
-                  </a>
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5" style={{ background: "linear-gradient(90deg,#ef4444,#fb7185)" }} />
-                </div>
               </AnimSection>
 
               {/* Office Hours */}

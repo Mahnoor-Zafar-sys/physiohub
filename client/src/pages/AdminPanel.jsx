@@ -108,7 +108,9 @@ export default function AdminPanel() {
     hero_subtitle: "",
     about_title: "",
     about_description: "",
-    about_ceo_vision: ""
+    about_ceo_vision: "",
+    membership_patient_price: "PKR 5,000 / Yr",
+    membership_practitioner_price: "PKR 12,000 / Yr"
   });
   const [cmsServices, setCmsServices] = useState([]);
   const [cmsFaqs, setCmsFaqs] = useState([]);
@@ -132,7 +134,9 @@ export default function AdminPanel() {
     hero_subtitle: "",
     about_title: "",
     about_description: "",
-    about_ceo_vision: ""
+    about_ceo_vision: "",
+    membership_patient_price: "PKR 5,000 / Yr",
+    membership_practitioner_price: "PKR 12,000 / Yr"
   });
 
   // Services form
@@ -206,6 +210,45 @@ export default function AdminPanel() {
     source: "google",
     featured: 0
   });
+
+  // Admin Add Member Modal State
+  const [showAdminAddMemberModal, setShowAdminAddMemberModal] = useState(false);
+  const [adminMemberForm, setAdminMemberForm] = useState({
+    full_name: "",
+    email: "",
+    phone: "",
+    qualification: "",
+    type: "membership",
+    plan_tier: "Premium Patient Pass",
+    status: "Approved"
+  });
+
+  const handleAdminAddMemberSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      setLoading(true);
+      const res = await api.submitApplication(adminMemberForm);
+      if (res && res.success) {
+        if (adminMemberForm.status !== "Pending") {
+          const createdApp = res.application || res.app;
+          if (createdApp && createdApp.id) {
+            await api.updateApplicationStatus(createdApp.id, adminMemberForm.status);
+          }
+        }
+        addSystemLog(`New Member '${adminMemberForm.full_name}' registered by Admin.`);
+        setShowAdminAddMemberModal(false);
+        setAdminMemberForm({ full_name: "", email: "", phone: "", qualification: "", type: "membership", plan_tier: "Premium Patient Pass", status: "Approved" });
+        loadData();
+        alert("New Member successfully registered by Admin!");
+      } else {
+        alert("Failed to register member.");
+      }
+    } catch (err) {
+      alert("Error registering member.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const addSystemLog = (event) => {
     const now = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
@@ -2959,11 +3002,20 @@ export default function AdminPanel() {
             {/* MEMBERSHIPS & INTERNSHIPS DESK */}
             {activeTab === "memberships-internships" && (
               <div className="space-y-6 text-left flex-grow">
-                <div>
-                  <h3 className="text-lg font-black text-slate-800 flex items-center gap-2">
-                    <FiAward className="text-pink-500" /> Memberships & Internship Applications Desk
-                  </h3>
-                  <p className="text-xs text-slate-400 mt-0.5">Review incoming clinical membership requests and internship rotation applications from the website.</p>
+                <div className="flex justify-between items-center flex-wrap gap-3">
+                  <div>
+                    <h3 className="text-lg font-black text-slate-800 flex items-center gap-2">
+                      <FiAward className="text-pink-500" /> Memberships & Internship Applications Desk
+                    </h3>
+                    <p className="text-xs text-slate-400 mt-0.5">Review incoming clinical membership requests or manually register new members.</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowAdminAddMemberModal(true)}
+                    className="px-4 py-2.5 bg-gradient-to-r from-pink-600 to-sky-600 hover:from-pink-500 hover:to-sky-500 text-white font-bold rounded-xl text-xs flex items-center gap-1.5 shadow-md cursor-pointer border-none transition-all"
+                  >
+                    <span>+ Add New Member</span>
+                  </button>
                 </div>
 
                 {/* Stat Overview Cards */}
@@ -3099,6 +3151,107 @@ export default function AdminPanel() {
                       </div>
                     ));
                   })()}
+                </div>
+              </div>
+            )}
+
+            {/* Admin Add New Member Modal */}
+            {showAdminAddMemberModal && (
+              <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+                <div className="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl space-y-4 border border-slate-100 relative text-left">
+                  <div className="flex justify-between items-center pb-3 border-b border-slate-100">
+                    <h3 className="font-extrabold text-base text-slate-800">Register New Member / Application</h3>
+                    <button 
+                      type="button" 
+                      onClick={() => setShowAdminAddMemberModal(false)}
+                      className="p-1 rounded-lg hover:bg-slate-100 text-slate-400 border-none bg-transparent cursor-pointer"
+                    >
+                      <FiX size={18} />
+                    </button>
+                  </div>
+
+                  <form onSubmit={handleAdminAddMemberSubmit} className="space-y-3.5">
+                    <div>
+                      <label className="text-[10px] font-bold text-slate-400 uppercase block mb-1">Full Name *</label>
+                      <input 
+                        type="text" 
+                        required 
+                        value={adminMemberForm.full_name}
+                        onChange={e => setAdminMemberForm({ ...adminMemberForm, full_name: e.target.value })}
+                        placeholder="e.g. Dr. Usman Ali"
+                        className="w-full border border-slate-200 bg-white rounded-xl p-2.5 text-xs outline-none focus:border-pink-400"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="text-[10px] font-bold text-slate-400 uppercase block mb-1">Email *</label>
+                        <input 
+                          type="email" 
+                          required 
+                          value={adminMemberForm.email}
+                          onChange={e => setAdminMemberForm({ ...adminMemberForm, email: e.target.value })}
+                          placeholder="member@example.com"
+                          className="w-full border border-slate-200 bg-white rounded-xl p-2.5 text-xs outline-none focus:border-pink-400"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-bold text-slate-400 uppercase block mb-1">Phone *</label>
+                        <input 
+                          type="text" 
+                          required 
+                          value={adminMemberForm.phone}
+                          onChange={e => setAdminMemberForm({ ...adminMemberForm, phone: e.target.value })}
+                          placeholder="+92 300 0000000"
+                          className="w-full border border-slate-200 bg-white rounded-xl p-2.5 text-xs outline-none focus:border-pink-400"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="text-[10px] font-bold text-slate-400 uppercase block mb-1">Program Type</label>
+                        <select 
+                          value={adminMemberForm.type}
+                          onChange={e => setAdminMemberForm({ ...adminMemberForm, type: e.target.value })}
+                          className="w-full border border-slate-200 bg-white rounded-xl p-2.5 text-xs outline-none font-bold text-slate-700"
+                        >
+                          <option value="membership">Clinical Membership</option>
+                          <option value="internship">Clinical Internship</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-bold text-slate-400 uppercase block mb-1">Initial Status</label>
+                        <select 
+                          value={adminMemberForm.status}
+                          onChange={e => setAdminMemberForm({ ...adminMemberForm, status: e.target.value })}
+                          className="w-full border border-slate-200 bg-white rounded-xl p-2.5 text-xs outline-none font-bold text-slate-700"
+                        >
+                          <option value="Approved">Approved (Active Member)</option>
+                          <option value="Pending">Pending Review</option>
+                          <option value="Rejected">Rejected</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="text-[10px] font-bold text-slate-400 uppercase block mb-1">Plan / Qualification</label>
+                      <input 
+                        type="text" 
+                        value={adminMemberForm.plan_tier}
+                        onChange={e => setAdminMemberForm({ ...adminMemberForm, plan_tier: e.target.value })}
+                        placeholder="e.g. Premium Patient Pass / DPT"
+                        className="w-full border border-slate-200 bg-white rounded-xl p-2.5 text-xs outline-none focus:border-pink-400"
+                      />
+                    </div>
+
+                    <button 
+                      type="submit" 
+                      className="w-full py-3 bg-gradient-to-r from-pink-600 to-sky-600 hover:from-pink-500 hover:to-sky-500 text-white rounded-xl text-xs font-bold border-none cursor-pointer shadow-md mt-2"
+                    >
+                      Confirm Registration
+                    </button>
+                  </form>
                 </div>
               </div>
             )}
@@ -3416,6 +3569,26 @@ export default function AdminPanel() {
                             value={settingsForm.clinic_hours}
                             onChange={e => setSettingsForm({ ...settingsForm, clinic_hours: e.target.value })}
                             className="w-full border border-slate-200 bg-white rounded-xl p-2.5 outline-none focus:border-pink-400 font-semibold"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-bold text-slate-500 uppercase block mb-1">Premium Patient Pass Price</label>
+                          <input
+                            type="text"
+                            value={settingsForm.membership_patient_price || "PKR 5,000 / Yr"}
+                            onChange={e => setSettingsForm({ ...settingsForm, membership_patient_price: e.target.value })}
+                            className="w-full border border-slate-200 bg-white rounded-xl p-2.5 outline-none focus:border-pink-400 font-semibold"
+                            placeholder="PKR 5,000 / Yr"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-bold text-slate-500 uppercase block mb-1">Practitioner Network Price</label>
+                          <input
+                            type="text"
+                            value={settingsForm.membership_practitioner_price || "PKR 12,000 / Yr"}
+                            onChange={e => setSettingsForm({ ...settingsForm, membership_practitioner_price: e.target.value })}
+                            className="w-full border border-slate-200 bg-white rounded-xl p-2.5 outline-none focus:border-pink-400 font-semibold"
+                            placeholder="PKR 12,000 / Yr"
                           />
                         </div>
                       </div>

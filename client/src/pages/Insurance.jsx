@@ -78,6 +78,17 @@ export default function Insurance({ onBookAppointment }) {
   const whatsappNumber = "923008786187";
   const [activeTab, setActiveTab] = useState("insurance"); // "insurance" | "membership"
 
+  const [settings, setSettings] = useState(() => {
+    const local = localStorage.getItem("pc_settings");
+    return local ? JSON.parse(local) : {};
+  });
+
+  useEffect(() => {
+    api.getSettings().then(res => {
+      if (res) setSettings(res);
+    });
+  }, []);
+
   // Membership Form State
   const [memberForm, setMemberForm] = useState({
     full_name: "",
@@ -375,7 +386,7 @@ export default function Insurance({ onBookAppointment }) {
                     <h3 className="font-extrabold text-base text-slate-900 flex items-center gap-2">
                       <FiAward className="text-sky-500" /> Premium Patient Pass
                     </h3>
-                    <span className="text-xs font-black text-sky-600 bg-sky-50 px-3 py-1 rounded-full border border-sky-200">PKR 5,000 / Yr</span>
+                    <span className="text-xs font-black text-sky-600 bg-sky-50 px-3 py-1 rounded-full border border-sky-200">{settings.membership_patient_price || "PKR 5,000 / Yr"}</span>
                   </div>
                   <ul className="text-xs text-slate-600 space-y-2 pt-3 border-t border-slate-100 font-medium">
                     <li className="flex items-center gap-2"><FiCheck className="text-emerald-500 shrink-0 text-sm" /> Priority Express Booking & Zero Waiting Time</li>
@@ -391,7 +402,7 @@ export default function Insurance({ onBookAppointment }) {
                     <h3 className="font-extrabold text-base text-slate-900 flex items-center gap-2">
                       <FiStar className="text-pink-500" /> Professional Practitioner Network
                     </h3>
-                    <span className="text-xs font-black text-pink-600 bg-pink-50 px-3 py-1 rounded-full border border-pink-200">PKR 12,000 / Yr</span>
+                    <span className="text-xs font-black text-pink-600 bg-pink-50 px-3 py-1 rounded-full border border-pink-200">{settings.membership_practitioner_price || "PKR 12,000 / Yr"}</span>
                   </div>
                   <ul className="text-xs text-slate-600 space-y-2 pt-3 border-t border-slate-100 font-medium">
                     <li className="flex items-center gap-2"><FiCheck className="text-emerald-500 shrink-0 text-sm" /> Access to Physiohub Specialized Gym & Rehab Equipment</li>

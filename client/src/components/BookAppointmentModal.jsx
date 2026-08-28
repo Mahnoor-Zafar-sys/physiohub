@@ -486,16 +486,17 @@ function HomeConsultationFlow({ onBack, onClose }) {
 
 /* ─── MAIN MODAL ────────────────────────────────────────────── */
 export default function BookAppointmentModal({ isOpen, onClose }) {
-  const [view, setView] = useState("menu"); // "menu" | "booking" | "online" | "home"
+  const [view, setView] = useState("booking"); // default "booking" | "online" | "home"
 
-  const handleClose = () => { setView("menu"); onClose(); };
+  const handleClose = () => { onClose(); };
 
-  const HEADER_TITLES = {
-    menu: "Book an Appointment",
-    booking: "In-Clinic Booking",
-    online: "Online Consultation",
-    home: "Home Consultation",
+  const HEADER_CONFIGS = {
+    booking: { title: "On Site Visit (In-Clinic Booking)", bg: "bg-gradient-to-r from-blue-600 via-indigo-600 to-sky-600 text-white" },
+    online: { title: "Online Consult (Video / Telehealth)", bg: "bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-white" },
+    home: { title: "Doctor Visit Home (Home Consultation)", bg: "bg-gradient-to-r from-purple-600 via-violet-600 to-indigo-600 text-white" },
   };
+
+  const activeHeader = HEADER_CONFIGS[view] || HEADER_CONFIGS.booking;
 
   return (
     <AnimatePresence>
@@ -507,61 +508,81 @@ export default function BookAppointmentModal({ isOpen, onClose }) {
           <motion.div key="md" initial={{ opacity: 0, scale: 0.94, y: 28 }} animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.94, y: 28 }} transition={{ type: "spring", stiffness: 300, damping: 28 }}
             className="fixed inset-0 z-[999] flex items-center justify-center p-3 sm:p-6 pointer-events-none">
-            <div className="relative w-full max-w-[520px] bg-white rounded-3xl shadow-2xl pointer-events-auto flex flex-col" style={{ maxHeight: "92vh" }} onClick={e => e.stopPropagation()}>
+            <div className="relative w-full max-w-[550px] bg-white rounded-3xl shadow-2xl pointer-events-auto flex flex-col overflow-hidden" style={{ maxHeight: "92vh" }} onClick={e => e.stopPropagation()}>
 
-              {/* Header */}
-              <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-slate-100 shrink-0">
+              {/* Form Colored Header Bar */}
+              <div className={`flex items-center justify-between px-6 py-4 transition-all duration-300 shadow-md ${activeHeader.bg}`}>
                 <div className="flex items-center gap-2">
-                  {view !== "menu" && (
-                    <button onClick={() => setView("menu")} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500 cursor-pointer border-none bg-transparent transition-colors">
-                      <FiArrowLeft size={17} />
-                    </button>
-                  )}
-                  <h2 className="font-black text-slate-900 text-base">{HEADER_TITLES[view]}</h2>
+                  <span className="p-1.5 bg-white/20 rounded-lg text-white font-bold text-xs">
+                    {view === "booking" ? "🏥" : view === "online" ? "💻" : "🏠"}
+                  </span>
+                  <h2 className="font-extrabold text-white text-base tracking-tight">{activeHeader.title}</h2>
                 </div>
-                <button onClick={handleClose} className="p-1.5 rounded-xl hover:bg-slate-100 text-slate-400 hover:text-slate-600 cursor-pointer border-none bg-transparent transition-colors">
+                <button onClick={handleClose} className="p-1.5 rounded-xl bg-white/20 hover:bg-white/30 text-white cursor-pointer border-none transition-colors">
                   <FiX size={19} />
                 </button>
               </div>
 
-              {/* Scrollable body */}
+              {/* 3 Top Category Selection Buttons (On Site Visit, Online Consult, Doctor Visit Home) */}
+              <div className="p-3 bg-slate-50 border-b border-slate-150">
+                <div className="grid grid-cols-3 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setView("booking")}
+                    className={`py-2.5 px-2 rounded-xl text-[11px] font-black transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 border cursor-pointer ${
+                      view === "booking"
+                        ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-blue-600 shadow-md shadow-blue-500/20 scale-[1.02]"
+                        : "bg-white text-slate-700 border-slate-200 hover:bg-blue-50 hover:text-blue-600"
+                    }`}
+                  >
+                    <FiCalendar size={14} />
+                    <span>On Site Visit</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setView("online")}
+                    className={`py-2.5 px-2 rounded-xl text-[11px] font-black transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 border cursor-pointer ${
+                      view === "online"
+                        ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white border-emerald-600 shadow-md shadow-emerald-500/20 scale-[1.02]"
+                        : "bg-white text-slate-700 border-slate-200 hover:bg-emerald-50 hover:text-emerald-600"
+                    }`}
+                  >
+                    <FiMonitor size={14} />
+                    <span>Online Consult</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setView("home")}
+                    className={`py-2.5 px-2 rounded-xl text-[11px] font-black transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 border cursor-pointer ${
+                      view === "home"
+                        ? "bg-gradient-to-r from-purple-600 to-indigo-600 text-white border-purple-600 shadow-md shadow-purple-500/20 scale-[1.02]"
+                        : "bg-white text-slate-700 border-slate-200 hover:bg-purple-50 hover:text-purple-600"
+                    }`}
+                  >
+                    <FiHome size={14} />
+                    <span>Doctor Visit Home</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Scrollable body displaying chosen form */}
               <div className="overflow-y-auto flex-1 px-5 py-4">
                 <AnimatePresence mode="wait">
-                  {view === "menu" && (
-                    <motion.div key="menu" initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -16 }} transition={{ duration: 0.18 }} className="space-y-3">
-                      <p className="text-slate-500 text-sm mb-4">How would you like to connect with our specialists?</p>
-                      {[
-                        { id: "booking", icon: FiCalendar, color: "bg-blue-600", label: "Booking Form", sub: "Book an in-clinic appointment with complete patient info." },
-                        { id: "online", icon: FiMonitor, color: "bg-emerald-600", label: "Online Consultation", sub: "Connect via Video or Audio call with our physiotherapy experts." },
-                        { id: "home", icon: FiHome, color: "bg-purple-600", label: "Home Consultation", sub: "Schedule a specialist home visit at your preferred date & time." },
-                      ].map(({ id, icon: Icon, color, label, sub }) => (
-                        <button key={id} onClick={() => setView(id)}
-                          className="w-full flex items-center gap-4 p-4 rounded-2xl border border-slate-200 hover:border-blue-200 hover:shadow-md bg-white hover:bg-slate-50/50 text-left cursor-pointer transition-all group">
-                          <div className={`w-11 h-11 rounded-xl ${color} flex items-center justify-center text-white shrink-0`}>
-                            <Icon size={20} />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="font-bold text-slate-900 text-sm">{label}</p>
-                            <p className="text-slate-500 text-xs mt-0.5 leading-relaxed">{sub}</p>
-                          </div>
-                          <FiArrowRight size={15} className="text-slate-300 group-hover:text-blue-400 shrink-0 transition-colors" />
-                        </button>
-                      ))}
-                    </motion.div>
-                  )}
                   {view === "booking" && (
-                    <motion.div key="booking" initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -16 }} transition={{ duration: 0.18 }}>
-                      <BookingFormFlow onBack={() => setView("menu")} onClose={handleClose} />
+                    <motion.div key="booking" initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -12 }} transition={{ duration: 0.18 }}>
+                      <BookingFormFlow onBack={() => {}} onClose={handleClose} />
                     </motion.div>
                   )}
                   {view === "online" && (
-                    <motion.div key="online" initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -16 }} transition={{ duration: 0.18 }}>
-                      <OnlineConsultationFlow onBack={() => setView("menu")} onClose={handleClose} />
+                    <motion.div key="online" initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -12 }} transition={{ duration: 0.18 }}>
+                      <OnlineConsultationFlow onBack={() => {}} onClose={handleClose} />
                     </motion.div>
                   )}
                   {view === "home" && (
-                    <motion.div key="home" initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -16 }} transition={{ duration: 0.18 }}>
-                      <HomeConsultationFlow onBack={() => setView("menu")} onClose={handleClose} />
+                    <motion.div key="home" initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -12 }} transition={{ duration: 0.18 }}>
+                      <HomeConsultationFlow onBack={() => {}} onClose={handleClose} />
                     </motion.div>
                   )}
                 </AnimatePresence>

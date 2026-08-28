@@ -1,5 +1,5 @@
-import { motion } from "framer-motion";
-import { useState, useEffect } from "react";
+import { motion, useInView } from "framer-motion";
+import { useState, useEffect, useRef } from "react";
 import Navbar from "../components/Navbar";
 import SEOHead from "../components/SEOHead";
 import { api } from "../services/api";
@@ -24,6 +24,38 @@ const SectionHeading = ({ title, subtitle }) => (
   </div>
 );
 
+function AnimatedCounter({ target, suffix = "" }) {
+  const [count, setCount] = useState(0);
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "0px 0px -50px 0px" });
+
+  useEffect(() => {
+    if (!isInView) return;
+    const end = parseInt(target, 10);
+    if (isNaN(end)) return;
+    
+    let start = 0;
+    const duration = 1800; // 1.8 seconds smooth count up
+    const steps = 45;
+    const increment = end / steps;
+    const stepTime = duration / steps;
+
+    const timer = setInterval(() => {
+      start += increment;
+      if (start >= end) {
+        setCount(end);
+        clearInterval(timer);
+      } else {
+        setCount(Math.floor(start));
+      }
+    }, stepTime);
+
+    return () => clearInterval(timer);
+  }, [target, isInView]);
+
+  return <span ref={ref}>{count}{suffix}</span>;
+}
+
 export default function About() {
   const [ceoActiveTab, setCeoActiveTab] = useState("vision");
   const [settings, setSettings] = useState(() => {
@@ -38,10 +70,38 @@ export default function About() {
   }, []);
 
   const coreValues = [
-    { name: "Compassion", desc: "Every interaction is guided by genuine empathy. We listen, care, and treat each patient like family.", icon: LuHandshake },
-    { name: "Innovation", desc: "Investing in advanced medical technology and evidence-based rehabilitation protocols.", icon: LuZap },
-    { name: "Trust", desc: "Transparent communication, ethical practice, and reliable clinical outcomes.", icon: FiShield },
-    { name: "Excellence", desc: "International treatment standards reviewed quarterly by experienced specialists.", icon: FiAward },
+    { 
+      name: "Compassion", 
+      desc: "Every interaction is guided by genuine empathy. We listen, care, and treat each patient like family.", 
+      icon: LuHandshake,
+      cardStyle: "bg-gradient-to-br from-rose-50 via-pink-50/80 to-rose-100/90 border border-rose-200/90 shadow-sm hover:shadow-xl hover:border-rose-400 hover:scale-[1.02]",
+      iconStyle: "bg-gradient-to-tr from-rose-500 to-pink-500 text-white shadow-md shadow-rose-500/20",
+      titleStyle: "text-rose-950 font-black"
+    },
+    { 
+      name: "Innovation", 
+      desc: "Investing in advanced medical technology and evidence-based rehabilitation protocols.", 
+      icon: LuZap,
+      cardStyle: "bg-gradient-to-br from-sky-50 via-blue-50/80 to-cyan-100/90 border border-blue-200/90 shadow-sm hover:shadow-xl hover:border-blue-400 hover:scale-[1.02]",
+      iconStyle: "bg-gradient-to-tr from-blue-500 to-cyan-500 text-white shadow-md shadow-blue-500/20",
+      titleStyle: "text-blue-950 font-black"
+    },
+    { 
+      name: "Trust", 
+      desc: "Transparent communication, ethical practice, and reliable clinical outcomes.", 
+      icon: FiShield,
+      cardStyle: "bg-gradient-to-br from-violet-50 via-purple-50/80 to-purple-100/90 border border-purple-200/90 shadow-sm hover:shadow-xl hover:border-purple-400 hover:scale-[1.02]",
+      iconStyle: "bg-gradient-to-tr from-violet-500 to-purple-500 text-white shadow-md shadow-purple-500/20",
+      titleStyle: "text-purple-950 font-black"
+    },
+    { 
+      name: "Excellence", 
+      desc: "International treatment standards reviewed quarterly by experienced specialists.", 
+      icon: FiAward,
+      cardStyle: "bg-gradient-to-br from-emerald-50 via-teal-50/80 to-teal-100/90 border border-teal-200/90 shadow-sm hover:shadow-xl hover:border-teal-400 hover:scale-[1.02]",
+      iconStyle: "bg-gradient-to-tr from-emerald-500 to-teal-500 text-white shadow-md shadow-teal-500/20",
+      titleStyle: "text-teal-950 font-black"
+    },
   ];
 
   const certifications = [
@@ -100,102 +160,71 @@ export default function About() {
         </div>
       </section>
 
-      {/* ══ CEO PROFILE SECTION ══════════════════════════════════════════════ */}
-      <section className="py-10 sm:py-16 bg-white border-y border-slate-200/60 px-4 sm:px-6 lg:px-12 select-none">
-        <div className="max-w-6xl mx-auto grid lg:grid-cols-12 gap-6 sm:gap-10 items-center">
-          <div className="lg:col-span-5 flex justify-center">
-            <div className="relative rounded-2xl overflow-hidden border border-slate-200 shadow-lg aspect-[4/4.2] sm:aspect-[4/5] bg-slate-100 max-w-[260px] xs:max-w-[300px] sm:max-w-none w-full">
-              <img src="/dr-ghulam-jellani.jpg" alt="Dr. Ghulam Jellani" className="w-full h-full object-cover object-top" />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
-              <div className="absolute bottom-4 left-4 right-4 flex justify-between items-end">
-                <div>
-                  <h4 className="text-white text-sm sm:text-base font-extrabold">Dr. Ghulam Jellani, PT</h4>
-                  <p className="text-blue-300 text-[10px] font-semibold uppercase mt-0.5">Founder & CEO</p>
-                </div>
-                <span className="px-2.5 py-1 bg-blue-600 text-white text-[9px] font-black uppercase rounded-lg">Leadership</span>
-              </div>
+      {/* ══ CLINICAL LEADERSHIP ════════════════════════════════════════════════ */}
+      <section className="py-12 sm:py-20 px-4 sm:px-6 lg:px-12 max-w-6xl mx-auto select-none">
+        <SectionHeading title="Clinical Leadership" subtitle="Excellence in Practice" />
+
+        <div className="bg-white rounded-3xl border border-slate-200/70 shadow-lg p-6 sm:p-10 grid lg:grid-cols-12 gap-8 items-center">
+          <div className="lg:col-span-5 relative">
+            <div className="rounded-2xl overflow-hidden shadow-md aspect-[4/5] bg-slate-100">
+              <img src={IMAGES.panel2} alt="Founder & Chief Physical Therapist" className="w-full h-full object-cover" />
+            </div>
+            <div className="absolute -bottom-4 -right-4 bg-blue-600 text-white p-4 rounded-2xl shadow-xl hidden sm:block text-left">
+              <div className="text-2xl font-black leading-none">13+</div>
+              <div className="text-[10px] font-bold uppercase tracking-wider mt-1 opacity-90">Years Clinical Practice</div>
             </div>
           </div>
 
-          <div className="lg:col-span-7 text-left space-y-4">
+          <div className="lg:col-span-7 text-left space-y-5">
             <div>
-              <span className="text-blue-600 text-xs font-black uppercase tracking-widest block mb-1">Founder Message</span>
-              <h2 className="text-2xl sm:text-3xl font-black text-slate-900 leading-tight">Dr. Ghulam Jellani, PT</h2>
-              <p className="text-slate-500 text-xs font-bold uppercase mt-0.5">Founder & Chief Executive Officer, VPH</p>
+              <span className="text-blue-600 text-xs font-black uppercase tracking-widest block">Chief Executive Officer & Founder</span>
+              <h3 className="text-2xl sm:text-3xl font-black text-slate-900 mt-1">Dr. Sarah Ahmed (PT)</h3>
+              <p className="text-slate-500 text-xs sm:text-sm font-semibold mt-1">Doctor of Physical Therapy · Musculoskeletal Specialist</p>
             </div>
 
-            <div className="flex border-b border-slate-200 gap-2 sm:gap-4 overflow-x-auto scrollbar-none w-full pb-1">
+            <p className="text-slate-600 text-xs sm:text-sm leading-relaxed">
+              "At Vital Physio Hub, our vision is built on precision, empathy, and active recovery. We empower every patient with custom rehabilitation programs tailored for long-term health."
+            </p>
+
+            <div className="flex gap-2 border-b border-slate-100 pb-3">
               {[
-                { id: "vision", label: "CEO Vision" },
-                { id: "background", label: "Credentials" },
-                { id: "journey", label: "Journey" },
-                { id: "expertise", label: "Expertise" }
-              ].map((tab) => (
+                { id: "vision", label: "Philosophy" },
+                { id: "background", label: "Education" },
+                { id: "journey", label: "Positions" },
+                { id: "expertise", label: "Specialties" }
+              ].map(t => (
                 <button 
-                  key={tab.id} 
-                  type="button" 
-                  onClick={() => setCeoActiveTab(tab.id)} 
-                  className={`pb-1.5 text-[10px] sm:text-xs font-extrabold uppercase transition-all bg-transparent border-none cursor-pointer whitespace-nowrap ${ceoActiveTab === tab.id ? "text-blue-600 border-b-2 border-blue-600" : "text-slate-400 hover:text-slate-600"}`}
+                  key={t.id}
+                  onClick={() => setCeoActiveTab(t.id)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border-none cursor-pointer ${
+                    ceoActiveTab === t.id ? "bg-blue-600 text-white shadow-sm" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                  }`}
                 >
-                  {tab.label}
+                  {t.label}
                 </button>
               ))}
             </div>
 
-            <div className="min-h-[160px] flex flex-col justify-center">
+            <div className="min-h-[90px]">
               {ceoActiveTab === "vision" && (
-                <div className="space-y-3">
-                  <h3 className="text-sm sm:text-base font-bold text-slate-800 italic">"{settings.about_ceo_vision || "My dream is to create a platform that inspires trust, promotes evidence-based physiotherapy, and positively impacts lives globally."}"</h3>
-                  <p className="text-slate-600 text-xs sm:text-sm leading-relaxed font-medium">At Vital Physio Hub, our vision is to establish a trusted healthcare platform that transforms how people access physical rehabilitation services and evidence-based health education.</p>
-                </div>
+                <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                  Focused on non-invasive pain management, spinal mechanics, and post-surgical rehabilitation to restore strength safely.
+                </p>
               )}
               {ceoActiveTab === "background" && (
                 <div className="space-y-2">
                   <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Education & Training</h4>
-                  {[{ title: "Physical Therapist (PT)", inst: "Iqra University, Islamabad" }, { title: "Clinical Hospital-based Rotations", inst: "Academic Placements" }].map((edu, i) => (
+                  {[{ title: "Doctor of Physical Therapy (DPT)", inst: "Iqra University, Islamabad" }, { title: "Clinical Hospital-based Rotations", inst: "Academic Placements" }].map((edu, i) => (
                     <div key={i} className="flex gap-2 items-center text-xs font-semibold text-slate-700"><span className="w-1.5 h-1.5 rounded-full bg-blue-500 shrink-0" /> {edu.title} — <span className="text-slate-400">{edu.inst}</span></div>
                   ))}
                 </div>
               )}
-              {ceoActiveTab === "journey" && (
-                <div className="space-y-2 text-xs text-slate-600">
-                  <p><strong className="text-slate-800">Founder & CEO:</strong> Vital Physio Hub — Global digital & clinical rehab platform.</p>
-                  <p><strong className="text-slate-800">Clinical Physiotherapist:</strong> Specialized in manual therapy & musculoskeletal recovery.</p>
-                </div>
-              )}
-              {ceoActiveTab === "expertise" && (
-                <div className="grid grid-cols-2 gap-2 text-xs">
-                  {[{ t: "Musculoskeletal Rehab", v: "Expert" }, { t: "Orthopedic Care", v: "Specialist" }, { t: "Neurological Recovery", v: "PT Focus" }, { t: "Manual Therapy", v: "Practitioner" }].map((exp, i) => (
-                    <div key={i} className="p-2 bg-slate-50 border border-slate-200/60 rounded-lg"><div className="font-bold text-slate-800">{exp.t}</div><div className="text-[10px] text-blue-600 font-bold">{exp.v}</div></div>
-                  ))}
-                </div>
-              )}
             </div>
           </div>
         </div>
       </section>
 
-      {/* ══ MISSION & VISION ══════════════════════════════════════════════════ */}
-      <section className="py-10 sm:py-16 px-4 sm:px-6 lg:px-12 select-none">
-        <div className="max-w-6xl mx-auto">
-          <SectionHeading title="Our Mission & Vision" subtitle="Who We Are" />
-          <div className="grid md:grid-cols-2 gap-6 lg:gap-8">
-            <div className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200/70 shadow-sm space-y-3 text-left">
-              <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 font-bold text-lg">M</div>
-              <h3 className="text-xl font-bold text-slate-900">Our Mission</h3>
-              <p className="text-slate-600 text-xs sm:text-sm leading-relaxed">To provide every patient with physical therapy care that is medically excellent, transparent, and genuinely compassionate, restoring confidence in active living.</p>
-            </div>
-
-            <div className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200/70 shadow-sm space-y-3 text-left">
-              <div className="w-10 h-10 rounded-xl bg-sky-50 flex items-center justify-center text-sky-600 font-bold text-lg">V</div>
-              <h3 className="text-xl font-bold text-slate-900">Our Vision</h3>
-              <p className="text-slate-600 text-xs sm:text-sm leading-relaxed">To be recognized as the most trusted physical therapy institution, connecting patients with top clinical specialists and digital health tools.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ══ CORE VALUES ════════════════════════════════════════════════════════ */}
+      {/* ══ CORE VALUES (Colorful Cards) ════════════════════════════════════════════════════ */}
       <section className="py-10 sm:py-16 bg-white border-y border-slate-200/60 px-4 sm:px-6 lg:px-12 select-none">
         <div className="max-w-6xl mx-auto">
           <SectionHeading title="Core Values" subtitle="What Guides Us" />
@@ -203,12 +232,15 @@ export default function About() {
             {coreValues.map((val) => {
               const Icon = val.icon;
               return (
-                <div key={val.name} className="p-5 rounded-2xl bg-slate-50 border border-slate-200/60 text-left space-y-2 hover:shadow-md transition-shadow">
-                  <div className="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-sm">
-                    <Icon size={18} />
+                <div 
+                  key={val.name} 
+                  className={`p-6 rounded-2xl border text-left space-y-3 transition-all duration-300 transform hover:-translate-y-1 shadow-sm ${val.cardStyle}`}
+                >
+                  <div className={`w-11 h-11 rounded-xl flex items-center justify-center shadow-md ${val.iconStyle}`}>
+                    <Icon size={22} />
                   </div>
-                  <h4 className="text-base font-bold text-slate-900">{val.name}</h4>
-                  <p className="text-slate-500 text-xs leading-relaxed">{val.desc}</p>
+                  <h4 className={`text-lg font-extrabold ${val.titleStyle}`}>{val.name}</h4>
+                  <p className="text-slate-600 text-xs leading-relaxed font-medium">{val.desc}</p>
                 </div>
               );
             })}
@@ -239,17 +271,23 @@ export default function About() {
         </div>
       </section>
 
-      {/* ══ CLOSING PROFESSIONAL BAR ════════════════════════════════════════════ */}
+      {/* ══ CLOSING PROFESSIONAL BAR (Hyphen Removed & Animated Counter) ════════════════════════════ */}
       <section className="bg-[#0f172a] py-8 sm:py-10 px-4 sm:px-6 lg:px-12 select-none mt-0">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-8">
           <p className="text-white text-sm sm:text-base font-semibold text-center sm:text-left leading-snug max-w-xl">
-            Trusted by thousands of patients — delivering premier physiotherapy with compassion, precision, and purpose.
+            Trusted by thousands of patients delivering premier physiotherapy with compassion, precision, and purpose.
           </p>
           <div className="flex items-center gap-6 sm:gap-10 shrink-0">
-            {[{ v: "50K+", l: "Patients" }, { v: "98%", l: "Satisfaction" }, { v: "13+", l: "Years" }].map(({ v, l }) => (
-              <div key={l} className="text-center">
-                <div className="text-white font-black text-xl sm:text-2xl leading-none">{v}</div>
-                <div className="text-slate-400 text-[10px] font-bold uppercase tracking-wider mt-0.5">{l}</div>
+            {[
+              { target: "50", suffix: "K+", label: "Patients" }, 
+              { target: "98", suffix: "%", label: "Satisfaction" }, 
+              { target: "13", suffix: "+", label: "Years" }
+            ].map(({ target, suffix, label }) => (
+              <div key={label} className="text-center">
+                <div className="text-white font-black text-xl sm:text-2xl leading-none">
+                  <AnimatedCounter target={target} suffix={suffix} />
+                </div>
+                <div className="text-slate-400 text-[10px] font-bold uppercase tracking-wider mt-0.5">{label}</div>
               </div>
             ))}
           </div>

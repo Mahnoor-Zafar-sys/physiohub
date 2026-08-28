@@ -335,19 +335,23 @@ export default function PatientPortal() {
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
           
           {/* Sidebar */}
-          <div className="lg:col-span-3 bg-white/70 backdrop-blur-md rounded-3xl border border-white/50 shadow-md p-6 flex flex-col justify-between">
-            <div className="space-y-6">
-              <div className="pb-5 border-b border-slate-100 flex items-center gap-3 text-left">
-                <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-600 font-extrabold shadow-inner">
-                  <FiUser />
+          <div className="lg:col-span-3 bg-gradient-to-b from-slate-900 via-indigo-950 to-slate-900 text-white shadow-2xl rounded-3xl p-6 flex flex-col justify-between border border-indigo-900/50 relative overflow-hidden">
+            {/* Soft background orb */}
+            <div className="absolute -top-12 -left-12 w-40 h-40 bg-pink-500/10 rounded-full blur-2xl pointer-events-none" />
+            <div className="absolute -bottom-12 -right-12 w-40 h-40 bg-sky-500/10 rounded-full blur-2xl pointer-events-none" />
+
+            <div className="space-y-6 relative z-10">
+              <div className="pb-5 border-b border-white/10 flex items-center gap-3 text-left bg-white/10 backdrop-blur-md p-3.5 rounded-2xl border border-white/15">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-400 to-pink-500 flex items-center justify-center text-white font-extrabold shadow-md shrink-0">
+                  <FiUser size={18} />
                 </div>
-                <div>
-                  <h4 className="font-extrabold text-sm text-slate-900 leading-none">{patientName}</h4>
-                  <span className="text-[9px] font-black text-pink-500 uppercase tracking-widest block mt-1">Patient Portal</span>
+                <div className="min-w-0">
+                  <h4 className="font-extrabold text-sm text-white leading-none truncate">{patientName}</h4>
+                  <span className="text-[9px] font-black text-sky-400 uppercase tracking-widest block mt-1">Patient Portal</span>
                 </div>
               </div>
 
-              <div className="flex flex-col gap-1.5 text-left">
+              <div className="flex flex-col gap-2 text-left">
                 {[
                   { id: "appointments", label: "Appointments", icon: FiCalendar },
                   { id: "records", label: "Medical History (EMR)", icon: FiActivity },
@@ -359,13 +363,13 @@ export default function PatientPortal() {
                   <button 
                     key={tab.id} 
                     onClick={() => setActiveTab(tab.id)}
-                    className={`flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-xs font-bold transition-all border-none cursor-pointer ${
+                    className={`flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition-all border-none cursor-pointer ${
                       activeTab === tab.id 
-                        ? "bg-slate-900 text-white shadow" 
-                        : "bg-transparent text-slate-500 hover:bg-slate-50"
+                        ? "bg-gradient-to-r from-sky-500 via-indigo-500 to-pink-500 text-white font-black shadow-lg shadow-sky-500/20 scale-[1.02]" 
+                        : "bg-white/5 text-slate-300 hover:bg-white/15 hover:text-white"
                     }`}
                   >
-                    <tab.icon size={13} /> {tab.label}
+                    <tab.icon size={15} /> <span>{tab.label}</span>
                   </button>
                 ))}
               </div>
@@ -376,7 +380,7 @@ export default function PatientPortal() {
                 localStorage.clear();
                 navigate("/login");
               }}
-              className="w-full py-2.5 bg-slate-105 hover:bg-rose-50 hover:text-rose-600 text-slate-500 rounded-xl text-xs font-bold border-none transition-colors mt-6 cursor-pointer"
+              className="w-full py-3 bg-rose-500/20 hover:bg-rose-600 text-rose-300 hover:text-white rounded-xl text-xs font-bold border border-rose-500/30 transition-all mt-6 cursor-pointer relative z-10 flex items-center justify-center gap-2"
             >
               Sign Out
             </button>

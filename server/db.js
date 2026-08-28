@@ -16,6 +16,9 @@ let dbEnabled = false;
 
 try {
   pool = mysql.createPool(poolConfig);
+  pool.on("error", (err) => {
+    console.warn("MySQL pool background error (fallback mode active):", err.message);
+  });
   // Perform an initial verification query
   pool.query("SELECT 1", (err) => {
     if (err) {
