@@ -75,7 +75,7 @@ export default function Navbar({ onBookAppointment }) {
         dropdownItems: [
           ...(userRole !== "doctor" ? [{ name: "Equipment Store", path: "/shop" }] : []),
           { name: "Gallery",                path: "/gallery" },
-          { name: "Insurance / Membership",    path: "/insurance" },
+          { name: "Insurance / Membership", path: "/membership-internship" },
           { name: "FAQ",                    path: "/faq" },
           { name: "Jobs / Internship",      path: "/careers" },
           { name: "Blog & Health Articles", path: "/blog" },
