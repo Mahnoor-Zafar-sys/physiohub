@@ -160,69 +160,170 @@ export default function About() {
         </div>
       </section>
 
-      {/* ══ CLINICAL LEADERSHIP ════════════════════════════════════════════════ */}
-      <section className="py-12 sm:py-20 px-4 sm:px-6 lg:px-12 max-w-6xl mx-auto select-none">
-        <SectionHeading title="Clinical Leadership" subtitle="Excellence in Practice" />
-
-        <div className="bg-white rounded-3xl border border-slate-200/70 shadow-lg p-6 sm:p-10 grid lg:grid-cols-12 gap-8 items-center">
-          <div className="lg:col-span-5 relative">
-            <div className="rounded-2xl overflow-hidden shadow-md aspect-[4/5] bg-slate-100">
-              <img src={IMAGES.panel2} alt="Founder & Chief Physical Therapist" className="w-full h-full object-cover" />
-            </div>
-            <div className="absolute -bottom-4 -right-4 bg-blue-600 text-white p-4 rounded-2xl shadow-xl hidden sm:block text-left">
-              <div className="text-2xl font-black leading-none">13+</div>
-              <div className="text-[10px] font-bold uppercase tracking-wider mt-1 opacity-90">Years Clinical Practice</div>
-            </div>
+     {/* ══ CEO PROFILE SECTION ══════════════════════════════════════════════ */}
+<section className="py-10 sm:py-16 bg-white border-y border-slate-200/60 px-4 sm:px-6 lg:px-12 select-none">
+  <div className="max-w-6xl mx-auto grid lg:grid-cols-12 gap-6 sm:gap-10 items-center">
+    <div className="lg:col-span-5 flex justify-center">
+      <div className="relative rounded-2xl overflow-hidden border border-slate-200 shadow-lg aspect-[4/4.2] sm:aspect-[4/5] bg-slate-100 max-w-[260px] xs:max-w-[300px] sm:max-w-none w-full">
+        <img
+          src="/dr-ghulam-jellani.jpg"
+          alt="Dr. Ghulam Jellani"
+          className="w-full h-full object-cover object-top"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
+        <div className="absolute bottom-4 left-4 right-4 flex justify-between items-end">
+          <div>
+            <h4 className="text-white text-sm sm:text-base font-extrabold">
+              Dr. Ghulam Jellani, PT
+            </h4>
+            <p className="text-blue-300 text-[10px] font-semibold uppercase mt-0.5">
+              Founder & CEO
+            </p>
           </div>
+          <span className="px-2.5 py-1 bg-blue-600 text-white text-[9px] font-black uppercase rounded-lg">
+            Leadership
+          </span>
+        </div>
+      </div>
+    </div>
 
-          <div className="lg:col-span-7 text-left space-y-5">
-            <div>
-              <span className="text-blue-600 text-xs font-black uppercase tracking-widest block">Chief Executive Officer & Founder</span>
-              <h3 className="text-2xl sm:text-3xl font-black text-slate-900 mt-1">Dr. Sarah Ahmed (PT)</h3>
-              <p className="text-slate-500 text-xs sm:text-sm font-semibold mt-1">Doctor of Physical Therapy · Musculoskeletal Specialist</p>
-            </div>
+    <div className="lg:col-span-7 text-left space-y-4">
+      <div>
+        <span className="text-blue-600 text-xs font-black uppercase tracking-widest block mb-1">
+          Founder Message
+        </span>
 
-            <p className="text-slate-600 text-xs sm:text-sm leading-relaxed">
-              "At Vital Physio Hub, our vision is built on precision, empathy, and active recovery. We empower every patient with custom rehabilitation programs tailored for long-term health."
+        <h2 className="text-2xl sm:text-3xl font-black text-slate-900 leading-tight">
+          Dr. Ghulam Jellani, PT
+        </h2>
+
+        <p className="text-slate-500 text-xs font-bold uppercase mt-0.5">
+          Founder & Chief Executive Officer, VPH
+        </p>
+      </div>
+
+      <div className="flex border-b border-slate-200 gap-2 sm:gap-4 overflow-x-auto scrollbar-none w-full pb-1">
+        {[
+          { id: "vision", label: "CEO Vision" },
+          { id: "background", label: "Credentials" },
+          { id: "journey", label: "Journey" },
+          { id: "expertise", label: "Expertise" }
+        ].map((tab) => (
+          <button
+            key={tab.id}
+            type="button"
+            onClick={() => setCeoActiveTab(tab.id)}
+            className={`pb-1.5 text-[10px] sm:text-xs font-extrabold uppercase transition-all bg-transparent border-none cursor-pointer whitespace-nowrap ${
+              ceoActiveTab === tab.id
+                ? "text-blue-600 border-b-2 border-blue-600"
+                : "text-slate-400 hover:text-slate-600"
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="min-h-[160px] flex flex-col justify-center">
+
+        {ceoActiveTab === "vision" && (
+          <div className="space-y-3">
+            <h3 className="text-sm sm:text-base font-bold text-slate-800 italic">
+              "{settings.about_ceo_vision || "My dream is to create a platform that inspires trust, promotes evidence-based physiotherapy, and positively impacts lives globally."}"
+            </h3>
+
+            <p className="text-slate-600 text-xs sm:text-sm leading-relaxed font-medium">
+              At Vital Physio Hub, our vision is to establish a trusted healthcare platform that transforms how people access physical rehabilitation services and evidence-based health education.
+            </p>
+          </div>
+        )}
+
+        {ceoActiveTab === "background" && (
+          <div className="space-y-2">
+            <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+              Education & Training
+            </h4>
+
+            {[
+              {
+                title: "Physical Therapist (PT)",
+                inst: "Iqra University, Islamabad"
+              },
+              {
+                title: "Clinical Hospital-based Rotations",
+                inst: "Academic Placements"
+              }
+            ].map((edu, i) => (
+              <div
+                key={i}
+                className="flex gap-2 items-center text-xs font-semibold text-slate-700"
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-500 shrink-0" />
+                {edu.title} —{" "}
+                <span className="text-slate-400">{edu.inst}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {ceoActiveTab === "journey" && (
+          <div className="space-y-2 text-xs text-slate-600">
+            <p>
+              <strong className="text-slate-800">
+                Founder & CEO:
+              </strong>{" "}
+              Vital Physio Hub — Global digital & clinical rehab platform.
             </p>
 
-            <div className="flex gap-2 border-b border-slate-100 pb-3">
-              {[
-                { id: "vision", label: "Philosophy" },
-                { id: "background", label: "Education" },
-                { id: "journey", label: "Positions" },
-                { id: "expertise", label: "Specialties" }
-              ].map(t => (
-                <button 
-                  key={t.id}
-                  onClick={() => setCeoActiveTab(t.id)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border-none cursor-pointer ${
-                    ceoActiveTab === t.id ? "bg-blue-600 text-white shadow-sm" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                  }`}
-                >
-                  {t.label}
-                </button>
-              ))}
-            </div>
-
-            <div className="min-h-[90px]">
-              {ceoActiveTab === "vision" && (
-                <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                  Focused on non-invasive pain management, spinal mechanics, and post-surgical rehabilitation to restore strength safely.
-                </p>
-              )}
-              {ceoActiveTab === "background" && (
-                <div className="space-y-2">
-                  <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Education & Training</h4>
-                  {[{ title: "Doctor of Physical Therapy (DPT)", inst: "Iqra University, Islamabad" }, { title: "Clinical Hospital-based Rotations", inst: "Academic Placements" }].map((edu, i) => (
-                    <div key={i} className="flex gap-2 items-center text-xs font-semibold text-slate-700"><span className="w-1.5 h-1.5 rounded-full bg-blue-500 shrink-0" /> {edu.title} — <span className="text-slate-400">{edu.inst}</span></div>
-                  ))}
-                </div>
-              )}
-            </div>
+            <p>
+              <strong className="text-slate-800">
+                Clinical Physiotherapist:
+              </strong>{" "}
+              Specialized in manual therapy & musculoskeletal recovery.
+            </p>
           </div>
-        </div>
-      </section>
+        )}
+
+        {ceoActiveTab === "expertise" && (
+          <div className="grid grid-cols-2 gap-2 text-xs">
+            {[
+              {
+                t: "Musculoskeletal Rehab",
+                v: "Expert"
+              },
+              {
+                t: "Orthopedic Care",
+                v: "Specialist"
+              },
+              {
+                t: "Neurological Recovery",
+                v: "PT Focus"
+              },
+              {
+                t: "Manual Therapy",
+                v: "Practitioner"
+              }
+            ].map((exp, i) => (
+              <div
+                key={i}
+                className="p-2 bg-slate-50 border border-slate-200/60 rounded-lg"
+              >
+                <div className="font-bold text-slate-800">
+                  {exp.t}
+                </div>
+
+                <div className="text-[10px] text-blue-600 font-bold">
+                  {exp.v}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+      </div>
+    </div>
+  </div>
+</section>
 
       {/* ══ CORE VALUES (Colorful Cards) ════════════════════════════════════════════════════ */}
       <section className="py-10 sm:py-16 bg-white border-y border-slate-200/60 px-4 sm:px-6 lg:px-12 select-none">
