@@ -70,7 +70,7 @@ export default function CookiePolicy() {
               </div>
               <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100">
                 <span className="font-extrabold text-slate-900 text-sm block mb-1">Preference & Settings Retention</span>
-                <p className="text-slate-500 text-xs leading-relaxed">Retains details like your selected clinic branch (DHA or Gulberg), symptom checker history, and user accessibility options.</p>
+                <p className="text-slate-500 text-xs leading-relaxed">Retains details like your selected clinic location in Islamabad, symptom checker history, and user accessibility options.</p>
               </div>
               <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100">
                 <span className="font-extrabold text-slate-900 text-sm block mb-1">Telehealth Security Logs</span>

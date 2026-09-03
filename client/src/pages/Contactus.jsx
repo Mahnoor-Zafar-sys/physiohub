@@ -42,7 +42,6 @@
 // const branches = [
 //   {
 //     name: "Main Branch – Gulberg",
-//     address: "123 Medical Avenue, Gulberg III, Lahore",
 //     phone: "+92 300 123 4567",
 //     hours: "Mon–Sat: 9AM–9PM",
 //     emergency: "24/7 Emergency",
@@ -50,7 +49,6 @@
 //   },
 //   {
 //     name: "Branch 2 – DHA",
-//     address: "45 Healthcare Blvd, DHA Phase 5, Lahore",
 //     phone: "+92 300 765 4321",
 //     hours: "Mon–Sat: 10AM–8PM",
 //     emergency: "Emergency Referral",
@@ -582,7 +580,6 @@
 // const branches = [
 //   {
 //     name: "Main Branch – Gulberg",
-//     address: "123 Medical Avenue, Gulberg III, Lahore",
 //     phone: "+92 300 123 4567",
 //     hours: "Mon–Sat: 9AM–9PM",
 //     emergency: "24/7 Emergency",
@@ -590,7 +587,6 @@
 //   },
 //   {
 //     name: "Branch 2 – DHA",
-//     address: "45 Healthcare Blvd, DHA Phase 5, Lahore",
 //     phone: "+92 300 765 4321",
 //     hours: "Mon–Sat: 10AM–8PM",
 //     emergency: "Emergency Referral",
@@ -1230,7 +1226,6 @@
 // const branches = [
 //   {
 //     name: "Main Branch – Gulberg",
-//     address: "123 Medical Avenue, Gulberg III, Lahore",
 //     phone: "+92 300 123 4567",
 //     hours: "Mon–Sat: 9AM–9PM",
 //     emergency: "24/7 Emergency",
@@ -1238,7 +1233,6 @@
 //   },
 //   {
 //     name: "Branch 2 – DHA",
-//     address: "45 Healthcare Blvd, DHA Phase 5, Lahore",
 //     phone: "+92 300 765 4321",
 //     hours: "Mon–Sat: 10AM–8PM",
 //     emergency: "Emergency Referral",

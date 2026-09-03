@@ -105,14 +105,7 @@ export default function SEOHead({
               "postalCode": "44000",
               "addressCountry": "PK"
             },
-            {
-              "@type": "PostalAddress",
-              "streetAddress": "Central Commercial Plaza, DHA Phase 2",
-              "addressLocality": "Islamabad",
-              "addressRegion": "ICT",
-              "postalCode": "44000",
-              "addressCountry": "PK"
-            }
+           
           ],
           "geo": [
             {

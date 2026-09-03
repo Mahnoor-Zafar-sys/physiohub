@@ -772,7 +772,26 @@ export default function BookAppointmentPage() {
 
   const handlePaymentSubmit = async (e) => {
     e.preventDefault();
-    const patientName = form.name || "Jane Doe";
+
+    // Final required-field validation before payment submission
+    if (!validateForm()) return;
+
+    if (consultType === "in-person" && !["Easypaisa", "JazzCash"].includes(selectedMethod)) {
+      alert("For an In-Person Visit, please pay through EasyPaisa or JazzCash QR.");
+      return;
+    }
+
+    if (!txnRef.trim()) {
+      alert("Please enter your payment Transaction ID / Reference ID.");
+      return;
+    }
+
+    if (consultType === "in-person" && !screenshotBase64) {
+      alert("Please upload your payment receipt screenshot before submitting.");
+      return;
+    }
+
+    const patientName = form.name.trim();
     const dateInfo = selectedCustomDate || days[0];
 
     let calculatedType = "In-Person Visit";
@@ -808,6 +827,7 @@ export default function BookAppointmentPage() {
       patient: patientName,
       payment_method: selectedMethod,
       payment_screenshot: screenshotBase64 || txnRef,
+      payment_transaction_id: txnRef.trim(),
       patient_report: reportBase64 || null,
       patient_report_name: reportName || null,
       notes: form.notes || "",
@@ -1485,7 +1505,7 @@ export default function BookAppointmentPage() {
                       { name: "JazzCash", color: "border-yellow-500 text-yellow-600 bg-yellow-50/30", brand: "JazzCash" },
                       { name: "SadaPay", color: "border-teal-500 text-teal-600 bg-teal-50/30", brand: "SadaPay" },
                       { name: "Bank Transfer", color: "border-blue-500 text-blue-600 bg-blue-50/30", brand: "Bank Account" },
-                    ].map((method) => {
+                    ].filter(method => consultType !== "in-person" || ["Easypaisa", "JazzCash"].includes(method.name)).map((method) => {
                       const isSelected = selectedMethod === method.name;
                       return (
                         <button key={method.name} type="button" onClick={() => setSelectedMethod(method.name)}
@@ -1581,8 +1601,13 @@ export default function BookAppointmentPage() {
                   <p>Our billing desk manually verifies receipts within 1-2 hours. You will receive an update notification on your patient profile feed immediately.</p>
                 </div>
                 <button type="submit"
-                  className="w-full py-3.5 bg-slate-900 hover:bg-pink-600 text-white text-xs font-bold rounded-xl shadow-lg border-none cursor-pointer transition-colors flex items-center justify-center gap-1.5"
-                >Submit Payment Verification</button>
+                  disabled={consultType === "in-person" && (!txnRef.trim() || !screenshotBase64)}
+                  className={`w-full py-3.5 text-white text-xs font-bold rounded-xl shadow-lg border-none transition-colors flex items-center justify-center gap-1.5 ${
+                    consultType === "in-person" && (!txnRef.trim() || !screenshotBase64)
+                      ? "bg-slate-300 cursor-not-allowed"
+                      : "bg-slate-900 hover:bg-pink-600 cursor-pointer"
+                  }`}
+                >{consultType === "in-person" ? "I Have Paid — Submit Payment Proof" : "Submit Payment Verification"}</button>
               </form>
             </motion.div>
           </div>

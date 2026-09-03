@@ -15,7 +15,7 @@ export default function Doctors() {
       const mergedDocs = dbDocs.map(dbDoc => {
         const mockDoc = MOCK_DOCTORS.find(m => m.name.toLowerCase() === dbDoc.name.toLowerCase());
         
-        let branches = ["Gulberg", "DHA"];
+        let branches = ["Blue Area, Islamabad"];
         if (typeof dbDoc.branch === "string") {
           branches = dbDoc.branch.split(",").map(b => b.trim());
         }
