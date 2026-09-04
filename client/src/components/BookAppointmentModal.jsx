@@ -228,20 +228,45 @@ function ConfirmedScreen({ icon: Icon, iconBg, title, details, onClose }) {
 
 /* ─── FLOW 1: BOOKING FORM ──────────────────────────────────── */
 function BookingFormFlow({ onBack, onClose }) {
-  const [step, setStep] = useState(0); // 0=form, 1=review, 2=confirmed
+  const [step, setStep] = useState(0); // 0=form, 1=review, 2=payment, 3=confirmed
+  const [error, setError] = useState("");
   const [form, setForm] = useState({
     name: "", age: "", gender: "", phone: "", email: "",
     address: "", doctor: DOCTORS[0], service: SERVICES[0],
     date: getTodayStr(), time: TIME_SLOTS[0], notes: "",
   });
-  const set = (k, v) => setForm(p => ({ ...p, [k]: v }));
+  const set = (k, v) => {
+    setForm(p => ({ ...p, [k]: v }));
+    if (error) setError("");
+  };
 
-  if (step === 2) return (
+  const validateForm = () => {
+    const required = [
+      ["Full Name", form.name],
+      ["Age", form.age],
+      ["Gender", form.gender],
+      ["Phone", form.phone],
+      ["Email", form.email],
+      ["Address", form.address],
+      ["Doctor", form.doctor],
+      ["Service", form.service],
+      ["Date", form.date],
+      ["Time", form.time],
+    ];
+    const missing = required.find(([, value]) => !String(value || "").trim());
+    if (missing) {
+      setError(`Please fill in ${missing[0]} before continuing.`);
+      return false;
+    }
+    return true;
+  };
+
+  if (step === 3) return (
     <ConfirmedScreen
       title="Appointment Booked!"
       iconBg="bg-blue-600"
       details={[
-        { label: "Name", val: form.name || "—" },
+        { label: "Name", val: form.name },
         { label: "Doctor", val: form.doctor },
         { label: "Service", val: form.service },
         { label: "Date", val: form.date },
@@ -254,7 +279,8 @@ function BookingFormFlow({ onBack, onClose }) {
 
   return (
     <div>
-      <StepBar steps={["Patient Info", "Review", "Confirmed"]} current={step} />
+      <StepBar steps={["Patient Info", "Review", "Payment", "Confirmed"]} current={step} />
+
       {step === 0 && (
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-3">
@@ -278,20 +304,28 @@ function BookingFormFlow({ onBack, onClose }) {
           <Field label="Notes">
             <textarea value={form.notes} onChange={e => set("notes", e.target.value)} placeholder="Symptoms or requirements..." rows={2} className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-800 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-50 transition-all bg-slate-50 resize-none" />
           </Field>
+
+          {error && (
+            <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs font-bold text-red-600">
+              {error}
+            </div>
+          )}
+
           <div className="flex gap-3 pt-1">
             <button onClick={onBack} className="flex items-center gap-2 px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-bold text-slate-600 cursor-pointer bg-white hover:bg-slate-50 transition-colors"><FiArrowLeft size={13} /> Back</button>
-            <button onClick={() => setStep(1)} className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-bold cursor-pointer border-none hover:bg-blue-700 transition-colors">Review <FiArrowRight size={13} /></button>
+            <button onClick={() => validateForm() && setStep(1)} className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-bold cursor-pointer border-none hover:bg-blue-700 transition-colors">Review <FiArrowRight size={13} /></button>
           </div>
         </div>
       )}
+
       {step === 1 && (
         <div className="space-y-4">
           <h3 className="font-black text-slate-900 text-sm">Review Your Information</h3>
           <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200 space-y-2">
             {[
-              { label: "Name", val: form.name || "—" }, { label: "Age/Gender", val: `${form.age || "—"} / ${form.gender || "—"}` },
-              { label: "Phone", val: form.phone || "—" }, { label: "Email", val: form.email || "—" },
-              { label: "Address", val: form.address || "—" }, { label: "Doctor", val: form.doctor },
+              { label: "Name", val: form.name }, { label: "Age/Gender", val: `${form.age} / ${form.gender}` },
+              { label: "Phone", val: form.phone }, { label: "Email", val: form.email },
+              { label: "Address", val: form.address }, { label: "Doctor", val: form.doctor },
               { label: "Service", val: form.service }, { label: "Date", val: form.date },
               { label: "Time", val: form.time }, { label: "Notes", val: form.notes || "None" },
             ].map(({ label, val }) => (
@@ -303,9 +337,18 @@ function BookingFormFlow({ onBack, onClose }) {
           </div>
           <div className="flex gap-3">
             <button onClick={() => setStep(0)} className="flex items-center gap-2 px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-bold text-slate-600 cursor-pointer bg-white hover:bg-slate-50 transition-colors"><FiArrowLeft size={13} /> Edit</button>
-            <button onClick={() => setStep(2)} className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-green-600 text-white rounded-xl text-sm font-bold cursor-pointer border-none hover:bg-green-700 transition-colors"><FiCheck size={13} /> Confirm Appointment</button>
+            <button onClick={() => setStep(2)} className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-bold cursor-pointer border-none hover:bg-blue-700 transition-colors">Proceed to Payment <FiArrowRight size={13} /></button>
           </div>
         </div>
+      )}
+
+      {step === 2 && (
+        <PaymentStep
+          fee={CONSULTATION_FEE}
+          accentColor="blue"
+          onBack={() => setStep(1)}
+          onPaid={() => setStep(3)}
+        />
       )}
     </div>
   );
