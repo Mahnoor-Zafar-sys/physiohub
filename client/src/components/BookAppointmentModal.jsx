@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { api } from "../services/api";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FiX, FiCalendar, FiHome, FiMonitor, FiArrowLeft, FiArrowRight,
@@ -76,6 +77,8 @@ function PaymentStep({ fee, onPaid, onBack, accentColor = "blue" }) {
   const [method, setMethod] = useState("online"); // "online" | "challan"
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
   const fileRef = useRef(null);
 
   const colors = {
@@ -89,6 +92,36 @@ function PaymentStep({ fee, onPaid, onBack, accentColor = "blue" }) {
     if (!f) return;
     setFile(f);
     setPreview(URL.createObjectURL(f));
+    setError("");
+  };
+
+  const handleConfirm = () => {
+    if (!file) {
+      setError("Please upload your payment proof before continuing.");
+      return;
+    }
+
+    setSubmitting(true);
+    setError("");
+
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+      try {
+        await onPaid({
+          paymentMethod: method === "online" ? "Easypaisa / JazzCash QR" : "ABL Bank Transfer",
+          paymentScreenshot: reader.result,
+        });
+      } catch (err) {
+        console.error("Booking submission failed:", err);
+        setError("Unable to submit the booking right now. Please try again.");
+        setSubmitting(false);
+      }
+    };
+    reader.onerror = () => {
+      setError("Unable to read the payment proof. Please choose the file again.");
+      setSubmitting(false);
+    };
+    reader.readAsDataURL(file);
   };
 
   return (
@@ -104,7 +137,7 @@ function PaymentStep({ fee, onPaid, onBack, accentColor = "blue" }) {
           { id: "online", icon: FiCreditCard, label: "JazzCash / EasyPaisa QR", sub: "Scan QR code or Transfer" },
           { id: "challan", icon: FiFileText, label: "ABL Bank Transfer", sub: "Allied Bank Limited" },
         ].map(({ id, icon: Icon, label, sub }) => (
-          <button key={id} onClick={() => setMethod(id)}
+          <button key={id} onClick={() => { setMethod(id); setError(""); }} disabled={submitting}
             className={`p-3 rounded-xl border-2 text-left cursor-pointer transition-all ${method === id ? colors.border : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"}`}>
             <Icon size={18} className="mb-1.5" />
             <p className="text-xs font-bold leading-tight">{label}</p>
@@ -157,7 +190,7 @@ function PaymentStep({ fee, onPaid, onBack, accentColor = "blue" }) {
             <div>
               <p className="text-xs font-bold text-slate-700 mb-2">Upload Payment Proof</p>
               <div
-                onClick={() => fileRef.current?.click()}
+                onClick={() => !submitting && fileRef.current?.click()}
                 className={`border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition-all ${preview ? "border-green-300 bg-green-50" : "border-slate-300 bg-slate-50 hover:border-blue-300 hover:bg-blue-50/30"}`}>
                 {preview ? (
                   <div className="space-y-2">
@@ -171,17 +204,23 @@ function PaymentStep({ fee, onPaid, onBack, accentColor = "blue" }) {
                     <p className="text-[10px] text-slate-400">JPG, PNG, PDF supported</p>
                   </div>
                 )}
-                <input ref={fileRef} type="file" accept="image/*,application/pdf" className="hidden" onChange={handleFile} />
+                <input ref={fileRef} type="file" accept="image/*,application/pdf" className="hidden" onChange={handleFile} disabled={submitting} />
               </div>
             </div>
 
+            {error && (
+              <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs font-bold text-red-600">
+                {error}
+              </div>
+            )}
+
             <div className="flex gap-3">
-              <button onClick={onBack} className="flex items-center gap-2 px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-bold text-slate-600 cursor-pointer bg-white hover:bg-slate-50 transition-colors">
+              <button onClick={onBack} disabled={submitting} className="flex items-center gap-2 px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-bold text-slate-600 cursor-pointer bg-white hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                 <FiArrowLeft size={13} /> Back
               </button>
-              <button onClick={() => file && onPaid()} disabled={!file}
-                className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-white rounded-xl text-sm font-bold cursor-pointer border-none transition-all ${file ? colors.btn : "bg-slate-300 cursor-not-allowed"}`}>
-                <FiCheck size={14} /> Verify & Confirm
+              <button onClick={handleConfirm} disabled={!file || submitting}
+                className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-white rounded-xl text-sm font-bold cursor-pointer border-none transition-all ${file && !submitting ? colors.btn : "bg-slate-300 cursor-not-allowed"}`}>
+                <FiCheck size={14} /> {submitting ? "Submitting..." : "Verify & Confirm"}
               </button>
             </div>
           </motion.div>
@@ -189,14 +228,13 @@ function PaymentStep({ fee, onPaid, onBack, accentColor = "blue" }) {
       )}
 
       {!method && (
-        <button onClick={onBack} className="flex items-center gap-2 px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-bold text-slate-600 cursor-pointer bg-white hover:bg-slate-50 transition-colors w-full justify-center">
+        <button onClick={onBack} disabled={submitting} className="flex items-center gap-2 px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-bold text-slate-600 cursor-pointer bg-white hover:bg-slate-50 transition-colors w-full justify-center">
           <FiArrowLeft size={13} /> Back
         </button>
       )}
     </div>
   );
 }
-
 /* ─── CONFIRMED SCREEN ──────────────────────────────────────── */
 function ConfirmedScreen({ icon: Icon, iconBg, title, details, onClose }) {
   return (
@@ -259,6 +297,31 @@ function BookingFormFlow({ onBack, onClose }) {
       return false;
     }
     return true;
+  };
+
+  const submitBooking = async ({ paymentMethod, paymentScreenshot }) => {
+    await api.createAppointment({
+      doctor: form.doctor,
+      doctor_name: form.doctor,
+      date: form.date,
+      time: form.time,
+      type: "In-Person Visit",
+      branch: "Islamabad Branch",
+      status: "Pending",
+      payment_status: "Pending Verification",
+      patient: form.name,
+      patient_name: form.name,
+      patient_age: form.age,
+      patient_gender: form.gender,
+      patient_phone: form.phone,
+      patient_email: form.email,
+      patient_address: form.address,
+      service: form.service,
+      payment_method: paymentMethod,
+      payment_screenshot: paymentScreenshot,
+      notes: form.notes || "",
+    });
+    setStep(3);
   };
 
   if (step === 3) return (
@@ -347,7 +410,7 @@ function BookingFormFlow({ onBack, onClose }) {
           fee={CONSULTATION_FEE}
           accentColor="blue"
           onBack={() => setStep(1)}
-          onPaid={() => setStep(3)}
+          onPaid={submitBooking}
         />
       )}
     </div>
@@ -358,8 +421,48 @@ function BookingFormFlow({ onBack, onClose }) {
 function OnlineConsultationFlow({ onBack, onClose }) {
   const [step, setStep] = useState(0); // 0=mode, 1=details, 2=payment, 3=confirmed
   const [mode, setMode] = useState(null);
+  const [error, setError] = useState("");
   const [form, setForm] = useState({ name: "", phone: "", email: "", doctor: DOCTORS[0], date: getTodayStr(), time: TIME_SLOTS[0], concern: "" });
-  const set = (k, v) => setForm(p => ({ ...p, [k]: v }));
+  const set = (k, v) => { setForm(p => ({ ...p, [k]: v })); if (error) setError(""); };
+
+  const validateDetails = () => {
+    const required = [
+      ["Full Name", form.name],
+      ["Phone / WhatsApp", form.phone],
+      ["Email", form.email],
+      ["Doctor", form.doctor],
+      ["Date", form.date],
+      ["Time", form.time],
+    ];
+    const missing = required.find(([, value]) => !String(value || "").trim());
+    if (missing) {
+      setError(`Please fill in ${missing[0]} before continuing.`);
+      return false;
+    }
+    return true;
+  };
+
+  const submitBooking = async ({ paymentMethod, paymentScreenshot }) => {
+    await api.createAppointment({
+      doctor: form.doctor,
+      doctor_name: form.doctor,
+      date: form.date,
+      time: form.time,
+      type: "Online Consultation",
+      branch: "Online",
+      consult_channel: mode === "video" ? "Video Call" : "Audio Call",
+      status: "Pending",
+      payment_status: "Pending Verification",
+      patient: form.name,
+      patient_name: form.name,
+      patient_phone: form.phone,
+      patient_email: form.email,
+      payment_method: paymentMethod,
+      payment_screenshot: paymentScreenshot,
+      notes: form.concern || "",
+    });
+    setStep(3);
+  };
 
   if (step === 3) return (
     <ConfirmedScreen
@@ -389,7 +492,7 @@ function OnlineConsultationFlow({ onBack, onClose }) {
               { id: "video", icon: FiVideo, label: "Video Call", sub: "Face-to-face via Zoom / WhatsApp", color: "border-blue-500 bg-blue-50 text-blue-700" },
               { id: "audio", icon: FiMic, label: "Audio Call", sub: "Voice consultation via phone", color: "border-purple-500 bg-purple-50 text-purple-700" },
             ].map(({ id, icon: Icon, label, sub, color }) => (
-              <button key={id} onClick={() => setMode(id)}
+              <button key={id} onClick={() => { setMode(id); setError(""); }}
                 className={`p-4 rounded-2xl border-2 text-left cursor-pointer transition-all ${mode === id ? color : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"}`}>
                 <Icon size={22} className="mb-2" />
                 <p className="text-sm font-bold">{label}</p>
@@ -424,16 +527,23 @@ function OnlineConsultationFlow({ onBack, onClose }) {
             <textarea value={form.concern} onChange={e => set("concern", e.target.value)} placeholder="Describe your issue briefly..." rows={2}
               className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-800 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-50 transition-all bg-slate-50 resize-none" />
           </Field>
+
+          {error && (
+            <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs font-bold text-red-600">
+              {error}
+            </div>
+          )}
+
           <div className="flex gap-3 pt-1">
             <button onClick={() => setStep(0)} className="flex items-center gap-2 px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-bold text-slate-600 cursor-pointer bg-white hover:bg-slate-50 transition-colors"><FiArrowLeft size={13} /> Back</button>
-            <button onClick={() => setStep(2)} className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 text-white rounded-xl text-sm font-bold cursor-pointer border-none hover:bg-emerald-700 transition-colors">Proceed to Payment <FiArrowRight size={13} /></button>
+            <button onClick={() => validateDetails() && setStep(2)} className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 text-white rounded-xl text-sm font-bold cursor-pointer border-none hover:bg-emerald-700 transition-colors">Proceed to Payment <FiArrowRight size={13} /></button>
           </div>
         </div>
       )}
 
       {step === 2 && (
         <PaymentStep fee={CONSULTATION_FEE} accentColor="emerald"
-          onBack={() => setStep(1)} onPaid={() => setStep(3)} />
+          onBack={() => setStep(1)} onPaid={submitBooking} />
       )}
     </div>
   );
@@ -446,7 +556,50 @@ function HomeConsultationFlow({ onBack, onClose }) {
   const [selectedDay, setSelectedDay] = useState(days[0].date);
   const [selectedTime, setSelectedTime] = useState(TIME_SLOTS[0]);
   const [form, setForm] = useState({ name: "", phone: "", address: "", doctor: DOCTORS[0], service: SERVICES[0] });
-  const set = (k, v) => setForm(p => ({ ...p, [k]: v }));
+  const [error, setError] = useState("");
+  const set = (k, v) => { setForm(p => ({ ...p, [k]: v })); if (error) setError(""); };
+
+  const validateDetails = () => {
+    const required = [
+      ["Full Name", form.name],
+      ["Phone", form.phone],
+      ["Home Address", form.address],
+      ["Doctor", form.doctor],
+      ["Service", form.service],
+      ["Date", selectedDay],
+      ["Time", selectedTime],
+    ];
+    const missing = required.find(([, value]) => !String(value || "").trim());
+    if (missing) {
+      setError(`Please fill in ${missing[0]} before continuing.`);
+      return false;
+    }
+    return true;
+  };
+
+  const submitBooking = async ({ paymentMethod, paymentScreenshot }) => {
+    await api.createAppointment({
+      doctor: form.doctor,
+      doctor_name: form.doctor,
+      date: selectedDay,
+      time: selectedTime,
+      type: "Doctor Home Visit",
+      branch: "Islamabad",
+      consult_channel: "Home Visit",
+      home_address: form.address,
+      home_time_window: selectedTime,
+      status: "Pending",
+      payment_status: "Pending Verification",
+      patient: form.name,
+      patient_name: form.name,
+      patient_phone: form.phone,
+      service: form.service,
+      payment_method: paymentMethod,
+      payment_screenshot: paymentScreenshot,
+      notes: "",
+    });
+    setStep(3);
+  };
 
   if (step === 3) return (
     <ConfirmedScreen
@@ -512,21 +665,27 @@ function HomeConsultationFlow({ onBack, onClose }) {
             <Field label="Service"><Select value={form.service} onChange={e => set("service", e.target.value)}>{SERVICES.map(s => <option key={s}>{s}</option>)}</Select></Field>
             <Field label="Doctor"><Select value={form.doctor} onChange={e => set("doctor", e.target.value)}>{DOCTORS.map(d => <option key={d}>{d}</option>)}</Select></Field>
           </div>
+
+          {error && (
+            <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs font-bold text-red-600">
+              {error}
+            </div>
+          )}
+
           <div className="flex gap-3 pt-1">
             <button onClick={() => setStep(0)} className="flex items-center gap-2 px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-bold text-slate-600 cursor-pointer bg-white hover:bg-slate-50 transition-colors"><FiArrowLeft size={13} /> Back</button>
-            <button onClick={() => setStep(2)} className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-purple-600 text-white rounded-xl text-sm font-bold cursor-pointer border-none hover:bg-purple-700 transition-colors">Proceed to Payment <FiArrowRight size={13} /></button>
+            <button onClick={() => validateDetails() && setStep(2)} className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-purple-600 text-white rounded-xl text-sm font-bold cursor-pointer border-none hover:bg-purple-700 transition-colors">Proceed to Payment <FiArrowRight size={13} /></button>
           </div>
         </div>
       )}
 
       {step === 2 && (
         <PaymentStep fee={HOME_VISIT_FEE} accentColor="purple"
-          onBack={() => setStep(1)} onPaid={() => setStep(3)} />
+          onBack={() => setStep(1)} onPaid={submitBooking} />
       )}
     </div>
   );
 }
-
 /* ─── MAIN MODAL ────────────────────────────────────────────── */
 export default function BookAppointmentModal({ isOpen, onClose }) {
   const [view, setView] = useState("booking"); // default "booking" | "online" | "home"
